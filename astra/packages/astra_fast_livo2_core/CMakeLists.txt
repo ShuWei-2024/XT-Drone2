@@ -199,6 +199,8 @@ if(BUILD_TESTING)
   ament_target_dependencies(test_snapshot_preprocess ${dependencies})
   target_link_libraries(test_snapshot_preprocess pre ${COMMON_DEPENDENCIES})
   ament_add_gtest(test_snapshot_timing test/test_snapshot_timing.cpp)
+  ament_add_gtest(test_timestamp_conversion test/test_timestamp_conversion.cpp)
+  ament_target_dependencies(test_timestamp_conversion ${dependencies})
   ament_add_gtest(test_pending_vio test/test_pending_vio.cpp)
   ament_target_dependencies(test_pending_vio ${dependencies})
   target_link_libraries(test_pending_vio laser_mapping vio lio pre imu_proc

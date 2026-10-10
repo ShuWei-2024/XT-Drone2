@@ -119,6 +119,7 @@ def audit(directory):
                            'lio_normal_min_eigen_fraction', 'lio_mean_abs_residual_m'):
                 phase[column] = describe([float(x[column]) for x in lio])
             phase['lio_normal_min_eigen_fraction_minimum'] = min(float(x['lio_normal_min_eigen_fraction']) for x in lio)
+            phase['lio_correspondences_minimum'] = min(int(x['lio_correspondences']) for x in lio)
         report['phases'][label] = phase
     return report
 

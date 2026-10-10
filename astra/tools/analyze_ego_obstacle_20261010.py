@@ -81,7 +81,7 @@ if start:
   import matplotlib;matplotlib.use('Agg')
   import matplotlib.pyplot as plt
   from matplotlib.patches import Rectangle, Circle
-  fig,ax=plt.subplots(figsize=(7,5));ax.plot(xyz[:,0],xyz[:,1],label='Gazebo actual path')
+  fig,ax=plt.subplots(figsize=(11,5));ax.plot(xyz[:,0],xyz[:,1],label='Gazebo actual path')
   ax.plot([xyz[0,0],target[0]],[xyz[0,1],target[1]],'--',c='gray',label='Direct start to goal (initial frame alignment)')
   ax.scatter(*target,c='purple',marker='*',s=90,label='Requested goal')
   if len(goals)>1 and truth_goal is not None:
@@ -90,9 +90,12 @@ if start:
    truth_goals=[rotation@np.array(g['goal'][:2])+translation for g in goals]
    points=np.vstack([xyz[0,:2],truth_goals])
    ax.plot(points[:,0],points[:,1],'--',c='gray',label='Direct segments between requested goals')
+   unique_goals={}
    for i,point in enumerate(truth_goals):
+    unique_goals.setdefault(tuple(np.round(point,6)),[]).append(i+1)
+   for i,(point,indices) in enumerate(unique_goals.items()):
     ax.scatter(*point,c='purple',marker='*',s=90,label='Requested goals' if i==0 else None)
-    ax.annotate(f'Goal {i+1}',point,xytext=(5,8),textcoords='offset points')
+    ax.annotate('Goal '+','.join(map(str,indices)),point,xytext=(5,8),textcoords='offset points')
    s['goals_gazebo_from_initial_alignment_m']=[g.tolist() for g in truth_goals]
    if obstacles:
     s['direct_requested_segments_clearance_m']=[float(all_clearances(
@@ -108,7 +111,7 @@ if start:
      sx,sy=item['size'][:2];shape=Rectangle((x-sx/2,y-sy/2),sx,sy,color='steelblue',alpha=.7)
     else:shape=Circle((x,y),item['radius'],color='steelblue',alpha=.7)
     ax.add_patch(shape)
-  ax.scatter(*xyz[0,:2],c='green',label='EGO handoff');ax.scatter(*xyz[-1,:2],c='blue',label='EGO end');ax.set_aspect('equal');ax.grid();ax.legend(fontsize=8);ax.set(xlabel='Gazebo X (m)',ylabel='Gazebo Y (m)',title='EGO-Planner → PX4: actual obstacle flight');fig.tight_layout();fig.savefig(d/'obstacle_actual_path.png',dpi=160);plt.close(fig)
+  ax.scatter(*xyz[0,:2],c='green',label='EGO handoff');ax.scatter(*xyz[-1,:2],c='blue',label='EGO end');ax.set_aspect('equal');ax.grid();ax.legend(fontsize=8,loc='upper left',bbox_to_anchor=(1.02,1));ax.set(xlabel='Gazebo X (m)',ylabel='Gazebo Y (m)',title='EGO-Planner → PX4: actual obstacle flight');fig.tight_layout();fig.savefig(d/'obstacle_actual_path.png',dpi=160);plt.close(fig)
 ulog_path=next((d/'log').rglob('*.ulg'),None)
 if ulog_path:
  u=ULog(str(ulog_path));data={x.name:x.data for x in u.data_list}

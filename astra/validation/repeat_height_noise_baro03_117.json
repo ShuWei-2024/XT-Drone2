@@ -1,0 +1,131 @@
+{
+  "run": "repeat_north_south_baro03_117_01",
+  "flight_complete": false,
+  "fault": "ground-aligned height has no measurement pair within 20 ms",
+  "interval_sec": [
+    92.3,
+    461.936
+  ],
+  "parameters": {
+    "EKF2_BARO_NOISE": 0.30000001192092896,
+    "EKF2_BARO_DELAY": 0.0,
+    "EKF2_HGT_REF": 0,
+    "EKF2_GPS_CTRL": 5
+  },
+  "configured_gazebo_pressure_sigma_pa": 3.0,
+  "near_sea_level_equivalent_height_sigma_m": 0.24972641950479876,
+  "barometric_height_minus_truth": {
+    "samples": 6161,
+    "scatter_stddev_m": 0.1443701090076695,
+    "absolute_deviation_from_median_p95_m": 0.28551376168688836
+  },
+  "fused_observation_sigma_m": 0.30000001192092896,
+  "baro_rejected_updates": 0,
+  "frozen_ground_height_over_015m_samples": [
+    {
+      "measurement_sec": 251.199999999,
+      "pair_dt_ms": 4.000001,
+      "livo_z_m": 1.5612867523924927,
+      "px4_z_ned_m": -1.8102009296417236,
+      "truth_z_m": 1.5561566235917335,
+      "frozen_ground_height_residual_m": -0.15487321309360227
+    },
+    {
+      "measurement_sec": 251.328,
+      "pair_dt_ms": 12.0,
+      "livo_z_m": 1.5408553264500309,
+      "px4_z_ned_m": -1.806445598602295,
+      "truth_z_m": 1.5394908749761345,
+      "frozen_ground_height_residual_m": -0.1715493079966354
+    },
+    {
+      "measurement_sec": 251.427999999,
+      "pair_dt_ms": 7.999999,
+      "livo_z_m": 1.532829744031135,
+      "px4_z_ned_m": -1.8013942241668701,
+      "truth_z_m": 1.5284333302033297,
+      "frozen_ground_height_residual_m": -0.17452351598010654
+    },
+    {
+      "measurement_sec": 251.527999999,
+      "pair_dt_ms": 3.999999,
+      "livo_z_m": 1.5234574155521992,
+      "px4_z_ned_m": -1.7958900928497314,
+      "truth_z_m": 1.517589116411154,
+      "frozen_ground_height_residual_m": -0.17839171314190364
+    },
+    {
+      "measurement_sec": 251.627999999,
+      "pair_dt_ms": 7.999999,
+      "livo_z_m": 1.5137477626092442,
+      "px4_z_ned_m": -1.7879958152770996,
+      "truth_z_m": 1.507564679127313,
+      "frozen_ground_height_residual_m": -0.1802070885122268
+    },
+    {
+      "measurement_sec": 251.723999999,
+      "pair_dt_ms": 7.999999,
+      "livo_z_m": 1.5054087085033134,
+      "px4_z_ned_m": -1.7800235748291016,
+      "truth_z_m": 1.498853423517579,
+      "frozen_ground_height_residual_m": -0.18057390217015948
+    },
+    {
+      "measurement_sec": 251.824,
+      "pair_dt_ms": 4.0,
+      "livo_z_m": 1.4969399694652177,
+      "px4_z_ned_m": -1.7703759670257568,
+      "truth_z_m": 1.4909731044863628,
+      "frozen_ground_height_residual_m": -0.1793950334049105
+    },
+    {
+      "measurement_sec": 251.924,
+      "pair_dt_ms": 8.0,
+      "livo_z_m": 1.4898276507914499,
+      "px4_z_ned_m": -1.7617088556289673,
+      "truth_z_m": 1.4847152184009578,
+      "frozen_ground_height_residual_m": -0.17784024068188878
+    },
+    {
+      "measurement_sec": 252.024,
+      "pair_dt_ms": 12.0,
+      "livo_z_m": 1.4830652083891602,
+      "px4_z_ned_m": -1.7554892301559448,
+      "truth_z_m": 1.4796448185003386,
+      "frozen_ground_height_residual_m": -0.17838305761115594
+    },
+    {
+      "measurement_sec": 252.12,
+      "pair_dt_ms": 4.0,
+      "livo_z_m": 1.480589808256982,
+      "px4_z_ned_m": -1.7504233121871948,
+      "truth_z_m": 1.47598558131962,
+      "frozen_ground_height_residual_m": -0.17579253977458423
+    },
+    {
+      "measurement_sec": 252.219999999,
+      "pair_dt_ms": 8.000001,
+      "livo_z_m": 1.4779684253115737,
+      "px4_z_ned_m": -1.7410880327224731,
+      "truth_z_m": 1.473623879350034,
+      "frozen_ground_height_residual_m": -0.1690786432552708
+    },
+    {
+      "measurement_sec": 252.319999999,
+      "pair_dt_ms": 4.000001,
+      "livo_z_m": 1.474971964418524,
+      "px4_z_ned_m": -1.732263207435608,
+      "truth_z_m": 1.472333410437628,
+      "frozen_ground_height_residual_m": -0.1632502788614553
+    },
+    {
+      "measurement_sec": 252.419999999,
+      "pair_dt_ms": 8.000001,
+      "livo_z_m": 1.4759425969362778,
+      "px4_z_ned_m": -1.7261236906051636,
+      "truth_z_m": 1.4727574845138465,
+      "frozen_ground_height_residual_m": -0.1561401295132571
+    }
+  ],
+  "scope": "Measurement-aligned decomposition; barometric scatter includes filtering and is not a pure white noise estimate; no refit of flight alignment"
+}

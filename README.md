@@ -2,7 +2,7 @@
 
 本分支以 [ShuWei-2024/XT-Drone2](https://github.com/ShuWei-2024/XT-Drone2) 为基础，接入我们已验证的 FAST-LIVO2、局部地图、EGO-Planner 和保护执行桥。上游原始介绍保存在 [docs/README.upstream.md](docs/README.upstream.md)，原 MIT 协议和各模块原有版权说明保留。
 
-**1.17 已完成完整算法构建、静止验证、小范围飞行和一次 EGO-Planner 绕障往返闭环，并实测地图失联后的保持与降落保护。** 结果只适用于本次低速静态障碍 SITL，尚未认证长期运行、多场景或真实硬件。详见 [运行验收报告](astra/validation/RUNTIME_117.md)。
+**1.17 已完成完整算法构建、静止验证、小范围飞行、双方向八段重复绕障闭环，并实测地图失联后的保持与降落保护。** 结果限于低速静态障碍 SITL，尚未认证无限运行、大范围建图或真实硬件。详见 [运行验收报告](astra/validation/RUNTIME_117.md)。
 
 ## 1. 当前版本和目录
 
@@ -101,6 +101,8 @@ cd /home/cyf/dev/XT-Drone2-astra
 bash astra/run_117.bash static static_check_01 --seconds 60
 bash astra/run_117.bash small small_check_01 --calibrate-ground-height
 bash astra/run_117.bash obstacle obstacle_check_01 --calibrate-ground-height
+# 正、负两个方向，各绕障往返两次。
+bash astra/run_117.bash obstacle repeat_check_01 --calibrate-ground-height --route-json astra/config/route_repeat_north_south.json
 # 规划控制权交接 3 秒后停止本轮地图进程，验证保持和降落。
 bash astra/run_117.bash obstacle map_loss_check_01 --calibrate-ground-height --stop-map-after-handoff-s 3
 ```
@@ -112,6 +114,8 @@ bash astra/run_117.bash obstacle map_loss_check_01 --calibrate-ground-height --s
 起飞前要求传感器、地图和位姿有效且新鲜，测量时间与真值配对在 20 ms 内。收到消息时的 `/clock - timestamp_sample` 是处理/传输年龄，不等于时钟偏移；日志分别记录测量到发布与发布到接收的差值，后者也受回调顺序影响。配对覆盖率检查不等于独立时钟标定。
 
 `--calibrate-ground-height` 在地面采集 4 秒测量时间配对的 FAST-LIVO2/PX4 高度，冻结零点差，再用独立 4 秒数据验证 0.15 m 残差门限。Gazebo 不参与该偏置估计；运行中持续检查相对冻结偏置的高度漂移，不通过重拟合消除误差。未加该标志时保留原零点门控。地图停止试验的预期故障退出单独记录在 `fault_regression.json`，不能当作正常路线完成；本次停图到冻结保持约 294 ms，保持 1 秒后请求降落。
+
+隔离 SITL 的 `EKF2_BARO_NOISE` 默认 0.30 m，与官方模型 3 Pa（近海平面约 0.25 m）的气压噪声相匹配；传感器实际噪声没有降低。可通过 `--baro-noise-m 0.1` 复现此前对照。此参数仅进入每轮独立 rootfs，不修改其他 PX4 配置，也不是实物飞控推荐参数。FAST-LIVO2 的秒到时间戳转换已修复纳秒截断，保持 20 ms 时间配对门限。运行器拒绝重叠 Gazebo（包括改写后的进程名），结束时清理其创建的整个进程组。
 
 磁力计接口为显式 ENU/tesla：世界设置 `use_earth_frame_ned=false`、`use_units_gauss=false`，新 PX4 本地补丁仅在 `ASTRA_GZ_MAG_ENU_TESLA=1` 时将传感器 FLU 转为 FRD、tesla 转为 gauss；运行器自动配套设置。运行器还复制官方 `x500_base` 到每次运行目录，把原 gauss 噪声数值换算成 tesla（乘 1e-4）；物理噪声幅度保持相同。不要单独改其中一侧。补丁保存于 `astra/config/px4_117_gz_magnetometer.patch`，构建脚本会检查或应用。仿真地面站仅发送 localhost MAVLink 心跳，不发送目标或解锁命令；它满足 PX4 的 GCS 健康检查，不关闭该检查。
 

@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -16,16 +17,52 @@ REPO=Path(__file__).resolve().parents[2]
 PX4=Path(os.environ.get('ASTRA_PX4_DIR', str(Path.home()/'dev/px4/PX4-Autopilot-1.17')))
 
 
+def load_route(path):
+    route=json.loads(path.read_text())
+    if (not isinstance(route,list) or not 1 <= len(route) <= 8 or
+        any(not isinstance(xy,list) or len(xy)!=2 or
+            not all(isinstance(v,(int,float)) and not isinstance(v,bool) and math.isfinite(v)
+                    for v in xy) or math.hypot(*xy)>7. for xy in route)):
+        raise ValueError('Route must contain 1..8 finite XY offsets within 7 m of the frozen origin')
+    return route
+
+
+def is_simulation_command(args):
+    if not args:return False
+    if args[0]=='gz sim' or args[0].startswith('gz sim '):return True
+    name=Path(args[0]).name
+    if name in ('px4','MicroXRCEAgent','gz-sim-server','gz sim'):return True
+    # Gazebo may run as ruby's gz launcher or change argv[0] to "gz sim".
+    return ((name=='gz' and len(args)>1 and args[1]=='sim') or
+            (name in ('ruby','ruby3.2') and len(args)>2 and Path(args[1]).name=='gz'
+             and args[2]=='sim'))
+
+
+def signal_owned_group(proc,sig):
+    # A launch process can exit while its Gazebo child still owns this group.
+    # poll() only describes the launcher, so it cannot gate group cleanup.
+    try:os.killpg(proc.pid,sig)
+    except ProcessLookupError:pass
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('mode',choices=['timer','static','small','obstacle'])
     p.add_argument('name');p.add_argument('--seconds',type=float,default=60.)
     p.add_argument('--calibrate-ground-height',action='store_true')
+    p.add_argument('--route-json',type=Path,
+                   help='Obstacle test goal offsets; up to 8 goals, each bounded to 7 m')
     p.add_argument('--stop-map-after-handoff-s',type=float,
                    help='SITL fault regression: stop this run\'s map after planner control handoff')
-    p.add_argument('--baro-noise-m',type=float,choices=[.1,.3],default=.1,
-                   help='Isolated comparison only; default preserves the existing tested value')
+    p.add_argument('--baro-noise-m',type=float,choices=[.1,.3],default=.3,
+                   help='Isolated SITL EKF baro sigma: default 0.3 m matches the model\'s '
+                        '3 Pa pressure noise (about 0.25 m); 0.1 m retains the old comparison')
     a=p.parse_args()
+    if a.route_json and a.mode!='obstacle':p.error('Custom routes require obstacle mode')
+    try:
+        route_offsets=load_route(a.route_json) if a.route_json else [[5,3],[0,0]]
+    except (OSError,ValueError) as exc:p.error(str(exc))
+    flight_timeout=max(330.,150.+100.*len(route_offsets)) if a.mode=='obstacle' else 330.
     if a.stop_map_after_handoff_s is not None and (a.mode!='obstacle' or
             not 1. <= a.stop_map_after_handoff_s <= 10.):
         p.error('Map-stop regression requires obstacle mode and a delay of 1..10 seconds')
@@ -42,7 +79,7 @@ def main():
         if not proc.name.isdigit():continue
         try:args=(proc/'cmdline').read_bytes().split(b'\0')
         except (OSError,PermissionError):continue
-        if args and Path(args[0].decode(errors='replace')).name in ('px4','MicroXRCEAgent','gz-sim-server'):
+        if is_simulation_command([x.decode(errors='replace') for x in args if x]):
             p.error(f'Existing simulation process {proc.name}; stop it first')
     out=REPO/'astra/runtime'/a.name;out.mkdir(parents=True,exist_ok=False)
     shutil.copy2(Path(__file__),out/'runner.py')
@@ -90,6 +127,8 @@ def main():
              'px4_binary_sha256':hashlib.sha256((PX4/'build/px4_sitl_default/bin/px4').read_bytes()).hexdigest(),
              'magnetometer_convention':'Gazebo world ENU / tesla -> body FLU -> PX4 body FRD / gauss',
              'magnetometer_noise_scale_from_official_gauss_model':1.e-4,
+             'route_offsets_m':route_offsets if a.mode=='obstacle' else None,
+             'flight_timeout_s':flight_timeout,
              'sensors_depth_removed':True,'parameter_overrides':overrides,'isolated_rootfs':str(out),'ros_domain':94,'gz_partition':env['GZ_PARTITION']}
     (out/'runtime.json').write_text(json.dumps(runtime,indent=2)+'\n')
     def start(name,cmd):
@@ -133,7 +172,7 @@ def main():
             start('planner',['ros2','launch','astra_fast_livo2','ego_planner_guarded.launch.py',
                  'max_vel:=0.20','max_acc:=0.25','planning_horizon:=6.0','max_tracking_error_m:=0.60','virtual_ceiling_m:=2.3'])
             pause(12.)
-            seconds=a.seconds if a.mode=='static' else 360.
+            seconds=a.seconds if a.mode=='static' else flight_timeout+60.
             monitor=start('monitor',[sys.executable,str(tools/'gpu_joint_monitor.py'),'--output',str(out),
                  '--seconds',str(seconds),'--stop-file',str(out/'controller_finished')])
             audit=start('frame',[sys.executable,str(REPO/'astra/packages/astra_px4_offboard/scripts/audit_frame_alignment.py'),
@@ -155,7 +194,7 @@ def main():
                     cmd=[sys.executable,str(tools/'guarded_position_sitl.py'),'--output-prefix',str(out/'motion'),
                          '--segment-distance-m','.4','--open-motion-audit']
                 else:
-                    route=out/'route.json';route.write_text('[[5,3],[0,0]]\n')
+                    route=out/'route.json';route.write_text(json.dumps(route_offsets)+'\n')
                     env['ASTRA_TEST_BOUNDS_RADIUS_M']='9.0'
                     cmd=[sys.executable,str(tools/'ego_sitl_flight.py'),'--output-prefix',str(out/'motion'),
                          '--obstacle-audit','--single-goal','--fixed-enu-ned-transform','--velocity-feedforward',
@@ -164,12 +203,12 @@ def main():
                     cmd.append('--calibrate-ground-height')
                 driver=start('motion',cmd)
                 if a.stop_map_after_handoff_s is None:
-                    result=driver.wait(timeout=330.)
+                    result=driver.wait(timeout=flight_timeout)
                 else:
-                    deadline=time.monotonic()+330.;handoff=None;injection=None
+                    deadline=time.monotonic()+flight_timeout;handoff=None;injection=None
                     while driver.poll() is None:
                         if time.monotonic()>deadline:
-                            raise RuntimeError('Flight regression exceeded 330 seconds')
+                            raise RuntimeError(f'Flight regression exceeded {flight_timeout} seconds')
                         if handoff is None:
                             for line in (out/'motion.log').read_text().splitlines():
                                 if line.startswith('{') and 'ego_control_handoff' in line:
@@ -209,13 +248,13 @@ def main():
                 try:proc.wait(timeout=8.)
                 except subprocess.TimeoutExpired:pass
         for name,proc in reversed(processes):
-            if proc.poll() is None:os.killpg(proc.pid,signal.SIGINT)
+            signal_owned_group(proc,signal.SIGINT)
         time.sleep(2.)
         for name,proc in reversed(processes):
-            if proc.poll() is None:os.killpg(proc.pid,signal.SIGTERM)
+            signal_owned_group(proc,signal.SIGTERM)
         time.sleep(1.)
         for name,proc in reversed(processes):
-            if proc.poll() is None:os.killpg(proc.pid,signal.SIGKILL)
+            signal_owned_group(proc,signal.SIGKILL)
             proc.wait(timeout=5.)
         for stream in streams:stream.close()
         unchanged={path:hashlib.sha256(Path(path).read_bytes()).hexdigest()==h for path,h in before.items()}

@@ -1,0 +1,67 @@
+{
+  "run": "repeat_north_south_117_03",
+  "flight_complete": false,
+  "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+  "interval_sec": [
+    93.192,
+    527.744
+  ],
+  "parameters": {
+    "EKF2_BARO_NOISE": 0.10000000149011612,
+    "EKF2_BARO_DELAY": 0.0,
+    "EKF2_HGT_REF": 0,
+    "EKF2_GPS_CTRL": 5
+  },
+  "configured_gazebo_pressure_sigma_pa": 3.0,
+  "near_sea_level_equivalent_height_sigma_m": 0.24972641950479876,
+  "barometric_height_minus_truth": {
+    "samples": 7243,
+    "scatter_stddev_m": 0.14242988201190454,
+    "absolute_deviation_from_median_p95_m": 0.28253152753157673
+  },
+  "fused_observation_sigma_m": 0.10000000149011612,
+  "baro_rejected_updates": 3,
+  "frozen_ground_height_over_015m_samples": [
+    {
+      "measurement_sec": 334.62,
+      "pair_dt_ms": 0.0,
+      "livo_z_m": 1.826979938087886,
+      "px4_z_ned_m": -1.689422845840454,
+      "truth_z_m": 1.822816280221076,
+      "frozen_ground_height_residual_m": 0.15137834444634413
+    },
+    {
+      "measurement_sec": 527.408,
+      "pair_dt_ms": 8.0,
+      "livo_z_m": 1.6627126688720095,
+      "px4_z_ned_m": -1.8294181823730469,
+      "truth_z_m": 1.6720431168588155,
+      "frozen_ground_height_residual_m": -0.15288426130212507
+    },
+    {
+      "measurement_sec": 527.508,
+      "pair_dt_ms": 4.0,
+      "livo_z_m": 1.639288105592061,
+      "px4_z_ned_m": -1.8271009922027588,
+      "truth_z_m": 1.6476693812783896,
+      "frozen_ground_height_residual_m": -0.17399163441178556
+    },
+    {
+      "measurement_sec": 527.604,
+      "pair_dt_ms": 4.0,
+      "livo_z_m": 1.6154569423599343,
+      "px4_z_ned_m": -1.8205814361572266,
+      "truth_z_m": 1.6217912629050846,
+      "frozen_ground_height_residual_m": -0.19130324159837997
+    },
+    {
+      "measurement_sec": 527.703999999,
+      "pair_dt_ms": 1e-06,
+      "livo_z_m": 1.5900629457879143,
+      "px4_z_ned_m": -1.8065261840820312,
+      "truth_z_m": 1.59549202536198,
+      "frozen_ground_height_residual_m": -0.20264198609520467
+    }
+  ],
+  "scope": "Measurement-aligned decomposition; barometric scatter includes filtering and is not a pure white noise estimate; no refit of flight alignment"
+}

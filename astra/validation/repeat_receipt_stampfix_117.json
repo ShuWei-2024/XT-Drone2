@@ -1,0 +1,15 @@
+{
+  "ready": {
+    "execution_max_gap_ms": 89.389395
+  },
+  "odom": {
+    "execution_max_gap_ms": 158.077486
+  },
+  "px4_local": {
+    "execution_max_gap_ms": 90.761038
+  },
+  "actual_peak_xy_speed_mps": 0.19381099354423634,
+  "actual_peak_z_speed_mps": 0.22037522025167902,
+  "odom_off_millisecond_stamps": 0,
+  "odom_stamp_samples": 6236
+}

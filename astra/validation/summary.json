@@ -28,7 +28,7 @@
     "xtd2_msgs"
   ],
   "ros_build_log": "log_117/ (full rebuild; see package logs)",
-  "offline_tests_passed": 31,
+  "offline_tests_passed": 51,
   "offline_test_log": "/home/cyf/dev/XT-Drone2-astra/astra/validation/offline_tests.log",
   "launch_argument_parsing_passed": true,
   "original_1_15_sources_changed": false,
@@ -37,7 +37,7 @@
   "sensor_runtime_verified": true,
   "px4_1_17_flight_verified": true,
   "github_push_performed": false,
-  "stage": "PX4 1.17 final sensor conventions: small flight and one obstacle out-and-back completed; live map-stop protection verified",
+  "stage": "Repeated eight-leg north/south static obstacle closed loop passed once with timestamp rounding fix and model-matched SITL baro noise; two earlier flight faults preserved",
   "ros_package_count": 19,
   "flight_scope": "Final magnetometer path; 0.4 m forward/side/return plus EGO 5 m/3 m goal and return; no strict hover or hardware certification",
   "frame_alignment_certified": false,
@@ -49,5 +49,15 @@
   "alignment_scope": "Frozen initial offsets and known zero-yaw SITL axes meet p95 0.10 m XY/Z on this route; not general frame certification",
   "obstacle_report": "astra/validation/obstacle_closed_loop_117.json",
   "fault_report": "astra/validation/map_loss_117.json",
-  "wide_area_memory_stability_verified": false
+  "wide_area_memory_stability_verified": false,
+  "core_ctest_passed": 4,
+  "repeat_obstacle_1_17_flight_verified": true,
+  "repeat_scope": "8/8 legs, two round trips per direction, isolated SITL; no universal or hardware certification",
+  "default_sitl_baro_noise_m": 0.3,
+  "default_sitl_baro_noise_reason": "Official model pressure noise 3 Pa is about 0.25 m; 0.3 m full-route trial completed without widening flight gates",
+  "repeat_report": "astra/validation/repeat_north_south_final_117.json",
+  "memory_scope": "Last five minutes RSS 409.58..414.35 MiB with +2.51 MiB endpoint delta on this repeated route; unlimited or wide-map stability unverified",
+  "simulator_cleanup_verified": true,
+  "timestamp_rounding_verified": true,
+  "core_binary_sha256": "690a5087ba33ff88b97bf89b852201e1606f25e585a06849acd4ddd0e00c7c29"
 }

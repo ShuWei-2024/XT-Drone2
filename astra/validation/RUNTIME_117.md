@@ -59,7 +59,7 @@ bash astra/run_117.bash small baro_compare_02 --baro-noise-m 0.3
 
 每轮完整日志在 `astra/runtime/<名称>/`：`runtime.json`、`simulator.log`、`preflight_health.json`、`frame_samples.csv`、`receipt_summary.json`、`motion_events.json` 和 PX4 `log/**/*.ulg`。完整日志和构建缓存不进 Git，结构化证据保存在本目录。
 
-31 项桥、启动器、被动时间检查与固定高度偏置回归通过；此前完整算法的 3 项 CTest 与 11 项适配器/地图测试通过。旧 PX4 提交、已有源码修改状态、参数文件及 251 个 ROS 原源码哈希均未改变，见 `baseline_preservation_check.json`。所有本轮仿真进程已停止。新 PX4 的补丁留在独立 checkout，并以 patch 文件保存在新框架；GitHub 尚未推送。
+51 项桥、启动器、被动时间检查、固定高度偏置、路线输入与清理回归通过；完整算法新增时间戳转换回归后 4 项 CTest 通过，此前 11 项适配器/地图测试通过。旧 PX4 提交、已有源码修改状态、参数文件及 251 个 ROS 原源码哈希均未改变，见 `baseline_preservation_check.json`。当前仿真进程已停止，并核对了改写后的 Gazebo 标题。新 PX4 的补丁留在独立 checkout，并以 patch 文件保存在新框架。初次集成提交已上传 `astra/px4-1.17`；本次续测修改另行保存本地。
 
 
 ## 续测：固定高度原点与运动保护
@@ -132,3 +132,72 @@ python3 astra/tools/audit_map_loss_117.py astra/runtime/map_loss_recheck_01 --ou
 ```
 
 当前可以继续增加目标方向、重复路线和环境复杂度的仿真验收；一次往返通过不等于所有场景可靠。严格四秒稳定悬停、长时间大范围内存、动态障碍和真机迁移尚未认证，External Vision 继续关闭。
+
+## 续测：重复启动和八段双向绕障
+
+新增 `--route-json`，起飞前验证目标数量、有限数值及 7 m 原点范围。`astra/config/route_repeat_north_south.json` 请求 [5,3]→返回→[5,-3]→返回，各重复两次；规划速度与所有飞行保护不变，最长执行时间按不超过八段的原单段截止时间计算，监测覆盖完整运行。
+
+首次两次续测均在起飞前被健康门控拦住，未解锁。原始 LiDAR/RGB/IMU 到达，但 adapter 的 `clock_ns=0`、无同步计时器事件，估计器点云/图像回调计数为零。发现本线程前次地图故障试验遗留了一个 Gazebo 子进程，同属 `astra_px4_117` partition：Gazebo 把完整命令改写成一个 argv[0]，原进程名称检查未识别；清理又仅在 launch 父进程仍运行时发送信号，漏掉了父进程退出后的子进程。明确核对归属后终止残留进程，干净重启恢复被动健康与规划交接。
+
+现修复为识别完整 `gz sim ...` 标题及 ruby launcher，并始终对本轮创建的进程组发送 SIGINT→SIGTERM→SIGKILL。此后 `repeat_north_south_117_03` 结束时无残留 Gazebo，启动拒绝与清理回归已覆盖这些情形。证据 `simulator_cleanup_117.json`。此前“所有进程已停止”的旧结论未识别这种标题，已由本次 `/proc` 检查纠正。该现象不等同于历史 PX4 内部传感器共同停止更新的问题。
+
+`repeat_north_south_117_03` 完成 6/8 段，第七段仿真 527.744 s 因冻结地面高度差超过 0.20 m 停测并安全降落，无 PX4 failsafe 或运动 reset。规划执行约 434.6 s；机体参考点最小障碍距离 0.75684 m，LIVO XY/Z p95 0.00640/0.01703 m、Z 最大 0.02279 m；PX4 XY/Z p95 0.06928/0.07610 m、Z 最大 0.17591 m。触发前最后配对的高度差 0.20264 m、时间差约零，支持两套估计高度差超限，不能归为消息迟到。该八段路线**未通过完整执行**，不得只凭前六段称为稳定。
+
+保持传感器噪声与全部门控不变，开始只将隔离运行的 `EKF2_BARO_NOISE` 由 0.10 改为 0.30 m 的对照。依据：官方 Gazebo 气压噪声 3 Pa 在近海平面等效约 0.25 m；本轮气压高度对实测 Z 去均值后的散布标准差约 0.142 m、绝对中位差 p95 0.283 m。散布含滤波及动态误差，不是纯白噪声拟合。早期 0.30 m 未解决地面原点偏置，不能因此排除它对飞行高度动态的影响。本次先验证，不改默认值。分解脚本 `audit_height_noise_117.py`，证据 `repeat_height_noise_117.json`。
+
+本轮 LIVO 最后两分钟 RSS 406.65～410.57 MiB、端点增量 2.53 MiB，最后五分钟增量 10.45 MiB；灰度图像约 150.3 MiB，地图根体素最终 8676、路径保留 2000。支持图像缓存受控、RSS 增长减缓，不支持无限运行或大范围地图内存认证。完整窗口与计数保存在 `repeat_runtime_growth_117.json`。
+
+```bash
+bash astra/run_117.bash obstacle repeat_route_01 --calibrate-ground-height --route-json astra/config/route_repeat_north_south.json
+bash astra/run_117.bash obstacle repeat_route_baro03_01 --calibrate-ground-height --route-json astra/config/route_repeat_north_south.json --baro-noise-m 0.3
+```
+
+### 0.30 m 对照与测量时间戳边界
+
+`repeat_north_south_baro03_117_01` 完成 5/8 段，仿真 461.936 s 在第六段安全停测：`ground-aligned height has no measurement pair within 20 ms`，随后安全降落。该轮 PX4 Z p95 0.06424 m、最大 0.12584 m；但运行未完成，且随机噪声与路径并不完全相同，不能据此证明 0.30 m 修复了高度问题。
+
+边界检查发现 FAST-LIVO2 发布测量时间 `461903999999 ns`，最近 PX4 样本 `461924000000 ns`，差 `20000001 ns`。原激光/审计测量时间应为 `461904000000 ns`；C++ `sec2Stamp` 把浮点小数秒转换为无符号纳秒时向下截断，产生 1 ns 误差，恰好把实际 20 ms 的边界判成失败。这不是毫米级位置误差，也不是 20 ms 门限需要放宽。修复为四舍五入至最近纳秒，并处理进位到下一秒，保持原测量时间语义和全部配对门限。
+
+新增核心回归覆盖本次实际测量值、20 ms 包含边界、跨秒进位和毫秒传感器时间线往返。`timestamp_boundary_117.json` 保存故障样本，后续完整路线需使用重建后的算法验证。此次发布精度修复不声称消除真实消息间断。
+
+### 修复后的完整八段飞行
+
+`repeat_north_south_stampfix_baro03_117_01` 使用重建后的 FAST-LIVO2，隔离 EKF 气压观测噪声 0.30 m，完整执行两次正方向、两次负方向往返，8/8 段通过并安全降落/解除解锁。规划执行约 555.8 s，水平航程 58.722 m。四趟均仅指定目标点，由 EGO 自主绕障；实际路径与原噪声对照并不完全相同。
+
+| 检查 | 实测 |
+| --- | --- |
+| 最小机体参考点水平障碍距离 | 0.73686 m |
+| 规划峰值速度 / 加速度 | 0.19791 m/s / 0.05586 m/s² |
+| 实际峰值水平速度 / 三维速度 | 0.19381 / 0.26051 m/s |
+| 实际峰值垂直速度 | 0.22038 m/s |
+| PX4 目标跟踪误差 p95 / 最大 | 0.05274 / 0.10422 m |
+| LIVO 对真值 XY / Z p95 | 0.00588 / 0.03303 m |
+| LIVO 对真值 Z 最大 | 0.03896 m |
+| PX4 对真值 XY / Z p95 | 0.05686 / 0.05931 m |
+| PX4 对真值 Z 最大 | 0.14096 m |
+| PX4 航向误差 p95 / 最大 | 0.516 / 0.907° |
+| 冻结地面偏置后的高度差 p95 / 最大 | 0.08010 / 0.16607 m |
+| odom 测量年龄 p95 | 48 ms |
+| 桥最大发送间隔 | 70.19 ms |
+| LIO 最低 correspondence | 4481 |
+
+全部八段端点真值 XY 误差约 0.011～0.072 m；返回段是在到达后连续规划下一目标，不是严格四秒速度稳定悬停认证。运动中无 armed failsafe、XY/Z/yaw reset、视觉更新拒绝；EV 融合关闭。ULog 确认 2780 个规划 setpoint。最终全记录 6236 个 odom 时间戳均落在实际毫秒边界；执行期 readiness、odom、PX4 local 最大接收间隔约 89.39、158.08、90.76 ms，均保留原新鲜度检查。实际三维峰值速度包含高度振荡，不能拿规划水平目标速度代替实际控制动态。
+
+LIVO RSS 177.17→412.57 MiB；最后五分钟范围 409.58～414.35 MiB、端点增量 2.51 MiB、拟合增长约 0.58 MiB/min；最后一分钟增量 0.92 MiB。最后两分钟端点下降 1.78 MiB，但窗口内有波动，拟合斜率仍约 1.04 MiB/min，不能只用负端点差宣称不增长。灰度图像最后 512 张、150.0 MiB（处理期间诊断可能包含当前帧至 513 张），激光根体素最终 8379、视觉点 3519、路径保留 2000。支持本路线内存接近平台，尚不证明大范围地图或无限运行稳定。
+
+根据官方模型噪声规模及这次完整路线验证，将隔离运行器默认气压观测噪声设为 0.30 m；`--baro-noise-m 0.1` 保留对照。此变更不减小模拟传感器噪声，不改变配对、新鲜度、高度差和障碍保护门限。一次通过不证明统计显著改善；仍有高度瞬态和 LIVO Z 随路线积累到厘米级的误差，不宣称高度问题彻底解决。
+
+结构化证据：`repeat_north_south_final_117.json`、`repeat_closed_loop_final_117.json`、`repeat_reliability_final_117.json`、`repeat_receipt_stampfix_117.json`、`repeat_runtime_growth_stampfix_117.json`。新核心二进制哈希见 `summary.json`；完整 PX4 ULog、测量 CSV 与执行源码快照在该运行目录。
+
+![双向重复实际航迹](repeat_actual_path_117.png)
+
+![本轮内存与地图计数](repeat_runtime_growth_stampfix_117.png)
+
+```bash
+# 现在默认采用本轮验证的 0.30 m 隔离气压观测噪声。
+bash astra/run_117.bash obstacle repeat_verified_01 --calibrate-ground-height --route-json astra/config/route_repeat_north_south.json
+# 原 0.10 m 对照，仍使用已修复的时间戳和进程清理。
+bash astra/run_117.bash obstacle repeat_old_baro_01 --calibrate-ground-height --route-json astra/config/route_repeat_north_south.json --baro-noise-m 0.1
+python3 astra/tools/audit_height_noise_117.py astra/runtime/repeat_verified_01 --output astra/validation/height_recheck_117.json
+python3 astra/tools/audit_runtime_growth_117.py astra/runtime/repeat_verified_01 --output astra/validation/growth_recheck_117.json --plot astra/validation/growth_recheck_117.png
+```

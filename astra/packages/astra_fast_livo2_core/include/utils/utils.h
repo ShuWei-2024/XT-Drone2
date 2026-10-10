@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <vector>
+#include <cmath>
 #include <cstdint> // for int64_t
 #include <limits>  // for std::numeric_limits
 #include <stdexcept> // for std::out_of_range
@@ -22,8 +23,14 @@ inline double stamp2Sec(const builtin_interfaces::msg::Time& stamp)
 inline rclcpp::Time sec2Stamp(double timestamp)
 {
   int32_t sec = std::floor(timestamp);
-  auto nanosec_d = (timestamp - std::floor(timestamp)) * 1e9;
-  uint32_t nanosec = nanosec_d;
+  // Converting a double by truncation loses one ns on values such as 461.904.
+  // That changes an inclusive 20 ms sensor-pair boundary into a false fault.
+  uint32_t nanosec = static_cast<uint32_t>(std::llround((timestamp - std::floor(timestamp)) * 1e9));
+  if (nanosec == 1000000000u)
+  {
+    ++sec;
+    nanosec = 0;
+  }
   return rclcpp::Time(sec, nanosec);
 }
 
