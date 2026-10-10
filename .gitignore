@@ -5,7 +5,10 @@ log/
 build_117/
 install_117/
 log_117/
+build_sophus_117/
 astra_ros_build.log
+astra_algorithms_build.log
+astra/runtime/
 astra/validation/*.log
 astra/validation/*.xml
 __pycache__/

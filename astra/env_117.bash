@@ -12,4 +12,5 @@ if [[ ! -f "$_astra_repo_dir/install_117/local_setup.bash" ]]; then
 fi
 source /opt/ros/jazzy/setup.bash
 source "$_astra_repo_dir/install_117/local_setup.bash"
+export LD_LIBRARY_PATH="$_astra_repo_dir/build_sophus_117:${LD_LIBRARY_PATH:-}"
 unset _astra_repo_dir

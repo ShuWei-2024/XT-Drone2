@@ -9,7 +9,10 @@
     "tag": "v1.17.0",
     "commit": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
     "checkout": "/home/cyf/dev/px4/PX4-Autopilot-1.17",
-    "local_hrt_patch_applied": false
+    "local_hrt_patch_applied": true,
+    "patch_file": "astra/baseline/px4_1_15_3_hrt.patch",
+    "local_gz_magnetometer_patch": "astra/config/px4_117_gz_magnetometer.patch",
+    "magnetometer_patch_enable_env": "ASTRA_GZ_MAG_ENU_TESLA=1"
   },
   "px4_msgs": {
     "url": "https://github.com/PX4/px4_msgs.git",
@@ -19,5 +22,14 @@
   "ros": "Jazzy",
   "gazebo": "Harmonic",
   "baseline_source_tag": "astra-1.15-source-baseline-20261010",
-  "legacy_ego_gitlink": "413a3f73ec4892b614a6c0f45a1d43ec6d47e4aa"
+  "legacy_ego_gitlink": "413a3f73ec4892b614a6c0f45a1d43ec6d47e4aa",
+  "sophus": {
+    "url": "https://github.com/strasdat/Sophus",
+    "commit": "a621ff2e56c56c839a6c40418d42c3c254424b5c",
+    "vendored": "astra/vendor/Sophus-legacy",
+    "local_modifications": [
+      "SO2 std::complex setter compatibility",
+      "modern standalone CMake"
+    ]
+  }
 }

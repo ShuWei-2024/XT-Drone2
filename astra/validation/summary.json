@@ -3,7 +3,7 @@
   "framework_branch": "astra/px4-1.17",
   "px4_tag": "v1.17.0",
   "px4_build_passed": true,
-  "px4_binary_sha256": "6df45c06224e7e9fa2901c00aada6b2ed8b1291950358f3b04e06744c3632c03",
+  "px4_binary_sha256": "c1d65002d6711b832db185e7e5a9210426effcc58cbb8f1fbe5e9eb74a160165",
   "px4_build_log": "/home/cyf/dev/px4/PX4-Autopilot-1.17/astra_build.log",
   "ros_build_passed": true,
   "ros_packages": [
@@ -17,13 +17,20 @@
     "xtd2_launch"
   ],
   "ros_build_log": "/home/cyf/dev/XT-Drone2-astra/astra_ros_build.log",
-  "offline_tests_passed": 23,
+  "offline_tests_passed": 27,
   "offline_test_log": "/home/cyf/dev/XT-Drone2-astra/astra/validation/offline_tests.log",
   "launch_argument_parsing_passed": true,
   "original_1_15_sources_changed": false,
   "original_1_15_px4_parameters_changed": false,
-  "dds_runtime_verified": false,
-  "sensor_runtime_verified": false,
-  "px4_1_17_flight_verified": false,
-  "github_push_performed": false
+  "dds_runtime_verified": true,
+  "sensor_runtime_verified": true,
+  "px4_1_17_flight_verified": true,
+  "github_push_performed": false,
+  "stage": "full runtime migrated; small native-NED flight passed once; final magnetometer path static verified; obstacle flight blocked before arming by ground height gate",
+  "ros_package_count": 19,
+  "flight_scope": "small_motion_05: native NED open-area audit, before optional magnetometer convention fix; not strict hover or obstacle certification",
+  "frame_alignment_certified": false,
+  "magnetometer_fix_scope": "static: yaw p95 about 1 degree; not flight validated",
+  "local_hrt_patch_applied": true,
+  "obstacle_1_17_flight_verified": false
 }

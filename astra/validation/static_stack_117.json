@@ -1,0 +1,97 @@
+{
+  "channels": {
+    "lidar": {
+      "count": 602,
+      "rate_hz": 10.031139635559175,
+      "last_age_ms": 85.61432200076524,
+      "max_gap_ms": 113.47075900994241
+    },
+    "camera": {
+      "count": 1824,
+      "rate_hz": 30.386034133679413,
+      "last_age_ms": 2.9039609944447875,
+      "max_gap_ms": 54.46743799257092
+    },
+    "imu": {
+      "count": 6001,
+      "rate_hz": 100.02327437569949,
+      "last_age_ms": 11.151116996188648,
+      "max_gap_ms": 22.40688599704299
+    },
+    "ready": {
+      "count": 1200,
+      "rate_hz": 19.999120389311827,
+      "last_age_ms": 41.07122900313698,
+      "max_gap_ms": 65.16178799211048
+    },
+    "px4_imu": {
+      "count": 5989,
+      "rate_hz": 99.99443385694988,
+      "last_age_ms": 7.116171007510275,
+      "max_gap_ms": 21.176417998503894
+    },
+    "px4_local": {
+      "count": 2994,
+      "rate_hz": 50.000394147783666,
+      "last_age_ms": 19.42434000375215,
+      "max_gap_ms": 36.10527398996055
+    },
+    "gps": {
+      "count": 1815,
+      "rate_hz": 30.302669053723744,
+      "last_age_ms": 7.5419909990159795,
+      "max_gap_ms": 53.420145995914936
+    },
+    "px4_status": {
+      "count": 119,
+      "rate_hz": 1.984002468957039,
+      "last_age_ms": 303.95355900691357,
+      "max_gap_ms": 512.0574150059838
+    },
+    "odom": {
+      "count": 598,
+      "rate_hz": 9.999245044438807,
+      "last_age_ms": 49.97826600447297,
+      "max_gap_ms": 128.78864401136525
+    },
+    "battery": {
+      "count": 60,
+      "rate_hz": 0.999914663147428,
+      "last_age_ms": 311.0923750064103,
+      "max_gap_ms": 1004.3823199957842
+    }
+  },
+  "odom_measurement_age": {
+    "p95_ms": 24.000001,
+    "max_ms": 36.0,
+    "min_ms": 12.0
+  },
+  "px4_measurement_clock_difference": {
+    "p95_ms": 12.0,
+    "max_ms": 16.0,
+    "min_ms": 0.0
+  },
+  "ready_last_10s_fraction": 1.0,
+  "checks": {
+    "lidar_received": true,
+    "camera_received": true,
+    "imu_received": true,
+    "odom_received": true,
+    "ready_received": true,
+    "px4_local_received": true,
+    "px4_status_received": true,
+    "gps_received": true,
+    "battery_received": true,
+    "px4_imu_received": true,
+    "ready_last_10s": true,
+    "px4_position_valid": true,
+    "odom_measurement_age_p95_below_250ms": true,
+    "px4_measurement_clock_difference_p95_below_20ms": true,
+    "odom_currently_fresh": true,
+    "ready_currently_fresh": true,
+    "px4_local_currently_fresh": true
+  },
+  "passed": true,
+  "run": "static_stack_02",
+  "real_time_factor": 0.9999103997921288
+}

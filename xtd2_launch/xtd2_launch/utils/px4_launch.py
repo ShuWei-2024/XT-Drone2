@@ -35,6 +35,8 @@ def main():
     parser.add_argument('--px4-dir', type=str, help='PX4 directory', required=False, default="~/PX4-Autopilot")
     parser.add_argument('--work-dir', type=str, default='',
                         help='Independent parameter/log directory; a new temp directory by default')
+    parser.add_argument('--attach-model', default='', help='Use an existing Gazebo model')
+    parser.add_argument('--startup-script', default='', help='SITL startup script in selected checkout')
     parser.add_argument('--namespace', type=str, help='ROS namespace, {{model}}_{{id}} by default', required=False, default="")
 
     args, unknown = parser.parse_known_args()
@@ -68,8 +70,12 @@ def main():
                PX4_GZ_MODEL_POSE=','.join(str(v) for v in
                    (args.x, args.y, args.z, args.roll, args.pitch, args.yaw)),
                PX4_GZ_STANDALONE='1')
-    px4_cmd = [str(binary), '-d', '-s', str(build_dir / 'etc/init.d-posix/rcS'),
-               str(px4_dir / 'ROMFS/px4fmu_common'), '-i', str(args.id),
+    if args.attach_model:
+        env['PX4_GZ_MODEL_NAME'] = args.attach_model
+    startup = (Path(args.startup_script).expanduser().resolve() if args.startup_script
+               else build_dir / 'etc/init.d-posix/rcS')
+    px4_cmd = [str(binary), '-d', '-s', str(startup),
+               str(build_dir / 'etc'), '-i', str(args.id),
                '-w', str(work_dir)]
     print(f'PX4 checkout: {px4_dir}; parameters and logs: {work_dir}', flush=True)
     _handle = subprocess.Popen(px4_cmd, env=env, cwd=work_dir)

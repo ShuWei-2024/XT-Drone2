@@ -269,7 +269,11 @@ class FrameAudit(Node):
         if np.linalg.det(rotation_lp) > -0.9:
             failures.append('horizontal frame handedness differs from expected ENU/NED')
         report['reason'] = '; '.join(failures) if failures else 'alignment checks passed'
-        report['certified'] = not failures
+        report['fitted_alignment_checks_passed'] = not failures
+        # This fit uses the entire recorded route and cannot certify a frozen
+        # transform used prospectively by an execution bridge.
+        report['certified'] = False
+        report['certification_scope'] = 'diagnostic whole-record fit only; use the frozen-start motion audit for acceptance'
         return report
 
 

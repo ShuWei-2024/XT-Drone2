@@ -2,7 +2,7 @@
 
 本分支以 [ShuWei-2024/XT-Drone2](https://github.com/ShuWei-2024/XT-Drone2) 为基础，接入我们已验证的 FAST-LIVO2、局部地图、EGO-Planner 和保护执行桥。上游原始介绍保存在 [docs/README.upstream.md](docs/README.upstream.md)，原 MIT 协议和各模块原有版权说明保留。
 
-**当前是 1.17 迁移准备与接口验证阶段，尚未完成 1.17 闭环飞行。** 1.15 的通过记录不算作 1.17 的飞行认证。
+**1.17 已完成完整算法构建、静止传感器/DDS/地图运行验证，正在进行运动与闭环验收。** 1.15 的通过记录不算作 1.17 的飞行认证。
 
 ## 1. 当前版本和目录
 
@@ -19,7 +19,7 @@
 
 本机新框架目录为 `/home/cyf/dev/XT-Drone2-astra`，新 PX4 目录为 `/home/cyf/dev/px4/PX4-Autopilot-1.17`。原 `/home/cyf/dev/astra_ros2_ws` 和 `/home/cyf/dev/px4/PX4-Autopilot` 继续作为旧版运行对照。
 
-版本信息：`astra/dependencies.lock.json`。迁移前源码 SHA256：`astra/baseline/source_inventory.json`。本地定时器补丁：`astra/baseline/px4_1_15_3_hrt.patch`，**尚未应用到新 PX4**。需通过定时器回归后决定移植，不能假定官方 1.17 已含该修复。
+版本信息：`astra/dependencies.lock.json`。迁移前源码 SHA256：`astra/baseline/source_inventory.json`。本地定时器补丁：`astra/baseline/px4_1_15_3_hrt.patch`，**已应用到新 PX4，并通过在线定时器回归**。官方源码在线复现 `calls=1 sentinel=0 FAIL`，补丁后 `calls=21 sentinel=50 PASS`；见 `astra/validation/hrt_regression_117.json`。这是本地 SITL 补丁，不是官方版本已合入的声明。构建脚本会检查或应用此补丁。
 
 ## 2. 架构与控制权
 
@@ -79,7 +79,7 @@ python3 -c 'from px4_msgs.msg import VehicleLocalPosition, TimesyncStatus; print
 python3 -m pytest -q astra/packages/astra_px4_offboard/test
 ```
 
-此脚本先构建消息、执行桥与 XT-Drone2 启动/通信/场景包。FAST-LIVO2 与规划器源码已经保存，但完整算法重编译和组合启动仍需后续完成。上述构建已包含 `traj_utils` 消息和工具；规划器核心与完整算法启动仍需下一阶段验证。
+此脚本构建完整 19 包链路，包括 FAST-LIVO2、vikit、EGO-Planner、消息、执行桥和 XT-Drone2。旧版 Sophus 已保存于 `astra/vendor/Sophus-legacy`，构建及运行不再引用旧 ROS 工作空间里的 Sophus 库。
 
 1.17 的位置和状态消息版本为 1，话题带 `_v1`；版本为 0 的轨迹输入不带后缀，例如：
 
@@ -89,24 +89,31 @@ python3 -m pytest -q astra/packages/astra_px4_offboard/test
 /x500_0/fmu/in/trajectory_setpoint
 ```
 
-桥、预览和审计器按已安装消息的 `MESSAGE_VERSION` 生成话题；不要混用旧消息 overlay。PX4 与 Agent 实际握手、QoS、频率和时间同步尚需运行验证。
+桥、预览和审计器按已安装消息的 `MESSAGE_VERSION` 生成话题；不要混用旧消息 overlay。PX4 与 Agent 实际握手、传感器接收、消息版本和地图 readiness 已通过 60 秒静止测试，见 `astra/validation/static_stack_117.json`。运动时的坐标精度需另行验收。
 
 ## 6. 仿真入口与验收顺序
 
-框架默认单机演示可通过以下命令启动，**这是待验收入口，尚未运行通过；它不会自动解锁**：
+完整 Astra 组合入口通过 XT-Drone2 启动增强世界、Gazebo-ROS 传感器桥和 PX4；每次运行独立 rootfs/参数目录，不继承旧版 BSON。
 
 ```bash
-source astra/env_117.bash
-ros2 launch xtd2_launch ros2_single_vehicle_demo_launch.py \
-  px4_dir:=/home/cyf/dev/px4/PX4-Autopilot-1.17 \
-  enable_communication:=false
+cd /home/cyf/dev/XT-Drone2-astra
+# 在没有加载旧 ROS overlay 的终端执行；名称必须从未使用过。
+bash astra/run_117.bash static static_check_01 --seconds 60
+bash astra/run_117.bash small small_check_01
+bash astra/run_117.bash obstacle obstacle_check_01
 ```
 
-该演示默认是上游 x500/aruco 场景，不是我们的完整感知闭环。已有带传感器模型和增强场景保存在 `astra/packages/astra_gz_sensors/`；其资源路径、Gazebo-ROS 传感器桥和组合启动仍需接通。PX4 启动器支持 `gz_astra_x500_px4` 并为每次启动新建独立参数/日志目录，也可显式指定 `work_dir`。独立目录不会自动继承旧 SITL 临时参数。
+`static` 不解锁、不发送飞控输入。`small` 和 `obstacle` **会解锁本机 PX4 SITL 并执行飞行**，只在隔离仿真中使用。运行器拒绝已有 PX4/Agent 进程，使用 ROS domain 94、独立 Gazebo partition 和 `x500_0` namespace，默认不启动 XT-Drone2 通信控制节点。小范围飞行通过原生 NED setpoint 检查起飞、0.4 m 前进/侧移和返回；绕障模式才启用受保护的 EGO B-spline 执行桥。External Vision 关闭。
 
-后续依次验证：不解锁通信与传感器 → 定时器和时间戳 → 起飞/前进/侧移/降落 → 感知与规划预览 → 低速绕障闭环 → 数据过期、地图退出和估计器重置保护。
+运行证据在 `astra/runtime/<名称>/`：`runtime.json` 记录临时参数；`preflight_health.json` 记录起飞前门控；`frame_samples.csv` 保存测量时间与发布时间；`motion_events.json` 保存实际运动、停测原因和降落状态；`log/` 保存 PX4 ULog。运行结束会停止其创建的进程并校验旧参数/源码哈希。
 
-沿用旧版的低速规划和保护门限，不通过放宽门限取得迁移通过。旧飞行驱动与路线保存在 `astra/baseline/sitl_driver/`，其中路径仍指向旧环境，供追溯参考，**不能直接运行当作 1.17 测试**。
+起飞前要求传感器、地图和位姿有效且新鲜，测量时间与真值配对在 20 ms 内。收到消息时的 `/clock - timestamp_sample` 是处理/传输年龄，不等于时钟偏移；日志分别记录测量到发布与发布到接收的差值，后者也受回调顺序影响。配对覆盖率检查不等于独立时钟标定。
+
+磁力计接口为显式 ENU/tesla：世界设置 `use_earth_frame_ned=false`、`use_units_gauss=false`，新 PX4 本地补丁仅在 `ASTRA_GZ_MAG_ENU_TESLA=1` 时将传感器 FLU 转为 FRD、tesla 转为 gauss；运行器自动配套设置。运行器还复制官方 `x500_base` 到每次运行目录，把原 gauss 噪声数值换算成 tesla（乘 1e-4）；物理噪声幅度保持相同。不要单独改其中一侧。补丁保存于 `astra/config/px4_117_gz_magnetometer.patch`，构建脚本会检查或应用。仿真地面站仅发送 localhost MAVLink 心跳，不发送目标或解锁命令；它满足 PX4 的 GCS 健康检查，不关闭该检查。
+
+小范围当前采用原有开阔运动审计模式：到位后观察 4 秒，**不宣称连续 4 秒严格稳定悬停认证**。保留位置、真实位移、数据 250 ms 新鲜度、航向、重置和高度差保护。规划速度 0.20 m/s、加速度 0.25 m/s²；初始航向差必须连续 2 秒不超过 5°。旧版飞行证据不代替新版验收，也不通过放宽保护取得通过。
+
+旧驱动仅供追溯，位于 `astra/baseline/sitl_driver/`；可运行的移植版在 `astra/tools/`。
 
 ## 7. Git 日常怎么操作
 
