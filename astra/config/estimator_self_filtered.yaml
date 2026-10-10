@@ -20,7 +20,7 @@
       extrinsic_T:
       - 0.0
       - 0.0
-      - -0.06
+      - 0.10
       extrinsic_R:
       - 1.0
       - 0.0
@@ -43,7 +43,7 @@
       - 0.0
       Pcl:
       - 0.0
-      - -0.12
+      - -0.16
       - -0.16
     time_offset:
       imu_time_offset: 0.0
@@ -108,6 +108,9 @@
       imu_rate_odom: false
       gravity_align_en: false
     publish:
+      # Output body centre; internal state and point-cloud transforms remain IMU based.
+      reference_translation_imu: [0.0, 0.0, -0.12]
+      odom_child_frame: base_link
       dense_map_en: true
       pub_effect_point_en: false
       pub_plane_en: false

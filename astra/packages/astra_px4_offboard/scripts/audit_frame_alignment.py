@@ -68,9 +68,10 @@ def fit_horizontal(source, target):
 
 
 class FrameAudit(Node):
-    def __init__(self, world, model, px4_timebase='dds', px4_namespace=''):
+    def __init__(self, world, model, px4_timebase='dds', px4_namespace='', truth_reference_offset=(0., 0., 0.)):
         super().__init__('frame_alignment_audit')
         self.px4_timebase = px4_timebase
+        self.truth_reference_offset = np.asarray(truth_reference_offset, dtype=float)
         self.lock = threading.Lock()
         self.truth_rows = []
         self.lio_rows = []
@@ -92,8 +93,13 @@ class FrameAudit(Node):
         if pose is None:
             return
         p = pose.position
+        q = pose.orientation
+        # Rotate a model-fixed lever arm; never add a constant in world Z.
+        vector = np.array((q.x, q.y, q.z))
+        offset = self.truth_reference_offset
+        rotated_offset = offset + 2*np.cross(vector, np.cross(vector, offset)+q.w*offset)
         row = (gazebo_stamp_ns(msg.header.stamp), time.monotonic_ns(),
-               np.array((p.x, p.y, p.z), dtype=float),
+               np.array((p.x, p.y, p.z), dtype=float) + rotated_offset,
                yaw_from_quaternion(pose.orientation))
         with self.lock:
             if not self.truth_rows or row[0] - self.truth_rows[-1][0] >= 10_000_000:
@@ -173,6 +179,7 @@ class FrameAudit(Node):
             'alignment_start_ns': alignment_start_ns,
             'px4_timebase': self.px4_timebase,
             'certified': False,
+            'truth_reference_offset_model_m': self.truth_reference_offset.tolist(),
         }
         if min(len(lio_truth), len(px4_truth)) < 50:
             report['reason'] = 'insufficient time-matched poses after heading alignment'
@@ -286,13 +293,16 @@ def main():
                         help='Use DDS-synchronized timestamps or raw PX4 simulation timestamps')
     parser.add_argument('--output')
     parser.add_argument('--px4-namespace', default='')
+    parser.add_argument('--truth-reference-offset', nargs=3, type=float, default=(0., 0., 0.),
+                        help='Audited model-to-body translation, rotated using Gazebo attitude')
     parser.add_argument('--stop-file', type=Path,
                         help='Finish and export when the controller creates this file')
     parser.add_argument('--samples-output',
                         help='Write timestamped Gazebo, FAST-LIVO2, and PX4 poses as CSV')
     args = parser.parse_args()
     rclpy.init()
-    node = FrameAudit(args.world, args.model, args.px4_timebase, args.px4_namespace)
+    node = FrameAudit(args.world, args.model, args.px4_timebase, args.px4_namespace,
+                      args.truth_reference_offset)
     end = time.monotonic() + args.seconds
     try:
         while rclpy.ok() and time.monotonic() < end:

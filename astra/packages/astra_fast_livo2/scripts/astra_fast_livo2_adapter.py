@@ -48,7 +48,7 @@ class FastLivo2Adapter(Node):
         self.declare_parameter('synced_image_topic', '/fast_livo2/sync/image')
         self.declare_parameter('synced_imu_topic', '/fast_livo2/sync/imu')
         self.declare_parameter('diagnostics_topic', '/fast_livo2/diagnostics')
-        self.declare_parameter('lidar_frame_id', 'mid360_link')
+        self.declare_parameter('lidar_frame_id', 'mid360_scan_frame')
         self.declare_parameter('image_frame_id', 'camera_color_optical_frame')
         self.declare_parameter('imu_frame_id', 'imu_link')
         self.declare_parameter('scan_period_sec', 0.1)

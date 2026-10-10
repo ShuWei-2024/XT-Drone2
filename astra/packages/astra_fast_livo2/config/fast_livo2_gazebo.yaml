@@ -14,7 +14,7 @@
     output_imu_topic: /fast_livo2/input/imu
     diagnostics_topic: /fast_livo2/diagnostics
 
-    lidar_frame_id: mid360_link
+    lidar_frame_id: mid360_scan_frame
     image_frame_id: camera_color_optical_frame
     imu_frame_id: imu_link
 
@@ -44,9 +44,9 @@
     # FAST-LIVO2 reference convention: LiDAR -> IMU and LiDAR -> camera.
     # Values are derived from the current static TF and are not physical D435i
     # calibration measurements.
-    extrinsic_T_lidar_to_imu: [0.0, 0.0, -0.06]
+    extrinsic_T_lidar_to_imu: [0.0, 0.0, 0.10]
     extrinsic_R_lidar_to_imu: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
-    extrinsic_T_lidar_to_camera_optical: [0.0, -0.12, -0.16]
+    extrinsic_T_lidar_to_camera_optical: [0.0, -0.16, -0.16]
     extrinsic_R_lidar_to_camera_optical: [0.0, -1.0, 0.0,
                                           0.0, 0.0, -1.0,
                                           1.0, 0.0, 0.0]

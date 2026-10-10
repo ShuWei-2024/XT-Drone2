@@ -11,6 +11,7 @@ which is included as part of this source code package.
 */
 
 #include "LIVMapper.h"
+#include "utils/pose_reference.h"
 #include "snapshot_timing.h"
 #include <vikit/pinhole_camera.h>
 #include <chrono>
@@ -174,6 +175,8 @@ void LIVMapper::readParameters(rclcpp::Node::SharedPtr &node)
   this->node->declare_parameter<bool>("publish.pub_effect_point_en", false);
   this->node->declare_parameter<bool>("publish.dense_map_en", false);
   this->node->declare_parameter<int>("publish.path_max_poses", 2000);
+  this->node->declare_parameter<vector<double>>("publish.reference_translation_imu", vector<double>{0., 0., 0.});
+  this->node->declare_parameter<std::string>("publish.odom_child_frame", "aft_mapped");
   this->node->declare_parameter<int>("vio.max_points_per_voxel", 0);
   this->node->declare_parameter<int>("vio.max_total_visual_points", 0);
   this->node->declare_parameter<int>("vio.max_retained_images", 0);
@@ -254,6 +257,14 @@ void LIVMapper::readParameters(rclcpp::Node::SharedPtr &node)
   this->node->get_parameter("publish.pub_effect_point_en", pub_effect_point_en);
   this->node->get_parameter("publish.dense_map_en", dense_map_en);
   this->node->get_parameter("publish.path_max_poses", path_max_poses);
+  const auto reference_translation = this->node->get_parameter("publish.reference_translation_imu").as_double_array();
+  if (reference_translation.size() != 3 ||
+      !std::all_of(reference_translation.begin(), reference_translation.end(), [](double x) { return std::isfinite(x); }))
+    throw std::invalid_argument("publish.reference_translation_imu must contain three finite metres");
+  published_reference_translation_imu << VEC_FROM_ARRAY(reference_translation);
+  this->node->get_parameter("publish.odom_child_frame", odom_child_frame);
+  if (odom_child_frame.empty() || odom_child_frame == "camera_init")
+    throw std::invalid_argument("publish.odom_child_frame must name a distinct body frame");
   path_max_poses = std::max(1, path_max_poses);
   this->node->get_parameter("vio.max_points_per_voxel", visual_max_points_per_voxel);
   visual_max_points_per_voxel = std::max(0, visual_max_points_per_voxel);
@@ -1839,9 +1850,10 @@ void LIVMapper::publish_effect_world(const rclcpp::Publisher<sensor_msgs::msg::P
 
 template <typename T> void LIVMapper::set_posestamp(T &out)
 {
-  out.position.x = _state.pos_end(0);
-  out.position.y = _state.pos_end(1);
-  out.position.z = _state.pos_end(2);
+  const V3D position = positionAtReference(_state.pos_end, _state.rot_end, published_reference_translation_imu);
+  out.position.x = position.x();
+  out.position.y = position.y();
+  out.position.z = position.z();
   out.orientation.x = geoQuat.x;
   out.orientation.y = geoQuat.y;
   out.orientation.z = geoQuat.z;
@@ -1851,20 +1863,22 @@ template <typename T> void LIVMapper::set_posestamp(T &out)
 void LIVMapper::publish_odometry(const rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr &pubOdomAftMapped)
 {
   odomAftMapped.header.frame_id = "camera_init";
-  odomAftMapped.child_frame_id = "aft_mapped";
+  odomAftMapped.child_frame_id = odom_child_frame;
   odomAftMapped.header.stamp = sec2Stamp(LidarMeasures.last_lio_update_time);
   if (timing_audit_.is_open()) last_odom_publish_ns_ = this->node->get_clock()->now().nanoseconds();
   set_posestamp(odomAftMapped.pose.pose);
 
   tf2::Transform transform;
   tf2::Quaternion q;
-  transform.setOrigin(tf2::Vector3(_state.pos_end(0), _state.pos_end(1), _state.pos_end(2)));
+  transform.setOrigin(tf2::Vector3(odomAftMapped.pose.pose.position.x,
+                                 odomAftMapped.pose.pose.position.y,
+                                 odomAftMapped.pose.pose.position.z));
   q.setW(geoQuat.w);
   q.setX(geoQuat.x);
   q.setY(geoQuat.y);
   q.setZ(geoQuat.z);
   transform.setRotation(q);
-  tf_broadcaster->sendTransform(geometry_msgs::msg::TransformStamped(createTransformStamped(transform, odomAftMapped.header.stamp, "camera_init", "aft_mapped")));
+  tf_broadcaster->sendTransform(geometry_msgs::msg::TransformStamped(createTransformStamped(transform, odomAftMapped.header.stamp, "camera_init", odom_child_frame)));
   pubOdomAftMapped->publish(odomAftMapped);
   ++odom_published_;
 }

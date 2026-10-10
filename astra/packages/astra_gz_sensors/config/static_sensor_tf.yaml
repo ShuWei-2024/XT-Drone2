@@ -2,6 +2,7 @@
 map_to_odom: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 odom_to_base_link: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 base_link_to_mid360_link: [0.0, 0.0, 0.18, 0.0, 0.0, 0.0]
+mid360_link_to_mid360_scan_frame: [0.0, 0.0, 0.04, 0.0, 0.0, 0.0]
 base_link_to_camera_link: [0.16, 0.0, 0.06, 0.0, 0.0, 0.0]
 camera_link_to_camera_color_optical_frame: [0.0, 0.0, 0.0, -1.57079632679, 0.0, -1.57079632679]
 camera_link_to_camera_depth_optical_frame: [0.0, 0.0, 0.0, -1.57079632679, 0.0, -1.57079632679]

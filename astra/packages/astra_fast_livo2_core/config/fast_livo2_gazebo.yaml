@@ -19,14 +19,14 @@
 
     extrin_calib:
       # LiDAR -> IMU and LiDAR -> camera optical, derived from simulated TF.
-      extrinsic_T: [0.0, 0.0, -0.06]
+      extrinsic_T: [0.0, 0.0, 0.10]
       extrinsic_R: [1.0, 0.0, 0.0,
                     0.0, 1.0, 0.0,
                     0.0, 0.0, 1.0]
       Rcl: [0.0, -1.0, 0.0,
             0.0, 0.0, -1.0,
             1.0, 0.0, 0.0]
-      Pcl: [0.0, -0.12, -0.16]
+      Pcl: [0.0, -0.16, -0.16]
 
     time_offset:
       imu_time_offset: 0.0

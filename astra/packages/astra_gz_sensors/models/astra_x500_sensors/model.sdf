@@ -8,7 +8,7 @@
 
     <!-- Regular 16 x 720 Mid-360 equivalent. This is not a Livox timing model. -->
     <link name="mid360_link">
-      <pose>0 0 0.18 0 0 0</pose>
+      <pose relative_to="base_link">0 0 0.18 0 0 0</pose>
       <gravity>false</gravity>
       <self_collide>false</self_collide>
       <inertial><mass>0.05</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz></inertia></inertial>
@@ -28,9 +28,12 @@
       </sensor>
     </link>
     <joint name="mid360_joint" type="fixed"><parent>base_link</parent><child>mid360_link</child></joint>
+    <frame name="mid360_scan_frame" attached_to="mid360_link">
+      <pose relative_to="mid360_link">0 0 0.04 0 0 0</pose>
+    </frame>
 
     <link name="camera_link">
-      <pose>0.16 0 0.06 0 0 0</pose>
+      <pose relative_to="base_link">0.16 0 0.06 0 0 0</pose>
       <gravity>false</gravity>
       <self_collide>false</self_collide>
       <inertial><mass>0.08</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz></inertia></inertial>
@@ -77,7 +80,7 @@
     <joint name="camera_depth_optical_joint" type="fixed"><parent>camera_link</parent><child>camera_depth_optical_frame</child></joint>
 
     <link name="imu_link">
-      <pose>0 0 0.12 0 0 0</pose>
+      <pose relative_to="base_link">0 0 0.12 0 0 0</pose>
       <gravity>false</gravity>
       <self_collide>false</self_collide>
       <inertial><mass>0.005</mass><inertia><ixx>1e-6</ixx><iyy>1e-6</iyy><izz>1e-6</izz></inertia></inertial>

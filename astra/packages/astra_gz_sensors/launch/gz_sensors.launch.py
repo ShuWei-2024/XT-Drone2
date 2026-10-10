@@ -33,6 +33,7 @@ def generate_launch_description():
         ('0', '0', '0', '0', '0', '0', 'map', 'odom'),
         ('0', '0', '0', '0', '0', '0', 'odom', 'base_link'),
         ('0', '0', '0.18', '0', '0', '0', 'base_link', 'mid360_link'),
+        ('0', '0', '0.04', '0', '0', '0', 'mid360_link', 'mid360_scan_frame'),
         ('0.16', '0', '0.06', '0', '0', '0', 'base_link', 'camera_link'),
         ('0', '0', '0', '-1.57079632679', '0', '-1.57079632679', 'camera_link', 'camera_color_optical_frame'),
         ('0', '0', '0', '-1.57079632679', '0', '-1.57079632679', 'camera_link', 'camera_depth_optical_frame'),

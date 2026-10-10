@@ -140,6 +140,8 @@ public:
   int grid_size, patch_size, grid_n_width, grid_n_height, patch_pyrimid_level;
   int outlier_threshold;
   double plot_time;
+  V3D published_reference_translation_imu = V3D::Zero();
+  std::string odom_child_frame = "aft_mapped";
   int frame_cnt;
   double img_time_offset = 0.0;
   bool rolling_shutter_enable = false;

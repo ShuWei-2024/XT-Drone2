@@ -268,3 +268,47 @@ python3 astra/tools/audit_runtime_growth_117.py astra/runtime/lateral_recheck_01
 ```bash
 python3 astra/tools/audit_model_height_reference_117.py astra/runtime/lateral_rectangle_117_01 --output astra/validation/model_height_reference_117.json
 ```
+
+## 安装、扫描原点和机身位姿统一后的飞行
+
+修正已应用到隔离的 1.17 工程：
+
+- 新增传感器 link 显式 `relative_to="base_link"`，消除 x500_base 合并时自带 0.24 m 模型位移的歧义。雷达 link、扫描原点和 LIVO IMU 现在分别位于机身中心上方 0.18、0.22、0.12 m。
+- 点云使用 `mid360_scan_frame`，SDF frame 和静态 TF 都包含扫描原点相对雷达 link 的 0.04 m。adapter 仍复制原始 XYZ。
+- LiDAR→IMU 平移改为 `[0,0,+0.10]`；LiDAR→相机光学平移改为 `[0,-0.16,-0.16]`，旋转不变。默认核心配置、adapter 配置与实际飞行 profile 同步修正。
+- 内部状态、点云配准和视觉计算仍使用 IMU 状态；发布的 odom、路径和 TF 使用 `p_body=p_imu+R_world_imu*[0,0,-0.12]`，child frame 为 `base_link`。默认零偏移仍保留核心原有行为，当前 1.17 飞行 profile 显式启用机身参考点。不能把补偿实现成世界 Z 常数减法。
+- 真值审计按 Gazebo 姿态把外层模型原点转到 `base_link`（模型坐标中的 `[0,0,0.24]`）；冻结执行前平移后才计算残差。真值安全停测仍使用外层模型原点，运行元数据明确记录两者用途；真值没有进入控制 setpoint。
+- 启动器保存实际 estimator YAML，并在任何仿真进程启动前运行展开模型的几何验收。18 项检查覆盖 SDF、TF、点云 frame、外参和发布参考点；配置错配会拒绝启动。旧运行模型、日志、源码提交及对应旧 profile 保留。
+
+`lateral_geometryfix_117_01` 在相同五目标路线、相同 PX4 参数和原保护门限下完成 5/5 段，规划执行约 301.3 s，395.804 s 请求降落、401.928 s 解除解锁。真实水平航程 30.307 m，负/正方向侧移分别 −6.013/+6.022 m，后退 −4.991 m；各端点水平误差 0.034～0.068 m。
+
+| 指标 | 修正前五段 | 修正后五段 |
+| --- | --- | --- |
+| FAST-LIVO2 对真值 XY p95 | 0.00710 m | 0.00407 m |
+| FAST-LIVO2 对真值 Z p95 | 0.00864 m | 0.02175 m |
+| PX4 对真值 XY p95 | 0.06359 m | 0.07472 m |
+| PX4 对真值 Z p95 | 0.06796 m | 0.06627 m |
+| PX4 对真值 Z 最大 | 0.11802 m | 0.11618 m |
+| 冻结地面高度差 p95 / 最大 | 0.10743 / 0.17406 m | 0.07141 / 0.14302 m |
+| 已冻结的空中参考高度差 p95 | 0.06861 m | 0.07277 m |
+| 目标跟踪 p95 / 最大 | 0.05528 / 0.10932 m | 0.05596 / 0.10021 m |
+| 最小水平障碍距离 | 0.80566 m（旧模型参考点） | 0.75927 m（机身中心） |
+| odom 测量年龄 p95 | 48 ms | 44 ms |
+
+修正后的规划峰值速度/加速度为 0.19743 m/s、0.05523 m/s²；PX4 航向误差 p95 1.055°，LIO 最少 5022 correspondence。无 armed failsafe、运动 XY/Z/yaw reset、VIO 零特征或拒绝帧。时间配对 p95 8 ms、最大 12 ms。新审计的机身中心绝对 Z 范围 1.778～2.054 m，旧记录的 Z 是外层模型原点，**二者不能直接当作同一绝对高度比较**。
+
+地面冻结 offset=+0.20650 m、空中冻结 offset=+0.16452 m，起飞前后仍变化约 −0.04198 m。这些数值包含独立估计器的坐标原点，不能要求修正后 offset 必须为零。新数据支持模型/外参/输出定义一致以及这条路线能够执行；不证明安装错误导致了全部高度残差，也不证明所有精度指标改善。两个版本的传感器高度、可见点云和随机噪声均不同，表格只是观测对照。高度动态误差仍约 0.12 m 最大；不能关闭地面漂移保护或宣称通用坐标认证。
+
+RSS 183.90→403.59 MiB，最后一分钟增加 0.86 MiB、最后两分钟增加 7.92 MiB。图像缓存仍受限，但该新区域六分钟运行不能证明长时间内存平台。结束后无仿真进程残留，原 1.15 文件哈希无变化。
+
+验证：五个 CTest 目标通过（含倾斜时参考点补偿回归），42 个 Offboard/路线检查、11 个输入/局部地图检查、5 个几何错配检查通过，共 58 个 Python 测试。几何错配测试实际覆盖错误符号、漏掉扫描偏移、漏掉机身补偿和误用外层模型原点。核心和相关 ROS 包编译/安装成功。
+
+证据：`sensor_geometry_fixed_117.json`、`geometryfix_closed_loop_117.json`、`geometryfix_reliability_117.json`、`geometryfix_route_motion_117.json`、`geometryfix_height_reference_117.json`、`geometryfix_memory_117.json`、`geometryfix_cleanup_117.json`；原始测量 CSV 和 ULog 在 `astra/runtime/lateral_geometryfix_117_01`。
+
+![统一参考点后的实际航迹](geometryfix_actual_path_117.png)
+
+```bash
+bash astra/run_117.bash obstacle geometry_recheck_01 --calibrate-ground-height --route-json astra/config/route_lateral_rectangle.json
+# 另开终端查看；运行结束后关闭 GUI 再启动下一轮。
+GZ_PARTITION=astra_px4_117 gz sim -g
+```

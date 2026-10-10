@@ -83,6 +83,7 @@ def main():
             p.error(f'Existing simulation process {proc.name}; stop it first')
     out=REPO/'astra/runtime'/a.name;out.mkdir(parents=True,exist_ok=False)
     shutil.copy2(Path(__file__),out/'runner.py')
+    shutil.copy2(REPO/'astra/config/estimator_self_filtered.yaml', out/'estimator_config.yaml')
     tools=REPO/'astra/tools';processes=[];streams=[]
     original=json.loads((REPO/'astra/baseline/original_state.json').read_text())
     before={path:hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in original['files']}
@@ -130,7 +131,14 @@ def main():
              'route_offsets_m':route_offsets if a.mode=='obstacle' else None,
              'flight_timeout_s':flight_timeout,
              'sensors_depth_removed':True,'parameter_overrides':overrides,'isolated_rootfs':str(out),'ros_domain':94,'gz_partition':env['GZ_PARTITION']}
+    runtime['odom_reference'] = 'base_link; internal LIVO state remains at imu_link'
+    runtime['audit_truth_reference_offset_model_m'] = [0., 0., .24]
+    runtime['truth_guard_reference'] = 'outer Gazebo model pose; conservative stop only, never flight input'
     (out/'runtime.json').write_text(json.dumps(runtime,indent=2)+'\n')
+    subprocess.run([sys.executable,str(tools/'verify_sensor_geometry_117.py'),
+                    '--models',str(models),'--px4',str(PX4),
+                    '--config',str(out/'estimator_config.yaml'),
+                    '--output',str(out/'sensor_geometry.json')],check=True)
     def start(name,cmd):
         stream=(out/(name+'.log')).open('w');streams.append(stream)
         proc=subprocess.Popen(cmd,env=env,cwd=REPO,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
@@ -164,7 +172,7 @@ def main():
             pause(2.)
         else:
             start('livo',['ros2','launch','astra_fast_livo2','fast_livo2.launch.py',
-                 f'estimator_config:={REPO}/astra/config/estimator_self_filtered.yaml',
+                 f'estimator_config:={out}/estimator_config.yaml',
                  'point_time_mode:=snapshot','max_retained_images:=512','max_planar_correction_m:=0.04',
                  f'timing_audit_csv:={out}/livo_timing.csv',f'input_audit_csv:={out}/input_audit.csv'])
             map_proc=start('map',['ros2','run','astra_fast_livo2','local_mapping_guard.py','--ros-args',
@@ -177,6 +185,7 @@ def main():
                  '--seconds',str(seconds),'--stop-file',str(out/'controller_finished')])
             audit=start('frame',[sys.executable,str(REPO/'astra/packages/astra_px4_offboard/scripts/audit_frame_alignment.py'),
                  '--seconds',str(seconds),'--px4-timebase','sim','--px4-namespace','x500_0',
+                 '--truth-reference-offset','0','0','0.24',
                  '--output',str(out/'frame.json'),'--samples-output',str(out/'frame_samples.csv'),
                  '--stop-file',str(out/'controller_finished')])
             health=start('health',[sys.executable,str(tools/'health_probe_117.py'),'--seconds',str(seconds),

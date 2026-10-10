@@ -4,7 +4,7 @@
   ros_type_name: sensor_msgs/msg/PointCloud2
   gz_type_name: gz.msgs.PointCloudPacked
   direction: GZ_TO_ROS
-  frame_id: mid360_link
+  frame_id: mid360_scan_frame
 - ros_topic_name: /sensors/camera/color/image_raw
   gz_topic_name: /sensors/camera/color/image_raw
   ros_type_name: sensor_msgs/msg/Image

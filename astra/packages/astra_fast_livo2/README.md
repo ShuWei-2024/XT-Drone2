@@ -370,12 +370,18 @@ but `scan_line` and `ring` do not affect the current non-feature Velodyne
 handler when time is present. The regular 16-line Gazebo cloud must not use the
 real Mid-360's four-line/CustomMsg configuration.
 
-The simulated lidar sensor is 0.04 m above `mid360_link`, although its cloud
-is labeled with that link. Ground returns near z=-1.22 m confirm the actual
-sensor origin. The corresponding LiDAR-to-IMU Z is -0.10 m and LiDAR-to-camera
-optical Y is -0.16 m. One-factor wide-route trials of those corrections failed
+The earlier simulated lidar sensor was 0.04 m above `mid360_link`, although its
+cloud was labeled with that link. Ground returns near z=-1.22 m confirmed the
+scan origin. Historical trials used LiDAR-to-IMU Z **-0.10 m**, whose sign was
+later found inconsistent with `p_imu=R_IL*p_lidar+t_IL`; the required value is
+**+0.10 m**, while LiDAR-to-camera optical Y is -0.16 m. Those earlier wide-route trials failed
 at 80.5 s (0.670 m step) and 80.8 s (0.687 m step), respectively. The configured
-rotation and transform directions match the SDF and estimator code.
+rotation is unchanged. The previous claim that all transform directions matched
+was incorrect. The 1.17 runtime now labels points `mid360_scan_frame`, checks
+expanded SDF/TF/calibration before flight, and uses the corrected translations.
+Its explicit runtime profile publishes `base_link` position with the rotated
+IMU-to-body offset [0,0,-0.12]; internal filtering remains at the IMU. Historical
+flight results still refer to their original models and configurations.
 
 Disabling the visual update did not cure the failure: LIO-only with the
 original 0.5 m voxel size reached a 2.298 m step at 80.6 s. Its effective

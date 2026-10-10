@@ -55,7 +55,11 @@ def audit(directory):
     camera = resolve('camera_color_optical_frame')
     expected_imu_lidar = np.linalg.inv(imu) @ lidar
     expected_camera_lidar = np.linalg.inv(camera) @ lidar
-    config = yaml.safe_load((Path(__file__).resolve().parents[1]/'config/estimator_self_filtered.yaml').read_text())['/**']['ros__parameters']['extrin_calib']
+    config_path = directory/'estimator_config.yaml'
+    if not config_path.exists():
+        config_path = Path(__file__).resolve().parents[1]/'config/estimator_self_filtered.yaml'
+    params = yaml.safe_load(config_path.read_text())['/**']['ros__parameters']
+    config = params['extrin_calib']
     motion = json.loads((directory/'motion_events.json').read_text())
     events = {r['event']: r for r in motion['events']}
     lo = events['ego_control_handoff']['sim_ns']
@@ -77,6 +81,9 @@ def audit(directory):
     if np.linalg.norm(lever[:2]) > 1e-8:
         raise ValueError('This vertical lever calculation requires a pure-Z mount')
     return dict(run=directory.name,
+        estimator_config_source=str(config_path),
+        published_reference_translation_imu_m=params.get('publish',{}).get('reference_translation_imu',[0.,0.,0.]),
+        published_odom_child_frame=params.get('publish',{}).get('odom_child_frame','aft_mapped'),
         geometry_model_frame_m={
             'px4_imu_base_link': body[:3, 3].tolist(),
             'livo_imu': imu[:3, 3].tolist(),
