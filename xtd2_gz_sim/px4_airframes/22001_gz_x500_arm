@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# @name Gazebo X500 Aerial Manipulator
+# @type Quadrotor
+# @class Copter
+#
+# X500 motor geometry is unchanged. The arm and skids add 0.457 kg.
+
+PX4_SIM_MODEL=${PX4_SIM_MODEL:=x500_arm}
+. ${R}etc/init.d-posix/airframes/4001_gz_x500
+
+param set-default MPC_THR_HOVER 0.70

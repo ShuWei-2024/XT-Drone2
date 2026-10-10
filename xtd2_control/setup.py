@@ -21,6 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'multirotor_keyboard_control = xtd2_control.keyboard.multirotor_keyboard_control:main',
+            'aerial_arm_control = xtd2_control.aerial_arm_control:main',
+            'aerial_arm_test = xtd2_control.aerial_arm_test:main',
         ],
     },
 )

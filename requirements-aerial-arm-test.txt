@@ -1,0 +1,3 @@
+# Optional local GCS heartbeat for python -m xtd2_control.aerial_arm_test.
+# This version is already installed in the existing xtd2_pyenv.
+pymavlink==2.4.50
