@@ -20,9 +20,15 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('mode',choices=['timer','static','small','obstacle'])
     p.add_argument('name');p.add_argument('--seconds',type=float,default=60.)
+    p.add_argument('--calibrate-ground-height',action='store_true')
+    p.add_argument('--stop-map-after-handoff-s',type=float,
+                   help='SITL fault regression: stop this run\'s map after planner control handoff')
     p.add_argument('--baro-noise-m',type=float,choices=[.1,.3],default=.1,
                    help='Isolated comparison only; default preserves the existing tested value')
     a=p.parse_args()
+    if a.stop_map_after_handoff_s is not None and (a.mode!='obstacle' or
+            not 1. <= a.stop_map_after_handoff_s <= 10.):
+        p.error('Map-stop regression requires obstacle mode and a delay of 1..10 seconds')
     if not re.fullmatch('[a-zA-Z0-9_-]{1,64}',a.name):p.error('Use a new short run name')
     if os.environ.get('ASTRA_117_ENV_LOADED')!='1':p.error('Use astra/run_117.bash to load the isolated ROS environment')
     if subprocess.check_output(['git','rev-parse','HEAD'],cwd=PX4,text=True).strip() != json.loads((REPO/'astra/dependencies.lock.json').read_text())['px4']['commit']:
@@ -122,7 +128,7 @@ def main():
                  f'estimator_config:={REPO}/astra/config/estimator_self_filtered.yaml',
                  'point_time_mode:=snapshot','max_retained_images:=512','max_planar_correction_m:=0.04',
                  f'timing_audit_csv:={out}/livo_timing.csv',f'input_audit_csv:={out}/input_audit.csv'])
-            start('map',['ros2','run','astra_fast_livo2','local_mapping_guard.py','--ros-args',
+            map_proc=start('map',['ros2','run','astra_fast_livo2','local_mapping_guard.py','--ros-args',
                  '-p','use_sim_time:=true','-p','self_filter_radius_m:=0.45'])
             start('planner',['ros2','launch','astra_fast_livo2','ego_planner_guarded.launch.py',
                  'max_vel:=0.20','max_acc:=0.25','planning_horizon:=6.0','max_tracking_error_m:=0.60','virtual_ceiling_m:=2.3'])
@@ -154,7 +160,43 @@ def main():
                     cmd=[sys.executable,str(tools/'ego_sitl_flight.py'),'--output-prefix',str(out/'motion'),
                          '--obstacle-audit','--single-goal','--fixed-enu-ned-transform','--velocity-feedforward',
                          '--freeze-tracking-yaw','--max-tracking-error-m','.60','--route-json',str(route)]
-                driver=start('motion',cmd);result=driver.wait(timeout=330.)
+                if a.calibrate_ground_height:
+                    cmd.append('--calibrate-ground-height')
+                driver=start('motion',cmd)
+                if a.stop_map_after_handoff_s is None:
+                    result=driver.wait(timeout=330.)
+                else:
+                    deadline=time.monotonic()+330.;handoff=None;injection=None
+                    while driver.poll() is None:
+                        if time.monotonic()>deadline:
+                            raise RuntimeError('Flight regression exceeded 330 seconds')
+                        if handoff is None:
+                            for line in (out/'motion.log').read_text().splitlines():
+                                if line.startswith('{') and 'ego_control_handoff' in line:
+                                    candidate=json.loads(line)
+                                    if candidate.get('event')=='ego_control_handoff':handoff=candidate
+                        if (handoff and injection is None and
+                                time.monotonic_ns()-handoff['wall_ns']>=a.stop_map_after_handoff_s*1e9):
+                            injection={'kind':'stop_owned_map_process_group','signal':'SIGINT',
+                                       'map_process_group':map_proc.pid,'handoff':handoff,
+                                       'command_wall_ns':time.monotonic_ns()}
+                            os.killpg(map_proc.pid,signal.SIGINT)
+                            (out/'fault_injection.json').write_text(json.dumps(injection,indent=2)+'\n')
+                        time.sleep(.05)
+                    driver_result=driver.wait();motion=json.loads((out/'motion_events.json').read_text())
+                    abort=next((e for e in motion['events'] if e['event']=='test_aborted'),None)
+                    hold=next((e for e in motion['events'] if e['event']=='hold_target_frozen'),None)
+                    expected_fault=(injection is not None and driver_result==1 and
+                        map_proc.poll()==0 and abort is not None and hold is not None and
+                        abort['wall_ns']>=injection['command_wall_ns'] and
+                        0 <= hold['wall_ns']-injection['command_wall_ns'] <= 500_000_000 and
+                        motion.get('disarmed') and not motion.get('flight_complete') and
+                        'local map not ready or heartbeat stale' in motion.get('fault',''))
+                    regression={'expected_fault_observed':bool(expected_fault),'driver_exit_code':driver_result,
+                                'map_exit_code':map_proc.poll(),'fault':motion.get('fault'),
+                                'disarmed':motion.get('disarmed')}
+                    (out/'fault_regression.json').write_text(json.dumps(regression,indent=2)+'\n')
+                    result=0 if expected_fault else 1
                 (out/'controller_finished').touch()
             for proc in (monitor,audit,health):proc.wait(timeout=8.)
     except Exception as exc:

@@ -2,7 +2,7 @@
 
 本分支以 [ShuWei-2024/XT-Drone2](https://github.com/ShuWei-2024/XT-Drone2) 为基础，接入我们已验证的 FAST-LIVO2、局部地图、EGO-Planner 和保护执行桥。上游原始介绍保存在 [docs/README.upstream.md](docs/README.upstream.md)，原 MIT 协议和各模块原有版权说明保留。
 
-**1.17 已完成完整算法构建、静止传感器/DDS/地图运行验证，正在进行运动与闭环验收。** 1.15 的通过记录不算作 1.17 的飞行认证。
+**1.17 已完成完整算法构建、静止验证、小范围飞行和一次 EGO-Planner 绕障往返闭环，并实测地图失联后的保持与降落保护。** 结果只适用于本次低速静态障碍 SITL，尚未认证长期运行、多场景或真实硬件。详见 [运行验收报告](astra/validation/RUNTIME_117.md)。
 
 ## 1. 当前版本和目录
 
@@ -89,7 +89,7 @@ python3 -m pytest -q astra/packages/astra_px4_offboard/test
 /x500_0/fmu/in/trajectory_setpoint
 ```
 
-桥、预览和审计器按已安装消息的 `MESSAGE_VERSION` 生成话题；不要混用旧消息 overlay。PX4 与 Agent 实际握手、传感器接收、消息版本和地图 readiness 已通过 60 秒静止测试，见 `astra/validation/static_stack_117.json`。运动时的坐标精度需另行验收。
+桥、预览和审计器按已安装消息的 `MESSAGE_VERSION` 生成话题；不要混用旧消息 overlay。PX4 与 Agent 实际握手、传感器接收、消息版本和地图 readiness 已通过 60 秒静止测试，见 `astra/validation/static_stack_117.json`。最终传感器接口的运动误差另存 `astra/validation/obstacle_reliability_117.json`，采用冻结初始变换，不在飞行数据上重新拟合。
 
 ## 6. 仿真入口与验收顺序
 
@@ -99,8 +99,10 @@ python3 -m pytest -q astra/packages/astra_px4_offboard/test
 cd /home/cyf/dev/XT-Drone2-astra
 # 在没有加载旧 ROS overlay 的终端执行；名称必须从未使用过。
 bash astra/run_117.bash static static_check_01 --seconds 60
-bash astra/run_117.bash small small_check_01
-bash astra/run_117.bash obstacle obstacle_check_01
+bash astra/run_117.bash small small_check_01 --calibrate-ground-height
+bash astra/run_117.bash obstacle obstacle_check_01 --calibrate-ground-height
+# 规划控制权交接 3 秒后停止本轮地图进程，验证保持和降落。
+bash astra/run_117.bash obstacle map_loss_check_01 --calibrate-ground-height --stop-map-after-handoff-s 3
 ```
 
 `static` 不解锁、不发送飞控输入。`small` 和 `obstacle` **会解锁本机 PX4 SITL 并执行飞行**，只在隔离仿真中使用。运行器拒绝已有 PX4/Agent 进程，使用 ROS domain 94、独立 Gazebo partition 和 `x500_0` namespace，默认不启动 XT-Drone2 通信控制节点。小范围飞行通过原生 NED setpoint 检查起飞、0.4 m 前进/侧移和返回；绕障模式才启用受保护的 EGO B-spline 执行桥。External Vision 关闭。
@@ -108,6 +110,8 @@ bash astra/run_117.bash obstacle obstacle_check_01
 运行证据在 `astra/runtime/<名称>/`：`runtime.json` 记录临时参数；`preflight_health.json` 记录起飞前门控；`frame_samples.csv` 保存测量时间与发布时间；`motion_events.json` 保存实际运动、停测原因和降落状态；`log/` 保存 PX4 ULog。运行结束会停止其创建的进程并校验旧参数/源码哈希。
 
 起飞前要求传感器、地图和位姿有效且新鲜，测量时间与真值配对在 20 ms 内。收到消息时的 `/clock - timestamp_sample` 是处理/传输年龄，不等于时钟偏移；日志分别记录测量到发布与发布到接收的差值，后者也受回调顺序影响。配对覆盖率检查不等于独立时钟标定。
+
+`--calibrate-ground-height` 在地面采集 4 秒测量时间配对的 FAST-LIVO2/PX4 高度，冻结零点差，再用独立 4 秒数据验证 0.15 m 残差门限。Gazebo 不参与该偏置估计；运行中持续检查相对冻结偏置的高度漂移，不通过重拟合消除误差。未加该标志时保留原零点门控。地图停止试验的预期故障退出单独记录在 `fault_regression.json`，不能当作正常路线完成；本次停图到冻结保持约 294 ms，保持 1 秒后请求降落。
 
 磁力计接口为显式 ENU/tesla：世界设置 `use_earth_frame_ned=false`、`use_units_gauss=false`，新 PX4 本地补丁仅在 `ASTRA_GZ_MAG_ENU_TESLA=1` 时将传感器 FLU 转为 FRD、tesla 转为 gauss；运行器自动配套设置。运行器还复制官方 `x500_base` 到每次运行目录，把原 gauss 噪声数值换算成 tesla（乘 1e-4）；物理噪声幅度保持相同。不要单独改其中一侧。补丁保存于 `astra/config/px4_117_gz_magnetometer.patch`，构建脚本会检查或应用。仿真地面站仅发送 localhost MAVLink 心跳，不发送目标或解锁命令；它满足 PX4 的 GCS 健康检查，不关闭该检查。
 

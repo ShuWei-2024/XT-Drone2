@@ -6,6 +6,8 @@ import math
 import os
 from pathlib import Path
 import time
+from collections import deque
+from ground_height_alignment import GroundHeightAlignment
 
 import rclpy
 from nav_msgs.msg import Odometry
@@ -36,6 +38,8 @@ class GuardedPositionTest(SettledFlight):
         self.vertical_disagreement_since = None
         self.settle_timeout_s = 60.
         self.sample_reason = ''
+        self.local_history = deque(maxlen=100)
+        self.ground_alignment = None
         self.create_subscription(Odometry, '/fast_livo2/odom', self.on_odom, 10)
         self.create_subscription(Bool, '/local_mapping/ready', self.on_ready,
                                  QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
@@ -52,6 +56,48 @@ class GuardedPositionTest(SettledFlight):
                 return
             self.pending_odom = None
             self.odom, self.odom_wall = msg, now
+
+    def on_local(self, msg):
+        super().on_local(msg)
+        if hasattr(self, 'local_history'):
+            self.local_history.append(msg)
+
+    def paired_height(self):
+        if self.odom is None or not self.local_history:
+            return None
+        s = self.odom.header.stamp
+        stamp = s.sec*10**9+s.nanosec
+        matched = min(self.local_history, key=lambda p:abs(p.timestamp_sample*1000-stamp))
+        if abs(matched.timestamp_sample*1000-stamp) > 20_000_000:
+            return None
+        return stamp, self.odom.pose.pose.position.z, matched
+
+    def align_ground_height(self):
+        self.phase = 'ground_height_alignment'
+        alignment = GroundHeightAlignment()
+        self.event('ground_height_alignment_start', calibration_s=4., validation_s=4., residual_limit_m=.15)
+        deadline = time.monotonic()+25.
+        while rclpy.ok() and time.monotonic()<deadline:
+            rclpy.spin_once(self,timeout_sec=.005)
+            if self.fault():
+                if alignment.offset_m is not None:
+                    raise RuntimeError('health lost after height offset freeze: '+self.fault())
+                alignment = GroundHeightAlignment()
+                continue
+            if math.hypot(*self.truth[:2]) > .5 or not -.2 <= self.truth[2] <= .2:
+                raise RuntimeError('Gazebo vehicle not within ground calibration bounds')
+            pair = self.paired_height()
+            if pair:
+                stamp,z,p = pair
+                alignment.add(stamp,z,p.z,(p.xy_reset_counter,p.z_reset_counter,p.heading_reset_counter))
+            if alignment.error:
+                self.event('ground_height_alignment_rejected', **alignment.summary())
+                raise RuntimeError(alignment.error)
+            if alignment.complete:
+                self.ground_alignment = alignment
+                self.event('ground_height_alignment_complete', **alignment.summary())
+                return
+        raise RuntimeError('not enough healthy paired samples for ground height alignment')
 
     def promote_pending_odom(self):
         if self.pending_odom is not None:
@@ -100,6 +146,13 @@ class GuardedPositionTest(SettledFlight):
             return 'invalid FAST-LIVO2 position'
         if not self.ready or now - self.ready_wall > .25:
             return 'local map not ready or heartbeat stale'
+        if self.ground_alignment is not None:
+            pair = self.paired_height()
+            if pair is None:
+                return 'ground-aligned height has no measurement pair within 20 ms'
+            _,z,matched = pair
+            if abs(matched.z+z-self.ground_alignment.offset_m) > .20:
+                return 'PX4/LIVO height drift exceeds frozen ground offset by 0.20 m'
         if self.status.arming_state == VehicleStatus.ARMING_STATE_ARMED:
             if self.vertical_reference is not None:
                 vertical_disagreement = abs(self.local.z + self.truth[2] - self.vertical_reference)
@@ -131,6 +184,16 @@ class GuardedPositionTest(SettledFlight):
     def initial_alignment_fault(self):
         if self.local is None or self.truth is None:
             return 'initial position not available'
+        if self.ground_alignment is not None:
+            pair = self.paired_height()
+            if pair is None:
+                return 'no paired ground height'
+            _,z,p = pair
+            if abs(p.z+z-self.ground_alignment.offset_m) > .15:
+                return 'ground height outside 0.15 m frozen-offset residual bounds'
+            if math.hypot(*self.truth[:2]) > .5 or not -.2 <= self.truth[2] <= .2:
+                return 'initial actual world position outside ground bounds'
+            return ''
         if math.hypot(*self.truth[:2]) > .5 or abs(self.local.z + self.truth[2]) > .15:
             return 'initial position/height alignment outside 0.5 m XY / 0.15 m Z bounds'
         return ''
@@ -293,6 +356,7 @@ def main():
     parser.add_argument('--inject-stale', action='store_true')
     parser.add_argument('--require-stable-hold', action='store_true')
     parser.add_argument('--open-motion-audit', action='store_true')
+    parser.add_argument('--calibrate-ground-height',action='store_true')
     parser.add_argument('--segment-distance-m', type=float, default=.25)
     parser.add_argument('--settle-timeout-s', type=float, default=60.)
     args = parser.parse_args()
@@ -310,6 +374,8 @@ def main():
                   test_mode='open_motion_audit' if args.open_motion_audit else
                   'stable_hold' if args.require_stable_hold else 'native_motion')
     try:
+        if args.calibrate_ground_height:
+            node.align_ground_height()
         deadline = time.monotonic() + 25.
         good_since = None
         last_preflight_reason = None
@@ -330,7 +396,7 @@ def main():
         p = node.local
         origin = (p.x, p.y, p.z, p.heading)
         node.vertical_reference = p.z + node.truth[2]
-        if math.hypot(*node.truth[:2]) > .5 or abs(p.z + node.truth[2]) > .15:
+        if node.initial_alignment_fault():
             raise RuntimeError('initial position/height alignment invalid')
         node.guarded_segment('prestream', 2., origin, origin)
         node.command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1, 6)
@@ -399,6 +465,7 @@ def main():
             result['disarmed'] = bool(node.status and node.status.arming_state != VehicleStatus.ARMING_STATE_ARMED)
         prefix = Path(args.output_prefix)
         result['deferred_odom_count'] = node.deferred_odom_count
+        result['ground_height_alignment'] = node.ground_alignment.summary() if node.ground_alignment else None
         result['setpoint_recording'] = 'all_send_calls'
         Path(str(prefix) + '_events.json').write_text(json.dumps(dict(result=result, events=node.events), indent=2) + '\n')
         if node.rows:

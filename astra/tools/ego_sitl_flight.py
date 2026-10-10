@@ -52,7 +52,7 @@ def takeoff(node):
     p = node.local
     origin = (p.x, p.y, p.z, p.heading)
     node.vertical_reference = p.z + node.truth[2]
-    if math.hypot(*node.truth[:2]) > .5 or abs(node.vertical_reference) > .15:
+    if node.initial_alignment_fault():
         raise RuntimeError('invalid initial world position')
     node.guarded_segment('prestream', 2., origin, origin)
     node.command(VehicleCommand.VEHICLE_CMD_DO_SET_MODE, 1, 6)
@@ -328,6 +328,7 @@ def main():
     parser.add_argument('--goal-y-offset-m', type=float, default=0.0)
     parser.add_argument('--obstacle-audit', action='store_true')
     parser.add_argument('--single-goal', action='store_true')
+    parser.add_argument('--calibrate-ground-height',action='store_true')
     parser.add_argument('--max-tracking-error-m', type=float, default=.30)
     parser.add_argument('--max-estimator-xy-disagreement-m', type=float, default=.30)
     parser.add_argument('--fixed-enu-ned-transform', action='store_true')
@@ -373,6 +374,8 @@ def main():
                                              value=args.max_estimator_xy_disagreement_m)])
     bridge.output_timer.cancel()
     try:
+        if args.calibrate_ground_height:
+            node.align_ground_height()
         high = takeoff(node)
         execute(node, high, result, args.goal_distance_m, args.goal_y_offset_m,
                 args.obstacle_audit, args.max_tracking_error_m, (preview, bridge), args.single_goal,
@@ -387,6 +390,7 @@ def main():
             node.status.arming_state == VehicleStatus.ARMING_STATE_ARMED else
             bool(node.status and node.status.arming_state != VehicleStatus.ARMING_STATE_ARMED))
         result['events'] = node.events
+        result['ground_height_alignment'] = node.ground_alignment.summary() if node.ground_alignment else None
         Path(args.output_prefix+'_events.json').write_text(json.dumps(result, indent=2)+'\n')
         if node.rows:
             with open(args.output_prefix+'_sent.csv', 'w') as stream:

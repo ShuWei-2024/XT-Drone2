@@ -84,6 +84,19 @@ if start:
   fig,ax=plt.subplots(figsize=(7,5));ax.plot(xyz[:,0],xyz[:,1],label='Gazebo actual path')
   ax.plot([xyz[0,0],target[0]],[xyz[0,1],target[1]],'--',c='gray',label='Direct start to goal (initial frame alignment)')
   ax.scatter(*target,c='purple',marker='*',s=90,label='Requested goal')
+  if len(goals)>1 and truth_goal is not None:
+   # Each goal is transformed with the preflight calibration, never refitted.
+   ax.lines[-1].remove();ax.collections[-1].remove()
+   truth_goals=[rotation@np.array(g['goal'][:2])+translation for g in goals]
+   points=np.vstack([xyz[0,:2],truth_goals])
+   ax.plot(points[:,0],points[:,1],'--',c='gray',label='Direct segments between requested goals')
+   for i,point in enumerate(truth_goals):
+    ax.scatter(*point,c='purple',marker='*',s=90,label='Requested goals' if i==0 else None)
+    ax.annotate(f'Goal {i+1}',point,xytext=(5,8),textcoords='offset points')
+   s['goals_gazebo_from_initial_alignment_m']=[g.tolist() for g in truth_goals]
+   if obstacles:
+    s['direct_requested_segments_clearance_m']=[float(all_clearances(
+     np.linspace(points[i],points[i+1],1001),obstacles).min()) for i in range(len(goals))]
   for i,(xmin,xmax,ymin,ymax) in enumerate(box):
    ax.add_patch(Rectangle((xmin,ymin),xmax-xmin,ymax-ymin,color='tomato',label='Gazebo box' if i==0 else None))
    ax.add_patch(Rectangle((xmin-.65,ymin-.65),xmax-xmin+1.3,ymax-ymin+1.3,fill=False,linestyle=':',edgecolor='tomato',label='0.65 m margin (bounding rectangle)' if i==0 else None))
@@ -113,8 +126,18 @@ if ulog_path:
    i=int(np.argmin(abs(x['timestamp'].astype(float)-row['sim_ns']/1000)));value=[x[f'position[{j}]'][i] for j in range(3)]
    confirmed+=abs(float(x['timestamp'][i])-row['sim_ns']/1000)<=20000 and np.linalg.norm(np.array(value)-row['target'])<1e-5
   s['ulog_confirms_planner_setpoints']=int(confirmed)
- for topic in ('sensor_gps','sensor_mag','battery_status'):
+ for topic in ('vehicle_gps_position','sensor_gps','sensor_mag','battery_status'):
   if topic in data and len(data[topic]['timestamp'])>1:s[topic+'_max_gap_sec']=float(np.diff(data[topic]['timestamp'].astype(float)).max()/1e6)
+ if start:
+  s['sensor_log_execution_coverage']={}
+  for topic in ('vehicle_gps_position','sensor_mag','battery_status'):
+   if topic not in data:continue
+   stamps=data[topic]['timestamp'].astype(float)/1e6
+   lo=start['sim_ns']/1e9;hi=(end['sim_ns'] if end else samples[-1]['sim_ns'])/1e9
+   active=stamps[(stamps>=lo)&(stamps<=hi)]
+   if len(active)>1:s['sensor_log_execution_coverage'][topic]={
+    'samples':len(active),'logged_max_gap_sec':float(np.diff(active).max()),
+    'first_after_handoff_sec':float(active[0]-lo),'last_before_end_sec':float(hi-active[-1])}
 if (d/'cloud_audit.json').exists():
  audit=json.loads((d/'cloud_audit.json').read_text())
  for kind in ('full','rgb'):

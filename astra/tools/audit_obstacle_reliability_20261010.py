@@ -88,6 +88,12 @@ def audit(directory):
             delta = positions(a) @ transforms[kind].T + bias[kind] - positions(b)
             phase[kind + '_truth_xy_error_m'] = describe(np.linalg.norm(delta[:, :2], axis=1))
             phase[kind + '_truth_z_error_m'] = describe(np.abs(delta[:, 2]))
+            estimated_yaw = np.array([float(x['yaw_rad']) for x in a])
+            if kind == 'px4':
+                estimated_yaw = np.pi / 2. - estimated_yaw
+            yaw_error = estimated_yaw - np.array([float(x['yaw_rad']) for x in b])
+            phase[kind + '_truth_yaw_error_deg'] = describe(
+                np.degrees(np.abs(np.arctan2(np.sin(yaw_error), np.cos(yaw_error)))))
             phase[kind + '_truth_pair_dt_ms'] = describe(
                 [abs(int(x['measurement_time_ns']) - int(y['measurement_time_ns'])) / 1e6
                  for x, y in paired])
@@ -96,6 +102,10 @@ def audit(directory):
         xy_error = np.linalg.norm(livo[:, :2] @ matrix.T + translation - px4[:, :2], axis=1)
         phase['bridge_paired_xy_disagreement_m'] = describe(xy_error)
         phase['bridge_paired_xy_samples_over_030m'] = int(np.count_nonzero(xy_error > .30))
+        ground = result.get('ground_height_alignment')
+        if ground and ground.get('offset_m') is not None:
+            phase['frozen_ground_height_disagreement_m'] = describe(
+                np.abs(livo[:, 2] + px4[:, 2] - ground['offset_m']))
         stage = [x for x in timing if lo <= int(x['measurement_ns']) <= hi]
         vio = [x for x in stage if x['stage'] == 'VIO']
         if vio:

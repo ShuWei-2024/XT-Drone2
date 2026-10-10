@@ -28,7 +28,7 @@
     "xtd2_msgs"
   ],
   "ros_build_log": "log_117/ (full rebuild; see package logs)",
-  "offline_tests_passed": 27,
+  "offline_tests_passed": 31,
   "offline_test_log": "/home/cyf/dev/XT-Drone2-astra/astra/validation/offline_tests.log",
   "launch_argument_parsing_passed": true,
   "original_1_15_sources_changed": false,
@@ -37,11 +37,17 @@
   "sensor_runtime_verified": true,
   "px4_1_17_flight_verified": true,
   "github_push_performed": false,
-  "stage": "full runtime migrated; small native-NED flight passed once; final magnetometer path static verified; obstacle flight blocked before arming by ground height gate",
+  "stage": "PX4 1.17 final sensor conventions: small flight and one obstacle out-and-back completed; live map-stop protection verified",
   "ros_package_count": 19,
-  "flight_scope": "small_motion_05: native NED open-area audit, before optional magnetometer convention fix; not strict hover or obstacle certification",
+  "flight_scope": "Final magnetometer path; 0.4 m forward/side/return plus EGO 5 m/3 m goal and return; no strict hover or hardware certification",
   "frame_alignment_certified": false,
-  "magnetometer_fix_scope": "static: yaw p95 about 1 degree; not flight validated",
+  "magnetometer_fix_scope": "Flight validated once: yaw p95 1.42 degrees during obstacle execution",
   "local_hrt_patch_applied": true,
-  "obstacle_1_17_flight_verified": false
+  "obstacle_1_17_flight_verified": true,
+  "map_loss_1_17_protection_verified": true,
+  "ground_height_alignment": "Independent ground capture/validation with frozen offset; no EV input; no subsequent refit",
+  "alignment_scope": "Frozen initial offsets and known zero-yaw SITL axes meet p95 0.10 m XY/Z on this route; not general frame certification",
+  "obstacle_report": "astra/validation/obstacle_closed_loop_117.json",
+  "fault_report": "astra/validation/map_loss_117.json",
+  "wide_area_memory_stability_verified": false
 }

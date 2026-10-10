@@ -1,0 +1,31 @@
+{
+  "run": "astra/runtime/map_loss_117_01",
+  "passed": true,
+  "checks": {
+    "fault_after_injection": true,
+    "hold_within_500ms": true,
+    "map_stale_fault": true,
+    "hold_target_constant": true,
+    "disarmed": true,
+    "normal_route_not_reported_complete": true,
+    "no_armed_failsafe": true,
+    "baseline_preserved": true
+  },
+  "scope": "Owned map process stopped with SIGINT during planner-driven SITL flight; supervisor takes over; not instant physical stop",
+  "fault": "local map not ready or heartbeat stale",
+  "command_to_abort_ms": 293.5604,
+  "command_to_frozen_hold_ms": 293.797305,
+  "last_ready_to_hold_ms": 298.532514,
+  "hold_to_land_request_sec": 1.001156687,
+  "land_request_to_disarm_sec": 6.096066589,
+  "fixed_hold_setpoint_samples": 20,
+  "hold_setpoint_range_m": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "truth_xy_motion_during_hold_m": 0.07051264634339334,
+  "disarmed": true,
+  "armed_failsafe_samples": 0,
+  "original_baseline_preserved": true
+}

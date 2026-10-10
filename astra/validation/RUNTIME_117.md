@@ -1,6 +1,6 @@
 # PX4 1.17 / XT-Drone2 运行验收：2026-10-10
 
-完整感知与规划源码已在新框架构建并运行。完成了一次小范围原生 NED 飞行；最终磁力计接口修正仅通过静止检查，绕障执行在起飞前被高度门控拦住。不能把旧 1.15 飞行或本次全程拟合报告当成最终 1.17 闭环认证。
+完整感知与规划源码已在新框架构建并运行。最终磁力计接口下已完成一次小范围原生 NED 飞行、一次 EGO-Planner 绕障往返，以及地图进程失联后的保持/降落试验。早期高度门控失败记录保留。以下结果限于低速静态障碍 SITL；不等于多场景、长期运行或实物认证。
 
 ## 已完成的移植
 
@@ -33,12 +33,12 @@
 
 1. 被动检查原先把 `/clock - timestamp_sample` 的消息年龄当成时钟偏移，错误使用 20 ms 阈值。修正为分别记录测量到发布、发布到最后收到的 clock，并使用 20 ms 测量时间配对覆盖检查；保留 250 ms 新鲜度门限。异步 clock 回调滞后也会制造假的负年龄，不能据此声称 PX4 测量来自未来。配对覆盖率本身不等于独立时钟偏移认证。
 2. Gazebo Harmonic 默认磁力计世界场为 NED、输出 gauss；官方 PX4 兼容处理交换轴。Astra 显式指定世界场 ENU/tesla，配套本地仿真桥按 body FLU→FRD、tesla→gauss 转换。官方模型原 gauss 噪声数值也等比例换算为 tesla，没有减小物理噪声。首次转换漏了噪声单位，磁场检查拦住了测试、没有解锁；已修正并保留记录。
-3. 最终接口的 `small_mag_enu_02` 和 `obstacle_mag_enu_01` 静止航向误差 p95 约 1°，磁场强度约 0.481 gauss，接近 PX4 参考 0.482 gauss；**未取得该接口下的成功飞行**。
+3. 早期 `small_mag_enu_02` 和 `obstacle_mag_enu_01` 静止航向误差 p95 约 1°，磁场强度约 0.481 gauss，接近 PX4 参考 0.482 gauss；当时未取得成功飞行。后续最终接口飞行证据见本报告末尾。
 4. `obstacle_mag_enu_01` 因地面高度偏置约 0.25 m 超过 0.15 m 门限，起飞前停止；没有 EGO 控制权交接、没有实际绕障。详见 `obstacle_attempt_117.json`。
 5. `EKF2_GPS_CTRL=5` 是水平位置与三维速度，原本就没有 GPS 高度融合。试验中一度把位掩码读错，改为 1；该值关闭的是速度辅助，不能证明 GPS 高度影响。已恢复 5，失败实验保存在 `preflight_diagnostics_117.json`。
 6. 气压噪声 0.1→0.3 m 的单因素试验没有解决地面 Z 偏置，已恢复默认测试值 0.1。保留 `--baro-noise-m 0.3` 作为显式对比入口，不能宣称该值修复了高度。
 
-下一项应分解地面高度的固定原点/初始气压偏置与随时间漂移，结合 `ref_alt`、气压高度和测量时间。`ground_height_diagnostics_117.json` 已保存不同测试的分布。没有放宽高度、初始航向、数据新鲜度或障碍物保护来取得通过。
+地面高度已分解为本轮固定原点偏置和后续漂移，结合 `ref_alt`、气压高度和测量时间。`ground_height_diagnostics_117.json` 保存早期分布；新增独立捕获与验证见下文。没有放宽高度残差、初始航向、数据新鲜度或障碍物保护来取得通过。
 
 ## 命令和日志
 
@@ -59,4 +59,76 @@ bash astra/run_117.bash small baro_compare_02 --baro-noise-m 0.3
 
 每轮完整日志在 `astra/runtime/<名称>/`：`runtime.json`、`simulator.log`、`preflight_health.json`、`frame_samples.csv`、`receipt_summary.json`、`motion_events.json` 和 PX4 `log/**/*.ulg`。完整日志和构建缓存不进 Git，结构化证据保存在本目录。
 
-27 项桥、启动器和被动时间检查回归通过；此前完整算法的 3 项 CTest 与 11 项适配器/地图测试通过。旧 PX4 提交、已有源码修改状态、参数文件及 251 个 ROS 原源码哈希均未改变，见 `baseline_preservation_check.json`。所有本轮仿真进程已停止。新 PX4 的补丁留在独立 checkout，并以 patch 文件保存在新框架；GitHub 尚未推送。
+31 项桥、启动器、被动时间检查与固定高度偏置回归通过；此前完整算法的 3 项 CTest 与 11 项适配器/地图测试通过。旧 PX4 提交、已有源码修改状态、参数文件及 251 个 ROS 原源码哈希均未改变，见 `baseline_preservation_check.json`。所有本轮仿真进程已停止。新 PX4 的补丁留在独立 checkout，并以 patch 文件保存在新框架；GitHub 尚未推送。
+
+
+## 续测：固定高度原点与运动保护
+
+`height_static_01` 连续 120 秒静止：前 4 秒冻结的 PX4/Gazebo 高度偏置约 0.114 m，后续 113 秒残差 p95 0.075 m、最大 0.157 m，未出现 reset。`ref_alt` 在本轮保持 0.150 m；不同轮的 `ref_alt` 不同，不可假设 local NED Z 与 Gazebo 共享零点。仍有气压/估计噪声，不能宣称漂移已消除。详见 `ground_height_static_117.json`。
+
+新增显式 `--calibrate-ground-height`：在地面用 FAST-LIVO2 和 PX4 **测量时间配对**采集 4 秒，冻结 `PX4.z + LIVO.z` 的中位数；再用新的 4 秒样本逐帧验证偏置后的残差不超过原 0.15 m 门限。没有 Gazebo 校准输入，不向 PX4 发布 External Vision，也不改变其估计器原点。Gazebo 只用于初始地面边界检查和独立停测。采集失败、后续残差超限、reset 或数据间断均拒绝认证，不重新拟合后续数据。运行中新增冻结地面偏置的 0.20 m 高度差检查，规划执行桥原有 0.20 m Z 差检查保留。
+
+`small_ground_aligned_01` 在最终 ENU/tesla 磁力计接口下完成起飞、前进、侧移、返回和降落：到位观察结束的真实前进 0.392 m、侧移 0.421 m；LIVO XY p95 0.0031～0.0035 m，PX4 XY p95 0.0169～0.0454 m、Z p95 0.0522～0.0746 m、航向 p95 1.04～1.23°。测量配对 p95 8 ms，没有 armed failsafe，运动开始后 reset 为零。冻结地面高度偏置全录制残差 p95 0.0677 m、最大 0.1083 m。四秒到位观察仍不是严格速度稳定悬停认证。详见 `small_ground_aligned_117.json`。
+
+```bash
+bash astra/run_117.bash static height_static_02 --seconds 120
+bash astra/run_117.bash small small_ground_aligned_02 --calibrate-ground-height
+bash astra/run_117.bash obstacle obstacle_ground_aligned_02 --calibrate-ground-height
+```
+
+新加入的 4 项回归覆盖独立验证、固定偏置、漂移拒绝、reset、测量间断与采集波动。
+
+## 最终接口：EGO-Planner 实际绕障往返
+
+`obstacle_ground_aligned_01` 使用最终传感器接口和固定地面高度偏置，完成起飞→目标偏移 [5,3] m→返回→降落/解除解锁。每段只给目标点，由 EGO 自主规划绕障，未手工提供绕行点。两段直线路径都穿过箱子；实际水平航迹约 14.798 m。全真值三维航迹为 16.759 m，包含垂直运动，不能混作水平距离。
+
+| 检查 | 实测 |
+| --- | --- |
+| 机体参考点到全部 10 个静态障碍的最小水平距离 | 0.74357 m |
+| 轨迹峰值速度 / 加速度 | 0.19782 m/s / 0.05580 m/s² |
+| 实际峰值三维速度 | 0.21031 m/s |
+| PX4 目标跟踪误差 p95 / 最大 | 0.07121 / 0.09751 m |
+| LIVO 对真值 XY / Z 误差 p95 | 0.00662 / 0.00509 m |
+| PX4 对真值 XY / Z 误差 p95 | 0.05469 / 0.09381 m |
+| PX4 对真值 Z 最大误差 | 0.14050 m |
+| PX4 对真值航向误差 p95 / 最大 | 1.417 / 1.600° |
+| 固定地面偏置后 PX4/LIVO 高度差 p95 / 最大 | 0.07910 / 0.12300 m |
+| 两套测量与真值配对 p95 | 8 ms |
+| 桥发送最大间隔 | 58.95 ms |
+| odom 测量年龄 p95 | 48 ms |
+| 返回后真值 XY 误差 | 0.03893 m |
+
+位置误差采用首次目标发送前 2 秒冻结的平移偏置、已知零航向生成场景的固定 ENU/NED 轴方向；不对整个运动重新拟合。该路线 p95 XY/Z 达到 0.10 m 目标，但 Z 最大误差仍超过 0.10 m，不能宣称全样本精确认证；通用坐标变换的 `frame_alignment_certified` 仍为 false。仅采用等效传感器模型，障碍距离以机体参考点计算，尚未扣除整机/旋翼外形。
+
+PX4 ULog 确认了 700 个与执行桥目标精确对应的规划 setpoint（记录频率较低，桥共发送 2637 个跟踪样本），证明不是仅预览轨迹。飞行期间 armed failsafe、XY/Z/yaw reset、External Vision 融合均为零。GPS 实际日志 `vehicle_gps_position` 最大间隔 36 ms；磁力计被 ULog 降采样为约 1 Hz、最大记录间隔 1.008 s；电池记录最大间隔 0.212 s。三者持续覆盖规划飞行，没有复现共享更新中断；这仍不证明所有历史中断根因已确定。
+
+全记录 readiness 最大接收间隔 364.59 ms 发生在仿真 52.504～52.868 秒，早于控制交接 93.224 秒；不能隐去该启动慢段。规划执行期间 readiness 最大间隔 88.47 ms、odom 最大间隔 145.60 ms、PX4 local 最大间隔 58.45 ms。正常路线未触发新鲜度保护。
+
+本轮 LIVO RSS 从 180172 KiB 增至 414960 KiB，地图 99288→108476 KiB、规划器 171228→172440 KiB。保留图像上限仍为 512，但该短飞行不能证明新环境或大范围建图内存最终平台化。
+
+证据：`obstacle_closed_loop_117.json`、`obstacle_reliability_117.json`、`obstacle_receipt_117.json`。图中蓝线为 Gazebo 实际航迹，灰虚线为直接目标连线，星号为出发/返回目标。
+
+![实际绕障往返](obstacle_actual_path_117.png)
+
+## 运行中的地图失联保护
+
+`map_loss_117_01` 在 EGO 获得控制权 3 秒后，向本轮独立地图进程组发送 SIGINT。最后健康消息可能仍为 `ready=true`，失联由心跳过期检查捕获，而不是依赖退出前发布 false。
+
+- 停图命令→退出规划跟踪：293.56 ms；→冻结保持目标：293.80 ms。
+- 20 个保持 setpoint 的 XYZ 范围都为零；保持约 1 秒后请求降落，约 6.10 秒后解除解锁。
+- 保持期间 Gazebo 仍移动 0.0705 m；这是固定控制目标，不能称为瞬时物理停止。
+- 无 armed failsafe，安全降落；原参数/源码未改变。飞行驱动按预期故障返回 1，外层仅在观察到停图后故障、500 ms 内保持、解除解锁等条件时将故障回归记为通过，不记为正常路线完成。
+
+证据：`map_loss_117.json`。此次测试覆盖 SIGINT 进程退出导致的心跳丢失，尚未覆盖所有通信分区、主机卡死或飞控失联情形。
+
+复现和审计命令（名称必须全新）：
+
+```bash
+bash astra/run_117.bash obstacle obstacle_recheck_01 --calibrate-ground-height
+python3 astra/tools/analyze_ego_obstacle_20261010.py astra/runtime/obstacle_recheck_01
+python3 astra/tools/audit_obstacle_reliability_20261010.py astra/runtime/obstacle_recheck_01
+bash astra/run_117.bash obstacle map_loss_recheck_01 --calibrate-ground-height --stop-map-after-handoff-s 3
+python3 astra/tools/audit_map_loss_117.py astra/runtime/map_loss_recheck_01 --output astra/validation/map_loss_recheck_01.json
+```
+
+当前可以继续增加目标方向、重复路线和环境复杂度的仿真验收；一次往返通过不等于所有场景可靠。严格四秒稳定悬停、长时间大范围内存、动态障碍和真机迁移尚未认证，External Vision 继续关闭。
