@@ -1,0 +1,8 @@
+{
+  "repository": "XTDrone2",
+  "file": "migration/px4-v1.17.0/COLCON_IGNORE",
+  "reason": "修复复制迁移记录后出现重复 xtd2_test 包的问题：仅将记录目录排除出 colcon 包发现，保留正式源码和全部审计记录。",
+  "timestamp": "2026-10-10T11:10:58.653484+08:00",
+  "before_sha256": null,
+  "after_sha256": "5fe1d4ab9a6ab4a81220e6bb4e5e7a9d37ad6962ad330bfc4ba50499c9bb858e"
+}

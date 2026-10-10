@@ -32,6 +32,8 @@ from rclpy.qos import QoSProfile, qos_profile_sensor_data
 
 import argparse
 
+from xtd2_communication.px4_topics import px4_topic
+
 class MultirotorCommunication(Node):
     def __init__(self, model, id, namespace="", debug=False):
         
@@ -64,12 +66,12 @@ class MultirotorCommunication(Node):
         self.cmd_server = self.create_service(XTD2Cmd, f'/xtdrone2/{self.namespace}/cmd', self.cmd_callback)
 
         # DDS Interface
-        self.create_subscription(VehicleLocalPosition, f'/{self.namespace}/fmu/out/vehicle_local_position', self.vehicle_local_position_callback, QoSProfile(depth=10, reliability=qos_profile_sensor_data.reliability))
-        self.create_subscription(VehicleGlobalPosition, f'/{self.namespace}/fmu/out/vehicle_global_position', self.vehicle_global_position_callback, QoSProfile(depth=10, reliability=qos_profile_sensor_data.reliability))
-        self.vehicle_command_publisher = self.create_publisher(VehicleCommand, f'/{self.namespace}/fmu/in/vehicle_command', 10)
-        self.offboard_control_mode_pub = self.create_publisher(OffboardControlMode, f'/{self.namespace}/fmu/in/offboard_control_mode', 10)
-        self.dds_trajectory_setpoint_pub = self.create_publisher(TrajectorySetpoint, f'/{self.namespace}/fmu/in/trajectory_setpoint', 10)
-        self.dds_vehicle_attitude_setpoint_pub = self.create_publisher(VehicleAttitudeSetpoint, f'/{self.namespace}/fmu/in/vehicle_attitude_setpoint', 10)
+        self.create_subscription(VehicleLocalPosition, px4_topic(self.namespace, 'out', 'vehicle_local_position', VehicleLocalPosition), self.vehicle_local_position_callback, QoSProfile(depth=10, reliability=qos_profile_sensor_data.reliability))
+        self.create_subscription(VehicleGlobalPosition, px4_topic(self.namespace, 'out', 'vehicle_global_position', VehicleGlobalPosition), self.vehicle_global_position_callback, QoSProfile(depth=10, reliability=qos_profile_sensor_data.reliability))
+        self.vehicle_command_publisher = self.create_publisher(VehicleCommand, px4_topic(self.namespace, 'in', 'vehicle_command', VehicleCommand), 10)
+        self.offboard_control_mode_pub = self.create_publisher(OffboardControlMode, px4_topic(self.namespace, 'in', 'offboard_control_mode', OffboardControlMode), 10)
+        self.dds_trajectory_setpoint_pub = self.create_publisher(TrajectorySetpoint, px4_topic(self.namespace, 'in', 'trajectory_setpoint', TrajectorySetpoint), 10)
+        self.dds_vehicle_attitude_setpoint_pub = self.create_publisher(VehicleAttitudeSetpoint, px4_topic(self.namespace, 'in', 'vehicle_attitude_setpoint', VehicleAttitudeSetpoint), 10)
 
         self.timer_ = self.create_timer(0.05, self.timer_callback)
 

@@ -1,0 +1,21 @@
+{
+  "subscriptions": [
+    "/x500_0/fmu/out/vehicle_global_position",
+    "/x500_0/fmu/out/vehicle_local_position_v1",
+    "/xtdrone2/x500_0/cmd_accel_flu",
+    "/xtdrone2/x500_0/cmd_accel_ned",
+    "/xtdrone2/x500_0/cmd_attitude_flu",
+    "/xtdrone2/x500_0/cmd_pose_local_flu",
+    "/xtdrone2/x500_0/cmd_pose_local_ned",
+    "/xtdrone2/x500_0/cmd_vel_flu",
+    "/xtdrone2/x500_0/cmd_vel_ned"
+  ],
+  "publishers": [
+    "/parameter_events",
+    "/x500_0/fmu/in/offboard_control_mode",
+    "/x500_0/fmu/in/trajectory_setpoint",
+    "/x500_0/fmu/in/vehicle_attitude_setpoint_v1",
+    "/x500_0/fmu/in/vehicle_command",
+    "/xtdrone2/x500_0/debug/vehicle_state"
+  ]
+}

@@ -1,0 +1,32 @@
+# PX4 v1.15.3 → v1.17.0 修改记录
+
+- [完整修改日志](CHANGELOG.md)
+- [迁移与启动说明](final-code/XTDrone2/docs/PX4_V1_17.md)
+- `record_change.py`: 后续可调用的逐文件修改记录工具。
+- `file-changes/`: 每次自定义文件修改的独立 patch 和 JSON，包含原因、时间、修改前后 SHA-256。
+- `upstream-files-v1.15.3-to-v1.17.0.tsv`: 官方版本间 9248 个文件条目；官方历史由 tag 和 commit 固定。
+- `metadata.json`: 升级前后提交、原文件备份位置和移动目录。
+- `px4-msgs-version.json`: 消息子模块前后提交及六种消息一致性检查。
+- `record-integrity.json`: 所有记录的哈希链和当前文件一致性检查。
+- `final-code/`: 本次定制文件最终内容，按两个仓库分目录保存。
+- `px4-custom.patch` / `xtdrone2-custom.patch`: 两个仓库的累计定制差异，含新增文件。
+
+## 验证结果
+
+| 检查 | 结果 | 证据 |
+| --- | --- | --- |
+| PX4 v1.17.0 SITL 编译 | 1139/1139 成功 | px4-build.log |
+| ROS 核心工作空间 | 8 个包成功 | ros-build.log |
+| Agent v2.4.3 | 编译、隔离安装成功 | agent-build.log |
+| 六个消息定义 | 与 PX4 v1.17.0 一致 | px4-msgs-version.json |
+| 通信节点接口 | 可正常构造，话题版本正确 | ros-node-interfaces.json |
+| 官方 X500 仿真 | 连续 5 条有效位置数据 | runtime-validation.json |
+| XTDrone2 aruco 世界与车辆启动文件 | 连续 5 条有效位置数据 | xtdrone2-aruco-runtime-validation.json |
+
+原 XTDrone2 模型测试失败记录保留在 `xtdrone2-launch-validation.json`（收到 3129 条消息，但水平位置无效），随后补充磁力计后通过。最初两次 Agent 依赖失败的日志也保留，用于说明安装脚本的后续修改原因。
+
+运行测试完成后会主动中断仿真进程，日志末尾的 SIGINT / KeyboardInterrupt 属于清理过程。官方仿真的原始输出已无损压缩为 `px4-gazebo-runtime.log.gz`，可读日志为 `px4-gazebo-runtime-clean.log`。
+
+本次运行检查覆盖启动与遥测，尚未执行解锁、起飞、多机和全部控制接口。
+
+两处源码当前均位于 `migration/px4-v1.17.0` 分支；尚未生成用户署名 commit 或推送 GitHub。完整原版本备份位于 `~/px4-migration-backups/20261010-001848-v1.15.3`。

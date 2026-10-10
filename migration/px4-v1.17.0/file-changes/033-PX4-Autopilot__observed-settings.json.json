@@ -1,0 +1,9 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": ".vscode/settings.json",
+  "reason": "检测到上次记录后新增 ROS2.distro=jazzy 编辑器设置；补记该变化，保留当前文件内容。",
+  "timestamp": "2026-10-10T11:17:38.954515+08:00",
+  "before_sha256": "972e68188782a8a86e9d9ef236967f0ac4447c7b714bf592bd12baf30d813c29",
+  "after_sha256": "34cf5dc06732a71cd181fb2f4357bfcc6d4d97caeb8a7fa7fcdc3196cd167f1f",
+  "observed_external_change": true
+}

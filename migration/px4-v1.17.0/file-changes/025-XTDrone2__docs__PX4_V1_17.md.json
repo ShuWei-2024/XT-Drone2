@@ -1,0 +1,8 @@
+{
+  "repository": "XTDrone2",
+  "file": "docs/PX4_V1_17.md",
+  "reason": "补充固定版本、真实启动命令、重建步骤、验证范围、备份与两仓库提交说明。",
+  "timestamp": "2026-10-10T01:59:35.112413+08:00",
+  "before_sha256": null,
+  "after_sha256": "e52773529665c3f4d4fa50b75b8cbacd6dd764222ebfc7df5c35790df1457640"
+}

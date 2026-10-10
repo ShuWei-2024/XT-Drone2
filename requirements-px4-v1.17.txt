@@ -1,0 +1,3 @@
+# Additional dependency needed by ROS Jazzy tf_transformations inside xtd2_pyenv.
+# Install after the tutorial dependencies and PX4 Tools/setup/requirements.txt.
+transforms3d==0.4.2

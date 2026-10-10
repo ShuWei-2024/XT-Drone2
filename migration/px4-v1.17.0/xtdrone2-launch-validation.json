@@ -1,0 +1,10 @@
+{
+  "passed": false,
+  "received_samples": 3129,
+  "launch_file": "xtd2_vehicle_spawn_launch.py",
+  "position": {
+    "timestamp": 1791566989126736,
+    "xy_valid": false,
+    "z_valid": true
+  }
+}

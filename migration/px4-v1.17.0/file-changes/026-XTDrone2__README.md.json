@@ -1,0 +1,8 @@
+{
+  "repository": "XTDrone2",
+  "file": "README.md",
+  "reason": "在仓库首页提供 PX4 1.17 迁移说明入口，保留原 XTDrone2 README 内容。",
+  "timestamp": "2026-10-10T01:59:35.115393+08:00",
+  "before_sha256": "9896d78183a383a0d4cc5e5c9b17d46c71839fb27dc2ddc31eea25f85c0cf67f",
+  "after_sha256": "ec44607016ec05e20e81df8bd343bf0931061c995b52ca90559eb9ff93b11c5d"
+}

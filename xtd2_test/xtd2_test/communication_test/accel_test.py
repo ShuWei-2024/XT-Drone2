@@ -18,6 +18,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from xtd2_msgs.srv import XTD2Cmd
 from px4_msgs.msg import VehicleLocalPosition
+from xtd2_communication.px4_topics import px4_topic
 from rclpy.time import Time
 from rclpy.duration import Duration
 from rclpy.qos import QoSProfile, qos_profile_sensor_data
@@ -31,7 +32,7 @@ class TestAccelerationPublisher(Node):
         # 订阅PX4的本地位置信息
         self.position_subscription = self.create_subscription(
             VehicleLocalPosition,
-            f'/{namespace}/fmu/out/vehicle_local_position',
+            px4_topic(namespace, 'out', 'vehicle_local_position', VehicleLocalPosition),
             self.position_callback,
             QoSProfile(depth=10, reliability=qos_profile_sensor_data.reliability)
         )

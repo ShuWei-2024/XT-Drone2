@@ -1,0 +1,7 @@
+{
+  "file": ".vscode/settings.json",
+  "reason": "恢复用户原有 Jazzy Python 搜索路径；将 ROS 发行版设为 Jazzy，并指定仿真虚拟环境解释器。",
+  "timestamp": "2026-10-10T00:26:08.737670+08:00",
+  "before_sha256": "a09ed90f2dbbff24a598365da5eb45d62ff3ce5303465fea40e4c250b72b2193",
+  "after_sha256": "972e68188782a8a86e9d9ef236967f0ac4447c7b714bf592bd12baf30d813c29"
+}

@@ -1,0 +1,8 @@
+{
+  "repository": "XTDrone2",
+  "file": "xtd2_communication/xtd2_communication/multirotor_communication.py",
+  "reason": "将通信节点的六个 DDS 接口绑定到对应消息版本，修复 PX4 v1.17 本地位置订阅及姿态设定点发布的话题名称。",
+  "timestamp": "2026-10-10T00:41:05.921424+08:00",
+  "before_sha256": "45e7c2a3fa90da6d3ca88b3a6dbcf191d93021d777cd8f0ac42fa063bb8beb28",
+  "after_sha256": "e5cae6094c31bf41a198a399ec7f2e4f9630eec93172c5aee109b3867edc0677"
+}

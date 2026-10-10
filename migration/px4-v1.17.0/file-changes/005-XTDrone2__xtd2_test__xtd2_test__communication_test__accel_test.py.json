@@ -1,0 +1,8 @@
+{
+  "repository": "XTDrone2",
+  "file": "xtd2_test/xtd2_test/communication_test/accel_test.py",
+  "reason": "同步加速度示例中的本地位置订阅，避免在 v1.17 上因仍订阅旧话题而无法获取位置。",
+  "timestamp": "2026-10-10T00:41:05.924456+08:00",
+  "before_sha256": "a9ba899baeb35fc86b2c6fbaac67f38728bdc5ee1cfe116fe1ae0782804ea479",
+  "after_sha256": "6da4fe8dc725aa91ec806211d1bfd36039c2fa63e29623971715ab03f831d244"
+}

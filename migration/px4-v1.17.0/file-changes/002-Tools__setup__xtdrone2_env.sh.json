@@ -1,0 +1,7 @@
+{
+  "file": "Tools/setup/xtdrone2_env.sh",
+  "reason": "提供可重复的 VS Code 终端环境初始化，加载 Jazzy、Python 虚拟环境及 ROS 内置的 Gazebo Harmonic 命令。",
+  "timestamp": "2026-10-10T00:26:08.743578+08:00",
+  "before_sha256": null,
+  "after_sha256": "a6bba6fd5d26b7277e2f879b85e725dc27e72e197e173491ebcf7088ea55b58c"
+}

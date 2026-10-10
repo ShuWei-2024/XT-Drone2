@@ -1,0 +1,8 @@
+{
+  "repository": "XTDrone2",
+  "file": "xtd2_test/package.xml",
+  "reason": "声明示例节点实际使用的消息包和通信辅助模块，确保 colcon 构建与运行依赖顺序正确。",
+  "timestamp": "2026-10-10T00:41:05.925739+08:00",
+  "before_sha256": "6c30c3ae198014699335a85ac88775e9d12023742f4a29ff2ee7d1b032c62e04",
+  "after_sha256": "519aea48cf27e880104c485a44797ecf76d5a79a4371ed21d4fe58cd3d0ecd4e"
+}

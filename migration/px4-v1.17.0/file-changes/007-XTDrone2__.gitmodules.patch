@@ -1,0 +1,10 @@
+--- a/.gitmodules
++++ b/.gitmodules
+@@ -1,6 +1,7 @@
+ [submodule "xtd2_third_party_pkgs/px4_msgs"]
+ 	path = xtd2_third_party_pkgs/px4_msgs
+ 	url = https://github.com/PX4/px4_msgs.git
++	branch = release/1.17
+ 	
+ [submodule "docs/wiki"]
+ 	path = docs/wiki

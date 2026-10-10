@@ -1,0 +1,8 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": "Tools/setup/xtdrone2_agent.sh",
+  "reason": "系统 spdlog 1.12/fmt 9 不兼容 Agent 2.4.3 的格式化代码；使用官方 SuperBuild 构建随版本匹配的 spdlog 1.9.2，同时复用 Jazzy 的 FastDDS/FastCDR。",
+  "timestamp": "2026-10-10T00:58:55.999369+08:00",
+  "before_sha256": "2e51549f885abac19a473b6920d84421becf4eb89d30098cc4b9c10e306ef3a8",
+  "after_sha256": "b23b4ceebcc9f86621ee40baac558d443804847e7e912fbed80d060767301657"
+}

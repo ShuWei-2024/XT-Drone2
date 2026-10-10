@@ -1,0 +1,8 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": "migration/px4-v1.17.0/README.md",
+  "reason": "整理逐文件记录索引、构建与端到端验证证据及提交状态，便于用户审查和一并上传。",
+  "timestamp": "2026-10-10T01:59:35.116617+08:00",
+  "before_sha256": null,
+  "after_sha256": "dda342e345bdea2c7a57a7187085bc4deb792db4e71c5e22d352efb35d08d295"
+}

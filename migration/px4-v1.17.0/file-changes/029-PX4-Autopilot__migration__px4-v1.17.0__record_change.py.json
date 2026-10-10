@@ -1,0 +1,8 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": "migration/px4-v1.17.0/record_change.py",
+  "reason": "将逐文件记录工具随源码保存，支持后续修改自动产生差异、原因、时间与哈希记录。",
+  "timestamp": "2026-10-10T02:10:14.488319+08:00",
+  "before_sha256": null,
+  "after_sha256": "27b1dae22c0bb06970fc83196446fc7537644209c883b899ce2fbb438e22e347"
+}

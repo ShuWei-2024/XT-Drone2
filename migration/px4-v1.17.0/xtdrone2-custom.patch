@@ -1,0 +1,350 @@
+diff --git a/.gitmodules b/.gitmodules
+index 96362b9..4a08d00 100644
+--- a/.gitmodules
++++ b/.gitmodules
+@@ -1,6 +1,7 @@
+ [submodule "xtd2_third_party_pkgs/px4_msgs"]
+ 	path = xtd2_third_party_pkgs/px4_msgs
+ 	url = https://github.com/PX4/px4_msgs.git
++	branch = release/1.17
+ 	
+ [submodule "docs/wiki"]
+ 	path = docs/wiki
+diff --git a/README.md b/README.md
+index a1b20d5..18f0e91 100644
+--- a/README.md
++++ b/README.md
+@@ -1,3 +1,5 @@
++> 本分支已迁移到 **PX4 v1.17.0 / ROS 2 Jazzy / Gazebo Harmonic**。启动、构建及逐文件修改记录说明见 [PX4 v1.17 迁移文档](docs/PX4_V1_17.md)。
++
+ # XTDrone2
+ 
+ **项目前身：**[XTDrone](https://gitee.com/robin_shaun/XTDrone)
+diff --git a/xtd2_communication/xtd2_communication/multirotor_communication.py b/xtd2_communication/xtd2_communication/multirotor_communication.py
+index 2d4a7de..5b06bd2 100644
+--- a/xtd2_communication/xtd2_communication/multirotor_communication.py
++++ b/xtd2_communication/xtd2_communication/multirotor_communication.py
+@@ -32,6 +32,8 @@ from rclpy.qos import QoSProfile, qos_profile_sensor_data
+ 
+ import argparse
+ 
++from xtd2_communication.px4_topics import px4_topic
++
+ class MultirotorCommunication(Node):
+     def __init__(self, model, id, namespace="", debug=False):
+         
+@@ -64,12 +66,12 @@ class MultirotorCommunication(Node):
+         self.cmd_server = self.create_service(XTD2Cmd, f'/xtdrone2/{self.namespace}/cmd', self.cmd_callback)
+ 
+         # DDS Interface
+-        self.create_subscription(VehicleLocalPosition, f'/{self.namespace}/fmu/out/vehicle_local_position', self.vehicle_local_position_callback, QoSProfile(depth=10, reliability=qos_profile_sensor_data.reliability))
+-        self.create_subscription(VehicleGlobalPosition, f'/{self.namespace}/fmu/out/vehicle_global_position', self.vehicle_global_position_callback, QoSProfile(depth=10, reliability=qos_profile_sensor_data.reliability))
+-        self.vehicle_command_publisher = self.create_publisher(VehicleCommand, f'/{self.namespace}/fmu/in/vehicle_command', 10)
+-        self.offboard_control_mode_pub = self.create_publisher(OffboardControlMode, f'/{self.namespace}/fmu/in/offboard_control_mode', 10)
+-        self.dds_trajectory_setpoint_pub = self.create_publisher(TrajectorySetpoint, f'/{self.namespace}/fmu/in/trajectory_setpoint', 10)
+-        self.dds_vehicle_attitude_setpoint_pub = self.create_publisher(VehicleAttitudeSetpoint, f'/{self.namespace}/fmu/in/vehicle_attitude_setpoint', 10)
++        self.create_subscription(VehicleLocalPosition, px4_topic(self.namespace, 'out', 'vehicle_local_position', VehicleLocalPosition), self.vehicle_local_position_callback, QoSProfile(depth=10, reliability=qos_profile_sensor_data.reliability))
++        self.create_subscription(VehicleGlobalPosition, px4_topic(self.namespace, 'out', 'vehicle_global_position', VehicleGlobalPosition), self.vehicle_global_position_callback, QoSProfile(depth=10, reliability=qos_profile_sensor_data.reliability))
++        self.vehicle_command_publisher = self.create_publisher(VehicleCommand, px4_topic(self.namespace, 'in', 'vehicle_command', VehicleCommand), 10)
++        self.offboard_control_mode_pub = self.create_publisher(OffboardControlMode, px4_topic(self.namespace, 'in', 'offboard_control_mode', OffboardControlMode), 10)
++        self.dds_trajectory_setpoint_pub = self.create_publisher(TrajectorySetpoint, px4_topic(self.namespace, 'in', 'trajectory_setpoint', TrajectorySetpoint), 10)
++        self.dds_vehicle_attitude_setpoint_pub = self.create_publisher(VehicleAttitudeSetpoint, px4_topic(self.namespace, 'in', 'vehicle_attitude_setpoint', VehicleAttitudeSetpoint), 10)
+ 
+         self.timer_ = self.create_timer(0.05, self.timer_callback)
+ 
+diff --git a/xtd2_gz_sim/models/x500_base/model.sdf b/xtd2_gz_sim/models/x500_base/model.sdf
+index f4e450e..584f6ea 100644
+--- a/xtd2_gz_sim/models/x500_base/model.sdf
++++ b/xtd2_gz_sim/models/x500_base/model.sdf
+@@ -227,6 +227,32 @@
+           </pressure>
+         </air_pressure>
+       </sensor>
++      <sensor name="magnetometer_sensor" type="magnetometer">
++        <gz_frame_id>base_link</gz_frame_id>
++        <always_on>1</always_on>
++        <update_rate>100</update_rate>
++        <magnetometer>
++          <!-- TODO: update to fix units and coordinate system when we move past Harmonic -->
++          <!-- See https://github.com/gazebosim/gz-sim/pull/2460 -->
++          <!-- 3mgauss RMS: NOTE: noise is in tesla but sensor reports data in gauss -->
++          <!-- Noise modeled after IIS2MDC -->
++          <x>
++            <noise type="gaussian">
++              <stddev>0.0001</stddev>
++            </noise>
++          </x>
++          <y>
++            <noise type="gaussian">
++              <stddev>0.0001</stddev>
++            </noise>
++          </y>
++          <z>
++            <noise type="gaussian">
++              <stddev>0.0001</stddev>
++            </noise>
++          </z>
++        </magnetometer>
++      </sensor>
+       <sensor name="imu_sensor" type="imu">
+         <always_on>1</always_on>
+         <update_rate>250</update_rate>
+diff --git a/xtd2_gz_sim/worlds/aruco.sdf b/xtd2_gz_sim/worlds/aruco.sdf
+index 4f98571..fb6ff2f 100644
+--- a/xtd2_gz_sim/worlds/aruco.sdf
++++ b/xtd2_gz_sim/worlds/aruco.sdf
+@@ -14,6 +14,7 @@
+     <plugin name="gz::sim::systems::AirPressure" filename="gz-sim-air-pressure-system"/>
+     <plugin name="gz::sim::systems::ApplyLinkWrench" filename="gz-sim-apply-link-wrench-system"/>
+     <plugin name="gz::sim::systems::NavSat" filename="gz-sim-navsat-system"/>
++    <plugin name="gz::sim::systems::Magnetometer" filename="gz-sim-magnetometer-system"/>
+     <plugin name="gz::sim::systems::Sensors" filename="gz-sim-sensors-system">
+       <render_engine>ogre2</render_engine>
+     </plugin>
+diff --git a/xtd2_gz_sim/worlds/baylands.sdf b/xtd2_gz_sim/worlds/baylands.sdf
+index 66fdbe5..d5b516d 100644
+--- a/xtd2_gz_sim/worlds/baylands.sdf
++++ b/xtd2_gz_sim/worlds/baylands.sdf
+@@ -13,6 +13,7 @@
+     <plugin name='gz::sim::systems::AirPressure' filename='gz-sim-air-pressure-system'/>
+     <plugin name='gz::sim::systems::ApplyLinkWrench' filename='gz-sim-apply-link-wrench-system'/>
+     <plugin name='gz::sim::systems::NavSat' filename='gz-sim-navsat-system'/>
++    <plugin name="gz::sim::systems::Magnetometer" filename="gz-sim-magnetometer-system"/>
+     <plugin name='gz::sim::systems::Sensors' filename='gz-sim-sensors-system'>
+       <render_engine>ogre2</render_engine>
+     </plugin>
+diff --git a/xtd2_gz_sim/worlds/default.sdf b/xtd2_gz_sim/worlds/default.sdf
+index 9627bed..b6a2d49 100644
+--- a/xtd2_gz_sim/worlds/default.sdf
++++ b/xtd2_gz_sim/worlds/default.sdf
+@@ -15,6 +15,7 @@
+     <plugin name="gz::sim::systems::AirSpeed" filename="gz-sim-air-speed-system"/>
+     <plugin name="gz::sim::systems::ApplyLinkWrench" filename="gz-sim-apply-link-wrench-system"/>
+     <plugin name="gz::sim::systems::NavSat" filename="gz-sim-navsat-system"/>
++    <plugin name="gz::sim::systems::Magnetometer" filename="gz-sim-magnetometer-system"/>
+     <plugin name="gz::sim::systems::Sensors" filename="gz-sim-sensors-system">
+       <render_engine>ogre2</render_engine>
+     </plugin>
+diff --git a/xtd2_gz_sim/worlds/indoor1.sdf b/xtd2_gz_sim/worlds/indoor1.sdf
+index 614fadb..eee387a 100644
+--- a/xtd2_gz_sim/worlds/indoor1.sdf
++++ b/xtd2_gz_sim/worlds/indoor1.sdf
+@@ -34,6 +34,7 @@
+     <plugin name="gz::sim::systems::AirSpeed" filename="gz-sim-air-speed-system"/>
+     <plugin name="gz::sim::systems::ApplyLinkWrench" filename="gz-sim-apply-link-wrench-system"/>
+     <plugin name="gz::sim::systems::NavSat" filename="gz-sim-navsat-system"/>
++    <plugin name="gz::sim::systems::Magnetometer" filename="gz-sim-magnetometer-system"/>
+     <plugin name="gz::sim::systems::Sensors" filename="gz-sim-sensors-system">
+       <render_engine>ogre2</render_engine>
+     </plugin>
+diff --git a/xtd2_gz_sim/worlds/lawn.sdf b/xtd2_gz_sim/worlds/lawn.sdf
+index f8530bc..7058617 100644
+--- a/xtd2_gz_sim/worlds/lawn.sdf
++++ b/xtd2_gz_sim/worlds/lawn.sdf
+@@ -14,6 +14,7 @@
+     <plugin name="gz::sim::systems::AirPressure" filename="gz-sim-air-pressure-system"/>
+     <plugin name="gz::sim::systems::ApplyLinkWrench" filename="gz-sim-apply-link-wrench-system"/>
+     <plugin name="gz::sim::systems::NavSat" filename="gz-sim-navsat-system"/>
++    <plugin name="gz::sim::systems::Magnetometer" filename="gz-sim-magnetometer-system"/>
+     <plugin name="gz::sim::systems::Sensors" filename="gz-sim-sensors-system">
+       <render_engine>ogre2</render_engine>
+     </plugin>
+diff --git a/xtd2_gz_sim/worlds/rover.sdf b/xtd2_gz_sim/worlds/rover.sdf
+index 919fb1f..8c61cd1 100644
+--- a/xtd2_gz_sim/worlds/rover.sdf
++++ b/xtd2_gz_sim/worlds/rover.sdf
+@@ -14,6 +14,7 @@
+     <plugin name="gz::sim::systems::AirPressure" filename="gz-sim-air-pressure-system"/>
+     <plugin name="gz::sim::systems::ApplyLinkWrench" filename="gz-sim-apply-link-wrench-system"/>
+     <plugin name="gz::sim::systems::NavSat" filename="gz-sim-navsat-system"/>
++    <plugin name="gz::sim::systems::Magnetometer" filename="gz-sim-magnetometer-system"/>
+     <plugin name="gz::sim::systems::Sensors" filename="gz-sim-sensors-system">
+       <render_engine>ogre2</render_engine>
+     </plugin>
+diff --git a/xtd2_gz_sim/worlds/walls.sdf b/xtd2_gz_sim/worlds/walls.sdf
+index d56f351..821f943 100644
+--- a/xtd2_gz_sim/worlds/walls.sdf
++++ b/xtd2_gz_sim/worlds/walls.sdf
+@@ -14,6 +14,7 @@
+     <plugin name="gz::sim::systems::AirPressure" filename="gz-sim-air-pressure-system"/>
+     <plugin name="gz::sim::systems::ApplyLinkWrench" filename="gz-sim-apply-link-wrench-system"/>
+     <plugin name="gz::sim::systems::NavSat" filename="gz-sim-navsat-system"/>
++    <plugin name="gz::sim::systems::Magnetometer" filename="gz-sim-magnetometer-system"/>
+     <plugin name="gz::sim::systems::Sensors" filename="gz-sim-sensors-system">
+       <render_engine>ogre2</render_engine>
+     </plugin>
+diff --git a/xtd2_gz_sim/worlds/windy.sdf b/xtd2_gz_sim/worlds/windy.sdf
+index 4604c39..da5f215 100644
+--- a/xtd2_gz_sim/worlds/windy.sdf
++++ b/xtd2_gz_sim/worlds/windy.sdf
+@@ -13,6 +13,7 @@
+     <plugin name='gz::sim::systems::AirPressure' filename='gz-sim-air-pressure-system'/>
+     <plugin name='gz::sim::systems::ApplyLinkWrench' filename='gz-sim-apply-link-wrench-system'/>
+     <plugin name='gz::sim::systems::NavSat' filename='gz-sim-navsat-system'/>
++    <plugin name="gz::sim::systems::Magnetometer" filename="gz-sim-magnetometer-system"/>
+     <plugin name='gz::sim::systems::Sensors' filename='gz-sim-sensors-system'>
+       <render_engine>ogre2</render_engine>
+     </plugin>
+diff --git a/xtd2_test/package.xml b/xtd2_test/package.xml
+index 66d2f3b..46d8ead 100644
+--- a/xtd2_test/package.xml
++++ b/xtd2_test/package.xml
+@@ -10,6 +10,9 @@
+   <depend>rclpy</depend>
+   <depend>std_msgs</depend>
+   <depend>geometry_msgs</depend>
++  <exec_depend>px4_msgs</exec_depend>
++  <exec_depend>xtd2_msgs</exec_depend>
++  <exec_depend>xtd2_communication</exec_depend>
+ 
+   <test_depend>ament_copyright</test_depend>
+   <test_depend>ament_flake8</test_depend>
+diff --git a/xtd2_test/xtd2_test/communication_test/accel_test.py b/xtd2_test/xtd2_test/communication_test/accel_test.py
+index fc223e5..bf3ea4e 100644
+--- a/xtd2_test/xtd2_test/communication_test/accel_test.py
++++ b/xtd2_test/xtd2_test/communication_test/accel_test.py
+@@ -18,6 +18,7 @@ from rclpy.node import Node
+ from geometry_msgs.msg import Twist
+ from xtd2_msgs.srv import XTD2Cmd
+ from px4_msgs.msg import VehicleLocalPosition
++from xtd2_communication.px4_topics import px4_topic
+ from rclpy.time import Time
+ from rclpy.duration import Duration
+ from rclpy.qos import QoSProfile, qos_profile_sensor_data
+@@ -31,7 +32,7 @@ class TestAccelerationPublisher(Node):
+         # 订阅PX4的本地位置信息
+         self.position_subscription = self.create_subscription(
+             VehicleLocalPosition,
+-            f'/{namespace}/fmu/out/vehicle_local_position',
++            px4_topic(namespace, 'out', 'vehicle_local_position', VehicleLocalPosition),
+             self.position_callback,
+             QoSProfile(depth=10, reliability=qos_profile_sensor_data.reliability)
+         )
+diff --git a/xtd2_third_party_pkgs/px4_msgs b/xtd2_third_party_pkgs/px4_msgs
+index 18cbcce..86d8239 160000
+--- a/xtd2_third_party_pkgs/px4_msgs
++++ b/xtd2_third_party_pkgs/px4_msgs
+@@ -1 +1 @@
+-Subproject commit 18cbccedb6c304b180bca8e81a4a601758fc9de9
++Subproject commit 86d8239e962f6939e05c3737784f60c02fa884db
+diff --git a/docs/PX4_V1_17.md b/docs/PX4_V1_17.md
+new file mode 100644
+index 0000000..7d9bd45
+--- /dev/null
++++ b/docs/PX4_V1_17.md
+@@ -0,0 +1,90 @@
++# PX4 v1.17.0 迁移说明
++
++本次在 Ubuntu 24.04 + ROS 2 Jazzy + Gazebo Harmonic 环境，将 PX4 v1.15.3 升级至官方 v1.17.0；保留原环境、源码差异和构建备份。
++
++## 固定版本
++
++- PX4: `v1.17.0`, `d6f12ad1c4f70ad3230afd7d86e971421e02fef4`。
++- px4_msgs: `release/1.17`, `86d8239e962f6939e05c3737784f60c02fa884db`。
++- Micro-XRCE-DDS-Agent: `v2.4.3`, `73622810d984349b80bbac0ef55fc0b694d62222`，安装于 `~/.local/px4-xrce-agent-v2.4.3`。
++- Python: `~/xtd2_pyenv`，附加依赖见 `requirements-px4-v1.17.txt`。
++
++PX4 默认 XRCE v2 客户端使用 Agent v2.4.3。原 Agent v3 源码保留，但本项目启动终端会优先选择隔离安装的 v2.4.3。
++
++## 本次代码调整
++
++1. DDS 话题按实际消息的 `MESSAGE_VERSION` 添加后缀。本地位置为 `/x500_0/fmu/out/vehicle_local_position_v1`；姿态设定点为 `/x500_0/fmu/in/vehicle_attitude_setpoint_v1`。
++2. px4_msgs 子模块固定到与 PX4 v1.17.0 匹配的提交，六种实际使用的消息定义已逐字节比较。
++3. 加速度示例同步本地位置话题，并声明实际运行依赖。
++4. 补充虚拟环境内的 `transforms3d` 依赖。
++5. X500 基础模型补充官方磁力计配置，八个世界启用磁力计系统。旧资源在 v1.17 下曾出现没有罗盘、水平位置无效，已在 aruco 世界实测修复。
++
++## 现有虚拟机启动
++
++```bash
++source ~/PX4-Autopilot/Tools/setup/xtdrone2_env.sh
++source ~/ws_xtd2/install/setup.bash
++ros2 launch xtd2_launch ros2_single_vehicle_demo_launch.py
++```
++
++需要测试升级后的通信时，停止其它仿真，执行：
++
++```bash
++source ~/PX4-Autopilot/Tools/setup/xtdrone2_env.sh
++source ~/ws_xtd2/install/setup.bash
++python ~/PX4-Autopilot/Tools/setup/xtdrone2_smoke_test.py --xtdrone2-world aruco
++```
++
++该测试启动无界面仿真，通过真实通信节点接收至少五条水平与高度均有效的位置数据，随后停止本次启动的进程。它验证启动和遥测通信，尚未覆盖解锁、起飞、多机及全部控制接口。
++
++## 重新构建
++
++前提是已经按 XTDrone2 教程安装 Jazzy、Gazebo 的 ROS vendor 包及 Python 虚拟环境。
++
++```bash
++source ~/PX4-Autopilot/Tools/setup/xtdrone2_env.sh
++python -m pip install -r ~/PX4-Autopilot/Tools/setup/requirements.txt
++python -m pip install -r ~/ws_xtd2/src/XTDrone2/requirements-px4-v1.17.txt
++bash ~/PX4-Autopilot/Tools/setup/xtdrone2_agent.sh
++cd ~/PX4-Autopilot
++make px4_sitl -j2
++cd ~/ws_xtd2
++colcon build --executor sequential --cmake-args -DBUILD_TESTING=OFF
++```
++
++Git 下载使用已经连通的宿主机代理时，可在该终端设置：
++
++```bash
++export http_proxy=http://192.168.31.1:7890
++export https_proxy=$http_proxy
++```
++
++XTDrone2 上游已有一个缺少 URL 映射的可选 ego-planner 子模块；本次核心八个包构建不需要它。获取 px4_msgs 时明确指定：
++
++```bash
++cd ~/ws_xtd2/src/XTDrone2
++git submodule update --init -- xtd2_third_party_pkgs/px4_msgs
++```
++
++## 修改记录与 GitHub 提交
++
++两处工作仓库都在 `migration/px4-v1.17.0` 分支。逐文件记录统一保存在 `~/PX4-Autopilot/migration/px4-v1.17.0/`：每次修改都有原因、时间、前后 SHA-256 和独立 patch；另有官方两版本的完整文件差异列表及构建、运行日志。
++
++PX4 与 XTDrone2 是独立 Git 仓库。向 `ShuWei-2024/XT-Drone2` 提交 XTDrone2 代码时，也应附带 PX4 的定制补丁和迁移记录；仅提交 XTDrone2 不会包含另一个目录下的 PX4 调整。保留许可证与上游来源。
++
++提交前分别查看：
++
++```bash
++git -C ~/PX4-Autopilot diff --stat
++git -C ~/ws_xtd2/src/XTDrone2 diff --stat
++```
++
++本次尚未生成用户署名的 Git commit，也尚未推送；Git 作者信息及可用的 GitHub 命令行登录仍需补齐。
++
++## 原版本备份
++
++备份：`~/px4-migration-backups/20261010-001848-v1.15.3/`。
++原 PX4 分支：`backup/px4-v1.15.3-20261010-001848`。
++旧 build、未跟踪目录、用户编辑器设置和原 tracked diff 均已保留。当前迁移改动先提交或另行保存后，再进行版本回退。
++
++参考：[PX4 v1.17.0 发布](https://github.com/PX4/PX4-Autopilot/releases/tag/v1.17.0)、[PX4 ROS 2 指南](https://docs.px4.io/main/en/ros2/user_guide)、[XTDrone2 教程](https://www.yuque.com/xtdrone/xtdrone2/tutorial)。
+diff --git a/requirements-px4-v1.17.txt b/requirements-px4-v1.17.txt
+new file mode 100644
+index 0000000..9b9474c
+--- /dev/null
++++ b/requirements-px4-v1.17.txt
+@@ -0,0 +1,3 @@
++# Additional dependency needed by ROS Jazzy tf_transformations inside xtd2_pyenv.
++# Install after the tutorial dependencies and PX4 Tools/setup/requirements.txt.
++transforms3d==0.4.2
+diff --git a/xtd2_communication/xtd2_communication/px4_topics.py b/xtd2_communication/xtd2_communication/px4_topics.py
+new file mode 100644
+index 0000000..00157c6
+--- /dev/null
++++ b/xtd2_communication/xtd2_communication/px4_topics.py
+@@ -0,0 +1,10 @@
++"""DDS topic names matching the installed PX4 message definitions."""
++
++
++def px4_topic(namespace, direction, name, message_type):
++    """Append PX4's version suffix only for nonzero message versions."""
++    version = getattr(message_type, 'MESSAGE_VERSION', 0)
++    suffix = f'_v{version}' if version else ''
++    namespace = namespace.strip('/')
++    prefix = f'/{namespace}' if namespace else ''
++    return f'{prefix}/fmu/{direction}/{name}{suffix}'

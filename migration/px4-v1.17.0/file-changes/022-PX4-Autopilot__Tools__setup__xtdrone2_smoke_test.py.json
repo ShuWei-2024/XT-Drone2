@@ -1,0 +1,8 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": "Tools/setup/xtdrone2_smoke_test.py",
+  "reason": "扩展端到端验证，支持实际 XTDrone2 世界与现有车辆启动文件，检查旧仿真资源迁移后的位置状态。",
+  "timestamp": "2026-10-10T01:38:38.718319+08:00",
+  "before_sha256": "d7668fb125baa6895723b0e1cbd9dadcc9b98bddbb9178f2e05c3d257b0d9722",
+  "after_sha256": "22bcba1c739a8d9e3b08f49682bb3859e134fbcbeb7e6ee7a03ed748162526c9"
+}

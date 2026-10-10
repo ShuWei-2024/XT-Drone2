@@ -1,0 +1,15 @@
+{
+  "repository": "XTDrone2",
+  "path": "xtd2_third_party_pkgs/px4_msgs",
+  "before_commit": "18cbccedb6c304b180bca8e81a4a601758fc9de9",
+  "after_commit": "86d8239e962f6939e05c3737784f60c02fa884db",
+  "message_definitions_compared": [
+    "VehicleLocalPosition",
+    "VehicleGlobalPosition",
+    "VehicleCommand",
+    "OffboardControlMode",
+    "TrajectorySetpoint",
+    "VehicleAttitudeSetpoint"
+  ],
+  "result": "all six message definitions are byte-identical to PX4 v1.17.0"
+}

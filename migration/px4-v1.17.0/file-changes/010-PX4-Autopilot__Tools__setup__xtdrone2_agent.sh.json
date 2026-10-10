@@ -1,0 +1,8 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": "Tools/setup/xtdrone2_agent.sh",
+  "reason": "关闭未使用的 Agent P2P 配置，避免要求额外安装 XRCE Client 开发包；默认 PX4 UDP 通信不依赖此功能。",
+  "timestamp": "2026-10-10T00:51:09.084541+08:00",
+  "before_sha256": "39cdefbc4eb99862a83d6a35ba9a2171735dd0fa0e6cb1383501efd43721ef29",
+  "after_sha256": "2e51549f885abac19a473b6920d84421becf4eb89d30098cc4b9c10e306ef3a8"
+}

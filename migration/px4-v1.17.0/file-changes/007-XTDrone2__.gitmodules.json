@@ -1,0 +1,8 @@
+{
+  "repository": "XTDrone2",
+  "file": ".gitmodules",
+  "reason": "记录 px4_msgs 对应的 release/1.17 分支；实际提交另由 Git 子模块指针固定。",
+  "timestamp": "2026-10-10T00:41:05.928895+08:00",
+  "before_sha256": "5c715d8ca24415b4ac12cd4fd0298e53cfeff706b04267413f466cb63bebe49a",
+  "after_sha256": "1934f666a531fcfa9dda9ab0a781f75271cce0d0ba206679d4d465cc669c0c5d"
+}

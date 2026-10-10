@@ -1,0 +1,8 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": "migration/px4-v1.17.0/COLCON_IGNORE",
+  "reason": "迁移记录包含代码快照，添加构建忽略标记，防止将快照内的 package.xml 识别为正式 ROS 包。",
+  "timestamp": "2026-10-10T11:10:58.646747+08:00",
+  "before_sha256": null,
+  "after_sha256": "5fe1d4ab9a6ab4a81220e6bb4e5e7a9d37ad6962ad330bfc4ba50499c9bb858e"
+}

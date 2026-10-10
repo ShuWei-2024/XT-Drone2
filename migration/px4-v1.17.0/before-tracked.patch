@@ -1,0 +1,27 @@
+diff --git a/.vscode/settings.json b/.vscode/settings.json
+index 67016f0983..a4a178a279 100644
+--- a/.vscode/settings.json
++++ b/.vscode/settings.json
+@@ -128,5 +128,21 @@
+         "yaml.schemas": {
+                 "${workspaceFolder}/validation/module_schema.yaml": "${workspaceFolder}/src/modules/*/module.yaml"
+         },
+-        "ros.distro": "humble"
++        "ros.distro": "humble",
++        "python.autoComplete.extraPaths": [
++                "/opt/ros/jazzy/opt/gz_sim_vendor/lib/python",
++                "/opt/ros/jazzy/opt/sdformat_vendor/lib/python",
++                "/opt/ros/jazzy/opt/gz_transport_vendor/lib/python",
++                "/opt/ros/jazzy/opt/gz_msgs_vendor/lib/python",
++                "/opt/ros/jazzy/opt/gz_math_vendor/lib/python",
++                "/opt/ros/jazzy/lib/python3.12/site-packages"
++        ],
++        "python.analysis.extraPaths": [
++                "/opt/ros/jazzy/opt/gz_sim_vendor/lib/python",
++                "/opt/ros/jazzy/opt/sdformat_vendor/lib/python",
++                "/opt/ros/jazzy/opt/gz_transport_vendor/lib/python",
++                "/opt/ros/jazzy/opt/gz_msgs_vendor/lib/python",
++                "/opt/ros/jazzy/opt/gz_math_vendor/lib/python",
++                "/opt/ros/jazzy/lib/python3.12/site-packages"
++        ]
+ }

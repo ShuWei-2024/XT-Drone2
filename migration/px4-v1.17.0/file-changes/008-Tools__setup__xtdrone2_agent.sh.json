@@ -1,0 +1,8 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": "Tools/setup/xtdrone2_agent.sh",
+  "reason": "单独构建与默认 PX4 XRCE v2 客户端兼容的 Agent v2.4.3，复用 Jazzy 的 DDS 依赖，安装到用户目录并保留原 Agent v3 源码。",
+  "timestamp": "2026-10-10T00:49:07.072678+08:00",
+  "before_sha256": null,
+  "after_sha256": "39cdefbc4eb99862a83d6a35ba9a2171735dd0fa0e6cb1383501efd43721ef29"
+}

@@ -1,0 +1,16 @@
+--- a/Tools/setup/xtdrone2_agent.sh
++++ b/Tools/setup/xtdrone2_agent.sh
+@@ -15,11 +15,11 @@
+     -DCMAKE_BUILD_TYPE=Release \
+     -DCMAKE_INSTALL_PREFIX="$agent_prefix" \
+     -DCMAKE_INSTALL_RPATH="$agent_prefix/lib;/opt/ros/jazzy/lib" \
+-    -DUAGENT_SUPERBUILD=OFF \
++    -DUAGENT_SUPERBUILD=ON \
+     -DUAGENT_P2P_PROFILE=OFF \
+     -DUAGENT_USE_SYSTEM_FASTDDS=ON \
+     -DUAGENT_USE_SYSTEM_FASTCDR=ON \
+-    -DUAGENT_USE_SYSTEM_LOGGER=ON
++    -DUAGENT_USE_SYSTEM_LOGGER=OFF
+ cmake --build "$agent_source/build" --parallel 1
+ cmake --install "$agent_source/build"
+ printf 'Agent installed: %s/bin/MicroXRCEAgent\n' "$agent_prefix"

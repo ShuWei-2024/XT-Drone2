@@ -1,0 +1,10 @@
+"""DDS topic names matching the installed PX4 message definitions."""
+
+
+def px4_topic(namespace, direction, name, message_type):
+    """Append PX4's version suffix only for nonzero message versions."""
+    version = getattr(message_type, 'MESSAGE_VERSION', 0)
+    suffix = f'_v{version}' if version else ''
+    namespace = namespace.strip('/')
+    prefix = f'/{namespace}' if namespace else ''
+    return f'{prefix}/fmu/{direction}/{name}{suffix}'

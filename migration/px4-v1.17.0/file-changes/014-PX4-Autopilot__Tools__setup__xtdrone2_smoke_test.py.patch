@@ -1,0 +1,21 @@
+--- a/Tools/setup/xtdrone2_smoke_test.py
++++ b/Tools/setup/xtdrone2_smoke_test.py
+@@ -36,7 +36,7 @@
+             log = (records / (name + '.log')).open('w')
+             logs.append(log)
+             processes.append(subprocess.Popen(command, cwd=root, env=env,
+-                                              stdout=log, stderr=subprocess.STDOUT,
++                                              stdin=subprocess.PIPE, stdout=log, stderr=subprocess.STDOUT,
+                                               start_new_session=True))
+         rclpy.init()
+         node = MultirotorCommunication('gz_x500', 0, debug=True)
+@@ -82,6 +82,9 @@
+                 except ProcessLookupError:
+                     pass
+                 process.wait(timeout=5)
++        for process in processes:
++            if process.stdin is not None:
++                process.stdin.close()
+         for log in logs:
+             log.close()
+         (records / 'runtime-validation.json').write_text(json.dumps(result, indent=2) + '\n')

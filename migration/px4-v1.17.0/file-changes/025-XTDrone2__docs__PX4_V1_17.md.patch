@@ -1,0 +1,93 @@
+--- a/docs/PX4_V1_17.md
++++ b/docs/PX4_V1_17.md
+@@ -0,0 +1,90 @@
++# PX4 v1.17.0 迁移说明
++
++本次在 Ubuntu 24.04 + ROS 2 Jazzy + Gazebo Harmonic 环境，将 PX4 v1.15.3 升级至官方 v1.17.0；保留原环境、源码差异和构建备份。
++
++## 固定版本
++
++- PX4: `v1.17.0`, `d6f12ad1c4f70ad3230afd7d86e971421e02fef4`。
++- px4_msgs: `release/1.17`, `86d8239e962f6939e05c3737784f60c02fa884db`。
++- Micro-XRCE-DDS-Agent: `v2.4.3`, `73622810d984349b80bbac0ef55fc0b694d62222`，安装于 `~/.local/px4-xrce-agent-v2.4.3`。
++- Python: `~/xtd2_pyenv`，附加依赖见 `requirements-px4-v1.17.txt`。
++
++PX4 默认 XRCE v2 客户端使用 Agent v2.4.3。原 Agent v3 源码保留，但本项目启动终端会优先选择隔离安装的 v2.4.3。
++
++## 本次代码调整
++
++1. DDS 话题按实际消息的 `MESSAGE_VERSION` 添加后缀。本地位置为 `/x500_0/fmu/out/vehicle_local_position_v1`；姿态设定点为 `/x500_0/fmu/in/vehicle_attitude_setpoint_v1`。
++2. px4_msgs 子模块固定到与 PX4 v1.17.0 匹配的提交，六种实际使用的消息定义已逐字节比较。
++3. 加速度示例同步本地位置话题，并声明实际运行依赖。
++4. 补充虚拟环境内的 `transforms3d` 依赖。
++5. X500 基础模型补充官方磁力计配置，八个世界启用磁力计系统。旧资源在 v1.17 下曾出现没有罗盘、水平位置无效，已在 aruco 世界实测修复。
++
++## 现有虚拟机启动
++
++```bash
++source ~/PX4-Autopilot/Tools/setup/xtdrone2_env.sh
++source ~/ws_xtd2/install/setup.bash
++ros2 launch xtd2_launch ros2_single_vehicle_demo_launch.py
++```
++
++需要测试升级后的通信时，停止其它仿真，执行：
++
++```bash
++source ~/PX4-Autopilot/Tools/setup/xtdrone2_env.sh
++source ~/ws_xtd2/install/setup.bash
++python ~/PX4-Autopilot/Tools/setup/xtdrone2_smoke_test.py --xtdrone2-world aruco
++```
++
++该测试启动无界面仿真，通过真实通信节点接收至少五条水平与高度均有效的位置数据，随后停止本次启动的进程。它验证启动和遥测通信，尚未覆盖解锁、起飞、多机及全部控制接口。
++
++## 重新构建
++
++前提是已经按 XTDrone2 教程安装 Jazzy、Gazebo 的 ROS vendor 包及 Python 虚拟环境。
++
++```bash
++source ~/PX4-Autopilot/Tools/setup/xtdrone2_env.sh
++python -m pip install -r ~/PX4-Autopilot/Tools/setup/requirements.txt
++python -m pip install -r ~/ws_xtd2/src/XTDrone2/requirements-px4-v1.17.txt
++bash ~/PX4-Autopilot/Tools/setup/xtdrone2_agent.sh
++cd ~/PX4-Autopilot
++make px4_sitl -j2
++cd ~/ws_xtd2
++colcon build --executor sequential --cmake-args -DBUILD_TESTING=OFF
++```
++
++Git 下载使用已经连通的宿主机代理时，可在该终端设置：
++
++```bash
++export http_proxy=http://192.168.31.1:7890
++export https_proxy=$http_proxy
++```
++
++XTDrone2 上游已有一个缺少 URL 映射的可选 ego-planner 子模块；本次核心八个包构建不需要它。获取 px4_msgs 时明确指定：
++
++```bash
++cd ~/ws_xtd2/src/XTDrone2
++git submodule update --init -- xtd2_third_party_pkgs/px4_msgs
++```
++
++## 修改记录与 GitHub 提交
++
++两处工作仓库都在 `migration/px4-v1.17.0` 分支。逐文件记录统一保存在 `~/PX4-Autopilot/migration/px4-v1.17.0/`：每次修改都有原因、时间、前后 SHA-256 和独立 patch；另有官方两版本的完整文件差异列表及构建、运行日志。
++
++PX4 与 XTDrone2 是独立 Git 仓库。向 `ShuWei-2024/XT-Drone2` 提交 XTDrone2 代码时，也应附带 PX4 的定制补丁和迁移记录；仅提交 XTDrone2 不会包含另一个目录下的 PX4 调整。保留许可证与上游来源。
++
++提交前分别查看：
++
++```bash
++git -C ~/PX4-Autopilot diff --stat
++git -C ~/ws_xtd2/src/XTDrone2 diff --stat
++```
++
++本次尚未生成用户署名的 Git commit，也尚未推送；Git 作者信息及可用的 GitHub 命令行登录仍需补齐。
++
++## 原版本备份
++
++备份：`~/px4-migration-backups/20261010-001848-v1.15.3/`。
++原 PX4 分支：`backup/px4-v1.15.3-20261010-001848`。
++旧 build、未跟踪目录、用户编辑器设置和原 tracked diff 均已保留。当前迁移改动先提交或另行保存后，再进行版本回退。
++
++参考：[PX4 v1.17.0 发布](https://github.com/PX4/PX4-Autopilot/releases/tag/v1.17.0)、[PX4 ROS 2 指南](https://docs.px4.io/main/en/ros2/user_guide)、[XTDrone2 教程](https://www.yuque.com/xtdrone/xtdrone2/tutorial)。

@@ -1,0 +1,8 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": "migration/px4-v1.17.0/README.md",
+  "reason": "将迁移说明链接指向记录包内的最终代码副本，使 Windows 导出和 GitHub 浏览都可访问。",
+  "timestamp": "2026-10-10T02:06:26.383328+08:00",
+  "before_sha256": "dda342e345bdea2c7a57a7187085bc4deb792db4e71c5e22d352efb35d08d295",
+  "after_sha256": "3246148c657ff2a0e987145f3b812684b50d499344825c770dcbceae40d89cfe"
+}

@@ -1,0 +1,8 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": "migration/px4-v1.17.0/README.md",
+  "reason": "在记录索引中说明后续可复用的逐文件记录工具。",
+  "timestamp": "2026-10-10T02:10:14.489633+08:00",
+  "before_sha256": "3246148c657ff2a0e987145f3b812684b50d499344825c770dcbceae40d89cfe",
+  "after_sha256": "7d004a081606e3def0e345c8a726831c5b808a277f601cff2670ccd6d070c737"
+}

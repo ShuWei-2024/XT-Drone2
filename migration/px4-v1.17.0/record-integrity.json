@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "edit_records": 33,
+  "distinct_custom_files": 25,
+  "errors": [],
+  "PX4-Autopilot_cumulative_patch_applies": true,
+  "XTDrone2_cumulative_patch_applies": true
+}

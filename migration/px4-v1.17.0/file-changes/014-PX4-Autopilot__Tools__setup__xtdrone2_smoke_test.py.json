@@ -1,0 +1,8 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": "Tools/setup/xtdrone2_smoke_test.py",
+  "reason": "保持仿真进程输入管道打开，避免非交互 SSH 中 PX4 命令行反复读取 EOF 产生大量提示符日志。",
+  "timestamp": "2026-10-10T01:28:31.578145+08:00",
+  "before_sha256": "1b8dee76e4d428600796049b94500a10773f6d2dc854769871649097f8f1377a",
+  "after_sha256": "d7668fb125baa6895723b0e1cbd9dadcc9b98bddbb9178f2e05c3d257b0d9722"
+}

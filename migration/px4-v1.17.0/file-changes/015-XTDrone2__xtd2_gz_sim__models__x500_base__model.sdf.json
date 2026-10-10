@@ -1,0 +1,8 @@
+{
+  "repository": "XTDrone2",
+  "file": "xtd2_gz_sim/models/x500_base/model.sdf",
+  "reason": "从官方 PX4 v1.17.0 对应 Gazebo 模型补入 X500 磁力计，修复旧模型启动后无罗盘、水平位置无效。",
+  "timestamp": "2026-10-10T01:36:46.252478+08:00",
+  "before_sha256": "f0f04e4314eebde287eea2b0a962e31a9009f1d98470734a8137e888f78c5bf9",
+  "after_sha256": "a0c78fcdea4340149aee3419ade1dda32c0b34097a03859e29537ad9fd6f84cd"
+}

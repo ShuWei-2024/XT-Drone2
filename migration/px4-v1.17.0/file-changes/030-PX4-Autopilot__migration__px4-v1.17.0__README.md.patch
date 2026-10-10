@@ -1,0 +1,10 @@
+--- a/migration/px4-v1.17.0/README.md
++++ b/migration/px4-v1.17.0/README.md
+@@ -2,6 +2,7 @@
+ 
+ - [完整修改日志](CHANGELOG.md)
+ - [迁移与启动说明](final-code/XTDrone2/docs/PX4_V1_17.md)
++- `record_change.py`: 后续可调用的逐文件修改记录工具。
+ - `file-changes/`: 每次自定义文件修改的独立 patch 和 JSON，包含原因、时间、修改前后 SHA-256。
+ - `upstream-files-v1.15.3-to-v1.17.0.tsv`: 官方版本间 9248 个文件条目；官方历史由 tag 和 commit 固定。
+ - `metadata.json`: 升级前后提交、原文件备份位置和移动目录。

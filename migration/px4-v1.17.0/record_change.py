@@ -1,0 +1,28 @@
+from pathlib import Path
+import datetime,difflib,hashlib,json
+RECORD=Path(__file__).resolve().parent
+def edit(repo,relative,new,reason):
+    repo=Path(repo);p=repo/relative;old=p.read_text() if p.exists() else ''
+    if old==new:return
+    p.parent.mkdir(parents=True,exist_ok=True);p.write_text(new)
+    changes=RECORD/'file-changes';changes.mkdir(exist_ok=True)
+    n=len(list(changes.glob('*.json')))+1
+    label=f'{n:03d}-'+repo.name+'__'+relative.replace('/','__')
+    (changes/(label+'.patch')).write_text(''.join(line if line.endswith('\n') else line+'\n\\ No newline at end of file\n' for line in difflib.unified_diff(old.splitlines(True),new.splitlines(True),fromfile='a/'+relative,tofile='b/'+relative)))
+    metadata={'repository':repo.name,'file':relative,'reason':reason,'timestamp':datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).isoformat(),'before_sha256':hashlib.sha256(old.encode()).hexdigest() if old else None,'after_sha256':hashlib.sha256(new.encode()).hexdigest()}
+    (changes/(label+'.json')).write_text(json.dumps(metadata,ensure_ascii=False,indent=2)+'\n')
+    with (RECORD/'CHANGELOG.md').open('a') as f:f.write(f'\n### 文件修改 {n:03d}: `{repo.name}/{relative}`\n\n{reason}\n\n差异见 `file-changes/{label}.patch`。\n')
+    print('RECORDED',relative,flush=True)
+
+if __name__ == '__main__':
+    import argparse
+    parser=argparse.ArgumentParser(description='Apply and record one UTF-8 file change.')
+    parser.add_argument('--repo',required=True)
+    parser.add_argument('--file',required=True)
+    parser.add_argument('--content-file',required=True,help='File containing the complete new UTF-8 content')
+    parser.add_argument('--reason',required=True)
+    args=parser.parse_args()
+    relative=Path(args.file)
+    if relative.is_absolute() or '..' in relative.parts:
+        parser.error('--file must be a path inside --repo')
+    edit(args.repo,args.file,Path(args.content_file).read_text(encoding='utf-8'),args.reason)

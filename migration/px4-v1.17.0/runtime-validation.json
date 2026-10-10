@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "namespace": "x500_0",
+  "received_samples": 5,
+  "position": {
+    "timestamp": 1791566153897873,
+    "x": -0.009868062101304531,
+    "y": -0.005588197614997625,
+    "z": 0.23477306962013245,
+    "xy_valid": true,
+    "z_valid": true
+  },
+  "topic": "/x500_0/fmu/out/vehicle_local_position_v1",
+  "agent_returncode_before_cleanup": null,
+  "simulation_returncode_before_cleanup": null
+}

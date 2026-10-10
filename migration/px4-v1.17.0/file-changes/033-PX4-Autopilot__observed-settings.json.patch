@@ -1,0 +1,10 @@
+--- a/.vscode/settings.json
++++ b/.vscode/settings.json
+@@ -162,5 +162,6 @@
+         "/opt/ros/jazzy/lib/python3.12/site-packages"
+ ],
+         "ros.distro": "jazzy",
+-        "python.defaultInterpreterPath": "/home/wwc/xtd2_pyenv/bin/python"
++        "python.defaultInterpreterPath": "/home/wwc/xtd2_pyenv/bin/python",
++        "ROS2.distro": "jazzy"
+ }

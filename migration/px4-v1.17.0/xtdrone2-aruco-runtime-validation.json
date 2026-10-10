@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "namespace": "x500_0",
+  "received_samples": 5,
+  "position": {
+    "timestamp": 1791601816215712,
+    "x": -0.0025901542976498604,
+    "y": -0.0005605350015684962,
+    "z": 0.02883574366569519,
+    "xy_valid": true,
+    "z_valid": true
+  },
+  "topic": "/x500_0/fmu/out/vehicle_local_position_v1",
+  "agent_returncode_before_cleanup": null,
+  "simulation_returncode_before_cleanup": null,
+  "world": "aruco"
+}

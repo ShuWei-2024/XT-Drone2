@@ -1,0 +1,8 @@
+{
+  "repository": "XTDrone2",
+  "file": "xtd2_communication/xtd2_communication/px4_topics.py",
+  "reason": "根据实际 px4_msgs MESSAGE_VERSION 生成 DDS 话题后缀；版本 0 保留原有名称。",
+  "timestamp": "2026-10-10T00:41:05.917168+08:00",
+  "before_sha256": null,
+  "after_sha256": "66c51b880c1288219febe9ebba3139b40fe8616656cf40f894906bb5ccc8d56c"
+}

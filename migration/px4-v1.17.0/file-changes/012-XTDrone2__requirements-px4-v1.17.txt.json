@@ -1,0 +1,8 @@
+{
+  "repository": "XTDrone2",
+  "file": "requirements-px4-v1.17.txt",
+  "reason": "虚拟环境无法读取系统 transforms3d；固定并记录通信节点启动所需的附加 Python 依赖。",
+  "timestamp": "2026-10-10T01:13:26.302975+08:00",
+  "before_sha256": null,
+  "after_sha256": "16e1931791cdd0fbb9ab6ce9b5666af3b92d637f40fd6db2fd1d9ddc77f32581"
+}

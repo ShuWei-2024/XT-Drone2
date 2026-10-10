@@ -1,0 +1,8 @@
+{
+  "repository": "XTDrone2",
+  "file": "xtd2_gz_sim/worlds/baylands.sdf",
+  "reason": "为使用单引号属性的世界同步启用磁力计系统，覆盖 Windy 和 Baylands 的 PX4 1.17 仿真配置。",
+  "timestamp": "2026-10-10T01:42:44.092141+08:00",
+  "before_sha256": "a7070a300b47c325d86fc14aad12f1ffe91670f03d322c6f3bebd1dbd1c0630e",
+  "after_sha256": "9e1ab487c89d636b2949fd5fde438a2f0f565a8480b7a1458ba6cfbd450cb72d"
+}

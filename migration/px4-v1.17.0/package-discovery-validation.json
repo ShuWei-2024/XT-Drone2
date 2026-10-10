@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "packages": [
+    {
+      "name": "px4_msgs",
+      "path": "src/XTDrone2/xtd2_third_party_pkgs/px4_msgs"
+    },
+    {
+      "name": "xtd2_communication",
+      "path": "src/XTDrone2/xtd2_communication"
+    },
+    {
+      "name": "xtd2_control",
+      "path": "src/XTDrone2/xtd2_control"
+    },
+    {
+      "name": "xtd2_gz_sim",
+      "path": "src/XTDrone2/xtd2_gz_sim"
+    },
+    {
+      "name": "xtd2_launch",
+      "path": "src/XTDrone2/xtd2_launch"
+    },
+    {
+      "name": "xtd2_msgs",
+      "path": "src/XTDrone2/xtd2_msgs"
+    },
+    {
+      "name": "xtd2_test",
+      "path": "src/XTDrone2/xtd2_test"
+    },
+    {
+      "name": "xtdrone2",
+      "path": "src/XTDrone2/xtdrone2"
+    }
+  ],
+  "fix": "COLCON_IGNORE in migration/px4-v1.17.0 excludes review snapshots"
+}

@@ -1,3 +1,5 @@
+> 本分支已迁移到 **PX4 v1.17.0 / ROS 2 Jazzy / Gazebo Harmonic**。启动、构建及逐文件修改记录说明见 [PX4 v1.17 迁移文档](docs/PX4_V1_17.md)。
+
 # XTDrone2
 
 **项目前身：**[XTDrone](https://gitee.com/robin_shaun/XTDrone)

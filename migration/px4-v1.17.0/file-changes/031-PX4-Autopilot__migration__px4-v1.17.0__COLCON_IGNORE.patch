@@ -1,0 +1,4 @@
+--- a/migration/px4-v1.17.0/COLCON_IGNORE
++++ b/migration/px4-v1.17.0/COLCON_IGNORE
+@@ -0,0 +1 @@
++# Migration records and code snapshots are not ROS package sources.

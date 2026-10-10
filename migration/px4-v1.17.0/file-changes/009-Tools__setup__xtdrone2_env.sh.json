@@ -1,0 +1,8 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": "Tools/setup/xtdrone2_env.sh",
+  "reason": "将本项目隔离安装的 Agent v2.4.3 加入终端 PATH，供原 XTDrone2 启动文件调用。",
+  "timestamp": "2026-10-10T00:49:07.075491+08:00",
+  "before_sha256": "a6bba6fd5d26b7277e2f879b85e725dc27e72e197e173491ebcf7088ea55b58c",
+  "after_sha256": "34e58d11c978bbaa8491b7854e82db58e36001213f4a6689823710feec0b757f"
+}

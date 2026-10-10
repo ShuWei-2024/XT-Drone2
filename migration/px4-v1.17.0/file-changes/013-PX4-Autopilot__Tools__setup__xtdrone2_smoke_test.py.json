@@ -1,0 +1,8 @@
+{
+  "repository": "PX4-Autopilot",
+  "file": "Tools/setup/xtdrone2_smoke_test.py",
+  "reason": "添加真实端到端验证：启动无界面 Gazebo、PX4 和 Agent，检查 XTDrone2 接收有效位置数据，并清理本次启动的进程。",
+  "timestamp": "2026-10-10T01:15:34.824211+08:00",
+  "before_sha256": null,
+  "after_sha256": "1b8dee76e4d428600796049b94500a10773f6d2dc854769871649097f8f1377a"
+}

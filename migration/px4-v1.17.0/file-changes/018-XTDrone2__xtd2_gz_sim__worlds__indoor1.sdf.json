@@ -1,0 +1,8 @@
+{
+  "repository": "XTDrone2",
+  "file": "xtd2_gz_sim/worlds/indoor1.sdf",
+  "reason": "为世界启用 Gazebo 磁力计系统，使 PX4 1.17 的 X500 磁传感器产生数据。",
+  "timestamp": "2026-10-10T01:36:46.266389+08:00",
+  "before_sha256": "294f2a009f5195c9997145d5ed1e17fb920a1c1ad82b8b9172393fb1a252cdd9",
+  "after_sha256": "69ff3be040d9ee9a74ba9334e1395c2bbd65b5a28b6eeb533c42dcd7b2a11dea"
+}
