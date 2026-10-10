@@ -252,3 +252,19 @@ python3 astra/tools/audit_obstacle_reliability_20261010.py astra/runtime/lateral
 python3 astra/tools/audit_route_motion_117.py astra/runtime/lateral_recheck_01 --output astra/validation/lateral_recheck_01.json
 python3 astra/tools/audit_runtime_growth_117.py astra/runtime/lateral_recheck_01 --output astra/validation/lateral_memory_recheck_01.json
 ```
+
+## 模型安装高度与估计高度差的分解
+
+对 `lateral_rectangle_117_01` 的实际运行模型用 `gz sdf -p` 展开所有 merge include，再按 `relative_to` 解析姿态，不能只看新增 link 的数字。官方 x500_base 自带模型 Z=0.24 m；合并后 PX4 IMU 所在 base_link 位于外层模型原点 Z=0.24 m。新增传感器 link 未指定相对 base_link，实际相对外层模型原点：LIVO IMU Z=0.12 m、雷达 link Z=0.18 m、雷达扫描原点 Z=0.22 m。**当前新增传感器并没有按照静态 TF 表达的位置安装到机身上方**；雷达扫描原点实际上比 base_link 低 0.02 m。外层 Gazebo 模型位姿也不能直接称为 base_link 位姿。
+
+另外，adapter 复制 XYZ，不做平移；若 XYZ 在 GPU lidar 的扫描原点，按代码 `p_imu=R_IL*p_lidar+t_IL`，当前模型应使用 `extrinsic_T=[0,0,+0.10]`，现配置却为 `[0,0,-0.06]`。相机平移应约 `[0,-0.16,-0.16]`，现配置 `[0,-0.12,-0.16]` 没有包含扫描原点额外的 0.04 m。FAST-LIVO2 odom 直接发布 IMU 状态位置，既不是雷达位置，也不能仅凭 `camera_init` 名字认为是相机位置。未来修正必须使 SDF 安装、点云参考点、外参、TF 和真值审计参考点同时一致，并重新验收，不能只给高度加常数。
+
+这些坐标定义问题应修正，但不能把本次剩余高度差直接归因为“雷达在飞控上方”。地面 offset 已扣掉固定的原点/安装差。ULog 最大机体倾斜约 1.002°，两 IMU 的 0.12 m 垂直杠杆相对水平姿态造成的 Z 投影变化最大仅 0.0000183 m（0.0183 mm），远小于本轮 0.107 m p95。这里仅估计几何投影项，不排除错误外参对滤波估计产生的间接影响。
+
+本轮地面捕获 offset −0.08685 m，起飞后、规划执行前冻结 offset −0.13921 m，两者变化 −0.05236 m。相对地面的执行差值 p95=0.10743 m；相对起飞后已冻结的 offset，p95=0.06861 m、最大绝对值=0.12171 m。这不是用整段飞行重新拟合，也未改飞行保护：说明存在起飞前后参考变化及飞行动态残差，固定安装高度不是全部解释。两种 offset 的作用不同，应保留地面漂移监测，不可通过换参考点抹去起飞期间的变化。
+
+证据与可重复解析脚本为 `model_height_reference_117.json`、`audit_model_height_reference_117.py`。此次仅离线审计，未移动传感器、修改外参或飞行门限，所有之前路线结果仍对应原模型。
+
+```bash
+python3 astra/tools/audit_model_height_reference_117.py astra/runtime/lateral_rectangle_117_01 --output astra/validation/model_height_reference_117.json
+```

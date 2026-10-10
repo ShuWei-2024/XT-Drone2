@@ -62,5 +62,8 @@
   "core_binary_sha256": "690a5087ba33ff88b97bf89b852201e1606f25e585a06849acd4ddd0e00c7c29",
   "lateral_obstacle_1_17_flight_verified": true,
   "lateral_scope": "5/5 destinations including two opposite 6 m lateral legs and 5 m retreat; ground-offset estimator Z disagreement p95 0.107 m remains; no general frame certification",
-  "lateral_report": "astra/validation/lateral_route_motion_117.json"
+  "lateral_report": "astra/validation/lateral_route_motion_117.json",
+  "mount_reference_audit_report": "astra/validation/model_height_reference_117.json",
+  "mount_reference_consistent": false,
+  "mount_reference_scope": "Expanded merged SDF reveals model-vs-base-link offsets and lidar scan-origin/extrinsic discrepancies; offline audit only, operational model unchanged; prior flight success is scoped to existing geometry"
 }
