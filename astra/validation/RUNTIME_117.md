@@ -201,3 +201,54 @@ bash astra/run_117.bash obstacle repeat_old_baro_01 --calibrate-ground-height --
 python3 astra/tools/audit_height_noise_117.py astra/runtime/repeat_verified_01 --output astra/validation/height_recheck_117.json
 python3 astra/tools/audit_runtime_growth_117.py astra/runtime/repeat_verified_01 --output astra/validation/growth_recheck_117.json --plot astra/validation/growth_recheck_117.png
 ```
+
+## 续测：连续侧移、后退和矩形路线
+
+`lateral_rectangle_117_01` 使用同一套隔离配置与全部原保护门限，新增目标序列 `[5,3]→[5,-3]→[0,-3]→[0,3]→[0,0]`。这是五个目的地，由 EGO 自主规划每一段；不是人为提供绕障轨迹。约 300.1 秒规划执行，5/5 段完成，仿真 396.312 s 请求降落、402.288 s 解除解锁。无 armed failsafe、运动 XY/Z/yaw reset 或 EV 融合。
+
+| 段 | Gazebo 实际 ΔX / ΔY (m) | 到达时水平误差 (m) |
+| --- | --- | --- |
+| 前进绕障 | +5.034 / +2.995 | 0.0333 |
+| 负方向侧移 | −0.021 / −5.969 | 0.0322 |
+| 后退 | −5.000 / −0.024 | 0.0146 |
+| 正方向侧移 | +0.038 / +5.985 | 0.0521 |
+| 返回原点 | −0.044 / −2.952 | 0.0380 |
+
+端点采用测量时间最近的 Gazebo 位姿且配对不超过 20 ms；目标转到真值坐标时只使用执行前的冻结标定。`audit_route_motion_117.py` 记录每段实际位移和对应定位误差，也已对前次八段记录运行成功。到达事件和末尾短 hold 不等于严格四秒稳定悬停认证。
+
+| 检查 | 实测 |
+| --- | --- |
+| 最小机体参考点水平障碍距离 | 0.80566 m |
+| 实际水平航程 / 峰值水平速度 | 30.102 m / 0.18895 m/s |
+| 规划峰值速度 / 加速度 | 0.19763 m/s / 0.05603 m/s² |
+| PX4 目标跟踪误差 p95 / 最大 | 0.05528 / 0.10932 m |
+| FAST-LIVO2 对真值 XY / Z p95 | 0.00710 / 0.00864 m |
+| PX4 对真值 XY / Z p95 | 0.06359 / 0.06796 m |
+| PX4 对真值 Z 最大 | 0.11802 m |
+| PX4 航向误差 p95 / 最大 | 0.914 / 1.280° |
+| PX4 与 LIVO 配对 XY 差 p95 / 最大 | 0.06111 / 0.08114 m |
+| 冻结地面偏置后的高度差 p95 / 最大 | 0.10743 / 0.17406 m |
+| 两套位姿与真值时间配对 p95 | 8 ms |
+| odom 测量年龄 p95 / 桥最大发送间隔 | 48 / 66.16 ms |
+| LIO 最低 correspondence | 4472 |
+
+本路线执行通过且各方向对真值 p95 误差小于 0.10 m。**两套估计器的地面偏置高度差 p95 仍超过 0.10 m**，飞行时虽未触发原 0.20 m 最大差保护，仍不能把“路线通过”写成通用坐标或高度参考认证。PX4 起飞后的初始高度平移约 −0.139 m；原点偏置、动态高度误差应继续分开看，不能用整段数据重新拟合消掉误差。
+
+ULog 确认 1501 个规划 setpoint；GPS、磁力计和电池日志覆盖执行全段，未见共同停止更新。磁力计记录约 1 秒的间隔是当前日志采样的结果，不能直接当作传感器更新延迟。无 VIO 零特征帧或视觉更新拒绝。
+
+RSS 175.52→412.78 MiB，最后一分钟 412.73～415.55 MiB、端点增加 0.043 MiB，最后两分钟仍增加 5.48 MiB。灰度图像最终 512 张/150 MiB，激光根体素 9682、视觉点 3024。此六分钟记录支持缓存上限有效，仍不证明宽范围地图长期稳定；不能只用最后一分钟平台替代更长窗口。
+
+完整测量记录与 PX4 ULog 保留在 `astra/runtime/lateral_rectangle_117_01`；结构化证据为 `lateral_closed_loop_117.json`、`lateral_reliability_117.json`、`lateral_route_motion_117.json`、`lateral_memory_117.json`。本轮未改估计器/控制器参数，原 1.15 文件哈希未变化，结束后无残留仿真进程。
+
+![连续侧移及后退实际航迹](lateral_actual_path_117.png)
+
+```bash
+bash astra/run_117.bash obstacle lateral_recheck_01 --calibrate-ground-height --route-json astra/config/route_lateral_rectangle.json
+# 独立终端连接同一仿真画面。
+GZ_PARTITION=astra_px4_117 gz sim -g
+# 飞行结束后审计；逐段运动审计依赖前两份报告。
+python3 astra/tools/analyze_ego_obstacle_20261010.py astra/runtime/lateral_recheck_01
+python3 astra/tools/audit_obstacle_reliability_20261010.py astra/runtime/lateral_recheck_01
+python3 astra/tools/audit_route_motion_117.py astra/runtime/lateral_recheck_01 --output astra/validation/lateral_recheck_01.json
+python3 astra/tools/audit_runtime_growth_117.py astra/runtime/lateral_recheck_01 --output astra/validation/lateral_memory_recheck_01.json
+```

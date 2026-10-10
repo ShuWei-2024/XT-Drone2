@@ -37,7 +37,7 @@
   "sensor_runtime_verified": true,
   "px4_1_17_flight_verified": true,
   "github_push_performed": false,
-  "stage": "Repeated eight-leg north/south static obstacle closed loop passed once with timestamp rounding fix and model-matched SITL baro noise; two earlier flight faults preserved",
+  "stage": "Repeated eight-leg obstacle flight and a five-leg continuous lateral/retreat route passed with unchanged safety gates; residual estimator height bias and wide-map memory remain unverified",
   "ros_package_count": 19,
   "flight_scope": "Final magnetometer path; 0.4 m forward/side/return plus EGO 5 m/3 m goal and return; no strict hover or hardware certification",
   "frame_alignment_certified": false,
@@ -59,5 +59,8 @@
   "memory_scope": "Last five minutes RSS 409.58..414.35 MiB with +2.51 MiB endpoint delta on this repeated route; unlimited or wide-map stability unverified",
   "simulator_cleanup_verified": true,
   "timestamp_rounding_verified": true,
-  "core_binary_sha256": "690a5087ba33ff88b97bf89b852201e1606f25e585a06849acd4ddd0e00c7c29"
+  "core_binary_sha256": "690a5087ba33ff88b97bf89b852201e1606f25e585a06849acd4ddd0e00c7c29",
+  "lateral_obstacle_1_17_flight_verified": true,
+  "lateral_scope": "5/5 destinations including two opposite 6 m lateral legs and 5 m retreat; ground-offset estimator Z disagreement p95 0.107 m remains; no general frame certification",
+  "lateral_report": "astra/validation/lateral_route_motion_117.json"
 }
