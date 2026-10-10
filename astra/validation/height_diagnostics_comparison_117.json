@@ -1,0 +1,570 @@
+{
+  "runs": [
+    {
+      "run": "lateral_geometryfix_117_01",
+      "diagnostic_reduced_pressure_noise": false,
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "reached_goals": 5,
+      "parameters": {
+        "EKF2_BARO_NOISE": 0.30000001192092896,
+        "EKF2_BARO_DELAY": 0.0,
+        "EKF2_GPS_DELAY": 110.0,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_HGT_REF": 0,
+        "EKF2_DELAY_MAX": 200.0,
+        "EKF2_TAU_POS": 0.25,
+        "EKF2_TAU_VEL": 0.25
+      },
+      "configured_pressure_noise_pa": 3.0,
+      "px4_estimation_error_m": {
+        "samples": 5986,
+        "median": -0.017323831119548272,
+        "minimum": -0.08637633430399605,
+        "maximum": 0.11606047816604215,
+        "stddev": 0.031198657167482574,
+        "absolute_p95": 0.06629264272200314
+      },
+      "controller_estimated_tracking_error_m": {
+        "samples": 5986,
+        "median": 0.0016847206997061548,
+        "minimum": -0.09853431582432348,
+        "maximum": 0.062412300199562454,
+        "stddev": 0.023623650894604,
+        "absolute_p95": 0.04636814445240972
+      },
+      "actual_tracking_error_m": {
+        "samples": 5986,
+        "median": 0.018872031425923308,
+        "minimum": -0.18834110164181372,
+        "maximum": 0.0874686228407433,
+        "stddev": 0.038076316985132176,
+        "absolute_p95": 0.0743213129931104
+      },
+      "baro_raw_scatter_m": {
+        "samples": 4988,
+        "median": 0.0,
+        "minimum": -0.44311546431629845,
+        "maximum": 0.5710764481795954,
+        "stddev": 0.1436404894837671,
+        "absolute_p95": 0.28424480480700937
+      },
+      "px4_truth_xy_error_m": {
+        "count": 15063,
+        "p50": 0.05079351868534663,
+        "p95": 0.07472470286595692,
+        "maximum": 0.09416624106735286
+      },
+      "planned_height_span_m": 1.6450881958007812e-05,
+      "descriptive_after_first_10_seconds": {
+        "after_first_10_seconds": {
+          "px4_estimation_error_m": {
+            "samples": 5805,
+            "median": -0.016364971851394294,
+            "minimum": -0.08637633430399605,
+            "maximum": 0.11606047816604215,
+            "stddev": 0.031143913999695596,
+            "absolute_p95": 0.06582609736788884
+          },
+          "actual_tracking_error_m": {
+            "samples": 5805,
+            "median": 0.018305959195320742,
+            "minimum": -0.18834110164181372,
+            "maximum": 0.0874686228407433,
+            "stddev": 0.03812974741897965,
+            "absolute_p95": 0.0745183489153237
+          }
+        }
+      },
+      "worst_tracking_event": {
+        "measurement_time_sec": 244.35799999999136,
+        "goal_index": 2,
+        "seconds_after_latest_goal": 10.833999999991363,
+        "actual_tracking_error_m": -0.18834110164181372,
+        "estimator_error_m": 0.09954214546851592,
+        "controller_estimated_tracking_error_m": -0.0887989561732978,
+        "actual_body_height_m": 1.7783994420781175,
+        "target_body_height_m": 1.9667405437199312,
+        "livo_one_second_neighbourhood": {
+          "LIO": {
+            "samples": 20,
+            "processing_us": {
+              "samples": 20,
+              "median": 21550.0,
+              "minimum": 15254.0,
+              "maximum": 27665.0,
+              "stddev": 3471.866833563753,
+              "absolute_p95": 26549.7
+            },
+            "maximum_absolute_z_update_m": 0.0012952653700000205,
+            "lio_correspondences": {
+              "samples": 20,
+              "median": 5266.0,
+              "minimum": 5207.0,
+              "maximum": 5340.0,
+              "stddev": 37.52182698110528,
+              "absolute_p95": 5334.3
+            }
+          },
+          "VIO": {
+            "samples": 20,
+            "processing_us": {
+              "samples": 20,
+              "median": 16727.5,
+              "minimum": 13181.0,
+              "maximum": 18775.0,
+              "stddev": 1831.6929218621772,
+              "absolute_p95": 18551.75
+            },
+            "maximum_absolute_z_update_m": 0.0015865275199999918,
+            "vio_accepted_patches": {
+              "samples": 20,
+              "median": 130.5,
+              "minimum": 118.0,
+              "maximum": 154.0,
+              "stddev": 10.441623436994842,
+              "absolute_p95": 153.05
+            },
+            "vio_update_rejected": {
+              "samples": 20,
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0,
+              "stddev": 0.0,
+              "absolute_p95": 0.0
+            }
+          }
+        },
+        "frame_neighbourhood": {
+          "px4": {
+            "samples": 100,
+            "measurement_gap_ms": {
+              "samples": 99,
+              "median": 16.0,
+              "minimum": 16.0,
+              "maximum": 32.0,
+              "stddev": 4.21559578610828,
+              "absolute_p95": 24.0
+            }
+          },
+          "fast_livo2": {
+            "samples": 20,
+            "measurement_gap_ms": {
+              "samples": 19,
+              "median": 100.0,
+              "minimum": 96.0,
+              "maximum": 128.0,
+              "stddev": 6.56356095499785,
+              "absolute_p95": 102.79999999999994
+            }
+          }
+        }
+      },
+      "minimum_horizontal_body_centre_obstacle_distance_m": 0.7592653929242088,
+      "source_report": "height_dynamics_baseline_117.json"
+    },
+    {
+      "run": "lateral_gpsdelay0_117_01",
+      "diagnostic_reduced_pressure_noise": false,
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "reached_goals": 5,
+      "parameters": {
+        "EKF2_BARO_NOISE": 0.30000001192092896,
+        "EKF2_BARO_DELAY": 0.0,
+        "EKF2_GPS_DELAY": 0.0,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_HGT_REF": 0,
+        "EKF2_DELAY_MAX": 200.0,
+        "EKF2_TAU_POS": 0.25,
+        "EKF2_TAU_VEL": 0.25
+      },
+      "configured_pressure_noise_pa": 3.0,
+      "px4_estimation_error_m": {
+        "samples": 6015,
+        "median": -0.04212052851955339,
+        "minimum": -0.13273725857743912,
+        "maximum": 0.11779813111401105,
+        "stddev": 0.038786380200793134,
+        "absolute_p95": 0.10203749957602888
+      },
+      "controller_estimated_tracking_error_m": {
+        "samples": 6015,
+        "median": 0.001985779621839212,
+        "minimum": -0.11830629752227995,
+        "maximum": 0.07064208550889095,
+        "stddev": 0.02677205359042292,
+        "absolute_p95": 0.053560465087785857
+      },
+      "actual_tracking_error_m": {
+        "samples": 6015,
+        "median": 0.04460208117322573,
+        "minimum": -0.1769547338377302,
+        "maximum": 0.1340526925738066,
+        "stddev": 0.04880321764115909,
+        "absolute_p95": 0.1142773994399138
+      },
+      "baro_raw_scatter_m": {
+        "samples": 5012,
+        "median": 0.0,
+        "minimum": -0.4521352497247815,
+        "maximum": 0.5160301912296705,
+        "stddev": 0.1440546594369977,
+        "absolute_p95": 0.28228368749252664
+      },
+      "px4_truth_xy_error_m": {
+        "count": 15137,
+        "p50": 0.04053807016053696,
+        "p95": 0.06673630396674692,
+        "maximum": 0.07998730722176164
+      },
+      "planned_height_span_m": 0.021306836380148075,
+      "descriptive_after_first_10_seconds": {
+        "after_first_10_seconds": {
+          "px4_estimation_error_m": {
+            "samples": 5834,
+            "median": -0.04205116256306518,
+            "minimum": -0.13273725857743912,
+            "maximum": 0.11779813111401105,
+            "stddev": 0.039029727622704034,
+            "absolute_p95": 0.10244181434038277
+          },
+          "actual_tracking_error_m": {
+            "samples": 5834,
+            "median": 0.04447777130821562,
+            "minimum": -0.1769547338377302,
+            "maximum": 0.1340526925738066,
+            "stddev": 0.049263537458501004,
+            "absolute_p95": 0.11453136876877328
+          }
+        }
+      },
+      "worst_tracking_event": {
+        "measurement_time_sec": 154.8739999999965,
+        "goal_index": 0,
+        "seconds_after_latest_goal": 62.417999999996496,
+        "actual_tracking_error_m": -0.1769547338377302,
+        "estimator_error_m": 0.10604733506072472,
+        "controller_estimated_tracking_error_m": -0.07090739877700547,
+        "actual_body_height_m": 1.6491269444073144,
+        "target_body_height_m": 1.8260816782450446,
+        "livo_one_second_neighbourhood": {
+          "LIO": {
+            "samples": 20,
+            "processing_us": {
+              "samples": 20,
+              "median": 24352.0,
+              "minimum": 18089.0,
+              "maximum": 38202.0,
+              "stddev": 5983.019938751667,
+              "absolute_p95": 37690.9
+            },
+            "maximum_absolute_z_update_m": 0.0021051444799999874,
+            "lio_correspondences": {
+              "samples": 20,
+              "median": 5230.0,
+              "minimum": 5001.0,
+              "maximum": 5442.0,
+              "stddev": 141.57969487182828,
+              "absolute_p95": 5433.45
+            }
+          },
+          "VIO": {
+            "samples": 20,
+            "processing_us": {
+              "samples": 20,
+              "median": 21735.5,
+              "minimum": 15364.0,
+              "maximum": 29694.0,
+              "stddev": 3930.621035854258,
+              "absolute_p95": 29100.25
+            },
+            "maximum_absolute_z_update_m": 0.002886951319999831,
+            "vio_accepted_patches": {
+              "samples": 20,
+              "median": 149.0,
+              "minimum": 144.0,
+              "maximum": 153.0,
+              "stddev": 2.15870331449229,
+              "absolute_p95": 152.05
+            },
+            "vio_update_rejected": {
+              "samples": 20,
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0,
+              "stddev": 0.0,
+              "absolute_p95": 0.0
+            }
+          }
+        },
+        "frame_neighbourhood": {
+          "px4": {
+            "samples": 100,
+            "measurement_gap_ms": {
+              "samples": 99,
+              "median": 16.0,
+              "minimum": 8.0,
+              "maximum": 36.0,
+              "stddev": 4.824181513244218,
+              "absolute_p95": 24.0
+            }
+          },
+          "fast_livo2": {
+            "samples": 20,
+            "measurement_gap_ms": {
+              "samples": 19,
+              "median": 100.0,
+              "minimum": 96.0,
+              "maximum": 128.0,
+              "stddev": 6.56356095499785,
+              "absolute_p95": 102.79999999999994
+            }
+          }
+        }
+      },
+      "minimum_horizontal_body_centre_obstacle_distance_m": 0.7893972430964422,
+      "source_report": "height_dynamics_gpsdelay0_117.json"
+    },
+    {
+      "run": "lateral_pressure005_117_01",
+      "diagnostic_reduced_pressure_noise": true,
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "FAST-LIVO2 receipt age exceeds 250 ms",
+      "reached_goals": 4,
+      "parameters": {
+        "EKF2_BARO_NOISE": 0.30000001192092896,
+        "EKF2_BARO_DELAY": 0.0,
+        "EKF2_GPS_DELAY": 110.0,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_HGT_REF": 0,
+        "EKF2_DELAY_MAX": 200.0,
+        "EKF2_TAU_POS": 0.25,
+        "EKF2_TAU_VEL": 0.25
+      },
+      "configured_pressure_noise_pa": 0.05,
+      "px4_estimation_error_m": {
+        "samples": 5336,
+        "median": 0.002835479935329399,
+        "minimum": -0.014277918246205612,
+        "maximum": 0.10639500171871874,
+        "stddev": 0.013654288215778609,
+        "absolute_p95": 0.018628919038553626
+      },
+      "controller_estimated_tracking_error_m": {
+        "samples": 5336,
+        "median": 0.004088401794443808,
+        "minimum": -0.07516774535179294,
+        "maximum": 0.03851309418678284,
+        "stddev": 0.011229459963866423,
+        "absolute_p95": 0.016052901744883774
+      },
+      "actual_tracking_error_m": {
+        "samples": 5336,
+        "median": 0.000980191527281793,
+        "minimum": -0.16623004342481695,
+        "maximum": 0.02725998458103218,
+        "stddev": 0.022728157402438418,
+        "absolute_p95": 0.031498658612790775
+      },
+      "baro_raw_scatter_m": {
+        "samples": 4446,
+        "median": 0.0,
+        "minimum": -0.010231923482514671,
+        "maximum": 0.009546421678458095,
+        "stddev": 0.0029766087929336176,
+        "absolute_p95": 0.005782460751121321
+      },
+      "px4_truth_xy_error_m": {
+        "count": 13437,
+        "p50": 0.02425336445660364,
+        "p95": 0.04758666869155753,
+        "maximum": 0.06889572903160322
+      },
+      "planned_height_span_m": 0.0,
+      "descriptive_after_first_10_seconds": {
+        "after_first_10_seconds": {
+          "px4_estimation_error_m": {
+            "samples": 5155,
+            "median": 0.002841999669129791,
+            "minimum": -0.014277918246205612,
+            "maximum": 0.09171629826829197,
+            "stddev": 0.01028134123829678,
+            "absolute_p95": 0.013075902512625151
+          },
+          "actual_tracking_error_m": {
+            "samples": 5155,
+            "median": 0.0009541904042389415,
+            "minimum": -0.14335547237276502,
+            "maximum": 0.02725998458103218,
+            "stddev": 0.017115484077175617,
+            "absolute_p95": 0.024869304239632604
+          }
+        }
+      },
+      "worst_tracking_event": {
+        "measurement_time_sec": 100.46999999999962,
+        "goal_index": 0,
+        "seconds_after_latest_goal": 7.805999999999614,
+        "actual_tracking_error_m": -0.16623004342481695,
+        "estimator_error_m": 0.09644614721701483,
+        "controller_estimated_tracking_error_m": -0.06978389620780212,
+        "actual_body_height_m": 1.767656266942122,
+        "target_body_height_m": 1.933886310366939,
+        "livo_one_second_neighbourhood": {
+          "LIO": {
+            "samples": 20,
+            "processing_us": {
+              "samples": 20,
+              "median": 26223.5,
+              "minimum": 19731.0,
+              "maximum": 34547.0,
+              "stddev": 3604.95056103409,
+              "absolute_p95": 31962.050000000003
+            },
+            "maximum_absolute_z_update_m": 0.0038425340599999025,
+            "lio_correspondences": {
+              "samples": 20,
+              "median": 6559.0,
+              "minimum": 6488.0,
+              "maximum": 6639.0,
+              "stddev": 44.1832547465666,
+              "absolute_p95": 6629.5
+            }
+          },
+          "VIO": {
+            "samples": 20,
+            "processing_us": {
+              "samples": 20,
+              "median": 12478.0,
+              "minimum": 10332.0,
+              "maximum": 16729.0,
+              "stddev": 2103.1248512629963,
+              "absolute_p95": 16654.9
+            },
+            "maximum_absolute_z_update_m": 0.0038652217899999286,
+            "vio_accepted_patches": {
+              "samples": 20,
+              "median": 129.0,
+              "minimum": 126.0,
+              "maximum": 133.0,
+              "stddev": 2.329699551444349,
+              "absolute_p95": 133.0
+            },
+            "vio_update_rejected": {
+              "samples": 20,
+              "median": 0.0,
+              "minimum": 0.0,
+              "maximum": 0.0,
+              "stddev": 0.0,
+              "absolute_p95": 0.0
+            }
+          }
+        },
+        "frame_neighbourhood": {
+          "px4": {
+            "samples": 99,
+            "measurement_gap_ms": {
+              "samples": 98,
+              "median": 18.0,
+              "minimum": 16.0,
+              "maximum": 24.0,
+              "stddev": 3.97933018501432,
+              "absolute_p95": 24.0
+            }
+          },
+          "fast_livo2": {
+            "samples": 20,
+            "measurement_gap_ms": {
+              "samples": 19,
+              "median": 100.0,
+              "minimum": 96.0,
+              "maximum": 100.0,
+              "stddev": 1.6307298299820703,
+              "absolute_p95": 100.0
+            }
+          }
+        }
+      },
+      "minimum_horizontal_body_centre_obstacle_distance_m": 0.8336641551416099,
+      "source_report": "height_dynamics_pressure005_117.json"
+    }
+  ],
+  "control_checks": {
+    "lateral_gpsdelay0_117_01": {
+      "px4_initial_parameter_differences": {
+        "EKF2_GPS_DELAY": [
+          110.0,
+          0.0
+        ]
+      },
+      "unchanged_files": {
+        "estimator_config.yaml": true,
+        "models/astra_x500_sensors/model.sdf": true
+      }
+    },
+    "lateral_pressure005_117_01": {
+      "px4_initial_parameter_differences": {},
+      "unchanged_files": {
+        "estimator_config.yaml": true,
+        "models/astra_x500_sensors/model.sdf": true
+      }
+    }
+  },
+  "failed_zero_noise_report": "pressure0_failed_attempt_117.json",
+  "receipt_timeout": {
+    "event": {
+      "event": "test_aborted",
+      "wall_ns": 130849695432010,
+      "sim_ns": 361472000000,
+      "odom_age_sec": 0.152,
+      "odom_receipt_age_sec": 0.43561552799656056,
+      "map_ready": true,
+      "heading_good": true,
+      "truth": [
+        0.031781619975715485,
+        2.4786740199102915,
+        1.6957556679733146
+      ],
+      "px4": [
+        2.474754810333252,
+        -0.022326383739709854,
+        -1.7015215158462524,
+        1.591253638267517
+      ],
+      "reason": "FAST-LIVO2 receipt age exceeds 250 ms"
+    },
+    "nearby_cadence_ms": {
+      "receipt.csv:odom": 181.066726,
+      "frame_samples.csv:fast_livo2": 174.160131,
+      "frame_samples.csv:px4": 37.858216,
+      "frame_samples.csv:gazebo": 28.434736,
+      "lio_publication_upper_proxy_ms": 181.974176,
+      "LIO_max_wall_cpu_scheduler_ms": {
+        "processing_us": 61.42,
+        "thread_cpu_us": 22.759,
+        "thread_scheduler_wait_us": 35.89
+      },
+      "VIO_max_wall_cpu_scheduler_ms": {
+        "processing_us": 71.844,
+        "thread_cpu_us": 15.867,
+        "thread_scheduler_wait_us": 46.182
+      }
+    },
+    "confound": "Two baseline/GPS offline ULog/plotting processes were launched while the low-noise run was active. LIVO still published; subscriber scheduling/queue backlog suspected, causality unproven. New CLI rejects live Astra simulator."
+  },
+  "default_gps_delay_ms": 110,
+  "default_pressure_noise_pa": 3,
+  "external_vision_enabled": false,
+  "frame_alignment_certified": false,
+  "conclusions": [
+    "Zero GPS delay did not improve height in one trial; retain default110.",
+    "Lower pressure noise markedly reduced typical height estimation and tracking scatter on a partial diagnostic route; supports an important barometric contribution, not full root cause or realistic flight certification.",
+    "Early takeoff/handoff height transient remains with reduced noise.",
+    "Do not run heavy offline audits alongside flight. Receipt backlog protection remains250ms; no gates widened."
+  ],
+  "scope": "Independent noise realizations and frozen initial offsets. Route durations, starting heights and optimized spline Z differ. Low-noise execution aborted at4/5; compare diagnostics descriptively, not as matched full-route certification."
+}

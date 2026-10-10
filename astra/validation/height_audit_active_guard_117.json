@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "exit_code": 2,
+  "evidence": "usage: audit_height_dynamics_117.py [-h] --output OUTPUT [--plot PLOT] run_dir\naudit_height_dynamics_117.py: error: Stop isolated Astra SITL before offline analysis/plotting; active PIDs: 2440117",
+  "method": "Owned sleep process with simulator argv and Astra partition; no simulator or flight launched"
+}

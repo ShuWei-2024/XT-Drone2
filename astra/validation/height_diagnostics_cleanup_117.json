@@ -1,0 +1,14 @@
+{
+  "active_isolated_simulator_pids": [],
+  "baseline_preserved_by_run": {
+    "lateral_geometryfix_117_01": true,
+    "lateral_gpsdelay0_117_01": true,
+    "lateral_pressure005_117_01": true,
+    "lateral_pressure0_117_01": true,
+    "lateral_pressure0_117_02": true
+  },
+  "normal_defaults": {
+    "EKF2_GPS_DELAY": 110,
+    "pressure_noise_pa": 3
+  }
+}

@@ -75,5 +75,13 @@
     "astra/validation/mount_reference_adapter_tests_117.log",
     "astra/validation/sensor_geometry_tests_117.log"
   ],
-  "core_ctest_log": "astra/validation/mount_reference_ctest_117.log"
+  "core_ctest_log": "astra/validation/mount_reference_ctest_117.log",
+  "height_dynamics_report": "astra/validation/height_diagnostics_comparison_117.json",
+  "height_dynamics_scope": "One zero-GPS-delay complete route, two zero-pressure STALE aborts, one low-pressure partial route. Lower pressure noise reduces typical height scatter; initial transients and subscriber latency remain. Normal pressure3Pa/GPSdelay110ms retained.",
+  "default_sitl_gps_delay_ms": 110,
+  "default_sitl_pressure_noise_pa": 3,
+  "height_diagnostic_low_noise_route_complete": false,
+  "height_offline_audit_rejects_active_simulator": true,
+  "height_diagnostics_runner_regression_passed": 20,
+  "height_diagnostics_cleanup_report": "astra/validation/height_diagnostics_cleanup_117.json"
 }

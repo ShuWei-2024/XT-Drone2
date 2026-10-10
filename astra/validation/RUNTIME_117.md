@@ -312,3 +312,64 @@ bash astra/run_117.bash obstacle geometry_recheck_01 --calibrate-ground-height -
 # 另开终端查看；运行结束后关闭 GUI 再启动下一轮。
 GZ_PARTITION=astra_px4_117 gz sim -g
 ```
+
+
+## 高度动态残差：日志分解与单因素诊断
+
+新增 `audit_height_dynamics_117.py`，用 Gazebo 机身中心测量时间和 PX4 ULog 分解高度误差。执行前首个目标前 2 秒冻结两套估计器各自的真值平移，飞行过程中不重新拟合。20 Hz 公共网格用于位姿/控制对照；气压观测统计另保留 ULog 原始采样，避免插值平滑后低估噪声。目标映射也使用这份空中冻结参考，不能替代地面偏移保护或绝对高度认证。
+
+基线 `lateral_geometryfix_117_01` 中，外部高度目标和 PX4 内部位置高度目标的跨度均约 0.01645 mm，规划垂直速度约微米/秒量级。PX4 融合气压高度和 GNSS 速度，未融合 GNSS 高度或 External Vision；这里的 GNSS 速度含垂直分量。配置仍为 `EKF2_DELAY_MAX=200 ms`、`EKF2_TAU_POS/VEL=0.25 s`，滤波/输出预测和传感器时间错配不能混为一谈。离线前移位姿时间后残差下降只是动态线索，没有改消息时间戳或用它认证时钟。
+
+基线实际高度相对冻结目标的最大偏差发生在仿真 244.358 s，目标索引 2、发送该目标后 10.834 s：实际低 0.18834 m，PX4 估计高 0.09954 m，控制对其自身估计的目标偏差为 −0.08880 m，满足 `实际跟踪误差=控制估计跟踪误差−估计误差`。排除交接后前 10 秒仍保留此峰值，不能一概归为起飞 settling。该时刻前后 1 秒 LIO 匹配点最少 5207、最大 Z 修正 1.30 mm；VIO 最大 Z 修正 1.59 mm、无拒绝帧。FAST-LIVO2 测量间隔最大 128 ms、PX4 32 ms。这些证据不支持该峰值来自一次大的视觉修正或里程计长时间中断。
+
+官方 x500_base 气压噪声标准差为 3 Pa（近海平面约 0.25 m 等效高度）。基线 ULog 气压高度减真值、仅移除中位数后的散布标准差为 0.14364 m、绝对偏差 p95=0.28424 m；这是记录到的观测散布，包含模拟/预处理，不是 PX4 输出高度误差。20 Hz 插值后的对应标准差只有 0.11790 m，因此两种统计分别列出。
+
+PX4 1.17 的 `GZBridge::navSatCallback`（`GZBridge.cpp:727`）在回调中用 `hrt_absolute_time()` 标记 GPS 测量和发布时间，没有显式插入 110 ms 队列；EKF 的 `estimator_interface.cpp:181` 则减去 `EKF2_GPS_DELAY`。基线 GPS 垂直速度与 Gazebo 数值速度对照在零时移下标准差约 0.0224 m/s，比错开 −110 ms 时的 0.0233 m/s 小，但差异很小，且两者包含回调/差分误差，不能当作精确延迟标定。
+
+因此加入仅在本次运行 rootfs 生效的 `--gps-delay-ms 0|110`（默认仍 110）。`lateral_gpsdelay0_117_01` 完成 5/5 段并降落，实际相反方向侧移、后退均发生；ULog 初始参数对照确认唯一变化为 `EKF2_GPS_DELAY:110→0`。保存的模型、FAST-LIVO2 配置、PX4 二进制和路线相同。零延迟没有在本次试验改善高度；随机噪声、初始估计偏置、生成轨迹高度仍有差异，不能把单轮结果写成参数的确定因果效应。
+
+| 指标（20 Hz 时间对齐、冻结初始参考） | 110 ms 基线 | 0 ms GPS 试验 |
+| --- | --- | --- |
+| PX4 Z 估计误差 p95 | 0.06629 m | 0.10204 m |
+| PX4 Z 估计误差标准差 | 0.03120 m | 0.03879 m |
+| 控制估计高度跟踪误差 p95 | 0.04637 m | 0.05356 m |
+| 实际高度跟踪误差 p95 | 0.07432 m | 0.11428 m |
+| 实际高度跟踪最大绝对误差 | 0.18834 m | 0.17695 m |
+| 气压原始记录散布标准差 | 0.14364 m | 0.14405 m |
+
+0 ms 试验的独立最近时间配对审计：FAST-LIVO2 XY/Z p95=0.00519/0.00453 m，PX4 XY/Z p95=0.06674/0.10175 m，航向 p95=1.702°；测量配对 p95=8 ms、最大 12 ms；机身中心水平最小障碍距离 0.78940 m。无运动 XY/Z/yaw 重置、armed failsafe 或 EV 融合。实际 3D 峰值速度 0.25880 m/s、odom 年龄 p95=48 ms；桥最大发送间隔 70.09 ms。原保护门限不变；此结果不通过通用坐标认证，默认 GPS 延迟未改。
+
+尝试完全移除气压噪声时，两轮在地面出现 `BARO #0 failed: STALE`，爬升约 74.168/73.688 s 出现 Z 重置，原保护立即中止并安全降落，均未交给规划器执行。PX4 `DataValidator.cpp:84,115` 会把连续相同读数判为 stale，即使消息时间戳持续更新。它是零噪声仿真的传感器健康特例，不能用来证明正常 3 Pa 条件下波动的原因，也不能与之前 GPS/磁力计/电池共同停更问题混淆。失败记录保留在 `pressure0_failed_attempt_117.json`。后续低噪声诊断使用非零 0.05 Pa，默认模型保持 3 Pa；诊断结果不用于真实噪声场景验收。
+
+运行和审计命令：
+
+```bash
+# 在工程根目录、干净终端加载隔离环境。每轮使用新的名称。
+bash astra/run_117.bash obstacle gps_delay_recheck_01 --gps-delay-ms 0 --calibrate-ground-height --route-json astra/config/route_lateral_rectangle.json
+# 低噪声仅用于原因诊断；其他传感器噪声、EKF 参数和飞行门控保持一致。
+bash astra/run_117.bash obstacle pressure_diagnostic_01 --pressure-noise-pa 0.05 --calibrate-ground-height --route-json astra/config/route_lateral_rectangle.json
+python3 astra/tools/audit_height_dynamics_117.py astra/runtime/gps_delay_recheck_01 --output astra/validation/height_recheck_01.json --plot astra/validation/height_recheck_01.png
+```
+
+
+低噪声 `lateral_pressure005_117_01` 将气压噪声标准差临时从 3 Pa 降为 0.05 Pa；GPS 延迟恢复默认 110 ms，所有 EKF/控制参数与基线相同，模型安装和外参相同。ULog 初始参数对照无差异。它仅是原因诊断，不能把低噪声模型作为正式验收环境。完成前进、两个相反侧移和后退共 4/5 个目标后，返回段在 361.472 s 因 `FAST-LIVO2 receipt age exceeds 250 ms` 中止，之后安全降落、解除解锁。该轮不能记录为完整路线通过。
+
+| 指标（本轮停测前约 267 秒公共网格） | 3 Pa 基线完整路线 | 0.05 Pa 诊断部分路线 |
+| --- | --- | --- |
+| PX4 Z 估计误差 p95 | 0.06629 m | 0.01863 m |
+| PX4 Z 估计误差标准差 | 0.03120 m | 0.01365 m |
+| 控制估计高度跟踪误差 p95 | 0.04637 m | 0.01605 m |
+| 实际高度跟踪误差 p95 | 0.07432 m | 0.03150 m |
+| 气压原始记录散布标准差 | 0.14364 m | 0.00298 m |
+
+低噪声条件的典型高度误差明显减小，支持气压观测噪声是动态波动的重要贡献项；不是证明它是唯一根因。轨迹生成、初始高度/偏置、随机 GNSS/IMU 噪声及执行长度不同，且本轮存在额外计算负载干扰，不能作严格配对或正式安全认证。仍有交接后约 7.75 秒附近实际高度偏差约 0.166 m，首段约 130 s 又出现明显瞬态，不能只说是起飞未稳定；即使去掉交接后前 10 秒，实际高度最大偏差仍约 0.143 m、p95=0.02487 m，PX4 Z p95=0.01308 m。低噪声并没有消除短时动态误差。正常仿真继续保留 3 Pa，未用虚假的低噪声消掉验收问题。
+
+接收超时事件中，监督节点自己的 odom receipt age 为 435.6 ms、其观测到的测量年龄为 152 ms。独立 monitor 和 frame auditor 同时段的 odom 最大接收间隔分别约 181.1/174.2 ms；LIO 处理结束/发布时刻间隔上界约 182.0 ms。LIO 最大处理墙钟/线程 CPU/调度等待约 61.4/22.8/35.9 ms，VIO 为 71.8/15.9/46.2 ms。因此不能说 FAST-LIVO2 在这一刻单帧计算了 436 ms；不同订阅者的回调调度/积压更值得查。
+
+本次操作有已知干扰：低噪声飞行仍在运行时，启动了两份基线/零 GPS 延迟的离线 ULog 读取和绘图进程，两张图的生成结束约在停测后 5.5 秒。它们与调度等待增加重叠，但没有进程级 CPU 全量记录证明因果。该轮不作为无干扰的接收可靠性测试。高度审计 CLI 已加入检测：隔离 Astra 仿真运行时拒绝离线分析/绘图；验证使用带模拟器 argv/分区的受控 sleep 进程，未启动飞机。后续所有重型离线审计等待仿真完全退出再进行。原 250 ms 接收保护保留，没有延长门限或吞掉故障。
+
+本轮只新增诊断参数和离线工具，没有修改正式估计器/控制器配置。默认 `EKF2_GPS_DELAY=110 ms`、气压噪声 3 Pa；EV 继续关闭。全部尝试保存隔离 rootfs、实际模型/YAML、CSV 和 ULog；原 1.15 源码/参数哈希均保留，结束后无隔离模拟器残留。20 项启动器/路线回归通过，活动仿真拒绝审计检查通过。源码与数据尚未推送 GitHub。
+
+汇总证据：`height_diagnostics_comparison_117.json`、`height_dynamics_baseline_117.json`、`height_dynamics_gpsdelay0_117.json`、`height_dynamics_pressure005_117.json`、`pressure0_failed_attempt_117.json`、`height_audit_active_guard_117.json`、`height_diagnostics_cleanup_117.json`。完整正常路线为 `lateral_gpsdelay0_117_01`；低噪声部分路线为 `lateral_pressure005_117_01`。下一轮需要在正常 3 Pa 噪声下、无离线计算竞争时复测接收可靠性，并继续分开起飞/交接动态和巡航气压滤波影响；不盲改 GPS 延迟，不关闭 reset/超时保护。
+
+![低噪声原因诊断，4/5 目标后因接收超时中止](height_dynamics_pressure005_117.png)

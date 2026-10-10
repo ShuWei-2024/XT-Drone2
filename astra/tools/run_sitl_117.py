@@ -57,6 +57,11 @@ def main():
     p.add_argument('--baro-noise-m',type=float,choices=[.1,.3],default=.3,
                    help='Isolated SITL EKF baro sigma: default 0.3 m matches the model\'s '
                         '3 Pa pressure noise (about 0.25 m); 0.1 m retains the old comparison')
+    p.add_argument('--gps-delay-ms',type=float,choices=[0.,110.],default=110.,
+                   help='Isolated single-factor GPS delay comparison; default preserves 110 ms')
+    p.add_argument('--pressure-noise-pa',type=float,choices=[0.,.05,3.],default=3.,
+                   help='Diagnostic noise ablation only; normal simulation retains 3 Pa. '
+                        '0 Pa can trigger PX4 stuck-sensor detection; use 0.05 Pa for low-noise diagnosis')
     a=p.parse_args()
     if a.route_json and a.mode!='obstacle':p.error('Custom routes require obstacle mode')
     try:
@@ -103,6 +108,8 @@ def main():
         for field in mag.iter():
             if field.tag in ('stddev','mean','bias_mean','bias_stddev','dynamic_bias_stddev') and field.text:
                 field.text=str(float(field.text)*1.e-4)
+    for pressure in mag_tree.getroot().iter('air_pressure'):
+        pressure.find('pressure/noise/stddev').text=str(a.pressure_noise_pa)
     mag_tree.write(magnetic_model,encoding='utf-8',xml_declaration=True)
     sensor=models/'astra_x500_sensors/model.sdf';tree=ET.parse(sensor)
     for link in tree.getroot().iter('link'):
@@ -121,7 +128,8 @@ def main():
     env['ASTRA_TEST_OBSTACLE_GEOMETRY']=str(out/'obstacle_geometry.json')
     startup=out/'startup.sh'
     overrides={'UXRCE_DDS_SYNCT':0,'EKF2_EV_CTRL':0,'EKF2_HGT_REF':0,'EKF2_GPS_CTRL':5,
-               'EKF2_MAG_TYPE':1,'EKF2_BARO_NOISE':a.baro_noise_m,'EKF2_GND_EFF_DZ':0,'MPC_XY_P':1.2}
+               'EKF2_MAG_TYPE':1,'EKF2_BARO_NOISE':a.baro_noise_m,'EKF2_GPS_DELAY':a.gps_delay_ms,
+               'EKF2_GND_EFF_DZ':0,'MPC_XY_P':1.2}
     env.update({f'PX4_PARAM_{key}':str(value) for key,value in overrides.items()})
     startup.write_text('. "${R}etc/init.d-posix/rcS"\n')
     runtime={'mode':a.mode,'world':str(world),'px4':str(PX4),'namespace':'x500_0',
@@ -130,6 +138,9 @@ def main():
              'magnetometer_noise_scale_from_official_gauss_model':1.e-4,
              'route_offsets_m':route_offsets if a.mode=='obstacle' else None,
              'flight_timeout_s':flight_timeout,
+             'pressure_noise_pa':a.pressure_noise_pa,
+             'diagnostic_noiseless_pressure':a.pressure_noise_pa==0.,
+             'diagnostic_reduced_pressure_noise':a.pressure_noise_pa!=3.,
              'sensors_depth_removed':True,'parameter_overrides':overrides,'isolated_rootfs':str(out),'ros_domain':94,'gz_partition':env['GZ_PARTITION']}
     runtime['odom_reference'] = 'base_link; internal LIVO state remains at imu_link'
     runtime['audit_truth_reference_offset_model_m'] = [0., 0., .24]
