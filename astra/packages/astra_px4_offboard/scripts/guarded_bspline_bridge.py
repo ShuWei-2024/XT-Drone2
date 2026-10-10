@@ -12,6 +12,7 @@ from geometry_msgs.msg import PoseStamped, TwistStamped
 from nav_msgs.msg import Odometry
 from px4_msgs.msg import (OffboardControlMode, TrajectorySetpoint, VehicleCommand,
                           VehicleLocalPosition, VehicleStatus)
+from px4_topics import px4_topic
 from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
@@ -31,6 +32,7 @@ class GuardedBsplineBridge(Node):
         super().__init__('guarded_bspline_bridge', parameter_overrides=parameter_overrides)
         defaults = {
             'enable_px4_output': False,
+            'px4_namespace': '',
             'sitl_only': True,
             'velocity_feedforward': False,
             'freeze_tracking_yaw': False,
@@ -57,6 +59,7 @@ class GuardedBsplineBridge(Node):
         for name, value in defaults.items():
             self.declare_parameter(name, value)
         self.enabled = bool(self.get_parameter('enable_px4_output').value)
+        self.px4_namespace = str(self.get_parameter('px4_namespace').value)
         self.sitl_only = bool(self.get_parameter('sitl_only').value)
         self.velocity_feedforward = bool(self.get_parameter('velocity_feedforward').value)
         self.freeze_tracking_yaw = bool(self.get_parameter('freeze_tracking_yaw').value)
@@ -112,20 +115,22 @@ class GuardedBsplineBridge(Node):
         self.create_subscription(Bool, '/local_mapping/ready', self.on_ready,
                                  QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
         self.create_subscription(Odometry, '/fast_livo2/odom', self.on_odom, 10)
-        self.create_subscription(VehicleLocalPosition, '/fmu/out/vehicle_local_position',
+        self.create_subscription(VehicleLocalPosition, px4_topic(
+            'out', 'vehicle_local_position', VehicleLocalPosition, self.px4_namespace),
                                  self.on_px4, sensor_qos)
-        self.create_subscription(VehicleStatus, '/fmu/out/vehicle_status',
+        self.create_subscription(VehicleStatus, px4_topic(
+            'out', 'vehicle_status', VehicleStatus, self.px4_namespace),
                                  self.on_status, sensor_qos)
         self.preview_pub = self.create_publisher(TrajectorySetpoint,
                                                  '/planning/px4_setpoint_preview', 10)
         self.state_pub = self.create_publisher(String, '/planning/bridge_state', 10)
         if self.enabled:
             self.mode_pub = self.create_publisher(OffboardControlMode,
-                '/fmu/in/offboard_control_mode', 10)
+                px4_topic('in', 'offboard_control_mode', OffboardControlMode, self.px4_namespace), 10)
             self.setpoint_pub = self.create_publisher(TrajectorySetpoint,
-                '/fmu/in/trajectory_setpoint', 10)
+                px4_topic('in', 'trajectory_setpoint', TrajectorySetpoint, self.px4_namespace), 10)
             self.command_pub = self.create_publisher(VehicleCommand,
-                '/fmu/in/vehicle_command', 10)
+                px4_topic('in', 'vehicle_command', VehicleCommand, self.px4_namespace), 10)
         self.output_timer = self.create_timer(0.05, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
         self.get_logger().info('PX4 output ' + ('ENABLED for SITL' if self.enabled else 'disabled'))
 

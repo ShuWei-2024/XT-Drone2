@@ -16,6 +16,7 @@ see <https://opensource.org/licenses/MIT>.
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription
 from launch_ros.actions import Node
+from launch.conditions import IfCondition
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -29,6 +30,9 @@ def generate_launch_description():
     model_name_arg = DeclareLaunchArgument('model', description='Name of the model to spawn')
     id_arg = DeclareLaunchArgument('id', description='ID of the model to spawn')
     name_space_arg = DeclareLaunchArgument('namespace', description='ROS namespace for the model')
+    px4_dir_arg = DeclareLaunchArgument('px4_dir', default_value='~/dev/px4/PX4-Autopilot-1.17')
+    work_dir_arg = DeclareLaunchArgument('work_dir', default_value='')
+    communication_arg = DeclareLaunchArgument('enable_communication', default_value='true')
 
     x_arg = DeclareLaunchArgument('x', default_value='0', description='X position of the model to spawn')
     y_arg = DeclareLaunchArgument('y', default_value='0', description='Y position of the model to spawn')
@@ -44,6 +48,8 @@ def generate_launch_description():
         executable='px4_launch',
         arguments=[
             '--world', LaunchConfiguration('world_name'),
+            '--px4-dir', LaunchConfiguration('px4_dir'),
+            '--work-dir', LaunchConfiguration('work_dir'),
             '--model', LaunchConfiguration('model'),
             '--id', LaunchConfiguration('id'),
             '--namespace', LaunchConfiguration('namespace'),
@@ -73,6 +79,7 @@ def generate_launch_description():
     xtd2_launch = Node(
         package='xtd2_communication',
         executable='multirotor_communication',
+        condition=IfCondition(LaunchConfiguration('enable_communication')),
         output='screen',
         shell=True,
         arguments=[
@@ -88,6 +95,9 @@ def generate_launch_description():
         model_name_arg,
         id_arg,
         name_space_arg,
+        px4_dir_arg,
+        work_dir_arg,
+        communication_arg,
         x_arg,
         y_arg,
         z_arg,

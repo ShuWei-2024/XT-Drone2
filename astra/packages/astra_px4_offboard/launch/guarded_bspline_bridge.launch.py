@@ -12,6 +12,7 @@ def generate_launch_description():
     frozen_yaw = LaunchConfiguration('freeze_tracking_yaw')
     return LaunchDescription([
         DeclareLaunchArgument('enable_px4_output', default_value='false'),
+        DeclareLaunchArgument('px4_namespace', default_value=''),
         DeclareLaunchArgument('freeze_tracking_yaw', default_value='false'),
         Node(
             package='astra_px4_offboard',
@@ -19,6 +20,7 @@ def generate_launch_description():
             name='guarded_bspline_bridge',
             parameters=[{
                 'use_sim_time': True,
+                'px4_namespace': ParameterValue(LaunchConfiguration('px4_namespace'), value_type=str),
                 'enable_px4_output': ParameterValue(enabled, value_type=bool),
                 'sitl_only': True,
                 'freeze_tracking_yaw': ParameterValue(frozen_yaw, value_type=bool),

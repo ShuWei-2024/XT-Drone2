@@ -1,0 +1,39 @@
+{
+  "px4_commit": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+  "px4_msgs_commit": "86d8239e962f6939e05c3737784f60c02fa884db",
+  "checked_used_messages": [
+    {
+      "message": "VehicleLocalPosition",
+      "schema_match": true
+    },
+    {
+      "message": "VehicleStatus",
+      "schema_match": true
+    },
+    {
+      "message": "TrajectorySetpoint",
+      "schema_match": true
+    },
+    {
+      "message": "OffboardControlMode",
+      "schema_match": true
+    },
+    {
+      "message": "VehicleCommand",
+      "schema_match": true
+    },
+    {
+      "message": "TimesyncStatus",
+      "schema_match": true
+    },
+    {
+      "message": "VehicleGlobalPosition",
+      "schema_match": true
+    },
+    {
+      "message": "VehicleAttitudeSetpoint",
+      "schema_match": true
+    }
+  ],
+  "runtime_dds_verified": false
+}

@@ -20,7 +20,8 @@ install(PROGRAMS scripts/preview_bspline.py scripts/audit_frame_alignment.py
   scripts/guarded_bspline_bridge.py
   DESTINATION lib/${PROJECT_NAME}
 )
-install(DIRECTORY launch config
+install(FILES scripts/px4_topics.py DESTINATION lib/${PROJECT_NAME})
+install(DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
 )
 

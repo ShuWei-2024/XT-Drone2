@@ -1,0 +1,11 @@
+{
+  "px4_commit_unchanged": true,
+  "px4_status_unchanged": true,
+  "file_hashes_unchanged": {
+    "/home/cyf/dev/px4/PX4-Autopilot/build/px4_sitl_default/rootfs/parameters.bson": true,
+    "/home/cyf/dev/px4/PX4-Autopilot/platforms/posix/src/px4/common/drv_hrt.cpp": true,
+    "/home/cyf/dev/px4/PX4-Autopilot/src/systemcmds/tests/test_hrt.cpp": true
+  },
+  "old_source_files_checked": 251,
+  "old_source_files_changed": []
+}

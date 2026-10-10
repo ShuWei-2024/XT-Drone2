@@ -15,6 +15,7 @@ import numpy as np
 import rclpy
 from nav_msgs.msg import Odometry
 from px4_msgs.msg import TimesyncStatus, VehicleLocalPosition
+from px4_topics import px4_topic
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 
@@ -67,7 +68,7 @@ def fit_horizontal(source, target):
 
 
 class FrameAudit(Node):
-    def __init__(self, world, model, px4_timebase='dds'):
+    def __init__(self, world, model, px4_timebase='dds', px4_namespace=''):
         super().__init__('frame_alignment_audit')
         self.px4_timebase = px4_timebase
         self.lock = threading.Lock()
@@ -79,9 +80,11 @@ class FrameAudit(Node):
         self.gazebo.subscribe(Pose_V, f'/world/{world}/dynamic_pose/info', self.on_truth)
         self.model = model
         self.create_subscription(Odometry, '/fast_livo2/odom', self.on_lio, 10)
-        self.create_subscription(VehicleLocalPosition, '/fmu/out/vehicle_local_position',
+        self.create_subscription(VehicleLocalPosition, px4_topic(
+            'out', 'vehicle_local_position', VehicleLocalPosition, px4_namespace),
                                  self.on_px4, qos_profile_sensor_data)
-        self.create_subscription(TimesyncStatus, '/fmu/out/timesync_status',
+        self.create_subscription(TimesyncStatus, px4_topic(
+            'out', 'timesync_status', TimesyncStatus, px4_namespace),
                                  self.on_timesync, qos_profile_sensor_data)
 
     def on_truth(self, msg):
@@ -278,13 +281,14 @@ def main():
     parser.add_argument('--px4-timebase', choices=('dds', 'sim'), default='dds',
                         help='Use DDS-synchronized timestamps or raw PX4 simulation timestamps')
     parser.add_argument('--output')
+    parser.add_argument('--px4-namespace', default='')
     parser.add_argument('--stop-file', type=Path,
                         help='Finish and export when the controller creates this file')
     parser.add_argument('--samples-output',
                         help='Write timestamped Gazebo, FAST-LIVO2, and PX4 poses as CSV')
     args = parser.parse_args()
     rclpy.init()
-    node = FrameAudit(args.world, args.model, args.px4_timebase)
+    node = FrameAudit(args.world, args.model, args.px4_timebase, args.px4_namespace)
     end = time.monotonic() + args.seconds
     try:
         while rclpy.ok() and time.monotonic() < end:

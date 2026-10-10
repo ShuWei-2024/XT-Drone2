@@ -11,6 +11,7 @@ import rclpy
 from geometry_msgs.msg import PoseStamped, TwistStamped
 from nav_msgs.msg import Odometry
 from px4_msgs.msg import TrajectorySetpoint, VehicleLocalPosition
+from px4_topics import px4_topic
 from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
@@ -49,6 +50,7 @@ class PreviewBspline(Node):
     def __init__(self, parameter_overrides=None):
         super().__init__('preview_bspline', parameter_overrides=parameter_overrides)
         self.declare_parameter('frame_id', 'camera_init')
+        self.declare_parameter('px4_namespace', '')
         self.declare_parameter('max_speed_mps', 0.5)
         self.declare_parameter('max_accel_mps2', 0.5)
         self.declare_parameter('max_odom_age_sec', 0.25)
@@ -87,7 +89,9 @@ class PreviewBspline(Node):
         self.create_subscription(Empty, '/planning/heartbeat', self.on_planner_heartbeat, 10)
         self.create_subscription(Odometry, '/fast_livo2/odom', self.on_odom, 10)
         self.create_subscription(BsplineMsg, '/planning/bspline', self.on_trajectory, 10)
-        self.create_subscription(VehicleLocalPosition, '/fmu/out/vehicle_local_position',
+        self.create_subscription(VehicleLocalPosition, px4_topic(
+            'out', 'vehicle_local_position', VehicleLocalPosition,
+            self.get_parameter('px4_namespace').value),
                                  self.on_px4_position, px4_qos)
         self.pose_pub = self.create_publisher(PoseStamped, '/planning/position_preview', 10)
         self.velocity_pub = self.create_publisher(TwistStamped, '/planning/velocity_preview', 10)

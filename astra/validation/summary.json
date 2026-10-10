@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-10",
+  "framework_branch": "astra/px4-1.17",
+  "px4_tag": "v1.17.0",
+  "px4_build_passed": true,
+  "px4_binary_sha256": "6df45c06224e7e9fa2901c00aada6b2ed8b1291950358f3b04e06744c3632c03",
+  "px4_build_log": "/home/cyf/dev/px4/PX4-Autopilot-1.17/astra_build.log",
+  "ros_build_passed": true,
+  "ros_packages": [
+    "px4_msgs",
+    "traj_utils",
+    "xtd2_gz_sim",
+    "astra_px4_offboard",
+    "xtd2_msgs",
+    "xtd2_communication",
+    "xtd2_control",
+    "xtd2_launch"
+  ],
+  "ros_build_log": "/home/cyf/dev/XT-Drone2-astra/astra_ros_build.log",
+  "offline_tests_passed": 23,
+  "offline_test_log": "/home/cyf/dev/XT-Drone2-astra/astra/validation/offline_tests.log",
+  "launch_argument_parsing_passed": true,
+  "original_1_15_sources_changed": false,
+  "original_1_15_px4_parameters_changed": false,
+  "dds_runtime_verified": false,
+  "sensor_runtime_verified": false,
+  "px4_1_17_flight_verified": false,
+  "github_push_performed": false
+}
