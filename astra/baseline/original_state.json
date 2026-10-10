@@ -1,0 +1,10 @@
+{
+  "px4_version": "v1.15.3-dirty",
+  "px4_commit": "80171359656faf881dc643022f61ebde734d7cb6",
+  "px4_status": " M platforms/posix/src/px4/common/drv_hrt.cpp\n M src/systemcmds/tests/test_hrt.cpp\n?? etc\n",
+  "files": {
+    "/home/cyf/dev/px4/PX4-Autopilot/build/px4_sitl_default/rootfs/parameters.bson": "befa0ff4bd751a5e70ddf9757d0ca1f42c2adf39d0ff2877274df07b20c1a2a3",
+    "/home/cyf/dev/px4/PX4-Autopilot/platforms/posix/src/px4/common/drv_hrt.cpp": "63a9848de1bb72822d7a3f50653309f8d08def3d3b1b32e62b735e280faeb977",
+    "/home/cyf/dev/px4/PX4-Autopilot/src/systemcmds/tests/test_hrt.cpp": "655cd7d5b709c6bb6fe379a676a389195dd343d2237344e15ae5940a6d2a96d7"
+  }
+}

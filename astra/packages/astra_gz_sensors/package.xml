@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>astra_gz_sensors</name>
+  <version>0.1.0</version>
+  <description>Gazebo Harmonic sensor model and ROS 2 bridge for the Astra vehicle.</description>
+  <maintainer email="cyf@todo.invalid">Astra development team</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+    <gazebo_ros gazebo_model_path="${prefix}/models"/>
+  </export>
+</package>
