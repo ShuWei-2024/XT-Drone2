@@ -31,5 +31,10 @@
       "SO2 std::complex setter compatibility",
       "modern standalone CMake"
     ]
+  },
+  "xrce_agent": {
+    "tag": "v3.0.2",
+    "commit": "a88c712b41a01e92583f4723f7f4f686863cf657",
+    "binary": "/home/cyf/dev/third_party/Micro-XRCE-DDS-Agent/build/MicroXRCEAgent"
   }
 }
