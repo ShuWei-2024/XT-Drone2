@@ -40,6 +40,7 @@ typedef struct VoxelMapConfig
   std::vector<int64_t> layer_init_num_;
   int max_points_num_;
   double planner_threshold_;
+  double max_plane_eigen_ratio_ = 0., min_plane_extent_ratio_ = 0.;
   double beam_err_;
   double dept_err_;
   double sigma_num_;
@@ -62,6 +63,7 @@ typedef struct PointToPlane
   int layer_ = 0;
   double d_ = 0.0;
   double eigen_value_ = 0.0;
+  double middle_eigen_value_ = 0.0, maximum_eigen_value_ = 0.0;
   bool is_valid_ = false;
   float dis_to_plane_ = 0.0f;
 } PointToPlane;
@@ -140,6 +142,7 @@ public:
   std::vector<int> layer_init_num_;
   float quater_length_;
   float planer_threshold_;
+  double max_plane_eigen_ratio_ = 0., min_plane_extent_ratio_ = 0.;
   int points_size_threshold_;
   int update_size_threshold_;
   int max_points_num_;
@@ -148,9 +151,11 @@ public:
   bool init_octo_;
   bool update_enable_;
 
-  VoxelOctoTree(int max_layer, int layer, int points_size_threshold, int max_points_num, float planer_threshold)
+  VoxelOctoTree(int max_layer, int layer, int points_size_threshold, int max_points_num, float planer_threshold,
+               double max_plane_eigen_ratio = 0., double min_plane_extent_ratio = 0.)
       : max_layer_(max_layer), layer_(layer), points_size_threshold_(points_size_threshold), max_points_num_(max_points_num),
-        planer_threshold_(planer_threshold)
+        planer_threshold_(planer_threshold), max_plane_eigen_ratio_(max_plane_eigen_ratio),
+        min_plane_extent_ratio_(min_plane_extent_ratio)
   {
     temp_points_.clear();
     octo_state_ = 0;

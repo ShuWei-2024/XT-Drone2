@@ -1,0 +1,243 @@
+{
+  "run": "astra/runtime/replica_office0_static_117_03",
+  "run_summary": {
+    "mode": "static",
+    "exit_code": 0,
+    "failure": "",
+    "original_baseline_preserved": true
+  },
+  "probe": {
+    "counts": {
+      "lidar": 574,
+      "rgb": 1740,
+      "imu": 5731,
+      "odom": 595,
+      "registered_cloud": 1190,
+      "ready": 1187
+    },
+    "duration_wall_s": 60.00950157199986,
+    "lidar_finite_point_count_min": 11519,
+    "lidar_finite_point_count_median": 11519.0,
+    "ready_fraction": 1.0,
+    "camera_std": 58.8067337039087,
+    "camera_resolution": [
+      640,
+      480
+    ],
+    "lidar_observed_xyz_bounds": [
+      [
+        -2.4054782390594482,
+        -1.2897148132324219,
+        -0.5023481845855713
+      ],
+      [
+        1.9241451025009155,
+        3.5566318035125732,
+        1.0440459251403809
+      ]
+    ],
+    "static_odom_span_m": [
+      0.00021307574103258335,
+      0.00018897796373992283,
+      0.0001925203077770138
+    ],
+    "publishes_control": false,
+    "flight_validated": false,
+    "passed": true
+  },
+  "passive_health_passed": true,
+  "rates_hz": {
+    "lidar": 9.998099627985736,
+    "camera": 30.250984572246317,
+    "imu": 99.52865245607487,
+    "ready": 19.929561030537936,
+    "odom": 9.995475790988886,
+    "gps": 30.38455893852891,
+    "px4_local": 50.063514942946334,
+    "px4_status": 1.9936332956776563,
+    "battery": 1.0043243988200607,
+    "px4_imu": 100.0339102101031
+  },
+  "receipt": {
+    "real_time_factor": 0.9994921787775778,
+    "gap_ms": {
+      "px4_local": {
+        "count": 2998,
+        "p50": 19.978719,
+        "p95": 24.602875,
+        "max": 48.31997
+      },
+      "ready": {
+        "count": 1199,
+        "p50": 50.015578,
+        "p95": 58.365433,
+        "max": 79.50592
+      },
+      "odom": {
+        "count": 597,
+        "p50": 99.8633,
+        "p95": 113.669356,
+        "max": 155.02305
+      },
+      "px4_status": {
+        "count": 118,
+        "p50": 504.025398,
+        "p95": 505.299546,
+        "max": 528.175326
+      }
+    },
+    "odom_clock_age_ms": {
+      "count": 598,
+      "p50": 20.0,
+      "p95": 28.0,
+      "max": 64.0
+    },
+    "watchdog_receipt_age_ms": {
+      "odom": {
+        "count": 16714,
+        "p50": 47.530281,
+        "p95": 95.247963,
+        "max": 154.629682
+      },
+      "px4_local": {
+        "count": 16714,
+        "p50": 9.1821,
+        "p95": 22.789366,
+        "max": 48.135269
+      },
+      "px4_status": {
+        "count": 16714,
+        "p50": 251.984873,
+        "p95": 479.969417,
+        "max": 527.643541
+      },
+      "ready": {
+        "count": 16714,
+        "p50": 23.443669,
+        "p95": 48.095463,
+        "max": 79.432305
+      }
+    },
+    "ready_fraction": 1.0,
+    "resets": [],
+    "rss_kib": {
+      "local_map": {
+        "count": 60,
+        "first": 100272,
+        "last": 101024,
+        "maximum": 101024
+      },
+      "livo": {
+        "count": 60,
+        "first": 164528,
+        "last": 167580,
+        "maximum": 170692
+      },
+      "planner": {
+        "count": 60,
+        "first": 170672,
+        "last": 171488,
+        "maximum": 171488
+      }
+    }
+  },
+  "px4_status_count": 119,
+  "armed_observed": false,
+  "map_manifest": {
+    "source_url": "https://huggingface.co/datasets/voviktyl/Replica-SLAM/resolve/7d7ae90b48035aa2e9baa58018f5e090bd6d5dc5/cull_replica_mesh/office0.ply",
+    "source_sha256": "0dd4b4d292cc325b52eeb596b0d089440cc333df8757cced7fa12daedb9309a6",
+    "source_faces": 1010496,
+    "visual_and_collision_faces": 100000,
+    "source_vertices": 589517,
+    "converted_vertices": 50261,
+    "native_floor_z": -1.128891328970591,
+    "native_spawn_xy": [
+      0.41596423586209613,
+      -1.757775068283081
+    ],
+    "translation_native_to_world_m": [
+      -0.41596423586209613,
+      1.757775068283081,
+      1.098891328970591
+    ],
+    "rotation": "identity; native Z up",
+    "scale": 1.0,
+    "floor_normal_tolerance_cos": 0.98,
+    "horizontal_floor_faces": 75844,
+    "sampled_spawn_xy_clearance_m": 0.9214924325314728,
+    "clearance_certified": false,
+    "transformed_bounds": [
+      [
+        -2.422030754475802,
+        -1.3946740909348656,
+        -0.06786916100117368
+      ],
+      [
+        1.9785604063978315,
+        3.607064366340637,
+        2.880033357106008
+      ]
+    ],
+    "color_method": "nearest source vertex RGB, baked interpolated triangle atlas",
+    "atlas_pixels": [
+      2048,
+      3128
+    ],
+    "source_is_culled": true,
+    "synthetic_ground_collision_z": 0.0,
+    "synthetic_ground_visual": false,
+    "px4_armed": false,
+    "flight_validated": false,
+    "dependencies": {
+      "trimesh": "5.1.1"
+    },
+    "asset_sha256": {
+      "office0.dae": "66b9a6e3e32c4a6d7aca34bdd87e9dea7b7e58b85483cce74949b07c32851a2a",
+      "collision.stl": "bb5a41635869413280d7b045bef4f22666c88cfb4edf38ffc27dd4d6e8c810ee",
+      "scan_color.png": "eec0a1c21a1fa198d86fddba2b9a4a45c1c4f88e34771e4e71c45f8f93afe872"
+    },
+    "explicit_vertex_normals": true
+  },
+  "sensor_geometry": {
+    "passed": true,
+    "checks": {
+      "scan_tf_origin_matches_sensor": true,
+      "lidar_to_imu_rotation": true,
+      "lidar_to_imu_translation": true,
+      "lidar_to_camera_rotation": true,
+      "lidar_to_camera_translation": true,
+      "published_position_is_body_centre": true,
+      "imu_and_body_axes_match": true,
+      "odom_child_frame_is_body": true,
+      "static_tf_mid360_link": true,
+      "static_tf_mid360_scan_frame": true,
+      "static_tf_camera_link": true,
+      "static_tf_camera_color_optical_frame": true,
+      "static_tf_camera_depth_optical_frame": true,
+      "static_tf_imu_link": true,
+      "cloud_frame_is_scan_origin": true,
+      "adapter_frame_is_scan_origin": true,
+      "adapter_imu_translation": true,
+      "adapter_camera_translation": true
+    },
+    "model_to_body_translation_m": [
+      0.0,
+      0.0,
+      0.24
+    ],
+    "body_to_imu_translation_m": [
+      0.0,
+      0.0,
+      0.12
+    ],
+    "body_to_scan_translation_m": [
+      0.0,
+      0.0,
+      0.21999999999999997
+    ],
+    "scope": "Expanded SDF including inherited model offsets; checked against TF and active estimator config"
+  },
+  "regression_tests_passed": 23,
+  "static_only": true,
+  "flight_validated": false
+}

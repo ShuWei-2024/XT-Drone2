@@ -1,0 +1,145 @@
+{
+  "run": "indoor_events_mapstop_117_01",
+  "flight_complete": false,
+  "fault": "local map not ready or heartbeat stale",
+  "executor": "events",
+  "scope": "Flight execution only; batch metrics cover the retained tail, not the entire flight. CPU fraction is receive-batch thread CPU / elapsed tail wall time, not total host CPU. Independent callback time differences are scheduling/transport proxies, not DDS queue latency.",
+  "batch_tail": {
+    "samples": 520,
+    "span_sec": 2.244959549,
+    "receive_thread_cpu_fraction": 0.2908544683091749,
+    "wall_ms": {
+      "samples": 520,
+      "minimum": 2.236772,
+      "median": 3.6323619999999996,
+      "p95": 5.4148751499999985,
+      "maximum": 8.312196
+    },
+    "cpu_ms": {
+      "samples": 520,
+      "minimum": 0.629099,
+      "median": 1.1170935,
+      "p95": 2.2811774499999986,
+      "maximum": 3.167393
+    },
+    "scheduler_wait_ms": {
+      "samples": 520,
+      "minimum": 0.0,
+      "median": 0.219022,
+      "p95": 1.7852662999999986,
+      "maximum": 4.501731
+    },
+    "spin_calls": {
+      "samples": 520,
+      "minimum": 10.0,
+      "median": 33.0,
+      "p95": 33.0,
+      "maximum": 33.0
+    },
+    "budget_exhausted_fraction": 0.08461538461538462
+  },
+  "odom_callbacks": {
+    "guarded_bspline_bridge:/fast_livo2/odom": {
+      "samples": 22,
+      "callback_gap_ms": {
+        "samples": 21,
+        "minimum": 85.002619,
+        "median": 100.344152,
+        "p95": 119.816692,
+        "maximum": 124.858575
+      },
+      "gaps_over_250ms": 0,
+      "callback_wall_ms": {
+        "samples": 22,
+        "minimum": 0.019674,
+        "median": 0.029332,
+        "p95": 0.0466633,
+        "maximum": 0.068689
+      },
+      "dds_metadata_samples": 0,
+      "dds_received_to_callback_ms": {
+        "samples": 0
+      },
+      "callback_minus_monitor_ms_proxy": {
+        "samples": 22,
+        "minimum": -2.471833,
+        "median": 0.1200195,
+        "p95": 1.37130665,
+        "maximum": 1.639308
+      }
+    },
+    "preview_bspline:/fast_livo2/odom": {
+      "samples": 22,
+      "callback_gap_ms": {
+        "samples": 21,
+        "minimum": 85.041033,
+        "median": 100.319614,
+        "p95": 119.820735,
+        "maximum": 124.867223
+      },
+      "gaps_over_250ms": 0,
+      "callback_wall_ms": {
+        "samples": 22,
+        "minimum": 0.024805,
+        "median": 0.035111500000000004,
+        "p95": 0.041622,
+        "maximum": 0.111321
+      },
+      "dds_metadata_samples": 0,
+      "dds_received_to_callback_ms": {
+        "samples": 0
+      },
+      "callback_minus_monitor_ms_proxy": {
+        "samples": 22,
+        "minimum": -2.246657,
+        "median": 0.3352655,
+        "p95": 1.6402717999999998,
+        "maximum": 1.906836
+      }
+    },
+    "px4_calibration_flight:/fast_livo2/odom": {
+      "samples": 22,
+      "callback_gap_ms": {
+        "samples": 21,
+        "minimum": 84.945814,
+        "median": 100.411414,
+        "p95": 119.851093,
+        "maximum": 124.574813
+      },
+      "gaps_over_250ms": 0,
+      "callback_wall_ms": {
+        "samples": 22,
+        "minimum": 0.031246,
+        "median": 0.053209,
+        "p95": 0.2840380499999999,
+        "maximum": 1.037572
+      },
+      "dds_metadata_samples": 0,
+      "dds_received_to_callback_ms": {
+        "samples": 0
+      },
+      "callback_minus_monitor_ms_proxy": {
+        "samples": 22,
+        "minimum": -2.715605,
+        "median": -0.1740375,
+        "p95": 0.9467786999999998,
+        "maximum": 1.322881
+      }
+    }
+  },
+  "same_measurement_cross_node_callback_spread_ms": {
+    "samples": 22,
+    "minimum": 0.358593,
+    "median": 0.48140249999999996,
+    "p95": 1.48993255,
+    "maximum": 1.614543
+  },
+  "dds_metadata_limitation": "Installed experimental EventsExecutor does not supply MessageInfo; DDS queue latency cannot be certified from this trace.",
+  "restoration": {
+    "mode": "obstacle",
+    "exit_code": 0,
+    "failure": "",
+    "original_baseline_preserved": true,
+    "execution_sources_unchanged": true
+  }
+}

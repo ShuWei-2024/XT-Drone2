@@ -1,0 +1,226 @@
+{
+  "date": "2026-10-11",
+  "scope": "8 isolated flights; retain failed trials and invalidate pre-fix handoff certification",
+  "scan_short_repeats": {
+    "motion_passed": 2,
+    "attempts": 3,
+    "handoff_fix_applied": false,
+    "reliability_certified": false,
+    "room_scale_traversal_certified": false
+  },
+  "hall_baseline": {
+    "passed": 0,
+    "attempts": 1
+  },
+  "hall_quality_before_handoff_fix": {
+    "physical_routes_completed": 2,
+    "attempts": 2,
+    "strict_verification_passed": 0,
+    "reason": "Native setpoint jumped to next destination before fresh EGO handoff"
+  },
+  "hall_after_handoff_fix": {
+    "passed": 1,
+    "attempts": 2,
+    "full_verified_legs": 4,
+    "blocked_path_avoidance_demonstrated": true,
+    "repeat_reliability_certified": false,
+    "remaining_fault": "odom measurement age reached 268 ms; gate 250 ms"
+  },
+  "external_vision_enabled": false,
+  "real_hardware_used": false,
+  "safety_limits_relaxed": false,
+  "truth_used_for_flight_setpoints": false,
+  "plane_quality_effect_causally_proven": false,
+  "runs": [
+    {
+      "run": "replica_repeat_117_01",
+      "scene": "replica-office0",
+      "handoff_fix_applied": false,
+      "plane_quality_diagnostic": false,
+      "flight_complete": true,
+      "complete_route_verified": true,
+      "blocked_path_avoidance_verified": false,
+      "fault": "",
+      "disarmed": true,
+      "audit": "astra/runtime/replica_repeat_117_01/scan_flight_audit.json",
+      "actual_horizontal_path_m": 0.7773035849105195,
+      "minimum_clearance_m": 0.8959040240413794,
+      "actual_peak_speed_mps": null,
+      "goal_transition_holds_passed": null,
+      "reached_goals": 4,
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true
+      }
+    },
+    {
+      "run": "replica_repeat_117_02",
+      "scene": "replica-office0",
+      "handoff_fix_applied": false,
+      "plane_quality_diagnostic": false,
+      "flight_complete": true,
+      "complete_route_verified": true,
+      "blocked_path_avoidance_verified": false,
+      "fault": "",
+      "disarmed": true,
+      "audit": "astra/runtime/replica_repeat_117_02/scan_flight_audit.json",
+      "actual_horizontal_path_m": 0.9113601514796279,
+      "minimum_clearance_m": 0.8671574913664133,
+      "actual_peak_speed_mps": null,
+      "goal_transition_holds_passed": null,
+      "reached_goals": 4,
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true
+      }
+    },
+    {
+      "run": "replica_repeat_117_03",
+      "scene": "replica-office0",
+      "handoff_fix_applied": false,
+      "plane_quality_diagnostic": false,
+      "flight_complete": false,
+      "complete_route_verified": false,
+      "blocked_path_avoidance_verified": false,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "disarmed": true,
+      "audit": "astra/runtime/replica_repeat_117_03/scan_flight_audit.json",
+      "actual_horizontal_path_m": 0.3736084034231464,
+      "minimum_clearance_m": 0.762055587647082,
+      "actual_peak_speed_mps": null,
+      "goal_transition_holds_passed": null,
+      "reached_goals": 1,
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      }
+    },
+    {
+      "run": "indoor_hall_traverse_117_01",
+      "scene": "indoor-hall",
+      "handoff_fix_applied": false,
+      "plane_quality_diagnostic": false,
+      "flight_complete": false,
+      "complete_route_verified": false,
+      "blocked_path_avoidance_verified": false,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "disarmed": true,
+      "audit": "astra/runtime/indoor_hall_traverse_117_01/indoor_flight_audit.json",
+      "actual_horizontal_path_m": 2.6924023654200173,
+      "minimum_clearance_m": 1.5472170078307883,
+      "actual_peak_speed_mps": 0.19517301223816463,
+      "goal_transition_holds_passed": null,
+      "reached_goals": 0,
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      }
+    },
+    {
+      "run": "indoor_hall_quality_117_01",
+      "scene": "indoor-hall",
+      "handoff_fix_applied": false,
+      "plane_quality_diagnostic": true,
+      "flight_complete": true,
+      "complete_route_verified": false,
+      "blocked_path_avoidance_verified": false,
+      "fault": "",
+      "disarmed": true,
+      "audit": "astra/runtime/indoor_hall_quality_117_01/indoor_flight_audit.json",
+      "actual_horizontal_path_m": 30.373124512122,
+      "minimum_clearance_m": 0.7979706785335128,
+      "actual_peak_speed_mps": 0.29725615012078993,
+      "goal_transition_holds_passed": false,
+      "reached_goals": 4,
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      }
+    },
+    {
+      "run": "indoor_hall_quality_117_02",
+      "scene": "indoor-hall",
+      "handoff_fix_applied": false,
+      "plane_quality_diagnostic": true,
+      "flight_complete": true,
+      "complete_route_verified": false,
+      "blocked_path_avoidance_verified": false,
+      "fault": "",
+      "disarmed": true,
+      "audit": "astra/runtime/indoor_hall_quality_117_02/indoor_flight_audit.json",
+      "actual_horizontal_path_m": 29.97607429779727,
+      "minimum_clearance_m": 0.7055453328811071,
+      "actual_peak_speed_mps": 0.4786324905282713,
+      "goal_transition_holds_passed": false,
+      "reached_goals": 4,
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      }
+    },
+    {
+      "run": "indoor_hall_handoff_fix_117_01",
+      "scene": "indoor-hall",
+      "handoff_fix_applied": true,
+      "plane_quality_diagnostic": true,
+      "flight_complete": true,
+      "complete_route_verified": true,
+      "blocked_path_avoidance_verified": true,
+      "fault": "",
+      "disarmed": true,
+      "audit": "astra/runtime/indoor_hall_handoff_fix_117_01/indoor_flight_audit.json",
+      "actual_horizontal_path_m": 29.032798323635223,
+      "minimum_clearance_m": 0.6713547247987509,
+      "actual_peak_speed_mps": 0.22034600358134432,
+      "goal_transition_holds_passed": true,
+      "reached_goals": 4,
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      }
+    },
+    {
+      "run": "indoor_hall_handoff_fix_117_02",
+      "scene": "indoor-hall",
+      "handoff_fix_applied": true,
+      "plane_quality_diagnostic": true,
+      "flight_complete": false,
+      "complete_route_verified": false,
+      "blocked_path_avoidance_verified": false,
+      "fault": "FAST-LIVO2 measurement age outside 0..250 ms",
+      "disarmed": true,
+      "audit": "astra/runtime/indoor_hall_handoff_fix_117_02/indoor_flight_audit.json",
+      "actual_horizontal_path_m": 17.67626377318881,
+      "minimum_clearance_m": 0.7659700137150735,
+      "actual_peak_speed_mps": 0.18188955763661885,
+      "goal_transition_holds_passed": true,
+      "reached_goals": 2,
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      }
+    }
+  ]
+}

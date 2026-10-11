@@ -21,6 +21,12 @@ from px4_settled_hold_flight import SettledFlight
 
 class GuardedPositionTest(SettledFlight):
     def __init__(self):
+        # Gazebo transport callbacks can run while the parent constructor is
+        # subscribing. Initialize their state before that thread can call us.
+        self.truth_body = None
+        self.truth_body_previous = None
+        self.truth_body_previous_stamp = None
+        self.truth_body_velocity = (0.,0.,0.)
         super().__init__()
         self.set_parameters([Parameter('use_sim_time', value=True)])
         self.odom = None
@@ -40,6 +46,18 @@ class GuardedPositionTest(SettledFlight):
         self.sample_reason = ''
         self.local_history = deque(maxlen=100)
         self.ground_alignment = None
+        self.mesh_guard = None
+        self.mesh_clearance_m = None
+        self.mesh_guard_xyz = None
+        self.mesh_guard_truth_wall = None
+        self.static_obstacles = None
+        self.obstacle_clearance_m = None
+        if os.environ.get('ASTRA_TEST_OBSTACLE_GEOMETRY'):
+            from obstacle_world_geometry_20261010 import load
+            self.static_obstacles = load(os.environ['ASTRA_TEST_OBSTACLE_GEOMETRY'])
+        if os.environ.get('ASTRA_TEST_MESH_GUARD'):
+            from scan_mesh_guard import MeshGuard
+            self.mesh_guard = MeshGuard(os.environ['ASTRA_TEST_MESH_GUARD'])
         self.create_subscription(Odometry, '/fast_livo2/odom', self.on_odom, 10)
         self.create_subscription(Bool, '/local_mapping/ready', self.on_ready,
                                  QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
@@ -61,6 +79,45 @@ class GuardedPositionTest(SettledFlight):
         super().on_local(msg)
         if hasattr(self, 'local_history'):
             self.local_history.append(msg)
+
+    def on_truth(self, msg):
+        super().on_truth(msg)
+        pose = next((item for item in msg.pose if item.name == 'astra_x500_px4'), None)
+        if pose:
+            q=pose.orientation
+            norm=math.sqrt(q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w)
+            if norm <= 1e-12:
+                self.truth_body=None
+                return
+            x,y,z,w=q.x/norm,q.y/norm,q.z/norm,q.w/norm
+            offset=(.48*(x*z+w*y),.48*(y*z-w*x),.24*(1-2*(x*x+y*y)))
+            self.truth_body=tuple(a+b for a,b in zip(self.truth,offset))
+            stamp=msg.header.stamp.sec*10**9+msg.header.stamp.nsec
+            if self.truth_body_previous_stamp is not None:
+                dt=(stamp-self.truth_body_previous_stamp)/1e9
+                if 0 < dt <= .25:
+                    self.truth_body_velocity=tuple((a-b)/dt for a,b in
+                        zip(self.truth_body,self.truth_body_previous))
+            self.truth_body_previous=self.truth_body
+            self.truth_body_previous_stamp=stamp
+
+    def mesh_fault(self):
+        if self.mesh_guard is None:return ''
+        if self.truth_body is None:return 'scan guard body reference unavailable'
+        if self.mesh_guard_truth_wall!=self.truth_wall:
+            self.mesh_guard_xyz=list(self.truth_body)
+            self.mesh_clearance_m=self.mesh_guard.clearance(self.truth_body)
+            self.mesh_guard_truth_wall=self.truth_wall
+        return self.mesh_guard.fault(self.truth_body,self.mesh_clearance_m)
+
+    def static_obstacle_fault(self):
+        if not self.static_obstacles:return ''
+        if self.truth_body is None:return 'obstacle guard body reference unavailable'
+        from obstacle_world_geometry_20261010 import clearances
+        self.obstacle_clearance_m=float(clearances([self.truth_body],self.static_obstacles)[0])
+        if self.obstacle_clearance_m < .55:
+            return f'obstacle clearance below 0.55 m: {self.obstacle_clearance_m:.3f} m'
+        return ''
 
     def paired_height(self):
         if self.odom is None or not self.local_history:
@@ -132,6 +189,13 @@ class GuardedPositionTest(SettledFlight):
         bound_radius = float(os.environ.get('ASTRA_TEST_BOUNDS_RADIUS_M', '1.2'))
         if math.hypot(*self.truth[:2]) > bound_radius or not -.2 <= self.truth[2] <= 2.1:
             return 'actual position outside test bounds'
+        obstacle_fault=self.static_obstacle_fault()
+        if obstacle_fault:return obstacle_fault
+        scan_fault=self.mesh_fault()
+        if scan_fault:return scan_fault
+        if self.mesh_guard is not None:
+            scan_fault=self.mesh_guard.approaching_boundary(self.truth_body,self.truth_body_velocity)
+            if scan_fault:return scan_fault
         if self.pending_odom is not None:
             s = self.pending_odom.header.stamp
             lead_ns = s.sec * 10**9 + s.nanosec - self.get_clock().now().nanoseconds
@@ -268,6 +332,7 @@ class GuardedPositionTest(SettledFlight):
                               px4_x=self.local.x, px4_y=self.local.y, px4_z=self.local.z,
                               px4_vx=self.local.vx, px4_vy=self.local.vy, px4_vz=self.local.vz,
                               target_x=target[0], target_y=target[1], target_z=target[2]))
+        self.rows[-1]['mesh_clearance_m']=self.mesh_clearance_m
 
     def guarded_segment(self, name, seconds, start, end):
         self.phase = name
@@ -300,6 +365,10 @@ class GuardedPositionTest(SettledFlight):
         next_send = 0.
         while rclpy.ok() and time.monotonic() < end:
             rclpy.spin_once(self, timeout_sec=.005)
+            scan_fault = self.mesh_fault()
+            if scan_fault:
+                self.event('recovery_mesh_fault', reason=scan_fault, mesh_clearance_m=self.mesh_clearance_m)
+                break
             if (time.monotonic() - self.local_wall > .25 or not self.local.xy_valid or
                     not self.local.z_valid or not self.local.heading_good_for_control or
                     self.status.nav_state != VehicleStatus.NAVIGATION_STATE_OFFBOARD):
@@ -338,6 +407,8 @@ class GuardedPositionTest(SettledFlight):
         self.event('land_requested')
         deadline = time.monotonic() + 30.
         next_request = 0.
+        previous_scan_fault = None
+        next_scan_sample = 0.
         while rclpy.ok() and time.monotonic() < deadline:
             if self.status and self.status.arming_state != VehicleStatus.ARMING_STATE_ARMED:
                 self.event('disarmed')
@@ -346,6 +417,15 @@ class GuardedPositionTest(SettledFlight):
                 self.command(VehicleCommand.VEHICLE_CMD_NAV_LAND)
                 next_request = time.monotonic() + .5
             rclpy.spin_once(self, timeout_sec=.02)
+            if (self.mesh_guard is not None or self.static_obstacles) and time.monotonic() >= next_scan_sample:
+                scan_fault = self.mesh_fault() or self.static_obstacle_fault()
+                self.event('landing_mesh_sample', reason=scan_fault,
+                           mesh_guard_xyz=self.mesh_guard_xyz, mesh_clearance_m=self.mesh_clearance_m,
+                           truth_body=self.truth_body, obstacle_clearance_m=self.obstacle_clearance_m)
+                if scan_fault and scan_fault != previous_scan_fault:
+                    self.event('recovery_mesh_fault', reason=scan_fault, mesh_clearance_m=self.mesh_clearance_m)
+                previous_scan_fault = scan_fault
+                next_scan_sample = time.monotonic() + .1
         self.event('landing_confirmation_timeout')
         return False
 

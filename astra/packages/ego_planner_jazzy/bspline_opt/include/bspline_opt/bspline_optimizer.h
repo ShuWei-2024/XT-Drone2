@@ -109,6 +109,8 @@ namespace ego_planner
     void setWaypoints(const vector<Eigen::Vector3d> &waypts,
                       const vector<int> &waypt_idx); // N-2 constraints at most
     void setLocalTargetPt(const Eigen::Vector3d local_target_pt) { local_target_pt_ = local_target_pt; };
+    void setStationaryTerminal(bool enabled) { stationary_terminal_ = enabled; }
+    bool stationaryTerminal() const { return stationary_terminal_; }
 
     void optimize();
 
@@ -127,6 +129,7 @@ namespace ego_planner
     inline double getSwarmClearance(void) { return swarm_clearance_; }
 
   private:
+    bool stationary_terminal_{false};
     GridMap::Ptr grid_map_;
     fast_planner::ObjPredictor::Ptr moving_objs_;
     SwarmTrajData *swarm_trajs_{NULL}; // Can not use shared_ptr and no need to free

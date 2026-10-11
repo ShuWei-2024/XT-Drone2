@@ -53,15 +53,21 @@ def extract(world_path):
 
 
 def clearances(xy, obstacles):
-    xy = np.asarray(xy, dtype=float).reshape(-1, 2)
+    xy = np.asarray(xy, dtype=float)
+    if xy.ndim == 1:xy=xy[None,:]
+    if xy.ndim != 2 or xy.shape[1] not in (2,3) or not np.isfinite(xy).all():
+        raise ValueError('Expected finite XY or XYZ positions')
     distances = []
     for item in obstacles:
-        center = np.array(item['center'][:2])
+        center = np.array(item['center'][:xy.shape[1]])
         if item['kind'] == 'box':
-            half = np.array(item['size'][:2]) / 2
+            half = np.array(item['size'][:xy.shape[1]]) / 2
             distances.append(np.linalg.norm(np.maximum(np.abs(xy - center) - half, 0), axis=1))
         elif item['kind'] == 'cylinder':
-            distances.append(np.maximum(np.linalg.norm(xy - center, axis=1) - item['radius'], 0))
+            horizontal=np.maximum(np.linalg.norm(xy[:,:2]-center[:2],axis=1)-item['radius'],0)
+            vertical=(np.maximum(np.abs(xy[:,2]-center[2])-item['height']/2,0)
+                      if xy.shape[1]==3 else np.zeros(len(xy)))
+            distances.append(np.hypot(horizontal,vertical))
         else:
             raise ValueError('Unsupported obstacle kind')
     return np.min(distances, axis=0)

@@ -384,11 +384,20 @@ void LIVMapper::initializeFiles()
                   << "processing_start_wall_ns,processing_end_wall_ns,thread_scheduler_wait_us,"
                   << "lio_correspondences,lio_near_correspondences_045m,lio_mean_abs_residual_m,"
                   << "lio_normal_x_fraction,lio_normal_y_fraction,lio_normal_z_fraction,"
-                  << "lio_normal_min_eigen_fraction\n";
+                  << "lio_normal_min_eigen_fraction,imu_prop_begin_sec,imu_prop_end_sec,imu_integrated_dt_sec,"
+                  << "pre_vx,pre_vy,pre_vz,pre_bax,pre_bay,pre_baz,pre_gravity_x,pre_gravity_y,pre_gravity_z,"
+                  << "imu_vx,imu_vy,imu_vz,imu_bax,imu_bay,imu_baz,imu_gravity_x,imu_gravity_y,imu_gravity_z,"
+                  << "update_vx,update_vy,update_vz,update_bax,update_bay,update_baz,"
+                  << "update_gravity_x,update_gravity_y,update_gravity_z\n";
     timing_audit_ << std::setprecision(12);
     input_callback_audit_.open(timing_audit_csv_ + ".inputs.csv", std::ios::out);
     if (!input_callback_audit_) throw std::runtime_error("Cannot open core input callback audit");
     input_callback_audit_ << "event,measurement_ns,clock_ns,wall_ns\n";
+    match_audit_.open(timing_audit_csv_ + ".matches.csv", std::ios::out);
+    if (!match_audit_) throw std::runtime_error("Cannot open LIO match audit");
+    match_audit_ << "measurement_ns,point_x,point_y,point_z,centre_x,centre_y,centre_z,"
+                 << "normal_x,normal_y,normal_z,residual_m,lambda_min,lambda_mid,lambda_max,layer\n";
+    match_audit_ << std::setprecision(12);
   }
 }
 
@@ -948,6 +957,20 @@ void LIVMapper::run(rclcpp::Node::SharedPtr &node, const volatile std::sig_atomi
         double residual = 0.;
         size_t near_count = 0;
         const auto &matches = voxelmap_manager->ptpl_list_;
+        if (lio_completed_ % 10 == 0 && !matches.empty())
+        {
+          const size_t count = std::min<size_t>(256, matches.size());
+          for (size_t i = 0; i < count; ++i)
+          {
+            const auto &match = matches[i * matches.size() / count];
+            match_audit_ << measurement_ns;
+            for (const V3D *value : {&match.point_b_, &match.center_, &match.normal_})
+              match_audit_ << ',' << value->x() << ',' << value->y() << ',' << value->z();
+            match_audit_ << ',' << match.dis_to_plane_ << ',' << match.eigen_value_
+                         << ',' << match.middle_eigen_value_ << ',' << match.maximum_eigen_value_
+                         << ',' << match.layer_ << '\n';
+          }
+        }
         for (const auto &match : matches)
         {
           normals.noalias() += match.normal_ * match.normal_.transpose();
@@ -963,6 +986,11 @@ void LIVMapper::run(rclcpp::Node::SharedPtr &node, const volatile std::sig_atomi
                       << ',' << eigen.eigenvalues().minCoeff();
       }
       else timing_audit_ << ",,,,,,,";
+      timing_audit_ << ',' << p_imu->audit_prop_begin << ',' << p_imu->audit_prop_end
+                    << ',' << p_imu->audit_integrated_dt;
+      for (const StatesGroup *state : {&pre_imu_state, &post_imu_state, &_state})
+        for (const V3D *value : {&state->vel_end, &state->bias_a, &state->gravity})
+          timing_audit_ << ',' << value->x() << ',' << value->y() << ',' << value->z();
       timing_audit_ << '\n';
       last_audit_position_ = _state.pos_end;
       has_last_audit_position_ = true;

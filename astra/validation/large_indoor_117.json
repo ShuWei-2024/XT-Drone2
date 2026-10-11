@@ -1,0 +1,691 @@
+{
+  "scope": "Five independent normal-noise isolated PX4 1.17 SITL runs in synthetic indoor hall. No hardware or External Vision; events executor is opt-in. Published full-trajectory and physical-flight gates retained. Lateral-only success does not certify seven-leg reliability.",
+  "thresholds": {
+    "odom_measurement_age_ms": 250,
+    "height_disagreement_m": 0.2,
+    "obstacle_clearance_m": 0.55
+  },
+  "expanded_four_leg_strict_passes": 2,
+  "expanded_four_leg_attempts": 2,
+  "seven_leg_strict_passes": 0,
+  "seven_leg_attempts": 2,
+  "lateral_only_strict_passes": 1,
+  "lateral_only_attempts": 1,
+  "runs": [
+    {
+      "run": "indoor_large_events_117_01",
+      "audit_path": "astra/runtime/indoor_large_events_117_01/indoor_flight_audit.json",
+      "complete_route_verified": true,
+      "blocked_path_avoidance_verified": true,
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "requested_goals": 4,
+      "sent_goals": 4,
+      "reached_goals": 4,
+      "actual_xy_span_m": [
+        6.106225852996969,
+        5.611858270025415
+      ],
+      "actual_horizontal_path_m": 33.15479381034709,
+      "whole_flight_minimum_surface_distance_m": 0.9515997797903206,
+      "ground_frozen_errors": {
+        "fast_livo2": {
+          "xy_m": {
+            "count": 3044,
+            "p50": 0.0017085790071934884,
+            "p95": 0.003176587784747707,
+            "maximum": 0.005209616678462448
+          },
+          "z_m": {
+            "count": 3044,
+            "p50": 0.014506696223790305,
+            "p95": 0.027635274886474583,
+            "maximum": 0.0477865779085338
+          },
+          "yaw_deg": {
+            "count": 3044,
+            "p50": 0.0035467127439461578,
+            "p95": 0.013414943222886229,
+            "maximum": 0.024000000935533432
+          },
+          "pair_dt_ms": {
+            "count": 3044,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 8.0
+          }
+        },
+        "px4": {
+          "xy_m": {
+            "count": 15218,
+            "p50": 0.031081414379647218,
+            "p95": 0.054350061058955464,
+            "maximum": 0.08041020523050978
+          },
+          "z_m": {
+            "count": 15218,
+            "p50": 0.018350572846521418,
+            "p95": 0.05572852250844844,
+            "maximum": 0.09373991221164735
+          },
+          "yaw_deg": {
+            "count": 15218,
+            "p50": 0.8372335508757878,
+            "p95": 1.3318453390428446,
+            "maximum": 1.6292322448936247
+          },
+          "pair_dt_ms": {
+            "count": 15218,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 12.0
+          }
+        }
+      },
+      "odom_measurement_age_ms": {
+        "count": 5785,
+        "p50": 88.0,
+        "p95": 132.0,
+        "maximum": 172.0
+      },
+      "memory": {
+        "livo": {
+          "first_mib": 204.7578125,
+          "last_mib": 419.19921875,
+          "peak_mib": 419.19921875,
+          "last_minute_growth_mib": 0.06640625,
+          "last_minute_slope_mib_per_min": 0.05098197614109259
+        },
+        "local_map": {
+          "first_mib": 98.88671875,
+          "last_mib": 106.796875,
+          "peak_mib": 106.796875,
+          "last_minute_growth_mib": 0.921875,
+          "last_minute_slope_mib_per_min": -0.5116880513324334
+        },
+        "planner": {
+          "first_mib": 167.37890625,
+          "last_mib": 169.4765625,
+          "peak_mib": 169.4765625,
+          "last_minute_growth_mib": 0.2890625,
+          "last_minute_slope_mib_per_min": 0.17028691122204773
+        }
+      },
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "execution_reset_events": {
+        "xy_reset_counter": 0,
+        "z_reset_counter": 0,
+        "heading_reset_counter": 0
+      },
+      "armed_failsafe_samples": 0,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "minimum_published_continuous_clearance_lower_bound_m": 0.8700993462438782,
+      "selection_diagnostic": {
+        "scope": "Diagnostic sampled setpoints only. Exact pose timestamps and position agreement identify splines; sparse samples do not certify continuous execution clearance. No original full-trajectory or physical-flight verdict is changed.",
+        "run": "indoor_large_events_117_01",
+        "full_route_verified": true,
+        "tracking_samples": 5785,
+        "samples_with_exact_pose_time": 5785,
+        "matched_samples": 5785,
+        "unresolved_samples": 0,
+        "minimum_matched_sampled_setpoint_distance_m": 0.9313129145583198,
+        "matched_sampled_setpoints_below_055m": 0,
+        "published_trajectories_below_limit": []
+      },
+      "maximum_reached_endpoint_truth_xy_error_m": 0.06624951726034294
+    },
+    {
+      "run": "indoor_large_events_117_02",
+      "audit_path": "astra/runtime/indoor_large_events_117_02/indoor_flight_audit.json",
+      "complete_route_verified": true,
+      "blocked_path_avoidance_verified": true,
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "requested_goals": 4,
+      "sent_goals": 4,
+      "reached_goals": 4,
+      "actual_xy_span_m": [
+        6.05582630740812,
+        5.62452801769458
+      ],
+      "actual_horizontal_path_m": 32.98095689749265,
+      "whole_flight_minimum_surface_distance_m": 0.9373875397645481,
+      "ground_frozen_errors": {
+        "fast_livo2": {
+          "xy_m": {
+            "count": 3064,
+            "p50": 0.0009115027562272324,
+            "p95": 0.002286928500216767,
+            "maximum": 0.003415291652433915
+          },
+          "z_m": {
+            "count": 3064,
+            "p50": 0.010467108122104718,
+            "p95": 0.021392906718886627,
+            "maximum": 0.029366830237870678
+          },
+          "yaw_deg": {
+            "count": 3064,
+            "p50": 0.005123223232945839,
+            "p95": 0.014425039133339396,
+            "maximum": 0.023448506330098654
+          },
+          "pair_dt_ms": {
+            "count": 3064,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 8.0
+          }
+        },
+        "px4": {
+          "xy_m": {
+            "count": 15321,
+            "p50": 0.045062521995718356,
+            "p95": 0.07195949705060979,
+            "maximum": 0.09332310333894417
+          },
+          "z_m": {
+            "count": 15321,
+            "p50": 0.03439557856030384,
+            "p95": 0.08361108174441867,
+            "maximum": 0.1216801099681395
+          },
+          "yaw_deg": {
+            "count": 15321,
+            "p50": 0.5891320389138189,
+            "p95": 1.0586437942291713,
+            "maximum": 1.2708261799558023
+          },
+          "pair_dt_ms": {
+            "count": 15321,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 12.0
+          }
+        }
+      },
+      "odom_measurement_age_ms": {
+        "count": 5811,
+        "p50": 88.0,
+        "p95": 132.0,
+        "maximum": 188.0
+      },
+      "memory": {
+        "livo": {
+          "first_mib": 203.2421875,
+          "last_mib": 412.34375,
+          "peak_mib": 413.875,
+          "last_minute_growth_mib": 0.0,
+          "last_minute_slope_mib_per_min": 4.1120251493817397e-13
+        },
+        "local_map": {
+          "first_mib": 97.96875,
+          "last_mib": 110.4765625,
+          "peak_mib": 110.7890625,
+          "last_minute_growth_mib": 0.9921875,
+          "last_minute_slope_mib_per_min": 0.150655835133412
+        },
+        "planner": {
+          "first_mib": 167.3125,
+          "last_mib": 169.34765625,
+          "peak_mib": 169.34765625,
+          "last_minute_growth_mib": 0.23828125,
+          "last_minute_slope_mib_per_min": 0.09470039210169001
+        }
+      },
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "execution_reset_events": {
+        "xy_reset_counter": 0,
+        "z_reset_counter": 0,
+        "heading_reset_counter": 0
+      },
+      "armed_failsafe_samples": 0,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "minimum_published_continuous_clearance_lower_bound_m": 0.8905732628449019,
+      "selection_diagnostic": {
+        "scope": "Diagnostic sampled setpoints only. Exact pose timestamps and position agreement identify splines; sparse samples do not certify continuous execution clearance. No original full-trajectory or physical-flight verdict is changed.",
+        "run": "indoor_large_events_117_02",
+        "full_route_verified": true,
+        "tracking_samples": 5811,
+        "samples_with_exact_pose_time": 5811,
+        "matched_samples": 5811,
+        "unresolved_samples": 0,
+        "minimum_matched_sampled_setpoint_distance_m": 0.9372630585977632,
+        "matched_sampled_setpoints_below_055m": 0,
+        "published_trajectories_below_limit": []
+      },
+      "maximum_reached_endpoint_truth_xy_error_m": 0.057673507749037914
+    },
+    {
+      "run": "indoor_large_lateral_events_117_01",
+      "audit_path": "astra/runtime/indoor_large_lateral_events_117_01/indoor_flight_audit.json",
+      "complete_route_verified": false,
+      "blocked_path_avoidance_verified": false,
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "requested_goals": 7,
+      "sent_goals": 3,
+      "reached_goals": 2,
+      "actual_xy_span_m": [
+        6.058985177082884,
+        3.790909084101391
+      ],
+      "actual_horizontal_path_m": 20.800782066614957,
+      "whole_flight_minimum_surface_distance_m": 0.8908023062433087,
+      "ground_frozen_errors": {
+        "fast_livo2": {
+          "xy_m": {
+            "count": 1863,
+            "p50": 0.0012847208343185412,
+            "p95": 0.004021241098218758,
+            "maximum": 0.005810299465215544
+          },
+          "z_m": {
+            "count": 1863,
+            "p50": 0.013577784774800872,
+            "p95": 0.038790752937124306,
+            "maximum": 0.053596284923442594
+          },
+          "yaw_deg": {
+            "count": 1863,
+            "p50": 0.012837931735623693,
+            "p95": 0.02423766332822956,
+            "maximum": 0.03603753775096875
+          },
+          "pair_dt_ms": {
+            "count": 1863,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 8.0
+          }
+        },
+        "px4": {
+          "xy_m": {
+            "count": 9314,
+            "p50": 0.045249452471704255,
+            "p95": 0.07397226128007157,
+            "maximum": 0.10189415115004337
+          },
+          "z_m": {
+            "count": 9314,
+            "p50": 0.020714418369889187,
+            "p95": 0.057101585684577405,
+            "maximum": 0.17622702757935715
+          },
+          "yaw_deg": {
+            "count": 9314,
+            "p50": 0.6428923889132054,
+            "p95": 0.9704257630970233,
+            "maximum": 1.1727112822689016
+          },
+          "pair_dt_ms": {
+            "count": 9314,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 12.0
+          }
+        }
+      },
+      "odom_measurement_age_ms": {
+        "count": 3544,
+        "p50": 88.0,
+        "p95": 136.0,
+        "maximum": 228.0
+      },
+      "memory": {
+        "livo": {
+          "first_mib": 196.796875,
+          "last_mib": 414.1015625,
+          "peak_mib": 414.1875,
+          "last_minute_growth_mib": -0.0234375,
+          "last_minute_slope_mib_per_min": 0.034836097036797464
+        },
+        "local_map": {
+          "first_mib": 98.4453125,
+          "last_mib": 105.51171875,
+          "peak_mib": 105.59765625,
+          "last_minute_growth_mib": 0.44140625,
+          "last_minute_slope_mib_per_min": 0.7032281440805727
+        },
+        "planner": {
+          "first_mib": 166.8359375,
+          "last_mib": 168.953125,
+          "peak_mib": 169.0390625,
+          "last_minute_growth_mib": 0.06640625,
+          "last_minute_slope_mib_per_min": 0.0546569704177691
+        }
+      },
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "execution_reset_events": {
+        "xy_reset_counter": 0,
+        "z_reset_counter": 0,
+        "heading_reset_counter": 0
+      },
+      "armed_failsafe_samples": 0,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "minimum_published_continuous_clearance_lower_bound_m": 0.8344823573653647,
+      "selection_diagnostic": {
+        "scope": "Diagnostic sampled setpoints only. Exact pose timestamps and position agreement identify splines; sparse samples do not certify continuous execution clearance. No original full-trajectory or physical-flight verdict is changed.",
+        "run": "indoor_large_lateral_events_117_01",
+        "full_route_verified": false,
+        "tracking_samples": 3544,
+        "samples_with_exact_pose_time": 3544,
+        "matched_samples": 3544,
+        "unresolved_samples": 0,
+        "minimum_matched_sampled_setpoint_distance_m": 0.8940627455098046,
+        "matched_sampled_setpoints_below_055m": 0,
+        "published_trajectories_below_limit": []
+      },
+      "maximum_reached_endpoint_truth_xy_error_m": 0.035568079508930914
+    },
+    {
+      "run": "indoor_large_lateral_events_117_02",
+      "audit_path": "astra/runtime/indoor_large_lateral_events_117_02/indoor_flight_audit.json",
+      "complete_route_verified": false,
+      "blocked_path_avoidance_verified": false,
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "FAST-LIVO2 measurement age outside 0..250 ms",
+      "requested_goals": 7,
+      "sent_goals": 4,
+      "reached_goals": 3,
+      "actual_xy_span_m": [
+        6.111011647020072,
+        5.636315313944888
+      ],
+      "actual_horizontal_path_m": 33.30976769744166,
+      "whole_flight_minimum_surface_distance_m": 0.9490540328732469,
+      "ground_frozen_errors": {
+        "fast_livo2": {
+          "xy_m": {
+            "count": 2979,
+            "p50": 0.0020872617170893653,
+            "p95": 0.0031158024595364458,
+            "maximum": 0.005247855820454051
+          },
+          "z_m": {
+            "count": 2979,
+            "p50": 0.017956138283568013,
+            "p95": 0.04495863061012668,
+            "maximum": 0.05459714985211339
+          },
+          "yaw_deg": {
+            "count": 2979,
+            "p50": 0.004501339806701835,
+            "p95": 0.021760833209797877,
+            "maximum": 0.029057668140423275
+          },
+          "pair_dt_ms": {
+            "count": 2979,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 8.0
+          }
+        },
+        "px4": {
+          "xy_m": {
+            "count": 14895,
+            "p50": 0.02411864740155051,
+            "p95": 0.0470712787788626,
+            "maximum": 0.07242982418454491
+          },
+          "z_m": {
+            "count": 14895,
+            "p50": 0.040873831560571894,
+            "p95": 0.08669008355049734,
+            "maximum": 0.19617496598008977
+          },
+          "yaw_deg": {
+            "count": 14895,
+            "p50": 0.38678337672956126,
+            "p95": 1.4198254523022964,
+            "maximum": 1.656384287206407
+          },
+          "pair_dt_ms": {
+            "count": 14895,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 12.0
+          }
+        }
+      },
+      "odom_measurement_age_ms": {
+        "count": 5670,
+        "p50": 92.0,
+        "p95": 136.0,
+        "maximum": 212.0
+      },
+      "memory": {
+        "livo": {
+          "first_mib": 204.9453125,
+          "last_mib": 415.7109375,
+          "peak_mib": 415.7109375,
+          "last_minute_growth_mib": 0.0,
+          "last_minute_slope_mib_per_min": -3.598639435527768e-13
+        },
+        "local_map": {
+          "first_mib": 98.6484375,
+          "last_mib": 105.12109375,
+          "peak_mib": 106.0,
+          "last_minute_growth_mib": -0.44921875,
+          "last_minute_slope_mib_per_min": -0.8881604317057695
+        },
+        "planner": {
+          "first_mib": 166.734375,
+          "last_mib": 169.0546875,
+          "peak_mib": 169.0546875,
+          "last_minute_growth_mib": 0.23046875,
+          "last_minute_slope_mib_per_min": 0.10317998245054526
+        }
+      },
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "execution_reset_events": {
+        "xy_reset_counter": 0,
+        "z_reset_counter": 0,
+        "heading_reset_counter": 0
+      },
+      "armed_failsafe_samples": 0,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "minimum_published_continuous_clearance_lower_bound_m": 0.9049498471788656,
+      "selection_diagnostic": {
+        "scope": "Diagnostic sampled setpoints only. Exact pose timestamps and position agreement identify splines; sparse samples do not certify continuous execution clearance. No original full-trajectory or physical-flight verdict is changed.",
+        "run": "indoor_large_lateral_events_117_02",
+        "full_route_verified": false,
+        "tracking_samples": 5670,
+        "samples_with_exact_pose_time": 5670,
+        "matched_samples": 5670,
+        "unresolved_samples": 0,
+        "minimum_matched_sampled_setpoint_distance_m": 0.9599360912179609,
+        "matched_sampled_setpoints_below_055m": 0,
+        "published_trajectories_below_limit": []
+      },
+      "maximum_reached_endpoint_truth_xy_error_m": 0.04489471087731292
+    },
+    {
+      "run": "indoor_lateral_only_events_117_01",
+      "audit_path": "astra/runtime/indoor_lateral_only_events_117_01/indoor_flight_audit.json",
+      "complete_route_verified": true,
+      "blocked_path_avoidance_verified": false,
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "requested_goals": 3,
+      "sent_goals": 3,
+      "reached_goals": 3,
+      "actual_xy_span_m": [
+        0.5659081114982147,
+        8.035668344822003
+      ],
+      "actual_horizontal_path_m": 16.510050272658678,
+      "whole_flight_minimum_surface_distance_m": 1.2280116573673396,
+      "ground_frozen_errors": {
+        "fast_livo2": {
+          "xy_m": {
+            "count": 1653,
+            "p50": 0.0029534725918039795,
+            "p95": 0.004832109574522036,
+            "maximum": 0.007280466285991347
+          },
+          "z_m": {
+            "count": 1653,
+            "p50": 0.04803021901702231,
+            "p95": 0.06280810355647608,
+            "maximum": 0.07286747334359567
+          },
+          "yaw_deg": {
+            "count": 1653,
+            "p50": 0.009675759709957132,
+            "p95": 0.022039354491921327,
+            "maximum": 0.03416618456546222
+          },
+          "pair_dt_ms": {
+            "count": 1653,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 8.0
+          }
+        },
+        "px4": {
+          "xy_m": {
+            "count": 8263,
+            "p50": 0.026416772743384043,
+            "p95": 0.05267813996681189,
+            "maximum": 0.06885103689792071
+          },
+          "z_m": {
+            "count": 8263,
+            "p50": 0.020916491201476095,
+            "p95": 0.05725029627641609,
+            "maximum": 0.08861399659908309
+          },
+          "yaw_deg": {
+            "count": 8263,
+            "p50": 0.9231105410939595,
+            "p95": 1.2246114543509317,
+            "maximum": 1.316648155625908
+          },
+          "pair_dt_ms": {
+            "count": 8263,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 12.0
+          }
+        }
+      },
+      "odom_measurement_age_ms": {
+        "count": 3133,
+        "p50": 88.0,
+        "p95": 132.0,
+        "maximum": 200.0
+      },
+      "memory": {
+        "livo": {
+          "first_mib": 194.12890625,
+          "last_mib": 419.453125,
+          "peak_mib": 419.453125,
+          "last_minute_growth_mib": 0.00390625,
+          "last_minute_slope_mib_per_min": 0.003250692743746368
+        },
+        "local_map": {
+          "first_mib": 98.6171875,
+          "last_mib": 106.3671875,
+          "peak_mib": 106.3671875,
+          "last_minute_growth_mib": 1.56640625,
+          "last_minute_slope_mib_per_min": -0.4235946750655055
+        },
+        "planner": {
+          "first_mib": 167.51171875,
+          "last_mib": 168.83984375,
+          "peak_mib": 168.83984375,
+          "last_minute_growth_mib": 0.27734375,
+          "last_minute_slope_mib_per_min": 0.1022581959706748
+        }
+      },
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "execution_reset_events": {
+        "xy_reset_counter": 0,
+        "z_reset_counter": 0,
+        "heading_reset_counter": 0
+      },
+      "armed_failsafe_samples": 0,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "minimum_published_continuous_clearance_lower_bound_m": 1.2397640302204898,
+      "selection_diagnostic": {
+        "scope": "Diagnostic sampled setpoints only. Exact pose timestamps and position agreement identify splines; sparse samples do not certify continuous execution clearance. No original full-trajectory or physical-flight verdict is changed.",
+        "run": "indoor_lateral_only_events_117_01",
+        "full_route_verified": true,
+        "tracking_samples": 3133,
+        "samples_with_exact_pose_time": 3133,
+        "matched_samples": 3133,
+        "unresolved_samples": 0,
+        "minimum_matched_sampled_setpoint_distance_m": 1.2402595930453093,
+        "matched_sampled_setpoints_below_055m": 0,
+        "published_trajectories_below_limit": []
+      },
+      "maximum_reached_endpoint_truth_xy_error_m": 0.03812085900083998
+    }
+  ],
+  "fault_notes": {
+    "height": "Seven-leg run 01 stopped near sim 279.956 s. Final 2 s LIVO signed height residual median -0.0111 m, PX4 +0.1189 m with max +0.1762 m relative to separate ground-frozen truth origins. No proof that barometer alone caused this.",
+    "freshness": "Seven-leg run 02 measurement age 256 ms near sim 388.668 s. Later main abort receipt age 260.35 ms includes about 145 ms teardown; actual gate wall time was not captured. Last receiver batch ended about 144.66 ms before main abort event. Independent subscriber received newer odom around this batch boundary. LIO slow frame wall 117.158 ms, CPU 33.106 ms, scheduler wait 72.667 ms. Combined scheduling and bounded-dispatch timing suspected; sole root cause not certified.",
+    "new_instrumentation": "Future failures capture execution_fault_detection before ROS teardown. No failed flight rewritten or guard relaxed."
+  }
+}

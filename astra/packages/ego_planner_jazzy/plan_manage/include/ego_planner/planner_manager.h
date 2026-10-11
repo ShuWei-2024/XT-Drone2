@@ -56,6 +56,7 @@ namespace ego_planner
 
   private:
     /* main planning algorithms & modules */
+    double min_goal_distance_m_{0.2};
     rclcpp::Node::SharedPtr node_;
     PlanningVisualization::Ptr visualization_;
 

@@ -1,0 +1,2749 @@
+{
+  "date": "2026-10-11",
+  "indoor_route_passed": true,
+  "blocked_path_avoidance_certified": false,
+  "sensor_truth_used_for_flight_setpoints": false,
+  "default_lio_voxel_size_m": 0.5,
+  "runs": [
+    {
+      "run": "replica_office0_motion_117_01",
+      "lio_only": false,
+      "lio_voxel_size_m": 0.5,
+      "abort_sim_s": 95.132,
+      "abort_model_truth_m": [
+        -0.41488363864096617,
+        -0.03542097429310768,
+        1.6484931242277552
+      ],
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "reached_goals": 0,
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": true,
+      "ground_frozen_errors": {
+        "climb": {
+          "fast_livo2_xy_m": {
+            "count": 159,
+            "p50": 0.003678147975601099,
+            "p95": 0.015669984871953372,
+            "maximum": 0.0231823256998116
+          },
+          "fast_livo2_z_m": {
+            "count": 159,
+            "p50": 0.0070257176980024205,
+            "p95": 0.114886557647038,
+            "maximum": 0.15314484784785165
+          },
+          "fast_livo2_signed_z_median": -0.006984872400765174,
+          "px4_xy_m": {
+            "count": 795,
+            "p50": 0.01975043954390534,
+            "p95": 0.06445487819882514,
+            "maximum": 0.06832202013514867
+          },
+          "px4_z_m": {
+            "count": 795,
+            "p50": 0.016339719295501737,
+            "p95": 0.08086578249931338,
+            "maximum": 0.09661328792572024
+          },
+          "px4_signed_z_median": -0.012660079640079092
+        },
+        "ego_execution": {
+          "fast_livo2_xy_m": {
+            "count": 42,
+            "p50": 0.024843453976382837,
+            "p95": 0.027362984536491417,
+            "maximum": 0.027788217957663765
+          },
+          "fast_livo2_z_m": {
+            "count": 42,
+            "p50": 0.1339702782178679,
+            "p95": 0.15424678266508923,
+            "maximum": 0.18488218090978137
+          },
+          "fast_livo2_signed_z_median": -0.1339702782178679,
+          "px4_xy_m": {
+            "count": 207,
+            "p50": 0.021720383836759824,
+            "p95": 0.037748210404758197,
+            "maximum": 0.04023072480991119
+          },
+          "px4_z_m": {
+            "count": 207,
+            "p50": 0.02343915612337777,
+            "p95": 0.05925181408184036,
+            "maximum": 0.06273648573252011
+          },
+          "px4_signed_z_median": 0.02343915612337777
+        }
+      },
+      "whole_flight_mesh_clearance_m": {
+        "count": 1885,
+        "minimum": 0.5754818546140746,
+        "p95": 0.9542776390296162,
+        "maximum": 0.9678218288491836
+      },
+      "whole_flight_envelope_breach_samples": 0,
+      "actual_horizontal_span_m": [
+        0.4049497800197347,
+        0.04767203964370752
+      ],
+      "actual_horizontal_path_m": 0.42118943905764133,
+      "planned_peak_speed_mps": 0.18454404565849972,
+      "planned_peak_acceleration_mps2": 0.13948412672119123,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      }
+    },
+    {
+      "run": "replica_office0_lio_diagnostic_117_01",
+      "lio_only": true,
+      "lio_voxel_size_m": 0.5,
+      "abort_sim_s": 77.94,
+      "abort_model_truth_m": [
+        -0.0030799531393367135,
+        -0.003638179524044102,
+        0.8586666628237952
+      ],
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "reached_goals": 0,
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": true,
+      "ground_frozen_errors": {
+        "climb": {
+          "fast_livo2_xy_m": {
+            "count": 107,
+            "p50": 1.2242366674800548e-05,
+            "p95": 0.005136536524951673,
+            "maximum": 0.007085461441329954
+          },
+          "fast_livo2_z_m": {
+            "count": 107,
+            "p50": 8.638780624931064e-06,
+            "p95": 0.14814688121232136,
+            "maximum": 0.20383292370531203
+          },
+          "fast_livo2_signed_z_median": -7.416045728153575e-06,
+          "px4_xy_m": {
+            "count": 533,
+            "p50": 0.015053071477979229,
+            "p95": 0.02745394248737153,
+            "maximum": 0.029785322743434338
+          },
+          "px4_z_m": {
+            "count": 533,
+            "p50": 0.01693401485681531,
+            "p95": 0.035983172949334126,
+            "maximum": 0.04161478989596812
+          },
+          "px4_signed_z_median": 0.014868490397930118
+        }
+      },
+      "whole_flight_mesh_clearance_m": {
+        "count": 933,
+        "minimum": 0.9184734596922046,
+        "p95": 0.9409368932693172,
+        "maximum": 0.9504858226942815
+      },
+      "whole_flight_envelope_breach_samples": 0,
+      "actual_horizontal_span_m": null,
+      "actual_horizontal_path_m": null,
+      "planned_peak_speed_mps": null,
+      "planned_peak_acceleration_mps2": null,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      }
+    },
+    {
+      "run": "replica_office0_input_audit_117_01",
+      "lio_only": false,
+      "lio_voxel_size_m": 0.5,
+      "abort_sim_s": 96.248,
+      "abort_model_truth_m": [
+        -0.5573987509052878,
+        0.004037440140538169,
+        1.6736946330737426
+      ],
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "reached_goals": 0,
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": true,
+      "ground_frozen_errors": {
+        "climb": {
+          "fast_livo2_xy_m": {
+            "count": 160,
+            "p50": 0.002939643313412338,
+            "p95": 0.016662179008257044,
+            "maximum": 0.021547039455074152
+          },
+          "fast_livo2_z_m": {
+            "count": 160,
+            "p50": 0.0038864586397840684,
+            "p95": 0.12287896351735862,
+            "maximum": 0.13254044375839125
+          },
+          "fast_livo2_signed_z_median": -0.0007596997902516306,
+          "px4_xy_m": {
+            "count": 800,
+            "p50": 0.015395236364490882,
+            "p95": 0.03917609071462225,
+            "maximum": 0.04435124857395968
+          },
+          "px4_z_m": {
+            "count": 800,
+            "p50": 0.017733382954838395,
+            "p95": 0.0428745612502098,
+            "maximum": 0.05260477215051651
+          },
+          "px4_signed_z_median": -0.013956503383327545
+        },
+        "ego_execution": {
+          "fast_livo2_xy_m": {
+            "count": 48,
+            "p50": 0.02672299088974387,
+            "p95": 0.03037450871166519,
+            "maximum": 0.03232580611897611
+          },
+          "fast_livo2_z_m": {
+            "count": 48,
+            "p50": 0.12834406010191535,
+            "p95": 0.15968955780476646,
+            "maximum": 0.17527522089555236
+          },
+          "fast_livo2_signed_z_median": -0.12834406010191535,
+          "px4_xy_m": {
+            "count": 239,
+            "p50": 0.01802176991603037,
+            "p95": 0.03117465010775303,
+            "maximum": 0.03439499012426692
+          },
+          "px4_z_m": {
+            "count": 239,
+            "p50": 0.020880099051113987,
+            "p95": 0.06779053258520168,
+            "maximum": 0.07036090469392686
+          },
+          "px4_signed_z_median": -0.020880099051113987
+        }
+      },
+      "whole_flight_mesh_clearance_m": {
+        "count": 1955,
+        "minimum": 0.45879807170460984,
+        "p95": 0.996305864865723,
+        "maximum": 1.0002164260231268
+      },
+      "whole_flight_envelope_breach_samples": 349,
+      "actual_horizontal_span_m": [
+        0.5293142664894738,
+        0.03166874653326368
+      ],
+      "actual_horizontal_path_m": 0.5329844355701129,
+      "planned_peak_speed_mps": 0.18417098089336106,
+      "planned_peak_acceleration_mps2": 0.13954868116820868,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "inputs": {
+        "raw_lidar_surface_distance_m": {
+          "count": 17664,
+          "median": 0.0010607592421139976,
+          "p95": 0.0045559048900368875,
+          "maximum": 0.012758255638658676
+        },
+        "cloud_pair_dt_ms": {
+          "count": 69,
+          "median": 4.0,
+          "p95": 8.0,
+          "maximum": 12.0
+        },
+        "climb_imu_acceleration_z_residual_mps2": {
+          "count": 1560,
+          "median": 0.0011831773556317694,
+          "p95": 0.0065800154406062015,
+          "maximum": 0.0181584291259618
+        },
+        "climb_imu_acceleration_z_mean_bias_mps2": -0.00010200355392839268,
+        "climb_imu_acceleration_z_rmse_mps2": 0.003184186372212158,
+        "scan_reference_model_offset_m": [
+          0,
+          0,
+          0.46
+        ],
+        "imu_reference_model_offset_m": [
+          0,
+          0,
+          0.36
+        ],
+        "raw_imu_free_integrated_rise_m": 1.561809940499911,
+        "actual_imu_reference_rise_m": 1.57797544380659,
+        "free_integration_initial_velocity_assumed_mps": 0.0,
+        "description": "Raw sensor consistency only; smoothed truth acceleration is a diagnostic, not an estimator input",
+        "climb_state_updates": {
+          "LIO": {
+            "count": 160,
+            "summed_propagation_z_m": 1.4435043449461404,
+            "summed_correction_z_m": -0.5404446464150798,
+            "absolute_correction_z_m": {
+              "count": 160,
+              "median": 0.0017619130185499918,
+              "p95": 0.010106020567499973,
+              "maximum": 0.012537073440000102
+            }
+          },
+          "VIO": {
+            "count": 160,
+            "summed_propagation_z_m": 0.0,
+            "summed_correction_z_m": 0.5552420036086393,
+            "absolute_correction_z_m": {
+              "count": 160,
+              "median": 0.0023120391689999686,
+              "p95": 0.0121603938725,
+              "maximum": 0.016993435800000123
+            }
+          }
+        }
+      }
+    },
+    {
+      "run": "replica_office0_state_audit_117_01",
+      "lio_only": true,
+      "lio_voxel_size_m": 0.5,
+      "abort_sim_s": 77.648,
+      "abort_model_truth_m": [
+        -0.016720442010516774,
+        0.0024948175702172765,
+        0.9456581895572606
+      ],
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "reached_goals": 0,
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": true,
+      "ground_frozen_errors": {
+        "climb": {
+          "fast_livo2_xy_m": {
+            "count": 111,
+            "p50": 0.00024176699907392906,
+            "p95": 0.005062571184608374,
+            "maximum": 0.005767797019245724
+          },
+          "fast_livo2_z_m": {
+            "count": 111,
+            "p50": 0.0003094146577330148,
+            "p95": 0.1553893854055602,
+            "maximum": 0.22330258580417328
+          },
+          "fast_livo2_signed_z_median": -1.2407400986347294e-06,
+          "px4_xy_m": {
+            "count": 555,
+            "p50": 0.029201434115423947,
+            "p95": 0.059230193539546824,
+            "maximum": 0.06149358807567219
+          },
+          "px4_z_m": {
+            "count": 555,
+            "p50": 0.028618672031330616,
+            "p95": 0.06137536555429333,
+            "maximum": 0.07177024137572519
+          },
+          "px4_signed_z_median": 0.028618672031330616
+        }
+      },
+      "whole_flight_mesh_clearance_m": {
+        "count": 967,
+        "minimum": 0.7479043362133502,
+        "p95": 0.9385341851133123,
+        "maximum": 0.9444532587479254
+      },
+      "whole_flight_envelope_breach_samples": 0,
+      "actual_horizontal_span_m": null,
+      "actual_horizontal_path_m": null,
+      "planned_peak_speed_mps": null,
+      "planned_peak_acceleration_mps2": null,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "inputs": {
+        "raw_lidar_surface_distance_m": {
+          "count": 13056,
+          "median": 0.0010462390292372366,
+          "p95": 0.0045559048900368875,
+          "maximum": 0.011614016389814935
+        },
+        "cloud_pair_dt_ms": {
+          "count": 51,
+          "median": 4.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "climb_imu_acceleration_z_residual_mps2": {
+          "count": 1070,
+          "median": 0.0008453467250903878,
+          "p95": 0.008564269797844408,
+          "maximum": 0.02820287899165786
+        },
+        "climb_imu_acceleration_z_mean_bias_mps2": -0.00023450748621133775,
+        "climb_imu_acceleration_z_rmse_mps2": 0.0042281777039269355,
+        "scan_reference_model_offset_m": [
+          0,
+          0,
+          0.46
+        ],
+        "imu_reference_model_offset_m": [
+          0,
+          0,
+          0.36
+        ],
+        "raw_imu_free_integrated_rise_m": 0.9421049391835603,
+        "actual_imu_reference_rise_m": 0.9595415331210034,
+        "free_integration_initial_velocity_assumed_mps": 0.0,
+        "description": "Raw sensor consistency only; smoothed truth acceleration is a diagnostic, not an estimator input",
+        "climb_state_updates": {
+          "LIO": {
+            "count": 111,
+            "summed_propagation_z_m": 0.7649213978778001,
+            "summed_correction_z_m": -0.0385125284474101,
+            "absolute_correction_z_m": {
+              "count": 111,
+              "median": 9.282451399994507e-05,
+              "p95": 0.004604534659000015,
+              "maximum": 0.00736192405199998
+            },
+            "summed_velocity_correction_z_mps": -0.13733724039856618,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 111,
+              "median": 5.689893001203927e-15,
+              "p95": 8.520961713998076e-15,
+              "maximum": 8.520961713998076e-15
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 111,
+                "median": 0.000331241025065,
+                "p95": 0.2093097337175,
+                "maximum": 0.243314443654
+              },
+              "imu_vz": {
+                "count": 111,
+                "median": 0.00333054516287,
+                "p95": 0.21266184883,
+                "maximum": 0.243810171133
+              },
+              "update_vz": {
+                "count": 111,
+                "median": 0.004543550023,
+                "p95": 0.2093097337175,
+                "maximum": 0.243314443654
+              },
+              "pre_baz": {
+                "count": 111,
+                "median": 0.000192331425315,
+                "p95": 0.0025159099430299998,
+                "maximum": 0.00339689959791
+              },
+              "update_baz": {
+                "count": 111,
+                "median": 0.000192448885703,
+                "p95": 0.0025721844559300003,
+                "maximum": 0.00414403252719
+              },
+              "pre_gravity_z": {
+                "count": 111,
+                "median": -9.81004197751,
+                "p95": -9.81002994888,
+                "maximum": -9.81001339707
+              },
+              "update_gravity_z": {
+                "count": 111,
+                "median": -9.81004200118,
+                "p95": -9.81002994888,
+                "maximum": -9.81001339707
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 111,
+              "median": 0.0002595245754365446,
+              "p95": 0.08793223719604171,
+              "maximum": 0.11893669098932289
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 111,
+              "median": 0.00031164459009730416,
+              "p95": 0.08959209502657056,
+              "maximum": 0.14492198952302288
+            }
+          }
+        }
+      }
+    },
+    {
+      "run": "replica_office0_voxel025_117_01",
+      "lio_only": true,
+      "lio_voxel_size_m": 0.25,
+      "abort_sim_s": 82.028,
+      "abort_model_truth_m": [
+        0.0011125557741456502,
+        -0.040874642291842,
+        1.4639865880035106
+      ],
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "reached_goals": 0,
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": true,
+      "ground_frozen_errors": {
+        "climb": {
+          "fast_livo2_xy_m": {
+            "count": 148,
+            "p50": 0.0008547382422445086,
+            "p95": 0.0031529012614252643,
+            "maximum": 0.003947998998792888
+          },
+          "fast_livo2_z_m": {
+            "count": 148,
+            "p50": 0.010500157135470811,
+            "p95": 0.14735364791965397,
+            "maximum": 0.28685094766615804
+          },
+          "fast_livo2_signed_z_median": -0.010500157135470811,
+          "px4_xy_m": {
+            "count": 738,
+            "p50": 0.022659565843462605,
+            "p95": 0.054809741353891564,
+            "maximum": 0.059764665418408636
+          },
+          "px4_z_m": {
+            "count": 738,
+            "p50": 0.028322191120912485,
+            "p95": 0.07409434315369301,
+            "maximum": 0.08492633700370791
+          },
+          "px4_signed_z_median": -0.0064035677849209605
+        }
+      },
+      "whole_flight_mesh_clearance_m": {
+        "count": 1144,
+        "minimum": 0.8370853318806567,
+        "p95": 0.9247545247899055,
+        "maximum": 0.9332646836111504
+      },
+      "whole_flight_envelope_breach_samples": 0,
+      "actual_horizontal_span_m": null,
+      "actual_horizontal_path_m": null,
+      "planned_peak_speed_mps": null,
+      "planned_peak_acceleration_mps2": null,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "inputs": {
+        "raw_lidar_surface_distance_m": {
+          "count": 13568,
+          "median": 0.0010450502423671665,
+          "p95": 0.00452506227855099,
+          "maximum": 0.012453895564092612
+        },
+        "cloud_pair_dt_ms": {
+          "count": 53,
+          "median": 4.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "climb_imu_acceleration_z_residual_mps2": {
+          "count": 1435,
+          "median": 0.0010760412826424648,
+          "p95": 0.006173301494593441,
+          "maximum": 0.011519213868965483
+        },
+        "climb_imu_acceleration_z_mean_bias_mps2": 3.269250672485839e-05,
+        "climb_imu_acceleration_z_rmse_mps2": 0.0028265081459295308,
+        "scan_reference_model_offset_m": [
+          0,
+          0,
+          0.46
+        ],
+        "imu_reference_model_offset_m": [
+          0,
+          0,
+          0.36
+        ],
+        "raw_imu_free_integrated_rise_m": 1.4788688379704666,
+        "actual_imu_reference_rise_m": 1.4758354265411806,
+        "free_integration_initial_velocity_assumed_mps": 0.0,
+        "description": "Raw sensor consistency only; smoothed truth acceleration is a diagnostic, not an estimator input",
+        "climb_state_updates": {
+          "LIO": {
+            "count": 148,
+            "summed_propagation_z_m": 1.2503723833325504,
+            "summed_correction_z_m": -0.06313960121214036,
+            "absolute_correction_z_m": {
+              "count": 148,
+              "median": 0.0006082060745000728,
+              "p95": 0.0045589916770000126,
+              "maximum": 0.012882790849999992
+            },
+            "summed_velocity_correction_z_mps": -0.19517042412400096,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 148,
+              "median": 5.689893001203927e-15,
+              "p95": 8.520961713998076e-15,
+              "maximum": 8.520961713998076e-15
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 148,
+                "median": 0.06670579998995,
+                "p95": 0.23233863804835,
+                "maximum": 0.25040278014
+              },
+              "imu_vz": {
+                "count": 148,
+                "median": 0.06588362555355,
+                "p95": 0.2329001609796,
+                "maximum": 0.248349331419
+              },
+              "update_vz": {
+                "count": 148,
+                "median": 0.06670579998995,
+                "p95": 0.23233863804835,
+                "maximum": 0.25040278014
+              },
+              "pre_baz": {
+                "count": 148,
+                "median": 0.00024437941897150004,
+                "p95": 0.0020881197079235005,
+                "maximum": 0.00608379057898
+              },
+              "update_baz": {
+                "count": 148,
+                "median": 0.0002657577899825,
+                "p95": 0.0021747617776015004,
+                "maximum": 0.00615490959787
+              },
+              "pre_gravity_z": {
+                "count": 148,
+                "median": -9.81005373857,
+                "p95": -9.810034842268,
+                "maximum": -9.80993907963
+              },
+              "update_gravity_z": {
+                "count": 148,
+                "median": -9.810055673525,
+                "p95": -9.810034842268,
+                "maximum": -9.80993907963
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 148,
+              "median": 0.005553623595781557,
+              "p95": 0.06480747315160672,
+              "maximum": 0.2032014802223623
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 148,
+              "median": 0.006147817606518641,
+              "p95": 0.06731391895683672,
+              "maximum": 0.2053035911342623
+            }
+          }
+        }
+      }
+    },
+    {
+      "run": "replica_office0_matching_fix_117_01",
+      "lio_only": false,
+      "lio_voxel_size_m": 0.5,
+      "abort_sim_s": 73.4,
+      "abort_model_truth_m": [
+        0.046287793517415805,
+        0.00010842226360794271,
+        0.005329995950679928
+      ],
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "approaching inspected scan flight boundary",
+      "requested_goals": 0,
+      "reached_goals": 0,
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": true,
+      "ground_frozen_errors": {
+        "climb": {
+          "fast_livo2_xy_m": {
+            "count": 62,
+            "p50": 3.9581555529673125e-05,
+            "p95": 0.0024099078443951144,
+            "maximum": 0.003381633445760549
+          },
+          "fast_livo2_z_m": {
+            "count": 62,
+            "p50": 4.104672017005151e-05,
+            "p95": 0.00124902987101273,
+            "maximum": 0.006032035461505186
+          },
+          "fast_livo2_signed_z_median": -3.6799392647973717e-05,
+          "px4_xy_m": {
+            "count": 312,
+            "p50": 0.043928558030410986,
+            "p95": 0.05443790634461626,
+            "maximum": 0.055542030430268334
+          },
+          "px4_z_m": {
+            "count": 312,
+            "p50": 0.025097869336605044,
+            "p95": 0.06214666068553921,
+            "maximum": 0.07468776404857633
+          },
+          "px4_signed_z_median": 0.025097869336605044
+        }
+      },
+      "whole_flight_mesh_clearance_m": {
+        "count": 629,
+        "minimum": 0.9199797331192997,
+        "p95": 0.9251687927911262,
+        "maximum": 0.9301723660719562
+      },
+      "whole_flight_envelope_breach_samples": 0,
+      "actual_horizontal_span_m": null,
+      "actual_horizontal_path_m": null,
+      "planned_peak_speed_mps": null,
+      "planned_peak_acceleration_mps2": null,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "actual_route_legs": null,
+      "complete_route_verified": null,
+      "inputs": {
+        "raw_lidar_surface_distance_m": {
+          "count": 11520,
+          "median": 0.0010547558872060422,
+          "p95": 0.00452506227855099,
+          "maximum": 0.011006325952360533
+        },
+        "cloud_pair_dt_ms": {
+          "count": 45,
+          "median": 4.0,
+          "p95": 8.0,
+          "maximum": 12.0
+        },
+        "climb_imu_acceleration_z_residual_mps2": {
+          "count": 585,
+          "median": 0.0004412280695532886,
+          "p95": 0.006060184109805935,
+          "maximum": 0.03305137818834433
+        },
+        "climb_imu_acceleration_z_mean_bias_mps2": -0.0005138120145380144,
+        "climb_imu_acceleration_z_rmse_mps2": 0.004833380356070129,
+        "scan_reference_model_offset_m": [
+          0,
+          0,
+          0.46
+        ],
+        "imu_reference_model_offset_m": [
+          0,
+          0,
+          0.36
+        ],
+        "raw_imu_free_integrated_rise_m": 0.019227513097481178,
+        "actual_imu_reference_rise_m": 0.018238891780382294,
+        "free_integration_initial_velocity_assumed_mps": 0.0,
+        "description": "Raw sensor consistency only; smoothed truth acceleration is a diagnostic, not an estimator input",
+        "climb_state_updates": {
+          "LIO": {
+            "count": 62,
+            "summed_propagation_z_m": 0.016479291800910005,
+            "summed_correction_z_m": -0.007306276073160001,
+            "absolute_correction_z_m": {
+              "count": 62,
+              "median": 0.0001348173049899999,
+              "p95": 0.00020212808743500012,
+              "maximum": 0.00032704832660000044
+            },
+            "summed_velocity_correction_z_mps": -0.04524671431339577,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 62,
+              "median": 5.689893001203927e-15,
+              "p95": 1.0574874309554616e-14,
+              "maximum": 1.0574874309554616e-14
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 62,
+                "median": 1.687075381635e-05,
+                "p95": 0.013487951669039995,
+                "maximum": 0.0462057993221
+              },
+              "imu_vz": {
+                "count": 62,
+                "median": 1.1358049812399999e-05,
+                "p95": 0.017764844739369998,
+                "maximum": 0.0769015096336
+              },
+              "update_vz": {
+                "count": 62,
+                "median": -0.0008355858117495,
+                "p95": 0.01881657368571,
+                "maximum": 0.0751021094863
+              },
+              "pre_baz": {
+                "count": 62,
+                "median": -2.03470844574e-05,
+                "p95": -9.001228384591008e-06,
+                "maximum": -5.96528697573e-06
+              },
+              "update_baz": {
+                "count": 62,
+                "median": 2.3461686212100005e-07,
+                "p95": 1.3085335560444995e-05,
+                "maximum": 1.58723832662e-05
+              },
+              "pre_gravity_z": {
+                "count": 62,
+                "median": -9.809976521955,
+                "p95": -9.809966878508499,
+                "maximum": -9.80994068157
+              },
+              "update_gravity_z": {
+                "count": 62,
+                "median": -9.809978590505,
+                "p95": -9.809964337071,
+                "maximum": -9.80994612544
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 62,
+              "median": 8.800293724395e-05,
+              "p95": 0.0032818107776271094,
+              "maximum": 0.011483090882363128
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 62,
+              "median": 0.000856333050453751,
+              "p95": 0.004335724423177111,
+              "maximum": 0.00968369073506313
+            }
+          },
+          "VIO": {
+            "count": 62,
+            "summed_propagation_z_m": 0.0,
+            "summed_correction_z_m": 0.006912935392379997,
+            "absolute_correction_z_m": {
+              "count": 62,
+              "median": 0.00013175525030500004,
+              "p95": 0.0006756471759344986,
+              "maximum": 0.001997572527100002
+            },
+            "summed_velocity_correction_z_mps": 0.04173177401040223,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 62,
+              "median": 0.0,
+              "p95": 0.0,
+              "maximum": 0.0
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 62,
+                "median": -0.0008355858117495,
+                "p95": 0.01881657368571,
+                "maximum": 0.0751021094863
+              },
+              "imu_vz": {
+                "count": 62,
+                "median": -0.0008355858117495,
+                "p95": 0.01881657368571,
+                "maximum": 0.0751021094863
+              },
+              "update_vz": {
+                "count": 62,
+                "median": 1.687075381635e-05,
+                "p95": 0.02185049331310496,
+                "maximum": 0.0597256675249
+              },
+              "pre_baz": {
+                "count": 62,
+                "median": 2.3461686212100005e-07,
+                "p95": 1.3085335560444995e-05,
+                "maximum": 1.58723832662e-05
+              },
+              "update_baz": {
+                "count": 62,
+                "median": -2.00655281376e-05,
+                "p95": -7.490886720651507e-06,
+                "maximum": 6.67925104756e-05
+              },
+              "pre_gravity_z": {
+                "count": 62,
+                "median": -9.809978590505,
+                "p95": -9.809964337071,
+                "maximum": -9.80994612544
+              },
+              "update_gravity_z": {
+                "count": 62,
+                "median": -9.809976546285,
+                "p95": -9.809966878508499,
+                "maximum": -9.80994068157
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 62,
+              "median": 0.000856333050453751,
+              "p95": 0.004335724423177111,
+              "maximum": 0.00968369073506313
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 62,
+              "median": 6.8894677488801e-05,
+              "p95": 0.0055821894936557035,
+              "maximum": 0.01228448452031703
+            }
+          }
+        }
+      }
+    },
+    {
+      "run": "replica_office0_matching_fix_117_02",
+      "lio_only": false,
+      "lio_voxel_size_m": 0.5,
+      "abort_sim_s": 94.448,
+      "abort_model_truth_m": [
+        -0.26273656400505485,
+        -0.003979213434634671,
+        1.6116083072079452
+      ],
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "approaching inspected scan flight boundary",
+      "requested_goals": 2,
+      "reached_goals": 1,
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": true,
+      "ground_frozen_errors": {
+        "climb": {
+          "fast_livo2_xy_m": {
+            "count": 160,
+            "p50": 0.0030074974160388492,
+            "p95": 0.01889834738189399,
+            "maximum": 0.02463401326261978
+          },
+          "fast_livo2_z_m": {
+            "count": 160,
+            "p50": 0.00523540572692105,
+            "p95": 0.07593938482295769,
+            "maximum": 0.09670918921314242
+          },
+          "fast_livo2_signed_z_median": -1.6961147775329533e-05,
+          "px4_xy_m": {
+            "count": 801,
+            "p50": 0.01549947983027535,
+            "p95": 0.03044101418601284,
+            "maximum": 0.03476823759984239
+          },
+          "px4_z_m": {
+            "count": 801,
+            "p50": 0.03278391808271405,
+            "p95": 0.0706675523612762,
+            "maximum": 0.08485929780201751
+          },
+          "px4_signed_z_median": 0.011034482861792982
+        },
+        "ego_execution": {
+          "fast_livo2_xy_m": {
+            "count": 22,
+            "p50": 0.02479984837096425,
+            "p95": 0.026236435331453502,
+            "maximum": 0.026789118310331997
+          },
+          "fast_livo2_z_m": {
+            "count": 22,
+            "p50": 0.08891423978250568,
+            "p95": 0.0981498078849537,
+            "maximum": 0.10466288463931739
+          },
+          "fast_livo2_signed_z_median": -0.08891423978250568,
+          "px4_xy_m": {
+            "count": 112,
+            "p50": 0.015088065087513584,
+            "p95": 0.029935505916258983,
+            "maximum": 0.03086873131517376
+          },
+          "px4_z_m": {
+            "count": 112,
+            "p50": 0.010067680206880647,
+            "p95": 0.06806866048736042,
+            "maximum": 0.07769448285128
+          },
+          "px4_signed_z_median": 0.00762759389085621
+        }
+      },
+      "whole_flight_mesh_clearance_m": {
+        "count": 1857,
+        "minimum": 0.8018744456929319,
+        "p95": 0.9701723091905143,
+        "maximum": 0.9816420106181154
+      },
+      "whole_flight_envelope_breach_samples": 0,
+      "actual_horizontal_span_m": [
+        0.2376525173716636,
+        0.017173495358737485
+      ],
+      "actual_horizontal_path_m": 0.23403656667828288,
+      "planned_peak_speed_mps": 0.1972539255893705,
+      "planned_peak_acceleration_mps2": 0.19651200041682976,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "actual_route_legs": [
+        {
+          "goal_index": 0,
+          "reached": true,
+          "requested_delta_xy_m": [
+            -0.3,
+            0.0
+          ],
+          "actual_delta_xy_m": [
+            -0.20048432993713045,
+            -0.0056398396145936
+          ],
+          "actual_progress_along_requested_direction_m": 0.20048432993713045,
+          "endpoint_truth_xy_error_m": 0.0967355843294805,
+          "measurement_pair_dt_ms": [
+            8.0,
+            0.0
+          ],
+          "actual_motion_verified": true
+        },
+        {
+          "goal_index": 1,
+          "reached": false,
+          "requested_delta_xy_m": [
+            0.0,
+            0.15
+          ],
+          "actual_delta_xy_m": [
+            -0.04358112595792654,
+            0.005408163387196301
+          ],
+          "actual_progress_along_requested_direction_m": 0.005408163387196301,
+          "endpoint_truth_xy_error_m": 0.15836873052741754,
+          "measurement_pair_dt_ms": [
+            0.0,
+            4.0
+          ],
+          "actual_motion_verified": false
+        }
+      ],
+      "complete_route_verified": false,
+      "inputs": {
+        "raw_lidar_surface_distance_m": {
+          "count": 17152,
+          "median": 0.0010607592421139976,
+          "p95": 0.004679965099702708,
+          "maximum": 0.013267733828624591
+        },
+        "cloud_pair_dt_ms": {
+          "count": 67,
+          "median": 8.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "climb_imu_acceleration_z_residual_mps2": {
+          "count": 1560,
+          "median": 0.0008341991321042982,
+          "p95": 0.005661334312713428,
+          "maximum": 0.009897261994333863
+        },
+        "climb_imu_acceleration_z_mean_bias_mps2": -1.2271697758530047e-05,
+        "climb_imu_acceleration_z_rmse_mps2": 0.002388753290903374,
+        "scan_reference_model_offset_m": [
+          0,
+          0,
+          0.46
+        ],
+        "imu_reference_model_offset_m": [
+          0,
+          0,
+          0.36
+        ],
+        "raw_imu_free_integrated_rise_m": 1.509477198789699,
+        "actual_imu_reference_rise_m": 1.5075384545116717,
+        "free_integration_initial_velocity_assumed_mps": 0.0,
+        "description": "Raw sensor consistency only; smoothed truth acceleration is a diagnostic, not an estimator input",
+        "climb_state_updates": {
+          "LIO": {
+            "count": 160,
+            "summed_propagation_z_m": 1.4109938029037306,
+            "summed_correction_z_m": -0.4546285991742401,
+            "absolute_correction_z_m": {
+              "count": 160,
+              "median": 0.0019106231165000043,
+              "p95": 0.007856947009999875,
+              "maximum": 0.012052035670000016
+            },
+            "summed_velocity_correction_z_mps": -2.5605971312968956,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 160,
+              "median": 5.689893001203927e-15,
+              "p95": 1.0574874309554616e-14,
+              "maximum": 1.0574874309554616e-14
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 160,
+                "median": 0.051479778476899996,
+                "p95": 0.2850722036102499,
+                "maximum": 0.329159596137
+              },
+              "imu_vz": {
+                "count": 160,
+                "median": 0.053085577304699996,
+                "p95": 0.28377720971229997,
+                "maximum": 0.34951841334
+              },
+              "update_vz": {
+                "count": 160,
+                "median": 0.032858442320100004,
+                "p95": 0.25916962162164986,
+                "maximum": 0.315515454173
+              },
+              "pre_baz": {
+                "count": 160,
+                "median": 0.00023447461335350002,
+                "p95": 0.002231083696488499,
+                "maximum": 0.00378088952303
+              },
+              "update_baz": {
+                "count": 160,
+                "median": 0.00025874862171300003,
+                "p95": 0.0032935053303114986,
+                "maximum": 0.00483972982572
+              },
+              "pre_gravity_z": {
+                "count": 160,
+                "median": -9.810065956315,
+                "p95": -9.8096159253125,
+                "maximum": -9.80951973255
+              },
+              "update_gravity_z": {
+                "count": 160,
+                "median": -9.810069021330001,
+                "p95": -9.8096859856145,
+                "maximum": -9.80958476926
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.012081434064066976,
+              "p95": 0.0672316113243417,
+              "maximum": 0.11142497801485107
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.01724197092170554,
+              "p95": 0.08458060073738066,
+              "maximum": 0.11477940897685107
+            }
+          },
+          "VIO": {
+            "count": 160,
+            "summed_propagation_z_m": 0.0,
+            "summed_correction_z_m": 0.4546201855811196,
+            "absolute_correction_z_m": {
+              "count": 160,
+              "median": 0.0020682817375899977,
+              "p95": 0.009912713677500105,
+              "maximum": 0.014376390800000083
+            },
+            "summed_velocity_correction_z_mps": 2.5586396657558996,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 160,
+              "median": 0.0,
+              "p95": 0.0,
+              "maximum": 0.0
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 160,
+                "median": 0.032858442320100004,
+                "p95": 0.25916962162164986,
+                "maximum": 0.315515454173
+              },
+              "imu_vz": {
+                "count": 160,
+                "median": 0.032858442320100004,
+                "p95": 0.25916962162164986,
+                "maximum": 0.315515454173
+              },
+              "update_vz": {
+                "count": 160,
+                "median": 0.053852529683550004,
+                "p95": 0.2850722036102499,
+                "maximum": 0.329159596137
+              },
+              "pre_baz": {
+                "count": 160,
+                "median": 0.00025874862171300003,
+                "p95": 0.0032935053303114986,
+                "maximum": 0.00483972982572
+              },
+              "update_baz": {
+                "count": 160,
+                "median": 0.000234564143381,
+                "p95": 0.0023066029047484993,
+                "maximum": 0.00378088952303
+              },
+              "pre_gravity_z": {
+                "count": 160,
+                "median": -9.810069021330001,
+                "p95": -9.8096859856145,
+                "maximum": -9.80958476926
+              },
+              "update_gravity_z": {
+                "count": 160,
+                "median": -9.810065956315,
+                "p95": -9.809608716187,
+                "maximum": -9.80951973255
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.01724197092170554,
+              "p95": 0.08458060073738066,
+              "maximum": 0.11477940897685107
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.012268481969722293,
+              "p95": 0.06638567275788272,
+              "maximum": 0.11126258368097211
+            }
+          }
+        }
+      }
+    },
+    {
+      "run": "replica_office0_terminal_stop_117_01",
+      "lio_only": false,
+      "lio_voxel_size_m": 0.5,
+      "plane_quality_diagnostic": false,
+      "route_offsets_m": null,
+      "abort_sim_s": 72.208,
+      "abort_model_truth_m": [
+        0.005205063571184142,
+        -0.028129437271801394,
+        0.006289108576375352
+      ],
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "approaching inspected scan flight boundary",
+      "requested_goals": 0,
+      "reached_goals": 0,
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": true,
+      "ground_frozen_errors": {
+        "climb": {
+          "fast_livo2_xy_m": {
+            "count": 63,
+            "p50": 2.002656587847087e-05,
+            "p95": 0.0008986930619683436,
+            "maximum": 0.0029593547182507197
+          },
+          "fast_livo2_z_m": {
+            "count": 63,
+            "p50": 1.382706232133657e-05,
+            "p95": 0.000701266075192824,
+            "maximum": 0.004125713263494923
+          },
+          "fast_livo2_signed_z_median": -6.315345959628793e-06,
+          "px4_xy_m": {
+            "count": 313,
+            "p50": 0.042953709951909724,
+            "p95": 0.05847710688015738,
+            "maximum": 0.060132989266519575
+          },
+          "px4_z_m": {
+            "count": 313,
+            "p50": 0.022321566939353943,
+            "p95": 0.04961878061294553,
+            "maximum": 0.05216994881629941
+          },
+          "px4_signed_z_median": 0.022321566939353943
+        }
+      },
+      "whole_flight_mesh_clearance_m": {
+        "count": 634,
+        "minimum": 0.818204621532615,
+        "p95": 0.9247545247899055,
+        "maximum": 0.9288851567777893
+      },
+      "whole_flight_envelope_breach_samples": 0,
+      "actual_horizontal_span_m": null,
+      "measurement_time_actual_horizontal_path_m": null,
+      "planned_peak_speed_mps": null,
+      "planned_peak_acceleration_mps2": null,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "actual_route_legs": [],
+      "complete_route_verified": false,
+      "combined_setpoint_send_max_gap_ms": null,
+      "actual_peak_3d_speed_mps": null,
+      "inputs": {
+        "raw_lidar_surface_distance_m": {
+          "count": 11008,
+          "median": 0.0010455423550508893,
+          "p95": 0.0045559048900368875,
+          "maximum": 0.009442334825096857
+        },
+        "cloud_pair_dt_ms": {
+          "count": 43,
+          "median": 4.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "climb_imu_acceleration_z_residual_mps2": {
+          "count": 586,
+          "median": 0.00047326813085628083,
+          "p95": 0.00916736241270848,
+          "maximum": 0.01828676430266349
+        },
+        "climb_imu_acceleration_z_mean_bias_mps2": -0.0005358278028274857,
+        "climb_imu_acceleration_z_rmse_mps2": 0.003393181231337064,
+        "scan_reference_model_offset_m": [
+          0,
+          0,
+          0.46
+        ],
+        "imu_reference_model_offset_m": [
+          0,
+          0,
+          0.36
+        ],
+        "raw_imu_free_integrated_rise_m": 0.015196471738079897,
+        "actual_imu_reference_rise_m": 0.018325140386623362,
+        "free_integration_initial_velocity_assumed_mps": 0.0,
+        "description": "Raw sensor consistency only; smoothed truth acceleration is a diagnostic, not an estimator input",
+        "climb_state_updates": {
+          "LIO": {
+            "count": 63,
+            "summed_propagation_z_m": 0.01396257964382,
+            "summed_correction_z_m": 9.701562389999828e-05,
+            "absolute_correction_z_m": {
+              "count": 63,
+              "median": 0.00013627623241000016,
+              "p95": 0.001305010418137999,
+              "maximum": 0.001978713674849999
+            },
+            "summed_velocity_correction_z_mps": 0.010631855076703025,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 63,
+              "median": 5.689893001203927e-15,
+              "p95": 1.0574874309554616e-14,
+              "maximum": 1.0574874309554616e-14
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 63,
+                "median": -1.42149171043e-05,
+                "p95": 0.011505402714515996,
+                "maximum": 0.0474409651891
+              },
+              "imu_vz": {
+                "count": 63,
+                "median": -4.7581081866e-05,
+                "p95": 0.02398609127949999,
+                "maximum": 0.065436497401
+              },
+              "update_vz": {
+                "count": 63,
+                "median": -0.000874488943261,
+                "p95": 0.03580152143327998,
+                "maximum": 0.0768849123438
+              },
+              "pre_baz": {
+                "count": 63,
+                "median": -0.000280687729728,
+                "p95": -0.0002495223312501,
+                "maximum": 0.000152755589547
+              },
+              "update_baz": {
+                "count": 63,
+                "median": -0.000256631123307,
+                "p95": -0.00022826648167100001,
+                "maximum": -0.00022489580359
+              },
+              "pre_gravity_z": {
+                "count": 63,
+                "median": -9.80989559408,
+                "p95": -9.809893456487,
+                "maximum": -9.80988941482
+              },
+              "update_gravity_z": {
+                "count": 63,
+                "median": -9.80989800075,
+                "p95": -9.809890835103,
+                "maximum": -9.80986236144
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 63,
+              "median": 9.1988841235551e-05,
+              "p95": 0.007291478874958345,
+              "maximum": 0.01963086078396087
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 63,
+              "median": 0.0009128852535168875,
+              "p95": 0.003065132877465627,
+              "maximum": 0.0049556273058608685
+            }
+          },
+          "VIO": {
+            "count": 63,
+            "summed_propagation_z_m": 0.0,
+            "summed_correction_z_m": -0.0012912281566900001,
+            "absolute_correction_z_m": {
+              "count": 63,
+              "median": 0.0001403292961,
+              "p95": 0.0014180738501839987,
+              "maximum": 0.0032038192927999996
+            },
+            "summed_velocity_correction_z_mps": -0.01955394818840641,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 63,
+              "median": 0.0,
+              "p95": 0.0,
+              "maximum": 0.0
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 63,
+                "median": -0.000874488943261,
+                "p95": 0.03580152143327998,
+                "maximum": 0.0768849123438
+              },
+              "imu_vz": {
+                "count": 63,
+                "median": -0.000874488943261,
+                "p95": 0.03580152143327998,
+                "maximum": 0.0768849123438
+              },
+              "update_vz": {
+                "count": 63,
+                "median": -1.17747167937e-05,
+                "p95": 0.01947638570641999,
+                "maximum": 0.0533553128754
+              },
+              "pre_baz": {
+                "count": 63,
+                "median": -0.000256631123307,
+                "p95": -0.00022826648167100001,
+                "maximum": -0.00022489580359
+              },
+              "update_baz": {
+                "count": 63,
+                "median": -0.000280687729728,
+                "p95": -0.0001262157265398002,
+                "maximum": 0.000152755589547
+              },
+              "pre_gravity_z": {
+                "count": 63,
+                "median": -9.80989800075,
+                "p95": -9.809890835103,
+                "maximum": -9.80986236144
+              },
+              "update_gravity_z": {
+                "count": 63,
+                "median": -9.80989559408,
+                "p95": -9.809893456487,
+                "maximum": -9.80988941482
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 63,
+              "median": 0.0009128852535168875,
+              "p95": 0.003065132877465627,
+              "maximum": 0.0049556273058608685
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 63,
+              "median": 5.9554767583649e-05,
+              "p95": 0.00817663510723575,
+              "maximum": 0.019921821557811505
+            }
+          }
+        }
+      }
+    },
+    {
+      "run": "replica_office0_terminal_stop_117_02",
+      "lio_only": false,
+      "lio_voxel_size_m": 0.5,
+      "plane_quality_diagnostic": false,
+      "route_offsets_m": [
+        [
+          -0.3,
+          0.0
+        ],
+        [
+          -0.3,
+          0.15
+        ],
+        [
+          0.0,
+          0.15
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "abort_sim_s": 93.292,
+      "abort_model_truth_m": [
+        -0.27397866381002484,
+        0.02536397174338476,
+        1.681021250462885
+      ],
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "approaching inspected scan flight boundary",
+      "requested_goals": 1,
+      "reached_goals": 0,
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": true,
+      "ground_frozen_errors": {
+        "climb": {
+          "fast_livo2_xy_m": {
+            "count": 160,
+            "p50": 0.002672021767351207,
+            "p95": 0.01647953764673603,
+            "maximum": 0.021284692192433556
+          },
+          "fast_livo2_z_m": {
+            "count": 160,
+            "p50": 0.009881784989744541,
+            "p95": 0.1079817216421749,
+            "maximum": 0.11405943501677696
+          },
+          "fast_livo2_signed_z_median": -0.009150359086943755,
+          "px4_xy_m": {
+            "count": 799,
+            "p50": 0.020421880453238107,
+            "p95": 0.03704496095060476,
+            "maximum": 0.0411652211623838
+          },
+          "px4_z_m": {
+            "count": 799,
+            "p50": 0.030175359933672152,
+            "p95": 0.06699908156337665,
+            "maximum": 0.07674478220714254
+          },
+          "px4_signed_z_median": -0.030175359933672152
+        },
+        "ego_execution": {
+          "fast_livo2_xy_m": {
+            "count": 23,
+            "p50": 0.019086813413318197,
+            "p95": 0.019888714804253152,
+            "maximum": 0.020097261448382885
+          },
+          "fast_livo2_z_m": {
+            "count": 23,
+            "p50": 0.09048742980975688,
+            "p95": 0.11278381352346216,
+            "maximum": 0.11880239532931647
+          },
+          "fast_livo2_signed_z_median": -0.09048742980975688,
+          "px4_xy_m": {
+            "count": 115,
+            "p50": 0.016866176933982898,
+            "p95": 0.03026094188379392,
+            "maximum": 0.03124506487633714
+          },
+          "px4_z_m": {
+            "count": 115,
+            "p50": 0.0186581807567765,
+            "p95": 0.02886020428290581,
+            "maximum": 0.02961331926684241
+          },
+          "px4_signed_z_median": -0.014872067409762435
+        }
+      },
+      "whole_flight_mesh_clearance_m": {
+        "count": 1805,
+        "minimum": 0.7647789846311938,
+        "p95": 0.9960547437526285,
+        "maximum": 1.0099204818952254
+      },
+      "whole_flight_envelope_breach_samples": 0,
+      "actual_horizontal_span_m": [
+        0.2753516223121881,
+        0.02093316087341022
+      ],
+      "measurement_time_actual_horizontal_path_m": null,
+      "planned_peak_speed_mps": 0.19264498589097273,
+      "planned_peak_acceleration_mps2": 0.23484039857461544,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "actual_route_legs": [
+        {
+          "goal_index": 0,
+          "reached": false,
+          "requested_delta_xy_m": [
+            -0.3,
+            0.0
+          ],
+          "actual_delta_xy_m": [
+            -0.2760853149711071,
+            0.007550229760567167
+          ],
+          "actual_progress_along_requested_direction_m": 0.2760853149711071,
+          "endpoint_truth_xy_error_m": 0.02475042047701998,
+          "measurement_pair_dt_ms": [
+            4.0,
+            0.0
+          ],
+          "actual_motion_verified": false
+        }
+      ],
+      "complete_route_verified": false,
+      "combined_setpoint_send_max_gap_ms": null,
+      "actual_peak_3d_speed_mps": 0.2527578604705298,
+      "inputs": {
+        "raw_lidar_surface_distance_m": {
+          "count": 17408,
+          "median": 0.0010547295380388718,
+          "p95": 0.0045559048900368875,
+          "maximum": 0.011481358261516937
+        },
+        "cloud_pair_dt_ms": {
+          "count": 68,
+          "median": 4.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "climb_imu_acceleration_z_residual_mps2": {
+          "count": 1559,
+          "median": 0.0009557782345288521,
+          "p95": 0.004784776573719665,
+          "maximum": 0.015248089040479348
+        },
+        "climb_imu_acceleration_z_mean_bias_mps2": 6.719093021754864e-05,
+        "climb_imu_acceleration_z_rmse_mps2": 0.002614208691208119,
+        "scan_reference_model_offset_m": [
+          0,
+          0,
+          0.46
+        ],
+        "imu_reference_model_offset_m": [
+          0,
+          0,
+          0.36
+        ],
+        "raw_imu_free_integrated_rise_m": 1.6173051658409023,
+        "actual_imu_reference_rise_m": 1.6122767826322835,
+        "free_integration_initial_velocity_assumed_mps": 0.0,
+        "description": "Raw sensor consistency only; smoothed truth acceleration is a diagnostic, not an estimator input",
+        "climb_state_updates": {
+          "LIO": {
+            "count": 160,
+            "summed_propagation_z_m": 1.4958607620226587,
+            "summed_correction_z_m": -0.4314787157416292,
+            "absolute_correction_z_m": {
+              "count": 160,
+              "median": 0.0016509374395000248,
+              "p95": 0.008331072843000041,
+              "maximum": 0.011092774589999799
+            },
+            "summed_velocity_correction_z_mps": -2.3410567148361983,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 160,
+              "median": 5.689893001203927e-15,
+              "p95": 1.0574874309554616e-14,
+              "maximum": 1.0574874309554616e-14
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 160,
+                "median": 0.08218544966364999,
+                "p95": 0.2506089365493,
+                "maximum": 0.266341828613
+              },
+              "imu_vz": {
+                "count": 160,
+                "median": 0.08510600473714999,
+                "p95": 0.2513571501898,
+                "maximum": 0.269162569402
+              },
+              "update_vz": {
+                "count": 160,
+                "median": 0.05750343870115,
+                "p95": 0.23518577867479998,
+                "maximum": 0.256312106093
+              },
+              "pre_baz": {
+                "count": 160,
+                "median": 0.000215775040657,
+                "p95": 0.0018684580859889997,
+                "maximum": 0.00390140369691
+              },
+              "update_baz": {
+                "count": 160,
+                "median": 0.0005561170264294999,
+                "p95": 0.002876821185963999,
+                "maximum": 0.00477840535675
+              },
+              "pre_gravity_z": {
+                "count": 160,
+                "median": -9.810036759159999,
+                "p95": -9.809704774596002,
+                "maximum": -9.80953352474
+              },
+              "update_gravity_z": {
+                "count": 160,
+                "median": -9.81004048247,
+                "p95": -9.8097532392395,
+                "maximum": -9.80961103551
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.008475731268962337,
+              "p95": 0.04935661325942942,
+              "maximum": 0.1259017983865925
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.013009593972213136,
+              "p95": 0.06930623018451197,
+              "maximum": 0.1555903863324825
+            }
+          },
+          "VIO": {
+            "count": 160,
+            "summed_propagation_z_m": 0.0,
+            "summed_correction_z_m": 0.4457228532654604,
+            "absolute_correction_z_m": {
+              "count": 160,
+              "median": 0.0024130435769499983,
+              "p95": 0.009854480603349995,
+              "maximum": 0.017839533802999963
+            },
+            "summed_velocity_correction_z_mps": 2.3903125271747436,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 160,
+              "median": 0.0,
+              "p95": 0.0,
+              "maximum": 0.0
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 160,
+                "median": 0.05750343870115,
+                "p95": 0.23518577867479998,
+                "maximum": 0.256312106093
+              },
+              "imu_vz": {
+                "count": 160,
+                "median": 0.05750343870115,
+                "p95": 0.23518577867479998,
+                "maximum": 0.256312106093
+              },
+              "update_vz": {
+                "count": 160,
+                "median": 0.0840767448593,
+                "p95": 0.2506089365493,
+                "maximum": 0.266341828613
+              },
+              "pre_baz": {
+                "count": 160,
+                "median": 0.0005561170264294999,
+                "p95": 0.002876821185963999,
+                "maximum": 0.00477840535675
+              },
+              "update_baz": {
+                "count": 160,
+                "median": 0.00023628432679150002,
+                "p95": 0.0018684580859889997,
+                "maximum": 0.00390140369691
+              },
+              "pre_gravity_z": {
+                "count": 160,
+                "median": -9.81004048247,
+                "p95": -9.8097532392395,
+                "maximum": -9.80961103551
+              },
+              "update_gravity_z": {
+                "count": 160,
+                "median": -9.810036714365,
+                "p95": -9.8097041459915,
+                "maximum": -9.80953352474
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.013009593972213136,
+              "p95": 0.06930623018451197,
+              "maximum": 0.1555903863324825
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.008503239779495008,
+              "p95": 0.04809018187366554,
+              "maximum": 0.12499441283182862
+            }
+          }
+        }
+      }
+    },
+    {
+      "run": "replica_office0_terminal_slow_117_01",
+      "lio_only": false,
+      "lio_voxel_size_m": 0.5,
+      "plane_quality_diagnostic": false,
+      "route_offsets_m": [
+        [
+          -0.3,
+          0.0
+        ],
+        [
+          -0.3,
+          0.15
+        ],
+        [
+          0.0,
+          0.15
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "abort_sim_s": 111.932,
+      "abort_model_truth_m": [
+        -0.3816379659731742,
+        0.03104604729683814,
+        1.7237690154648861
+      ],
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "approaching inspected scan flight boundary",
+      "requested_goals": 2,
+      "reached_goals": 1,
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": true,
+      "ground_frozen_errors": {
+        "climb": {
+          "fast_livo2_xy_m": {
+            "count": 160,
+            "p50": 0.0028023845892970103,
+            "p95": 0.022235744493788505,
+            "maximum": 0.02281359420437432
+          },
+          "fast_livo2_z_m": {
+            "count": 160,
+            "p50": 0.007952333210441864,
+            "p95": 0.08542194293200663,
+            "maximum": 0.09460039679979104
+          },
+          "fast_livo2_signed_z_median": -0.0033129992120165264,
+          "px4_xy_m": {
+            "count": 797,
+            "p50": 0.027103892341252746,
+            "p95": 0.049037565833406245,
+            "maximum": 0.050293141871699275
+          },
+          "px4_z_m": {
+            "count": 797,
+            "p50": 0.03408842158419034,
+            "p95": 0.07431208118516754,
+            "maximum": 0.08189076263397044
+          },
+          "px4_signed_z_median": -0.03408842158419034
+        },
+        "ego_execution": {
+          "fast_livo2_xy_m": {
+            "count": 224,
+            "p50": 0.02573198215182576,
+            "p95": 0.028300821780259264,
+            "maximum": 0.029515057995522235
+          },
+          "fast_livo2_z_m": {
+            "count": 224,
+            "p50": 0.09253969991912991,
+            "p95": 0.10015977336241903,
+            "maximum": 0.1054289692143322
+          },
+          "fast_livo2_signed_z_median": -0.09253969991912991,
+          "px4_xy_m": {
+            "count": 1118,
+            "p50": 0.045746374548523754,
+            "p95": 0.06426577664587317,
+            "maximum": 0.0704885585854911
+          },
+          "px4_z_m": {
+            "count": 1118,
+            "p50": 0.021235079610052665,
+            "p95": 0.07326962570585968,
+            "maximum": 0.08503012637168417
+          },
+          "px4_signed_z_median": -0.014962562565629334
+        }
+      },
+      "whole_flight_mesh_clearance_m": {
+        "count": 2830,
+        "minimum": 0.7339142566304212,
+        "p95": 1.025240925408375,
+        "maximum": 1.033643492693187
+      },
+      "whole_flight_envelope_breach_samples": 0,
+      "actual_horizontal_span_m": [
+        0.3972286344229767,
+        0.09652015995390353
+      ],
+      "measurement_time_actual_horizontal_path_m": null,
+      "planned_peak_speed_mps": 0.0988814855060655,
+      "planned_peak_acceleration_mps2": 0.08681565350622568,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "actual_route_legs": [
+        {
+          "goal_index": 0,
+          "reached": true,
+          "requested_delta_xy_m": [
+            -0.3,
+            0.0
+          ],
+          "actual_delta_xy_m": [
+            -0.35996338722849064,
+            -0.017711456874887396
+          ],
+          "actual_progress_along_requested_direction_m": 0.35996338722849064,
+          "endpoint_truth_xy_error_m": 0.06143944975346104,
+          "measurement_pair_dt_ms": [
+            8.0,
+            8.0
+          ],
+          "actual_motion_verified": true
+        },
+        {
+          "goal_index": 1,
+          "reached": false,
+          "requested_delta_xy_m": [
+            0.0,
+            0.15
+          ],
+          "actual_delta_xy_m": [
+            -0.019455234186570414,
+            0.006738864751683293
+          ],
+          "actual_progress_along_requested_direction_m": 0.0067388647516832935,
+          "endpoint_truth_xy_error_m": 0.17821940053390828,
+          "measurement_pair_dt_ms": [
+            8.0,
+            0.0
+          ],
+          "actual_motion_verified": false
+        }
+      ],
+      "complete_route_verified": false,
+      "combined_setpoint_send_max_gap_ms": null,
+      "actual_peak_3d_speed_mps": 0.07100701557412728,
+      "inputs": {
+        "raw_lidar_surface_distance_m": {
+          "count": 22272,
+          "median": 0.0010680873694989385,
+          "p95": 0.004679965099702708,
+          "maximum": 0.012731205947232815
+        },
+        "cloud_pair_dt_ms": {
+          "count": 87,
+          "median": 4.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "climb_imu_acceleration_z_residual_mps2": {
+          "count": 1556,
+          "median": 0.0009629175779372588,
+          "p95": 0.006782212468087842,
+          "maximum": 0.015900761445356078
+        },
+        "climb_imu_acceleration_z_mean_bias_mps2": 8.012150257429863e-05,
+        "climb_imu_acceleration_z_rmse_mps2": 0.002928600075272779,
+        "scan_reference_model_offset_m": [
+          0,
+          0,
+          0.46
+        ],
+        "imu_reference_model_offset_m": [
+          0,
+          0,
+          0.36
+        ],
+        "raw_imu_free_integrated_rise_m": 1.63839032227739,
+        "actual_imu_reference_rise_m": 1.636020406697674,
+        "free_integration_initial_velocity_assumed_mps": 0.0,
+        "description": "Raw sensor consistency only; smoothed truth acceleration is a diagnostic, not an estimator input",
+        "climb_state_updates": {
+          "LIO": {
+            "count": 160,
+            "summed_propagation_z_m": 1.5402500340310907,
+            "summed_correction_z_m": -0.5655583956978403,
+            "absolute_correction_z_m": {
+              "count": 160,
+              "median": 0.002178240554500041,
+              "p95": 0.010181399365499963,
+              "maximum": 0.014471476350000012
+            },
+            "summed_velocity_correction_z_mps": -2.9749459576848505,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 160,
+              "median": 5.689893001203927e-15,
+              "p95": 1.0574874309554616e-14,
+              "maximum": 1.0574874309554616e-14
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 160,
+                "median": 0.08557785442259999,
+                "p95": 0.2686845013661,
+                "maximum": 0.311925615462
+              },
+              "imu_vz": {
+                "count": 160,
+                "median": 0.08629915486209999,
+                "p95": 0.2703252984571499,
+                "maximum": 0.30630236563
+              },
+              "update_vz": {
+                "count": 160,
+                "median": 0.052242863658900004,
+                "p95": 0.2546486431947,
+                "maximum": 0.292841452289
+              },
+              "pre_baz": {
+                "count": 160,
+                "median": -6.248276832915e-05,
+                "p95": 0.001824141050550497,
+                "maximum": 0.0030202486644
+              },
+              "update_baz": {
+                "count": 160,
+                "median": 0.000302489608684,
+                "p95": 0.0033143797327734948,
+                "maximum": 0.00415886841592
+              },
+              "pre_gravity_z": {
+                "count": 160,
+                "median": -9.8099724416,
+                "p95": -9.809515783146502,
+                "maximum": -9.80938414849
+              },
+              "update_gravity_z": {
+                "count": 160,
+                "median": -9.80997510811,
+                "p95": -9.809583536742,
+                "maximum": -9.80947623441
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.011109621844256984,
+              "p95": 0.0493294144928603,
+              "maximum": 0.08151069123637643
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.014168268366268971,
+              "p95": 0.08493271539740194,
+              "maximum": 0.09933379910049481
+            }
+          },
+          "VIO": {
+            "count": 160,
+            "summed_propagation_z_m": 0.0,
+            "summed_correction_z_m": 0.5779071695727895,
+            "absolute_correction_z_m": {
+              "count": 160,
+              "median": 0.0030620371394999985,
+              "p95": 0.013924798435214995,
+              "maximum": 0.021130732390000073
+            },
+            "summed_velocity_correction_z_mps": 3.017566125334479,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 160,
+              "median": 0.0,
+              "p95": 0.0,
+              "maximum": 0.0
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 160,
+                "median": 0.052242863658900004,
+                "p95": 0.2546486431947,
+                "maximum": 0.292841452289
+              },
+              "imu_vz": {
+                "count": 160,
+                "median": 0.052242863658900004,
+                "p95": 0.2546486431947,
+                "maximum": 0.292841452289
+              },
+              "update_vz": {
+                "count": 160,
+                "median": 0.0860645406396,
+                "p95": 0.2686845013661,
+                "maximum": 0.311925615462
+              },
+              "pre_baz": {
+                "count": 160,
+                "median": 0.000302489608684,
+                "p95": 0.0033143797327734948,
+                "maximum": 0.00415886841592
+              },
+              "update_baz": {
+                "count": 160,
+                "median": -6.204375556225e-05,
+                "p95": 0.0020055717884019954,
+                "maximum": 0.0030202486644
+              },
+              "pre_gravity_z": {
+                "count": 160,
+                "median": -9.80997510811,
+                "p95": -9.809583536742,
+                "maximum": -9.80947623441
+              },
+              "update_gravity_z": {
+                "count": 160,
+                "median": -9.809972428870001,
+                "p95": -9.8095120213815,
+                "maximum": -9.80938414849
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.014168268366268971,
+              "p95": 0.08493271539740194,
+              "maximum": 0.09933379910049481
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.011589742418780503,
+              "p95": 0.04988432704513917,
+              "maximum": 0.08136829903752786
+            }
+          }
+        }
+      }
+    },
+    {
+      "run": "replica_office0_terminal_slow_117_02",
+      "lio_only": false,
+      "lio_voxel_size_m": 0.5,
+      "plane_quality_diagnostic": false,
+      "route_offsets_m": [
+        [
+          -0.2,
+          0.0
+        ],
+        [
+          -0.2,
+          0.1
+        ],
+        [
+          0.0,
+          0.1
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "abort_sim_s": null,
+      "abort_model_truth_m": null,
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "requested_goals": 4,
+      "reached_goals": 4,
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": true,
+      "ground_frozen_errors": {
+        "climb": {
+          "fast_livo2_xy_m": {
+            "count": 160,
+            "p50": 0.003855696523896085,
+            "p95": 0.02363907734852176,
+            "maximum": 0.025905057480586937
+          },
+          "fast_livo2_z_m": {
+            "count": 160,
+            "p50": 0.0042225183945140965,
+            "p95": 0.07270093422725094,
+            "maximum": 0.07801281346907363
+          },
+          "fast_livo2_signed_z_median": -4.7104208555609484e-05,
+          "px4_xy_m": {
+            "count": 799,
+            "p50": 0.04564184281380853,
+            "p95": 0.07925901514092368,
+            "maximum": 0.0816865558306396
+          },
+          "px4_z_m": {
+            "count": 799,
+            "p50": 0.03244574368000028,
+            "p95": 0.09691334813833236,
+            "maximum": 0.10083109140396118
+          },
+          "px4_signed_z_median": -0.026754528284072876
+        },
+        "ego_execution": {
+          "fast_livo2_xy_m": {
+            "count": 161,
+            "p50": 0.028176267947881285,
+            "p95": 0.032079189667315516,
+            "maximum": 0.03399232316521847
+          },
+          "fast_livo2_z_m": {
+            "count": 161,
+            "p50": 0.07177044348275174,
+            "p95": 0.08420190108110415,
+            "maximum": 0.11579058815206067
+          },
+          "fast_livo2_signed_z_median": -0.07177044348275174,
+          "px4_xy_m": {
+            "count": 807,
+            "p50": 0.044610552759953376,
+            "p95": 0.07148133738231158,
+            "maximum": 0.07445212435643857
+          },
+          "px4_z_m": {
+            "count": 807,
+            "p50": 0.02799717225352616,
+            "p95": 0.08463765835952348,
+            "maximum": 0.08988008103575673
+          },
+          "px4_signed_z_median": -0.013086643204199166
+        }
+      },
+      "whole_flight_mesh_clearance_m": {
+        "count": 2613,
+        "minimum": 0.8727180927420859,
+        "p95": 1.050891380529652,
+        "maximum": 1.0640493905009916
+      },
+      "whole_flight_envelope_breach_samples": 0,
+      "actual_horizontal_span_m": [
+        0.24500151308559137,
+        0.15955551099455015
+      ],
+      "measurement_time_actual_horizontal_path_m": 0.8455302070678112,
+      "planned_peak_speed_mps": 0.09889735582493714,
+      "planned_peak_acceleration_mps2": 0.09802880251682033,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "actual_route_legs": [
+        {
+          "goal_index": 0,
+          "reached": true,
+          "requested_delta_xy_m": [
+            -0.2,
+            0.0
+          ],
+          "actual_delta_xy_m": [
+            -0.2410314725873471,
+            -0.01637281303381496
+          ],
+          "actual_progress_along_requested_direction_m": 0.2410314725873471,
+          "endpoint_truth_xy_error_m": 0.04018380949797486,
+          "measurement_pair_dt_ms": [
+            8.0,
+            8.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.011754249246126653,
+          "actual_motion_verified": true
+        },
+        {
+          "goal_index": 1,
+          "reached": true,
+          "requested_delta_xy_m": [
+            0.0,
+            0.1
+          ],
+          "actual_delta_xy_m": [
+            0.01165558517551124,
+            0.11483859059577012
+          ],
+          "actual_progress_along_requested_direction_m": 0.11483859059577012,
+          "endpoint_truth_xy_error_m": 0.02931756409897156,
+          "measurement_pair_dt_ms": [
+            8.0,
+            4.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.012088574241018389,
+          "actual_motion_verified": true
+        },
+        {
+          "goal_index": 2,
+          "reached": true,
+          "requested_delta_xy_m": [
+            0.2,
+            0.0
+          ],
+          "actual_delta_xy_m": [
+            0.20647291781721286,
+            0.02315240399518126
+          ],
+          "actual_progress_along_requested_direction_m": 0.20647291781721286,
+          "endpoint_truth_xy_error_m": 0.021539732745682248,
+          "measurement_pair_dt_ms": [
+            4.0,
+            8.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.03190932458002066,
+          "actual_motion_verified": true
+        },
+        {
+          "goal_index": 3,
+          "reached": true,
+          "requested_delta_xy_m": [
+            0.0,
+            -0.1
+          ],
+          "actual_delta_xy_m": [
+            -0.04063287263420867,
+            -0.13228447663866968
+          ],
+          "actual_progress_along_requested_direction_m": 0.13228447663866968,
+          "endpoint_truth_xy_error_m": 0.039339331669598306,
+          "measurement_pair_dt_ms": [
+            8.0,
+            4.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.023271063875873806,
+          "actual_motion_verified": true
+        }
+      ],
+      "complete_route_verified": true,
+      "combined_setpoint_send_max_gap_ms": 67.582809,
+      "actual_peak_3d_speed_mps": 0.1231469279625304,
+      "inputs": {
+        "raw_lidar_surface_distance_m": {
+          "count": 21248,
+          "median": 0.0010607592421139976,
+          "p95": 0.0045819959828800536,
+          "maximum": 0.015884195800520914
+        },
+        "cloud_pair_dt_ms": {
+          "count": 83,
+          "median": 4.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "climb_imu_acceleration_z_residual_mps2": {
+          "count": 1559,
+          "median": 0.001299361666152573,
+          "p95": 0.006893651640973169,
+          "maximum": 0.04994937251420699
+        },
+        "climb_imu_acceleration_z_mean_bias_mps2": 0.00043655922660170235,
+        "climb_imu_acceleration_z_rmse_mps2": 0.005981665635548881,
+        "scan_reference_model_offset_m": [
+          0,
+          0,
+          0.46
+        ],
+        "imu_reference_model_offset_m": [
+          0,
+          0,
+          0.36
+        ],
+        "raw_imu_free_integrated_rise_m": 1.6572485880228303,
+        "actual_imu_reference_rise_m": 1.5904432791463354,
+        "free_integration_initial_velocity_assumed_mps": 0.0,
+        "description": "Raw sensor consistency only; smoothed truth acceleration is a diagnostic, not an estimator input",
+        "climb_state_updates": {
+          "LIO": {
+            "count": 160,
+            "summed_propagation_z_m": 1.5303379702370696,
+            "summed_correction_z_m": -0.4726845456748193,
+            "absolute_correction_z_m": {
+              "count": 160,
+              "median": 0.0021875286999999966,
+              "p95": 0.008245905314499955,
+              "maximum": 0.011383806019999998
+            },
+            "summed_velocity_correction_z_mps": -2.5670966374448727,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 160,
+              "median": 5.689893001203927e-15,
+              "p95": 1.0574874309554616e-14,
+              "maximum": 1.0574874309554616e-14
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 160,
+                "median": 0.07698075231080001,
+                "p95": 0.28003799122855,
+                "maximum": 0.306741857788
+              },
+              "imu_vz": {
+                "count": 160,
+                "median": 0.08075036634655,
+                "p95": 0.28163727508564995,
+                "maximum": 0.299021592331
+              },
+              "update_vz": {
+                "count": 160,
+                "median": 0.05781011847615,
+                "p95": 0.26077593856799997,
+                "maximum": 0.283240070143
+              },
+              "pre_baz": {
+                "count": 160,
+                "median": 2.53626207337e-05,
+                "p95": 0.0021699700613054995,
+                "maximum": 0.00285719451562
+              },
+              "update_baz": {
+                "count": 160,
+                "median": 0.000473168253281,
+                "p95": 0.0031056252196789967,
+                "maximum": 0.00346471800997
+              },
+              "pre_gravity_z": {
+                "count": 160,
+                "median": -9.80999306319,
+                "p95": -9.809645443785,
+                "maximum": -9.80940276483
+              },
+              "update_gravity_z": {
+                "count": 160,
+                "median": -9.809994683140001,
+                "p95": -9.809708367598,
+                "maximum": -9.80950361626
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.008023669576447262,
+              "p95": 0.05396113493754661,
+              "maximum": 0.09789828219860171
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.014479633039630499,
+              "p95": 0.0789805088785595,
+              "maximum": 0.09814910912716937
+            }
+          },
+          "VIO": {
+            "count": 160,
+            "summed_propagation_z_m": 0.0,
+            "summed_correction_z_m": 0.49082526570505997,
+            "absolute_correction_z_m": {
+              "count": 160,
+              "median": 0.0023418802479999723,
+              "p95": 0.012046396236999867,
+              "maximum": 0.016412663490000146
+            },
+            "summed_velocity_correction_z_mps": 2.693904091387137,
+            "absolute_propagation_coverage_gap_sec": {
+              "count": 160,
+              "median": 0.0,
+              "p95": 0.0,
+              "maximum": 0.0
+            },
+            "state_z": {
+              "pre_vz": {
+                "count": 160,
+                "median": 0.05781011847615,
+                "p95": 0.26077593856799997,
+                "maximum": 0.283240070143
+              },
+              "imu_vz": {
+                "count": 160,
+                "median": 0.05781011847615,
+                "p95": 0.26077593856799997,
+                "maximum": 0.283240070143
+              },
+              "update_vz": {
+                "count": 160,
+                "median": 0.0805737913092,
+                "p95": 0.28003799122855,
+                "maximum": 0.306741857788
+              },
+              "pre_baz": {
+                "count": 160,
+                "median": 0.000473168253281,
+                "p95": 0.0031056252196789967,
+                "maximum": 0.00346471800997
+              },
+              "update_baz": {
+                "count": 160,
+                "median": 2.53626207337e-05,
+                "p95": 0.0021699700613054995,
+                "maximum": 0.00285719451562
+              },
+              "pre_gravity_z": {
+                "count": 160,
+                "median": -9.809994683140001,
+                "p95": -9.809708367598,
+                "maximum": -9.80950361626
+              },
+              "update_gravity_z": {
+                "count": 160,
+                "median": -9.809992920620001,
+                "p95": -9.8096432293555,
+                "maximum": -9.80939842423
+              }
+            },
+            "estimated_imu_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.014479633039630499,
+              "p95": 0.0789805088785595,
+              "maximum": 0.09814910912716937
+            },
+            "estimated_update_vz_minus_truth_mps": {
+              "count": 160,
+              "median": 0.007591667443438518,
+              "p95": 0.05365558259670775,
+              "maximum": 0.09792534013945452
+            }
+          }
+        }
+      }
+    },
+    {
+      "run": "replica_repeat_117_01",
+      "scene": "replica-office0",
+      "plane_quality_diagnostic": false,
+      "complete_route_verified": true,
+      "blocked_path_avoidance_verified": false,
+      "fault": "",
+      "disarmed": true,
+      "audit": "astra/runtime/replica_repeat_117_01/scan_flight_audit.json",
+      "actual_horizontal_path_m": 0.7773035849105195,
+      "minimum_clearance_m": 0.8959040240413794,
+      "reached_goals": 4,
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true
+      }
+    },
+    {
+      "run": "replica_repeat_117_02",
+      "scene": "replica-office0",
+      "plane_quality_diagnostic": false,
+      "complete_route_verified": true,
+      "blocked_path_avoidance_verified": false,
+      "fault": "",
+      "disarmed": true,
+      "audit": "astra/runtime/replica_repeat_117_02/scan_flight_audit.json",
+      "actual_horizontal_path_m": 0.9113601514796279,
+      "minimum_clearance_m": 0.8671574913664133,
+      "reached_goals": 4,
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true
+      }
+    },
+    {
+      "run": "replica_repeat_117_03",
+      "scene": "replica-office0",
+      "plane_quality_diagnostic": false,
+      "complete_route_verified": false,
+      "blocked_path_avoidance_verified": false,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "disarmed": true,
+      "audit": "astra/runtime/replica_repeat_117_03/scan_flight_audit.json",
+      "actual_horizontal_path_m": 0.3736084034231464,
+      "minimum_clearance_m": 0.762055587647082,
+      "reached_goals": 1,
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      }
+    }
+  ],
+  "next_prepared_route": {
+    "collision_sha256": "bb5a41635869413280d7b045bef4f22666c88cfb4edf38ffc27dd4d6e8c810ee",
+    "minimum_clearance_m": 0.55,
+    "reference": "base_link at rotated model-to-body offset [0,0,.24]",
+    "allowed_xy_bounds_m": [
+      [
+        -0.4,
+        -0.25
+      ],
+      [
+        0.3,
+        0.2
+      ]
+    ],
+    "allowed_body_z_bounds_m": [
+      0.2,
+      2.34
+    ],
+    "excluded_floor_max_z_m": 0.12,
+    "excluded_floor_triangles": 17709,
+    "retained_triangles": 82291,
+    "missing_geometry_certified": false,
+    "route_offsets_m": [
+      [
+        -0.2,
+        0.0
+      ],
+      [
+        -0.2,
+        0.1
+      ],
+      [
+        0.0,
+        0.1
+      ],
+      [
+        0.0,
+        0.0
+      ]
+    ],
+    "nominal_path_minimum_m": 0.9368542148074686,
+    "recovery_box": {
+      "sample_count": 6600,
+      "sampled_minimum_m": 0.6580756826156442,
+      "grid_covering_radius_m": 0.043234240681821925,
+      "continuous_clearance_lower_bound_m": 0.6148414419338223,
+      "bounds_m": [
+        [
+          -0.4,
+          -0.25,
+          0.2
+        ],
+        [
+          0.3,
+          0.2,
+          2.34
+        ]
+      ]
+    },
+    "world_sha256": "31717e98643314d6ab1e490ac7976a88e60b6d3815b6c76bc8eff2543ec8df50",
+    "model_sdf_sha256": "44b3f8fe39994eb475eec41620c50d54607eed8ba30cb45bc0752183eef30d08",
+    "nominal_climb_minimum_m": 0.9217410318643926,
+    "guard_sha256": "b5636912ab1c088c837d6fb44d71fe0375a619b7f0a7eb1661275c7179642b04",
+    "truth_used_for_setpoints": false,
+    "flight_validated": false
+  },
+  "changes": [
+    "Mesh-aware known-surface clearance and inspected envelope gate",
+    "0.6 s measured-motion envelope forecast, not a stopping guarantee",
+    "Mesh monitoring during fault hold and landing",
+    "Continuous recovery-box clearance lower bound, floor triangles at or below 0.12 m excluded",
+    "Initialize IMU propagation origin from final initialization measurement",
+    "Internal velocity, bias, gravity and integrated-duration audit columns",
+    "Optional copied-config-only LIO ablation and voxel size diagnostic",
+    "Use metre coordinates for neighbouring voxel selection; floor for negative voxel boundaries",
+    "Ordered symmetric eigensolver; reject undefined normals before covariance division",
+    "Optional copied-config plane eigenvalue ratio quality check",
+    "Stationary cubic tail fixed during optimization and refinement; normal completion identified by trajectory id",
+    "Per-leg 0.045 m PX4 endpoint error and 0.08 m/s speed held for 0.5 s, 8 s timeout",
+    "Indoor planner speed 0.10 m/s and acceleration 0.10 m/s2; minimum planning distance 0.04 m",
+    "Indoor route XY origin frozen from pre-takeoff LIVO; truth used only for stop/audit",
+    "Initialize truth callback state before starting parent Gazebo subscriptions"
+  ],
+  "limitations": [
+    "Only one full short-route pass; larger route and repeated indoor reliability not established",
+    "No blocked-path avoidance or near-obstacle certification",
+    "Ground-frozen LIVO Z max in execution remains 0.116 m; full frame accuracy certification not claimed",
+    "Optional plane quality ratio gate not flown; both ratios remain disabled by default",
+    "Earlier input-audit descent went below 0.55 m clearance and outside its envelope",
+    "Culled scan missing geometry remains uncertified",
+    "Normal sensor noise and flight error gates retained; no External Vision or hardware"
+  ],
+  "verification": {
+    "pytest_passed": 51,
+    "core_isolated_build_passed": true,
+    "python_compile_passed": true,
+    "simulators_exited": true,
+    "next_guard_route_hashes_match": true,
+    "all_recorded_baseline_hashes_preserved": true,
+    "planner_isolated_build_passed": true
+  },
+  "scope": "One four-leg short corridor flight: back 0.20 m, side 0.10 m, forward, side return; not room-wide traversal or blocked-path avoidance",
+  "validated_run": "replica_office0_terminal_slow_117_02",
+  "validated_route_offsets_m": [
+    [
+      -0.2,
+      0.0
+    ],
+    [
+      -0.2,
+      0.1
+    ],
+    [
+      0.0,
+      0.1
+    ],
+    [
+      0.0,
+      0.0
+    ]
+  ],
+  "validated_runtime_precheck_sha256": "14e505964edac204eeb2ab52c2fd0f8390470da42a82a1b273819d20a49a5431",
+  "latest_short_route_repeats": {
+    "passed": 2,
+    "attempts": 3,
+    "reliability_certified": false,
+    "room_scale_traversal_certified": false
+  }
+}

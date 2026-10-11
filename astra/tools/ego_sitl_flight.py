@@ -15,8 +15,8 @@ import numpy as np
 import rclpy
 from geometry_msgs.msg import PoseStamped
 from px4_msgs.msg import VehicleCommand, VehicleStatus
-from rclpy.executors import SingleThreadedExecutor
 from rclpy.parameter import Parameter
+from ready_batch_executor import ReadyBatchExecutor, BoundedEventsExecutor, receive_ready_batch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'packages/astra_px4_offboard/scripts'))
 from guarded_position_sitl import GuardedPositionTest
@@ -28,12 +28,18 @@ def receive_batch(executor):
     # A /clock callback can precede already queued odometry after a scheduling
     # pause. Process a bounded batch before checking freshness, so the guard
     # sees received measurements rather than only the first ready callback.
-    executor.spin_once(timeout_sec=.002)
-    deadline = time.monotonic() + .004
-    for _ in range(32):
-        if time.monotonic() >= deadline:
-            break
-        executor.spin_once(timeout_sec=0.)
+    audit=getattr(executor,'timing_audit',None)
+    if audit:
+        from executor_timing_audit import scheduler_wait_ns
+        wall=time.monotonic_ns();cpu=time.thread_time_ns()
+        wait=scheduler_wait_ns()
+    batch=receive_ready_batch(executor)
+    if audit:
+        finish_wait=scheduler_wait_ns()
+        audit.batch_tail.append(dict(wall_start_ns=wall,wall_end_ns=time.monotonic_ns(),
+            wall_duration_ns=time.monotonic_ns()-wall,cpu_duration_ns=time.thread_time_ns()-cpu,
+            scheduler_wait_ns=None if wait is None or finish_wait is None else finish_wait-wait,
+            **batch))
 
 
 def takeoff(node):
@@ -51,6 +57,7 @@ def takeoff(node):
         raise RuntimeError('preflight not healthy: ' + (node.fault() or node.initial_alignment_fault()))
     p = node.local
     origin = (p.x, p.y, p.z, p.heading)
+    node.ground_route_origin_livo = (node.odom.pose.pose.position.x, node.odom.pose.pose.position.y)
     node.vertical_reference = p.z + node.truth[2]
     if node.initial_alignment_fault():
         raise RuntimeError('invalid initial world position')
@@ -132,7 +139,8 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
     preview, bridge = prepared_nodes
     # Supervisor calls tick only after a clean handoff; no bridge preflight output.
     bridge.output_timer.cancel()
-    executor = SingleThreadedExecutor()
+    executor = (BoundedEventsExecutor() if result['test_configuration'].get('execution_executor') == 'events'
+                else ReadyBatchExecutor())
     for n in (node, preview, bridge):
         executor.add_node(n)
     goal_pub = node.create_publisher(PoseStamped, '/move_base_simple/goal', 10)
@@ -140,10 +148,16 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
     raw_splines = []
     from traj_utils.msg import Bspline
     def record_spline(msg):
-        raw_splines.append(dict(start_ns=stamp_ns(msg.start_time), order=msg.order,
+        raw_splines.append(dict(start_ns=stamp_ns(msg.start_time), traj_id=msg.traj_id, order=msg.order,
                                 knots=list(msg.knots),
                                 controls=[[p.x, p.y, p.z] for p in msg.pos_pts]))
     subscription = node.create_subscription(Bspline, '/planning/bspline', record_spline, 10)
+    audit_path=result.get('executor_audit_path')
+    if audit_path:
+        from executor_timing_audit import ExecutorTimingAudit
+        executor.timing_audit=ExecutorTimingAudit()
+        for n in (node,preview,bridge):
+            executor.timing_audit.install(n,with_metadata=not isinstance(executor,BoundedEventsExecutor))
     handed = False
     try:
         if fixed_enu_ned_transform:
@@ -194,6 +208,10 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                                    certified=False)
         p = node.odom.pose.pose.position
         origin_livo = (p.x, p.y, p.z)
+        if node.mesh_guard is not None:
+            origin_livo = (*node.ground_route_origin_livo, p.z)
+            node.event('indoor_route_origin_frozen', origin_livo=list(origin_livo),
+                       xy_reference='pre-takeoff FAST-LIVO2; no Gazebo calibration input')
         goal_queue = ([(3.0, 3.0), (goal_distance_m, goal_y_offset_m)]
                       if obstacle_audit and not single_goal else [(goal_distance_m, goal_y_offset_m)])
         if route_offsets is not None:
@@ -203,9 +221,11 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
         goal_index = 0
         target = None
         goal_sent_ns = None
+        terminal_spline = None
 
         def publish_goal(offset_x, offset_y):
-            nonlocal target, goal_sent_ns
+            nonlocal target, goal_sent_ns, terminal_spline
+            terminal_spline = None
             gx, gy, gz = origin_livo[0] + offset_x, origin_livo[1] + offset_y, origin_livo[2]
             goal = PoseStamped()
             goal.header.frame_id = 'camera_init'
@@ -240,28 +260,77 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                 if now >= next_send:
                     node.send(high)
                     next_send = now+.05
-                if not bridge.health():
+                if (not bridge.health() and preview.trajectory_start_ns is not None
+                        and preview.trajectory_start_ns >= goal_sent_ns):
                     handed = True
                     node.phase = 'ego_execution'
-                    result['truth_start'] = list(node.truth)
-                    node.event('ego_control_handoff')
+                    result.setdefault('truth_start', list(node.truth))
+                    node.event('ego_control_handoff' if goal_index == 0 else 'ego_leg_control_handoff', goal_index=goal_index)
                     next_tick = now
                 continue
             if (preview.span is not None and preview.trajectory_start_ns is not None
-                    and preview.trajectory_start_ns >= goal_sent_ns):
+                    and preview.trajectory_start_ns >= goal_sent_ns and preview.spline is not None
+                    and preview.valid):
                 final_sim_ns = preview.trajectory_start_ns + int((preview.span[1]-preview.span[0])*1e9)
-            # Normal expiry is handled by the supervisor, never disguised as a fault.
-            # Continue endpoint tracking under the same freshness/bounds protections.
+                terminal_spline = preview.spline
+                terminal_time = preview.span[1]
+                terminal_id = preview.trajectory_id
+            # Transfer exclusive output ownership only after a normally completed,
+            # accepted stop trajectory. Fault holds never count as goal completion.
             if (final_sim_ns is not None and
                     node.get_clock().now().nanoseconds >= final_sim_ns-20_000_000 and
                     preview.ready and preview.fresh(preview.planner_wall, .25) and
-                    (preview.valid or preview.spline is None)
-                    and np.linalg.norm(target - [node.local.x, node.local.y, node.local.z]) <= .20):
+                    terminal_spline is not None and
+                    (preview.valid or preview.completed_trajectory_id == terminal_id)):
+                terminal = terminal_spline(terminal_time)
+                if (np.linalg.norm(bridge.transform(terminal)-target) > .03 or
+                        np.linalg.norm(terminal_spline.derivative()(terminal_time)) > .02):
+                    raise RuntimeError('trajectory terminal is not a stopped goal')
+                node.event('ego_endpoint_settling_start', goal_index=goal_index)
+                # The bridge timer remains cancelled; this supervisor alone sends
+                # the fixed endpoint until arrival or a bounded timeout/fault.
+                settle_deadline = time.monotonic()+8.
+                stable_since = None
+                next_endpoint_send = 0.
+                while time.monotonic() < settle_deadline:
+                    receive_batch(executor)
+                    node.check_safe()
+                    fault = bridge.state_health()
+                    if (not preview.valid and preview.completed_trajectory_id != terminal_id and
+                            node.get_clock().now().nanoseconds > final_sim_ns+250_000_000):
+                        raise RuntimeError('trajectory revoked without normal completion')
+                    if fault or bridge.fault_since is not None:
+                        raise RuntimeError('endpoint state fault: '+(fault or bridge.fault_reason))
+                    now = time.monotonic()
+                    error = float(np.linalg.norm(target-[node.local.x,node.local.y,node.local.z]))
+                    speed = float(np.linalg.norm([node.local.vx,node.local.vy,node.local.vz]))
+                    if not math.isfinite(speed) or error > max_tracking_error_m:
+                        raise RuntimeError('endpoint speed invalid or tracking error exceeded')
+                    if now >= next_endpoint_send:
+                        yaw = bridge.tracking_yaw if bridge.tracking_yaw is not None else node.local.heading
+                        node.send((*target,yaw))
+                        next_endpoint_send = now+.05
+                    stable_since = (stable_since or now) if error <= .045 and speed <= .08 else None
+                    if stable_since is not None and now-stable_since >= .5:
+                        node.event('ego_endpoint_settled', goal_index=goal_index,
+                                   target_error_m=error, speed_mps=speed, stable_sec=now-stable_since)
+                        break
+                else:
+                    raise RuntimeError('endpoint did not settle within 8 seconds')
                 if goal_index + 1 < len(goal_queue):
                     node.event('ego_waypoint_reached', goal_index=goal_index)
+                    # publish_goal replaces target with the NEXT destination.
+                    # While waiting for its fresh spline, keep the completed
+                    # endpoint; sending the next destination here bypasses EGO.
+                    high = (*target, yaw)
                     goal_index += 1
                     publish_goal(*goal_queue[goal_index])
                     final_sim_ns = None
+                    # Resume only on a fresh spline for the new goal; hold this
+                    # completed endpoint while the planner generates it.
+                    handed = False
+                    bridge.preview_gap_since = None
+                    bridge.replan_hold = None
                     deadline = now + leg_timeout
                     continue
                 node.event('ego_waypoint_reached', goal_index=goal_index)
@@ -282,7 +351,12 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                     bridge_odom_receipt_age_sec=None if bridge.odom_wall is None else
                         sample_wall/1e9-bridge.odom_wall,
                     deferred_supervisor_odom_count=node.deferred_odom_count,
+                    preview_trajectory_id=preview.trajectory_id,
+                    preview_trajectory_start_ns=preview.trajectory_start_ns,
+                    preview_pose_stamp_ns=None if bridge.pose is None else stamp_ns(bridge.pose.header.stamp),
                     tracking_yaw_ned_rad=bridge.tracking_yaw,
+                    mesh_guard_xyz=node.mesh_guard_xyz,
+                    mesh_clearance_m=node.mesh_clearance_m,
                     px4=[node.local.x,node.local.y,node.local.z],
                     target=None if bridge.pose is None else bridge.transform((
                         bridge.pose.pose.position.x, bridge.pose.pose.position.y,
@@ -293,10 +367,14 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                     rectangles = ((3.65, 4.35, 1.65, 2.35),
                                   (3.65, 4.35, -2.35, -1.65),
                                   (6.5, 7.5, -.4, .4))
-                    clearance = (float(clearances([[x, y]], obstacles)[0]) if obstacles else
-                                 min(math.hypot(max(x-xmax, 0., xmin-x),
-                                                max(y-ymax, 0., ymin-y))
-                                     for xmin, xmax, ymin, ymax in rectangles))
+                    if node.mesh_guard is not None:
+                        clearance=node.mesh_clearance_m
+                    elif obstacles:
+                        clearance=node.obstacle_clearance_m
+                    else:
+                        clearance=min(math.hypot(max(x-xmax,0.,xmin-x),
+                                                max(y-ymax,0.,ymin-y))
+                                      for xmin,xmax,ymin,ymax in rectangles)
                     result.setdefault('obstacle_clearance_samples_m', []).append(clearance)
                     if clearance < .55:
                         raise RuntimeError(f'obstacle clearance below 0.55 m: {clearance:.3f} m')
@@ -305,7 +383,21 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                 next_tick = now+.05
         else:
             raise RuntimeError('EGO trajectory did not finish before its bounded deadline; '+bridge.health())
+    except Exception as exc:
+        # Preserve the detection instant before ROS entity teardown. DDS
+        # destruction can take >100 ms; the later main-level abort event alone
+        # would overstate receipt age at the actual guard decision.
+        result['execution_fault_detection'] = dict(
+            wall_ns=time.monotonic_ns(),sim_ns=node.get_clock().now().nanoseconds,
+            reason=str(exc),odom_measurement_age_sec=node.odom_age(),
+            odom_receipt_age_sec=time.monotonic()-node.odom_wall)
+        raise
     finally:
+        if audit_path:
+            executor.timing_audit.restore()
+            # Serializing the trace can take hundreds of milliseconds. Keep it
+            # in memory until after disarm; never block active flight for I/O.
+            node.completed_executor_audit=executor.timing_audit
         for n in (node, preview, bridge):
             executor.remove_node(n)
         executor.shutdown()
@@ -333,6 +425,8 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--execution-executor', choices=('ready-batch', 'events'), default='ready-batch',
+                        help='Optional experimental Jazzy event executor for isolated SITL')
     parser.add_argument('--output-prefix', required=True)
     parser.add_argument('--goal-distance-m', type=float, default=.5)
     parser.add_argument('--goal-y-offset-m', type=float, default=0.0)
@@ -346,6 +440,7 @@ def main():
     parser.add_argument('--freeze-tracking-yaw', action='store_true')
     parser.add_argument('--max-initial-yaw-disagreement-deg', type=float, default=5.)
     parser.add_argument('--route-json', type=Path)
+    parser.add_argument('--executor-audit',action='store_true')
     args = parser.parse_args()
     if not math.isfinite(args.max_initial_yaw_disagreement_deg) or not 0 < args.max_initial_yaw_disagreement_deg <= 20.:
         parser.error('Initial yaw disagreement must be finite and in (0,20] degrees')
@@ -367,9 +462,12 @@ def main():
                     max_estimator_xy_disagreement_m=args.max_estimator_xy_disagreement_m,
                     max_tracking_error_m=args.max_tracking_error_m))
     result['test_configuration']['velocity_feedforward'] = args.velocity_feedforward
+    result['test_configuration']['execution_executor'] = args.execution_executor
     result['test_configuration']['freeze_tracking_yaw'] = args.freeze_tracking_yaw
     result['test_configuration']['max_initial_yaw_disagreement_deg'] = args.max_initial_yaw_disagreement_deg
+    if args.executor_audit:result['executor_audit_path']=args.output_prefix+'_executor_audit.json'
     result['obstacle_geometry'] = obstacles
+    result['mesh_guard_configuration'] = (node.mesh_guard.metadata if node.mesh_guard is not None else None)
     max_tracking_error_m = args.max_tracking_error_m
     sim = Parameter('use_sim_time', value=True)
     namespace = Parameter('px4_namespace', value=os.environ.get('ASTRA_PX4_NAMESPACE', 'x500_0'))
@@ -401,6 +499,8 @@ def main():
             bool(node.status and node.status.arming_state != VehicleStatus.ARMING_STATE_ARMED))
         result['events'] = node.events
         result['ground_height_alignment'] = node.ground_alignment.summary() if node.ground_alignment else None
+        if args.executor_audit and hasattr(node,'completed_executor_audit'):
+            node.completed_executor_audit.save(result['executor_audit_path'])
         Path(args.output_prefix+'_events.json').write_text(json.dumps(result, indent=2)+'\n')
         if node.rows:
             with open(args.output_prefix+'_sent.csv', 'w') as stream:

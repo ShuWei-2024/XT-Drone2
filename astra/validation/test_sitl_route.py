@@ -58,3 +58,12 @@ def test_absent_group_is_already_clean(monkeypatch):
     def absent(*args):raise ProcessLookupError()
     monkeypatch.setattr(module.os,'killpg',absent)
     module.signal_owned_group(SimpleNamespace(pid=1234),signal.SIGTERM)
+
+
+@pytest.mark.parametrize('mode', ['timer', 'small', 'obstacle'])
+def test_scan_rejects_unprepared_flight_modes_and_missing_indoor_route(monkeypatch, mode):
+    monkeypatch.setattr(module.sys, 'argv', ['run_sitl_117', mode, 'scan_test',
+                                           '--world-preset', 'replica-office0'])
+    with pytest.raises(SystemExit) as exc:
+        module.main()
+    assert exc.value.code == 2

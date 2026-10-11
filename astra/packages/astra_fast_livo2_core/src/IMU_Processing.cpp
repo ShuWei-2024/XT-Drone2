@@ -45,6 +45,8 @@ void ImuProcess::Reset()
   imu_need_init = true;
   init_iter_num = 1;
   IMUpose.clear();
+  last_prop_end_time = -1.0;
+  imu_time_init = false;
   last_imu.reset(new sensor_msgs::msg::Imu());
   cur_pcl_un_.reset(new PointCloudXYZI());
 }
@@ -254,6 +256,8 @@ void ImuProcess::UndistortPcl(LidarMeasureGroup &lidar_meas, StatesGroup &state_
   // printf("[ IMU ] lidar_scan_index_now: %d \n", lidar_meas.lidar_scan_index_now);
 
   const double prop_end_time = lidar_meas.lio_vio_flg == LIO ? meas.lio_time : meas.vio_time;
+  audit_prop_begin = prop_beg_time;
+  audit_prop_end = prop_end_time;
 
   /*** cut lidar point based on the propagation-start time and required
    * propagation-end time ***/
@@ -441,6 +445,7 @@ void ImuProcess::UndistortPcl(LidarMeasureGroup &lidar_meas, StatesGroup &state_
   }
 
   state_inout.vel_end = vel_imu;
+  audit_integrated_dt = dt_all;
   state_inout.rot_end = R_imu;
   state_inout.pos_end = pos_imu;
   state_inout.inv_expo_time = tau;
@@ -544,6 +549,8 @@ void ImuProcess::UndistortPcl(LidarMeasureGroup &lidar_meas, StatesGroup &state_
 
 void ImuProcess::Process2(LidarMeasureGroup &lidar_meas, StatesGroup &stat, PointCloudXYZI::Ptr cur_pcl_un_)
 {
+  audit_prop_begin = audit_prop_end = -1.0;
+  audit_integrated_dt = 0.0;
   double t1, t2, t3;
   t1 = omp_get_wtime();
   rcpputils::assert_true(lidar_meas.lidar != nullptr);
@@ -563,6 +570,9 @@ void ImuProcess::Process2(LidarMeasureGroup &lidar_meas, StatesGroup &stat, Poin
     if (meas.imu.empty()) { return; };
     /// The very first lidar frame
     IMU_init(meas, stat, init_iter_num);
+    // The initialized state belongs to this measurement. Never read an
+    // uninitialized propagation origin on the first subsequent update.
+    last_prop_end_time = pcl_end_time;
 
     imu_need_init = true;
 

@@ -51,6 +51,8 @@ public:
 
   ofstream fout_imu;
   double IMU_mean_acc_norm;
+  // Diagnostic propagation coverage, reset for each Process2 call.
+  double audit_prop_begin = -1.0, audit_prop_end = -1.0, audit_integrated_dt = 0.0;
   V3D unbiased_gyr;
 
   V3D cov_acc;
@@ -78,7 +80,7 @@ private:
   V3D mean_gyr;
   V3D angvel_last;
   V3D acc_s_last;
-  double last_prop_end_time;
+  double last_prop_end_time = -1.0;
   double time_last_scan;
   int init_iter_num = 1, MAX_INI_COUNT = 20;
   bool b_first_frame = true;

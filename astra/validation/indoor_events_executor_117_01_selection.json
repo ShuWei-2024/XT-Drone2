@@ -1,0 +1,75 @@
+{
+  "scope": "Diagnostic sampled setpoints only. Exact pose timestamps and position agreement identify splines; sparse samples do not certify continuous execution clearance. No original full-trajectory or physical-flight verdict is changed.",
+  "run": "indoor_events_executor_117_01",
+  "full_route_verified": false,
+  "tracking_samples": 5258,
+  "samples_with_exact_pose_time": 0,
+  "matched_samples": 0,
+  "unresolved_samples": 5258,
+  "published_trajectories_below_limit": [
+    {
+      "index": 115,
+      "traj_id": null,
+      "start_ns": 229724000000,
+      "published_continuous_clearance_lower_bound_m": 0.4759391861654688,
+      "matched_sample_count": 0,
+      "first_sampled_below_limit_elapsed_sec": 75.82066183317264
+    },
+    {
+      "index": 116,
+      "traj_id": null,
+      "start_ns": 230744000000,
+      "published_continuous_clearance_lower_bound_m": 0.461504313939098,
+      "matched_sample_count": 0,
+      "first_sampled_below_limit_elapsed_sec": 52.730000000000004
+    },
+    {
+      "index": 117,
+      "traj_id": null,
+      "start_ns": 231764000000,
+      "published_continuous_clearance_lower_bound_m": 0.4526177177325817,
+      "matched_sample_count": 0,
+      "first_sampled_below_limit_elapsed_sec": 51.615
+    },
+    {
+      "index": 118,
+      "traj_id": null,
+      "start_ns": 232784000000,
+      "published_continuous_clearance_lower_bound_m": 0.4530242111363758,
+      "matched_sample_count": 0,
+      "first_sampled_below_limit_elapsed_sec": 50.065
+    },
+    {
+      "index": 119,
+      "traj_id": null,
+      "start_ns": 233804000000,
+      "published_continuous_clearance_lower_bound_m": 0.4676501081414495,
+      "matched_sample_count": 0,
+      "first_sampled_below_limit_elapsed_sec": 49.475
+    },
+    {
+      "index": 120,
+      "traj_id": null,
+      "start_ns": 234820000000,
+      "published_continuous_clearance_lower_bound_m": 0.4810754748712325,
+      "matched_sample_count": 0,
+      "first_sampled_below_limit_elapsed_sec": 48.56
+    },
+    {
+      "index": 121,
+      "traj_id": null,
+      "start_ns": 235836000000,
+      "published_continuous_clearance_lower_bound_m": 0.5212422173185092,
+      "matched_sample_count": 0,
+      "first_sampled_below_limit_elapsed_sec": 47.480000000000004
+    },
+    {
+      "index": 122,
+      "traj_id": null,
+      "start_ns": 236856000000,
+      "published_continuous_clearance_lower_bound_m": 0.5286439641455354,
+      "matched_sample_count": 0,
+      "first_sampled_below_limit_elapsed_sec": 46.935
+    }
+  ]
+}

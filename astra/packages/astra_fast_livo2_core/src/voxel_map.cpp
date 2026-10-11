@@ -11,6 +11,8 @@ which is included as part of this source code package.
 */
 
 #include "voxel_map.h"
+#include "voxel_coordinates.h"
+#include "plane_quality.h"
 using namespace Eigen;
 void calcBodyCov(Eigen::Vector3d &pb, const float range_inc, const float degree_inc, Eigen::Matrix3d &cov)
 {
@@ -40,6 +42,8 @@ void loadVoxelConfig(rclcpp::Node::SharedPtr &node, VoxelMapConfig &voxel_config
   node->declare_parameter<int>("lio.max_layer", 1);
   node->declare_parameter<double>("lio.voxel_size", 0.5);
   node->declare_parameter<double>("lio.min_eigen_value", 0.01);
+  node->declare_parameter<double>("lio.max_plane_eigen_ratio", 0.0);
+  node->declare_parameter<double>("lio.min_plane_extent_ratio", 0.0);
   node->declare_parameter<double>("lio.sigma_num", 3);
   node->declare_parameter<double>("lio.beam_err", 0.02);
   node->declare_parameter<double>("lio.dept_err", 0.05);
@@ -57,6 +61,11 @@ void loadVoxelConfig(rclcpp::Node::SharedPtr &node, VoxelMapConfig &voxel_config
   node->get_parameter("lio.max_layer", voxel_config.max_layer_);
   node->get_parameter("lio.voxel_size", voxel_config.max_voxel_size_);
   node->get_parameter("lio.min_eigen_value", voxel_config.planner_threshold_);
+  node->get_parameter("lio.max_plane_eigen_ratio", voxel_config.max_plane_eigen_ratio_);
+  node->get_parameter("lio.min_plane_extent_ratio", voxel_config.min_plane_extent_ratio_);
+  for (double ratio : {voxel_config.max_plane_eigen_ratio_, voxel_config.min_plane_extent_ratio_})
+    if (!std::isfinite(ratio) || ratio < 0. || ratio > 1.)
+      throw std::invalid_argument("plane eigenvalue ratios must be finite and in [0, 1]");
   node->get_parameter("lio.sigma_num", voxel_config.sigma_num_);
   node->get_parameter("lio.beam_err", voxel_config.beam_err_);
   node->get_parameter("lio.dept_err", voxel_config.dept_err_);
@@ -76,6 +85,12 @@ void VoxelOctoTree::init_plane(const std::vector<pointWithVar> &points, VoxelPla
   plane->normal_ = Eigen::Vector3d::Zero();
   plane->points_size_ = points.size();
   plane->radius_ = 0;
+  if (points.empty())
+  {
+    plane->is_plane_ = false;
+    plane->is_update_ = true;
+    return;
+  }
   for (auto pv : points)
   {
     plane->covariance_ += pv.point_w * pv.point_w.transpose();
@@ -83,15 +98,15 @@ void VoxelOctoTree::init_plane(const std::vector<pointWithVar> &points, VoxelPla
   }
   plane->center_ = plane->center_ / plane->points_size_;
   plane->covariance_ = plane->covariance_ / plane->points_size_ - plane->center_ * plane->center_.transpose();
-  Eigen::EigenSolver<Eigen::Matrix3d> es(plane->covariance_);
-  Eigen::Matrix3cd evecs = es.eigenvectors();
-  Eigen::Vector3cd evals = es.eigenvalues();
   Eigen::Vector3d evalsReal;
-  evalsReal = evals.real();
-  Eigen::Matrix3f::Index evalsMin, evalsMax;
-  evalsReal.rowwise().sum().minCoeff(&evalsMin);
-  evalsReal.rowwise().sum().maxCoeff(&evalsMax);
-  int evalsMid = 3 - evalsMin - evalsMax;
+  Eigen::Matrix3d evecs;
+  if (!ordered_plane_spectrum(plane->covariance_, evalsReal, evecs))
+  {
+    plane->is_plane_ = false;
+    plane->is_update_ = true;
+    return;
+  }
+  constexpr int evalsMin = 0, evalsMid = 1, evalsMax = 2;
   Eigen::Vector3d evecMin = evecs.real().col(evalsMin);
   Eigen::Vector3d evecMid = evecs.real().col(evalsMid);
   Eigen::Vector3d evecMax = evecs.real().col(evalsMax);
@@ -99,7 +114,8 @@ void VoxelOctoTree::init_plane(const std::vector<pointWithVar> &points, VoxelPla
   J_Q << 1.0 / plane->points_size_, 0, 0, 0, 1.0 / plane->points_size_, 0, 0, 0, 1.0 / plane->points_size_;
   // && evalsReal(evalsMid) > 0.05
   //&& evalsReal(evalsMid) > 0.01
-  if (evalsReal(evalsMin) < planer_threshold_)
+  if (plane_spectrum_accepted(evalsReal(evalsMin), evalsReal(evalsMid), evalsReal(evalsMax),
+                             planer_threshold_, max_plane_eigen_ratio_, min_plane_extent_ratio_))
   {
     for (int i = 0; i < points.size(); i++)
     {
@@ -192,7 +208,7 @@ void VoxelOctoTree::cut_octo_tree()
     int leafnum = 4 * xyz[0] + 2 * xyz[1] + xyz[2];
     if (leaves_[leafnum] == nullptr)
     {
-      leaves_[leafnum] = new VoxelOctoTree(max_layer_, layer_ + 1, layer_init_num_[layer_ + 1], max_points_num_, planer_threshold_);
+      leaves_[leafnum] = new VoxelOctoTree(max_layer_, layer_ + 1, layer_init_num_[layer_ + 1], max_points_num_, planer_threshold_, max_plane_eigen_ratio_, min_plane_extent_ratio_);
       leaves_[leafnum]->layer_init_num_ = layer_init_num_;
       leaves_[leafnum]->voxel_center_[0] = voxel_center_[0] + (2 * xyz[0] - 1) * quater_length_;
       leaves_[leafnum]->voxel_center_[1] = voxel_center_[1] + (2 * xyz[1] - 1) * quater_length_;
@@ -273,7 +289,7 @@ void VoxelOctoTree::UpdateOctoTree(const pointWithVar &pv)
         if (leaves_[leafnum] != nullptr) { leaves_[leafnum]->UpdateOctoTree(pv); }
         else
         {
-          leaves_[leafnum] = new VoxelOctoTree(max_layer_, layer_ + 1, layer_init_num_[layer_ + 1], max_points_num_, planer_threshold_);
+          leaves_[leafnum] = new VoxelOctoTree(max_layer_, layer_ + 1, layer_init_num_[layer_ + 1], max_points_num_, planer_threshold_, max_plane_eigen_ratio_, min_plane_extent_ratio_);
           leaves_[leafnum]->layer_init_num_ = layer_init_num_;
           leaves_[leafnum]->voxel_center_[0] = voxel_center_[0] + (2 * xyz[0] - 1) * quater_length_;
           leaves_[leafnum]->voxel_center_[1] = voxel_center_[1] + (2 * xyz[1] - 1) * quater_length_;
@@ -339,7 +355,7 @@ VoxelOctoTree *VoxelOctoTree::Insert(const pointWithVar &pv)
     if (leaves_[leafnum] != nullptr) { return leaves_[leafnum]->Insert(pv); }
     else
     {
-      leaves_[leafnum] = new VoxelOctoTree(max_layer_, layer_ + 1, layer_init_num_[layer_ + 1], max_points_num_, planer_threshold_);
+      leaves_[leafnum] = new VoxelOctoTree(max_layer_, layer_ + 1, layer_init_num_[layer_ + 1], max_points_num_, planer_threshold_, max_plane_eigen_ratio_, min_plane_extent_ratio_);
       leaves_[leafnum]->layer_init_num_ = layer_init_num_;
       leaves_[leafnum]->voxel_center_[0] = voxel_center_[0] + (2 * xyz[0] - 1) * quater_length_;
       leaves_[leafnum]->voxel_center_[1] = voxel_center_[1] + (2 * xyz[1] - 1) * quater_length_;
@@ -574,11 +590,10 @@ void VoxelMapManager::BuildVoxelMap()
   for (uint i = 0; i < plsize; i++)
   {
     const pointWithVar p_v = input_points[i];
-    float loc_xyz[3];
+    std::int64_t loc_xyz[3];
     for (int j = 0; j < 3; j++)
     {
-      loc_xyz[j] = p_v.point_w[j] / voxel_size;
-      if (loc_xyz[j] < 0) { loc_xyz[j] -= 1.0; }
+      loc_xyz[j] = voxel_coordinate(p_v.point_w[j], voxel_size);
     }
     VOXEL_LOCATION position((int64_t)loc_xyz[0], (int64_t)loc_xyz[1], (int64_t)loc_xyz[2]);
     auto iter = voxel_map_.find(position);
@@ -589,7 +604,8 @@ void VoxelMapManager::BuildVoxelMap()
     }
     else
     {
-      VoxelOctoTree *octo_tree = new VoxelOctoTree(max_layer, 0, layer_init_num[0], max_points_num, planer_threshold);
+      VoxelOctoTree *octo_tree = new VoxelOctoTree(max_layer, 0, layer_init_num[0], max_points_num, planer_threshold,
+          config_setting_.max_plane_eigen_ratio_, config_setting_.min_plane_extent_ratio_);
       voxel_map_[position] = octo_tree;
       voxel_map_[position]->quater_length_ = voxel_size / 4;
       voxel_map_[position]->voxel_center_[0] = (0.5 + position.x) * voxel_size;
@@ -633,18 +649,18 @@ void VoxelMapManager::UpdateVoxelMap(const std::vector<pointWithVar> &input_poin
   for (uint i = 0; i < plsize; i++)
   {
     const pointWithVar p_v = input_points[i];
-    float loc_xyz[3];
+    std::int64_t loc_xyz[3];
     for (int j = 0; j < 3; j++)
     {
-      loc_xyz[j] = p_v.point_w[j] / voxel_size;
-      if (loc_xyz[j] < 0) { loc_xyz[j] -= 1.0; }
+      loc_xyz[j] = voxel_coordinate(p_v.point_w[j], voxel_size);
     }
     VOXEL_LOCATION position((int64_t)loc_xyz[0], (int64_t)loc_xyz[1], (int64_t)loc_xyz[2]);
     auto iter = voxel_map_.find(position);
     if (iter != voxel_map_.end()) { voxel_map_[position]->UpdateOctoTree(p_v); }
     else
     {
-      VoxelOctoTree *octo_tree = new VoxelOctoTree(max_layer, 0, layer_init_num[0], max_points_num, planer_threshold);
+      VoxelOctoTree *octo_tree = new VoxelOctoTree(max_layer, 0, layer_init_num[0], max_points_num, planer_threshold,
+          config_setting_.max_plane_eigen_ratio_, config_setting_.min_plane_extent_ratio_);
       voxel_map_[position] = octo_tree;
       voxel_map_[position]->layer_init_num_ = layer_init_num;
       voxel_map_[position]->quater_length_ = voxel_size / 4;
@@ -678,11 +694,10 @@ void VoxelMapManager::BuildResidualListOMP(std::vector<pointWithVar> &pv_list, s
   for (int i = 0; i < index.size(); i++)
   {
     pointWithVar &pv = pv_list[i];
-    float loc_xyz[3];
+    std::int64_t loc_xyz[3];
     for (int j = 0; j < 3; j++)
     {
-      loc_xyz[j] = pv.point_w[j] / voxel_size;
-      if (loc_xyz[j] < 0) { loc_xyz[j] -= 1.0; }
+      loc_xyz[j] = voxel_coordinate(pv.point_w[j], voxel_size);
     }
     VOXEL_LOCATION position((int64_t)loc_xyz[0], (int64_t)loc_xyz[1], (int64_t)loc_xyz[2]);
     auto iter = voxel_map_.find(position);
@@ -696,12 +711,9 @@ void VoxelMapManager::BuildResidualListOMP(std::vector<pointWithVar> &pv_list, s
       if (!is_sucess)
       {
         VOXEL_LOCATION near_position = position;
-        if (loc_xyz[0] > (current_octo->voxel_center_[0] + current_octo->quater_length_)) { near_position.x = near_position.x + 1; }
-        else if (loc_xyz[0] < (current_octo->voxel_center_[0] - current_octo->quater_length_)) { near_position.x = near_position.x - 1; }
-        if (loc_xyz[1] > (current_octo->voxel_center_[1] + current_octo->quater_length_)) { near_position.y = near_position.y + 1; }
-        else if (loc_xyz[1] < (current_octo->voxel_center_[1] - current_octo->quater_length_)) { near_position.y = near_position.y - 1; }
-        if (loc_xyz[2] > (current_octo->voxel_center_[2] + current_octo->quater_length_)) { near_position.z = near_position.z + 1; }
-        else if (loc_xyz[2] < (current_octo->voxel_center_[2] - current_octo->quater_length_)) { near_position.z = near_position.z - 1; }
+        near_position.x += neighbouring_voxel_offset(pv.point_w[0], current_octo->voxel_center_[0], current_octo->quater_length_);
+        near_position.y += neighbouring_voxel_offset(pv.point_w[1], current_octo->voxel_center_[1], current_octo->quater_length_);
+        near_position.z += neighbouring_voxel_offset(pv.point_w[2], current_octo->voxel_center_[2], current_octo->quater_length_);
         auto iter_near = voxel_map_.find(near_position);
         if (iter_near != voxel_map_.end()) { build_single_residual(pv, iter_near->second, 0, is_sucess, prob, single_ptpl); }
       }
@@ -766,6 +778,9 @@ void VoxelMapManager::build_single_residual(pointWithVar &pv, const VoxelOctoTre
           single_ptpl.center_ = plane.center_;
           single_ptpl.d_ = plane.d_;
           single_ptpl.layer_ = current_layer;
+          single_ptpl.eigen_value_ = plane.min_eigen_value_;
+          single_ptpl.middle_eigen_value_ = plane.mid_eigen_value_;
+          single_ptpl.maximum_eigen_value_ = plane.max_eigen_value_;
           single_ptpl.dis_to_plane_ = plane.normal_(0) * p_w(0) + plane.normal_(1) * p_w(1) + plane.normal_(2) * p_w(2) + plane.d_;
         }
         return;
@@ -948,11 +963,10 @@ void VoxelMapManager::mapSliding()
   //get global id now
   last_slide_position = position_last_;
   double t_sliding_start = omp_get_wtime();
-  float loc_xyz[3];
+  std::int64_t loc_xyz[3];
   for (int j = 0; j < 3; j++)
   {
-    loc_xyz[j] = position_last_[j] / config_setting_.max_voxel_size_;
-    if (loc_xyz[j] < 0) { loc_xyz[j] -= 1.0; }
+    loc_xyz[j] = voxel_coordinate(position_last_[j], config_setting_.max_voxel_size_);
   }
   // VOXEL_LOCATION position((int64_t)loc_xyz[0], (int64_t)loc_xyz[1], (int64_t)loc_xyz[2]);//discrete global
   clearMemOutOfMap((int64_t)loc_xyz[0] + config_setting_.half_map_size, (int64_t)loc_xyz[0] - config_setting_.half_map_size,

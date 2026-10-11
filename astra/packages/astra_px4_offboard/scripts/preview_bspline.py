@@ -16,7 +16,7 @@ from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from scipy.interpolate import BSpline
-from std_msgs.msg import Bool, Empty, String
+from std_msgs.msg import Bool, Empty, String, Int64
 from traj_utils.msg import Bspline as BsplineMsg
 
 
@@ -78,6 +78,8 @@ class PreviewBspline(Node):
         self.hold_pose = None
         self.spline = None
         self.trajectory_start_ns = None
+        self.trajectory_id = None
+        self.completed_trajectory_id = None
         self.span = None
         self.mode = None
 
@@ -89,6 +91,7 @@ class PreviewBspline(Node):
         self.create_subscription(Empty, '/planning/heartbeat', self.on_planner_heartbeat, 10)
         self.create_subscription(Odometry, '/fast_livo2/odom', self.on_odom, 10)
         self.create_subscription(BsplineMsg, '/planning/bspline', self.on_trajectory, 10)
+        self.create_subscription(Int64, '/planning/trajectory_completed', self.on_completed, 10)
         self.create_subscription(VehicleLocalPosition, px4_topic(
             'out', 'vehicle_local_position', VehicleLocalPosition,
             self.get_parameter('px4_namespace').value),
@@ -142,6 +145,10 @@ class PreviewBspline(Node):
         self.spline = spline
         self.span = start, end
         self.trajectory_start_ns = stamp_ns(msg.start_time)
+        self.trajectory_id = msg.traj_id
+
+    def on_completed(self, msg):
+        self.completed_trajectory_id = msg.data
 
     def fresh(self, last, max_age):
         return last is not None and time.monotonic() - last <= max_age

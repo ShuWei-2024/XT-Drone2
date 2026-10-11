@@ -1542,8 +1542,8 @@ namespace ego_planner
   {
     iter_num_ = 0;
     int start_id = order_;
-    // int end_id = this->cps_.size - order_; //Fixed end
-    int end_id = this->cps_.size; // Free end
+    // Preserve a requested stop; a free tail can optimize away zero velocity.
+    int end_id = stationary_terminal_ ? this->cps_.size - order_ : this->cps_.size;
     // 变量个数
     variable_num_ = 3 * (end_id - start_id);
 

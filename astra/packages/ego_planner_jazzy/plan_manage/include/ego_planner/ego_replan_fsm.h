@@ -11,6 +11,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/empty.hpp"
 #include "std_msgs/msg/bool.hpp"
+#include "std_msgs/msg/int64.hpp"
 #include <vector>
 #include "visualization_msgs/msg/marker.hpp"
 
@@ -103,6 +104,7 @@ namespace ego_planner
     // rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr new_pub_;
     rclcpp::Publisher<traj_utils::msg::Bspline>::SharedPtr bspline_pub_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr trajectory_valid_pub_;
+    rclcpp::Publisher<std_msgs::msg::Int64>::SharedPtr trajectory_completed_pub_;
     rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr heartbeat_pub_;
     rclcpp::Publisher<traj_utils::msg::DataDisp>::SharedPtr data_disp_pub_;
     rclcpp::Publisher<traj_utils::msg::MultiBsplines>::SharedPtr swarm_trajs_pub_;

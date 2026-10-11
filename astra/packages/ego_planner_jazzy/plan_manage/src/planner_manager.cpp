@@ -1,6 +1,7 @@
 // #include <fstream>
 #include <ego_planner/planner_manager.h>
 #include <thread>
+#include <bspline_opt/stationary_terminal.h>
 #include "visualization_msgs/msg/marker.hpp" // zx-todo
 
 namespace ego_planner
@@ -13,6 +14,9 @@ namespace ego_planner
   void EGOPlannerManager::initPlanModules(rclcpp::Node::SharedPtr &node, PlanningVisualization::Ptr vis)
   {
     node_ = node;
+    min_goal_distance_m_ = node->declare_parameter("manager/min_goal_distance_m", 0.2);
+    if (!std::isfinite(min_goal_distance_m_) || min_goal_distance_m_ <= 0.0)
+      throw std::invalid_argument("minimum goal distance must be positive and finite");
     node->declare_parameter("manager/max_vel", -1.0);
     node->declare_parameter("manager/max_acc", -1.0);
     node->declare_parameter("manager/max_jerk", -1.0);
@@ -53,7 +57,7 @@ namespace ego_planner
     static int count = 0;
     printf("\033[47;30m\n[drone %d replan %d]==============================================\033[0m\n", pp_.drone_id, count++);
 
-    if ((start_pt - local_target_pt).norm() < 0.2)
+    if ((start_pt - local_target_pt).norm() < min_goal_distance_m_)
     {
       cout << "Close to goal" << endl;
       continous_failures_count_++;
@@ -61,6 +65,7 @@ namespace ego_planner
     }
 
     bspline_optimizer_->setLocalTargetPt(local_target_pt);
+    bspline_optimizer_->setStationaryTerminal(local_target_vel.norm() < 1e-6);
 
     rclcpp::Time t_start = node_->now();
     rclcpp::Duration t_init(0, 0), t_opt(0, 0), t_refine(0, 0);
@@ -237,6 +242,8 @@ namespace ego_planner
     // 将轨迹变为B样条轨迹
     Eigen::MatrixXd ctrl_pts, ctrl_pts_temp;
     UniformBspline::parameterizeToBspline(ts, point_set, start_end_derivatives, ctrl_pts);
+    if (bspline_optimizer_->stationaryTerminal())
+      pinStationaryTerminal(ctrl_pts, local_target_pt);
     RCLCPP_INFO(node_->get_logger(), "Trajectory seed sampled: %zu points; starting optimization", point_set.size());
 
     vector<std::pair<int, int>> segments;
@@ -620,6 +627,8 @@ namespace ego_planner
       point_set.push_back(bspline.evaluateDeBoorT(time));
     }
     UniformBspline::parameterizeToBspline(dt, point_set, start_end_derivative, ctrl_pts);
+    if (bspline_optimizer_->stationaryTerminal())
+      pinStationaryTerminal(ctrl_pts, bspline.evaluateDeBoorT(duration));
   }
 
 } // namespace ego_planner

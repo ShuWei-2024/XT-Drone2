@@ -49,7 +49,20 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('mode',choices=['timer','static','small','obstacle'])
     p.add_argument('name');p.add_argument('--seconds',type=float,default=60.)
+    p.add_argument('--world-preset',choices=['geometry-rich','indoor-hall','replica-office0'],default='geometry-rich',
+                   help='Replica supports static checks or the prepared guarded indoor obstacle route')
     p.add_argument('--calibrate-ground-height',action='store_true')
+    p.add_argument('--lio-only-diagnostic',action='store_true',
+                   help='Isolated comparison: disable image updates in the copied estimator config')
+    p.add_argument('--lio-voxel-size-m',type=float,choices=[.25,.5],default=.5,
+                   help='Isolated plane-map resolution comparison; default retains 0.5 m')
+    p.add_argument('--plane-quality-diagnostic',action='store_true',
+                   help='Copied config only: reject thick or line-like plane fits; subdivide rejected voxels')
+    p.add_argument('--capture-scan-inputs',action='store_true',
+                   help='Sparse raw cloud and IMU/pose capture for offline sensor geometry audit')
+    p.add_argument('--executor-audit',action='store_true',help='Trace flight callbacks and DDS queue timestamps')
+    p.add_argument('--execution-executor',choices=['ready-batch','events'],default='ready-batch',
+                   help='Optional experimental Jazzy event executor; isolated obstacle SITL only')
     p.add_argument('--route-json',type=Path,
                    help='Obstacle test goal offsets; up to 8 goals, each bounded to 7 m')
     p.add_argument('--stop-map-after-handoff-s',type=float,
@@ -63,10 +76,34 @@ def main():
                    help='Diagnostic noise ablation only; normal simulation retains 3 Pa. '
                         '0 Pa can trigger PX4 stuck-sensor detection; use 0.05 Pa for low-noise diagnosis')
     a=p.parse_args()
+    if a.execution_executor=='events' and a.mode!='obstacle':
+        p.error('Event executor candidate is restricted to isolated obstacle SITL')
+    replica_dir=REPO/'astra/runtime/maps/replica_office0'
+    if a.world_preset=='replica-office0':
+        if a.mode not in ('static','obstacle'):
+            p.error('Replica office0 requires static mode or its prepared mesh-guarded obstacle route')
+        if a.mode=='obstacle' and not a.route_json:
+            p.error('Replica flight requires an explicit prepared indoor route')
+        if not (replica_dir/'manifest.json').is_file():
+            p.error('Prepare the scan first with astra/tools/prepare_replica_office0.py')
+        manifest=json.loads((replica_dir/'manifest.json').read_text())
+        for asset,digest in manifest['asset_sha256'].items():
+            if hashlib.sha256((replica_dir/'replica_office0/meshes'/asset).read_bytes()).hexdigest()!=digest:
+                p.error('Converted Replica asset changed: '+asset)
     if a.route_json and a.mode!='obstacle':p.error('Custom routes require obstacle mode')
     try:
         route_offsets=load_route(a.route_json) if a.route_json else [[5,3],[0,0]]
     except (OSError,ValueError) as exc:p.error(str(exc))
+    if a.world_preset=='replica-office0' and a.mode=='obstacle':
+        try:
+            flight_precheck=json.loads((replica_dir/'flight_precheck.json').read_text())
+            if (route_offsets!=flight_precheck['route_offsets_m'] or
+                flight_precheck['collision_sha256']!=manifest['asset_sha256']['collision.stl'] or
+                hashlib.sha256((replica_dir/'world.sdf').read_bytes()).hexdigest()!=flight_precheck['world_sha256'] or
+                hashlib.sha256((replica_dir/'replica_office0/model.sdf').read_bytes()).hexdigest()!=flight_precheck['model_sdf_sha256'] or
+                hashlib.sha256((replica_dir/'mesh_guard.npz').read_bytes()).hexdigest()!=flight_precheck['guard_sha256']):
+                p.error('Replica route or guard differs from the prepared flight precheck')
+        except (OSError,ValueError) as exc:p.error('Prepare scan flight first: '+str(exc))
     flight_timeout=max(330.,150.+100.*len(route_offsets)) if a.mode=='obstacle' else 330.
     if a.stop_map_after_handoff_s is not None and (a.mode!='obstacle' or
             not 1. <= a.stop_map_after_handoff_s <= 10.):
@@ -88,7 +125,31 @@ def main():
             p.error(f'Existing simulation process {proc.name}; stop it first')
     out=REPO/'astra/runtime'/a.name;out.mkdir(parents=True,exist_ok=False)
     shutil.copy2(Path(__file__),out/'runner.py')
+    snapshot=out/'execution_sources';snapshot.mkdir()
+    source_paths=list((REPO/'astra/tools').glob('*.py'))
+    source_paths += list((REPO/'astra/packages/astra_px4_offboard/scripts').glob('*.py'))
+    source_paths += list((REPO/'astra/packages/astra_fast_livo2/launch').glob('*.py'))
+    source_paths += list((REPO/'astra/packages/astra_fast_livo2/scripts').glob('*.py'))
+    execution_hashes={}
+    for source in source_paths:
+        relative=source.relative_to(REPO);dest=snapshot/relative
+        dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,dest)
+        execution_hashes[str(relative)]=hashlib.sha256(source.read_bytes()).hexdigest()
+    for relative in ('install_117/astra_fast_livo2_core/lib/astra_fast_livo2_core/fastlivo_mapping',
+                     'install_117/ego_planner/lib/ego_planner/ego_planner_node'):
+        execution_hashes[relative]=hashlib.sha256((REPO/relative).read_bytes()).hexdigest()
+    (snapshot/'manifest.json').write_text(json.dumps(dict(captured='before simulator start',
+        sha256=execution_hashes),indent=2)+'\n')
     shutil.copy2(REPO/'astra/config/estimator_self_filtered.yaml', out/'estimator_config.yaml')
+    if a.lio_only_diagnostic or a.lio_voxel_size_m != .5 or a.plane_quality_diagnostic:
+        import yaml
+        config=yaml.safe_load((out/'estimator_config.yaml').read_text())
+        if a.lio_only_diagnostic:config['/**']['ros__parameters']['common']['img_en']=0
+        config['/**']['ros__parameters']['lio']['voxel_size']=a.lio_voxel_size_m
+        if a.plane_quality_diagnostic:
+            config['/**']['ros__parameters']['lio']['max_plane_eigen_ratio']=.1
+            config['/**']['ros__parameters']['lio']['min_plane_extent_ratio']=.01
+        (out/'estimator_config.yaml').write_text(yaml.safe_dump(config,sort_keys=False))
     tools=REPO/'astra/tools';processes=[];streams=[]
     original=json.loads((REPO/'astra/baseline/original_state.json').read_text())
     before={path:hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in original['files']}
@@ -99,6 +160,14 @@ def main():
         FASTRTPS_DEFAULT_PROFILES_FILE=str(REPO/'astra/packages/astra_fast_livo2/config/fastdds_sitl.xml'))
     models=out/'models';src=REPO/'astra/packages/astra_gz_sensors/models'
     shutil.copytree(src,models)
+    if a.world_preset=='replica-office0':
+        shutil.copytree(replica_dir/'replica_office0',models/'replica_office0')
+        scan_sdf=models/'replica_office0/model.sdf';scan_tree=ET.parse(scan_sdf)
+        for texture in scan_tree.getroot().iter('albedo_map'):
+            texture.text=str(models/'replica_office0'/texture.text)
+        scan_tree.write(scan_sdf,encoding='utf-8',xml_declaration=True)
+        shutil.copy2(replica_dir/'manifest.json',out/'map_manifest.json')
+        shutil.copy2(replica_dir/'REPLICA_LICENSE.txt',out/'REPLICA_LICENSE.txt')
     # The official Harmonic model's magnetic noise is expressed in gauss.
     # This world's explicit tesla convention requires the same noise scaled
     # by 1e-4. Copy the base model into this run, preserving official sources.
@@ -116,16 +185,28 @@ def main():
         for s in list(link.findall('sensor')):
             if s.get('type')=='depth_camera':link.remove(s)
     tree.write(sensor,encoding='utf-8',xml_declaration=True)
-    world=out/'test_world.sdf';shutil.copy2(REPO/'astra/packages/astra_gz_sensors/worlds/astra_px4_geometry_rich.sdf',world)
+    source_world=(replica_dir/'world.sdf' if a.world_preset=='replica-office0' else
+                  REPO/'astra/packages/astra_gz_sensors/worlds'/
+                  ('astra_px4_indoor_hall.sdf' if a.world_preset=='indoor-hall' else 'astra_px4_geometry_rich.sdf'))
+    world=out/'test_world.sdf';shutil.copy2(source_world,world)
     # Keep texture paths valid after copying the world.
     shutil.copytree(REPO/'astra/packages/astra_gz_sensors/worlds/textures',out/'textures')
     xml=ET.parse(world)
     for texture in xml.getroot().iter('albedo_map'):
         texture.text=str(out/'textures'/Path(texture.text).name)
     xml.write(world,encoding='utf-8',xml_declaration=True)
-    subprocess.run([sys.executable,str(tools/'obstacle_world_geometry_20261010.py'),str(world),
-                    '--output',str(out/'obstacle_geometry.json')],check=True)
-    env['ASTRA_TEST_OBSTACLE_GEOMETRY']=str(out/'obstacle_geometry.json')
+    if a.world_preset in ('geometry-rich','indoor-hall'):
+        subprocess.run([sys.executable,str(tools/'obstacle_world_geometry_20261010.py'),str(world),
+                        '--output',str(out/'obstacle_geometry.json')],check=True)
+        env['ASTRA_TEST_OBSTACLE_GEOMETRY']=str(out/'obstacle_geometry.json')
+    else:
+        env.pop('ASTRA_TEST_OBSTACLE_GEOMETRY',None)
+        if a.mode=='obstacle':
+            shutil.copy2(replica_dir/'mesh_guard.npz',out/'mesh_guard.npz')
+            shutil.copy2(replica_dir/'flight_precheck.json',out/'flight_precheck.json')
+            env['ASTRA_TEST_MESH_GUARD']=str(out/'mesh_guard.npz')
+    if a.world_preset in ('geometry-rich','indoor-hall') or a.mode=='static':
+        env.pop('ASTRA_TEST_MESH_GUARD',None)
     startup=out/'startup.sh'
     overrides={'UXRCE_DDS_SYNCT':0,'EKF2_EV_CTRL':0,'EKF2_HGT_REF':0,'EKF2_GPS_CTRL':5,
                'EKF2_MAG_TYPE':1,'EKF2_BARO_NOISE':a.baro_noise_m,'EKF2_GPS_DELAY':a.gps_delay_ms,
@@ -133,6 +214,14 @@ def main():
     env.update({f'PX4_PARAM_{key}':str(value) for key,value in overrides.items()})
     startup.write_text('. "${R}etc/init.d-posix/rcS"\n')
     runtime={'mode':a.mode,'world':str(world),'px4':str(PX4),'namespace':'x500_0',
+             'world_preset':a.world_preset,'static_only_scan':a.world_preset=='replica-office0' and a.mode=='static',
+             'mesh_guard_enabled':a.world_preset=='replica-office0' and a.mode=='obstacle',
+             'lio_only_diagnostic':a.lio_only_diagnostic,
+             'lio_voxel_size_m':a.lio_voxel_size_m,
+             'plane_quality_diagnostic':a.plane_quality_diagnostic,
+             'capture_scan_inputs':a.capture_scan_inputs,
+             'executor_audit':a.executor_audit,
+             'execution_executor':a.execution_executor,
              'px4_binary_sha256':hashlib.sha256((PX4/'build/px4_sitl_default/bin/px4').read_bytes()).hexdigest(),
              'magnetometer_convention':'Gazebo world ENU / tesla -> body FLU -> PX4 body FRD / gauss',
              'magnetometer_noise_scale_from_official_gauss_model':1.e-4,
@@ -144,7 +233,9 @@ def main():
              'sensors_depth_removed':True,'parameter_overrides':overrides,'isolated_rootfs':str(out),'ros_domain':94,'gz_partition':env['GZ_PARTITION']}
     runtime['odom_reference'] = 'base_link; internal LIVO state remains at imu_link'
     runtime['audit_truth_reference_offset_model_m'] = [0., 0., .24]
-    runtime['truth_guard_reference'] = 'outer Gazebo model pose; conservative stop only, never flight input'
+    runtime['truth_guard_reference'] = ('base_link with rotated model offset; scan mesh clearance and '
+        '0.6 s measured-motion boundary forecast' if runtime['mesh_guard_enabled'] else
+        'outer Gazebo model pose; conservative stop only, never flight input')
     (out/'runtime.json').write_text(json.dumps(runtime,indent=2)+'\n')
     subprocess.run([sys.executable,str(tools/'verify_sensor_geometry_117.py'),
                     '--models',str(models),'--px4',str(PX4),
@@ -189,7 +280,10 @@ def main():
             map_proc=start('map',['ros2','run','astra_fast_livo2','local_mapping_guard.py','--ros-args',
                  '-p','use_sim_time:=true','-p','self_filter_radius_m:=0.45'])
             start('planner',['ros2','launch','astra_fast_livo2','ego_planner_guarded.launch.py',
-                 'max_vel:=0.20','max_acc:=0.25','planning_horizon:=6.0','max_tracking_error_m:=0.60','virtual_ceiling_m:=2.3'])
+                 'max_vel:=0.10' if a.world_preset=='replica-office0' else 'max_vel:=0.20',
+                 'max_acc:=0.10' if a.world_preset=='replica-office0' else 'max_acc:=0.25',
+                 'planning_horizon:=6.0','max_tracking_error_m:=0.60','virtual_ceiling_m:=2.3',
+                 'min_goal_distance_m:=0.04' if a.world_preset=='replica-office0' else 'min_goal_distance_m:=0.20'])
             pause(12.)
             seconds=a.seconds if a.mode=='static' else flight_timeout+60.
             monitor=start('monitor',[sys.executable,str(tools/'gpu_joint_monitor.py'),'--output',str(out),
@@ -201,9 +295,17 @@ def main():
                  '--stop-file',str(out/'controller_finished')])
             health=start('health',[sys.executable,str(tools/'health_probe_117.py'),'--seconds',str(seconds),
                  '--output',str(out/'health.json'),'--stop-file',str(out/'controller_finished')])
+            scan_probe=None
+            if a.world_preset=='replica-office0':
+                scan_probe=start('scan_probe',[sys.executable,str(tools/'probe_scan_scene.py'),
+                     '--seconds',str(seconds),'--output',str(out),
+                     '--stop-file',str(out/'controller_finished')]+(['--capture-inputs'] if a.capture_scan_inputs else []))
             if a.mode=='static':
                 pause(seconds+1.);health.wait(timeout=5.)
                 result=0 if json.loads((out/'health.json').read_text())['passed'] else 1
+                if scan_probe is not None:
+                    scan_probe.wait(timeout=8.)
+                    if not json.loads((out/'scan_probe.json').read_text())['passed']:result=1
             else:
                 precheck=start('preflight_health',[sys.executable,str(tools/'health_probe_117.py'),
                     '--seconds','12','--output',str(out/'preflight_health.json')])
@@ -221,6 +323,8 @@ def main():
                          '--freeze-tracking-yaw','--max-tracking-error-m','.60','--route-json',str(route)]
                 if a.calibrate_ground_height:
                     cmd.append('--calibrate-ground-height')
+                if a.executor_audit and a.mode=='obstacle':cmd.append('--executor-audit')
+                if a.mode=='obstacle':cmd.extend(['--execution-executor',a.execution_executor])
                 driver=start('motion',cmd)
                 if a.stop_map_after_handoff_s is None:
                     result=driver.wait(timeout=flight_timeout)
@@ -258,6 +362,7 @@ def main():
                     result=0 if expected_fault else 1
                 (out/'controller_finished').touch()
             for proc in (monitor,audit,health):proc.wait(timeout=8.)
+            if scan_probe is not None:scan_probe.wait(timeout=8.)
     except Exception as exc:
         failure=f'{type(exc).__name__}: {exc}'
         print(failure,flush=True)
@@ -278,10 +383,13 @@ def main():
             proc.wait(timeout=5.)
         for stream in streams:stream.close()
         unchanged={path:hashlib.sha256(Path(path).read_bytes()).hexdigest()==h for path,h in before.items()}
+        execution_unchanged=all(hashlib.sha256((REPO/path).read_bytes()).hexdigest()==h
+                                for path,h in execution_hashes.items())
         (out/'baseline_preserved.json').write_text(json.dumps(unchanged,indent=2)+'\n')
         (out/'run_summary.json').write_text(json.dumps({
             'mode':a.mode,'exit_code':result,'failure':failure,
-            'original_baseline_preserved':all(unchanged.values())},indent=2)+'\n')
+            'original_baseline_preserved':all(unchanged.values()),
+            'execution_sources_unchanged':execution_unchanged},indent=2)+'\n')
     print(f'Run saved: {out}; result={result}',flush=True)
     raise SystemExit(result)
 

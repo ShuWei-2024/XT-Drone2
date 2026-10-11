@@ -106,6 +106,7 @@ public:
   std::string timing_audit_csv_;
   std::ofstream timing_audit_;
   std::ofstream input_callback_audit_;
+  std::ofstream match_audit_;
   void auditInputCallback(const char *event, const builtin_interfaces::msg::Time &stamp);
   uint64_t timing_audit_sequence_ = 0;
   int64_t last_odom_publish_ns_ = -1;

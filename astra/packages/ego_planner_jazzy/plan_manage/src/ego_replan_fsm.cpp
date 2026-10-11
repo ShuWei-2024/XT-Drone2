@@ -137,6 +137,8 @@ namespace ego_planner
     trajectory_valid_pub_ = node_->create_publisher<std_msgs::msg::Bool>(
         "/planning/trajectory_valid", rclcpp::QoS(1).reliable().transient_local());
     trajectory_valid_pub_->publish(std_msgs::msg::Bool().set__data(false));
+    trajectory_completed_pub_ = node_->create_publisher<std_msgs::msg::Int64>(
+        "/planning/trajectory_completed", 10);
     heartbeat_pub_ = node_->create_publisher<std_msgs::msg::Empty>("/planning/heartbeat", 10);
     heartbeat_timer_ = node_->create_wall_timer(std::chrono::milliseconds(50), [this]() {
       heartbeat_pub_->publish(std_msgs::msg::Empty());
@@ -655,6 +657,7 @@ namespace ego_planner
       {
         if (t_cur > info->duration_ - 1e-2)
         {
+          trajectory_completed_pub_->publish(std_msgs::msg::Int64().set__data(info->traj_id_));
           have_target_ = false;
           have_trigger_ = false;
           trajectory_valid_pub_->publish(std_msgs::msg::Bool().set__data(false));

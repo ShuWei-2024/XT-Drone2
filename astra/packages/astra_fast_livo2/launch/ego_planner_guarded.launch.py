@@ -21,6 +21,7 @@ def generate_launch_description():
         DeclareLaunchArgument('max_tracking_error_m', default_value='0.30'),
         DeclareLaunchArgument('ready_timeout_sec', default_value='0.30'),
         DeclareLaunchArgument('virtual_ceiling_m', default_value='2.9'),
+        DeclareLaunchArgument('min_goal_distance_m', default_value='0.20'),
         Node(
             package='ego_planner',
             executable='ego_planner_node',
@@ -61,6 +62,7 @@ def generate_launch_description():
                 'grid_map/pose_type': 1,
                 'grid_map/skip_pixel': 2,
                 'manager/max_vel': ParameterValue(max_vel, value_type=float),
+                'manager/min_goal_distance_m': ParameterValue(LaunchConfiguration('min_goal_distance_m'), value_type=float),
                 'manager/max_acc': ParameterValue(max_acc, value_type=float),
                 'manager/max_jerk': 1.0,
                 'manager/control_points_distance': 0.2,

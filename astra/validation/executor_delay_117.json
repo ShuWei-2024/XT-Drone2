@@ -1,0 +1,1229 @@
+{
+  "scope": "Isolated PX4 1.17 SITL, normal sensor noise, no hardware or External Vision. No freshness limits relaxed. EventsExecutor remains an optional experimental candidate, ready-batch is the default.",
+  "rclpy_version": "7.1.12-1noble.20260902.053513",
+  "findings": [
+    "Real LIO scheduler pressure coexists with receiver framework overhead. The original failed flight does not establish a single sole root cause.",
+    "Stable wait arguments preserve the Python ready iterator and improve odom dispatch; receive CPU reduction was modest.",
+    "Optional C++ event executor removes repeated Python wait-set scanning; two approximately 29 m flights completed without odom freshness failures.",
+    "One of those flights failed the independent planned-clearance audit, despite completing with safe observed actual clearances; overall repeat safety is not certified."
+  ],
+  "regressions": {
+    "passed": 61,
+    "log": "astra/validation/executor_delay_regressions_117.log"
+  },
+  "excluded_diagnostic": {
+    "run": "indoor_executor_trace_117_01",
+    "reason": "Original audit trace serialization during active endpoint transition caused an artificial ~384ms pause. Fixed to save only after disarm. Its flight failure is not used as algorithm-delay evidence."
+  },
+  "map_stop": {
+    "regression": {
+      "expected_fault_observed": true,
+      "driver_exit_code": 1,
+      "map_exit_code": 0,
+      "fault": "local map not ready or heartbeat stale",
+      "disarmed": true
+    },
+    "stop_to_abort_ms": 304.8104,
+    "stop_to_frozen_hold_ms": 305.187035
+  },
+  "runs": [
+    {
+      "run": "indoor_executor_trace_117_02",
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "reached_goals": 0,
+      "executor_timing": {
+        "run": "indoor_executor_trace_117_02",
+        "flight_complete": false,
+        "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+        "executor": "original-single-threaded",
+        "scope": "Flight execution only; batch metrics cover the retained tail, not the entire flight. CPU fraction is receive-batch thread CPU / elapsed tail wall time, not total host CPU. Independent callback time differences are scheduling/transport proxies, not DDS queue latency.",
+        "batch_tail": {
+          "samples": 941,
+          "span_sec": 6.854338199,
+          "receive_thread_cpu_fraction": 0.8486699665401205,
+          "wall_ms": {
+            "samples": 941,
+            "minimum": 4.984777,
+            "median": 6.393476,
+            "p95": 8.054181,
+            "maximum": 13.777808
+          },
+          "cpu_ms": {
+            "samples": 941,
+            "minimum": 3.391784,
+            "median": 6.141851,
+            "p95": 7.321274,
+            "maximum": 8.782949
+          },
+          "scheduler_wait_ms": {
+            "samples": 941,
+            "minimum": 0.0,
+            "median": 0.035022,
+            "p95": 1.267004,
+            "maximum": 6.88408
+          },
+          "spin_calls": {
+            "samples": 941,
+            "minimum": 2.0,
+            "median": 9.0,
+            "p95": 13.0,
+            "maximum": 17.0
+          },
+          "budget_exhausted_fraction": 1.0
+        },
+        "odom_callbacks": {
+          "guarded_bspline_bridge:/fast_livo2/odom": {
+            "samples": 69,
+            "callback_gap_ms": {
+              "samples": 68,
+              "minimum": 62.874976,
+              "median": 100.3449115,
+              "p95": 119.33776165,
+              "maximum": 180.918269
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 69,
+              "minimum": 0.017269,
+              "median": 0.036577,
+              "p95": 0.0964371999999999,
+              "maximum": 0.526452
+            },
+            "dds_metadata_samples": 69,
+            "dds_received_to_callback_ms": {
+              "samples": 69,
+              "minimum": 0.78383,
+              "median": 2.54979,
+              "p95": 7.788824599999994,
+              "maximum": 20.770747
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 69,
+              "minimum": -27.118776,
+              "median": 1.872391,
+              "p95": 7.7991832,
+              "maximum": 18.60213
+            }
+          },
+          "preview_bspline:/fast_livo2/odom": {
+            "samples": 69,
+            "callback_gap_ms": {
+              "samples": 68,
+              "minimum": 64.919238,
+              "median": 100.221997,
+              "p95": 119.37435640000001,
+              "maximum": 179.784879
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 69,
+              "minimum": 0.021827,
+              "median": 0.035045,
+              "p95": 0.05855039999999996,
+              "maximum": 0.120954
+            },
+            "dds_metadata_samples": 69,
+            "dds_received_to_callback_ms": {
+              "samples": 69,
+              "minimum": 1.437397,
+              "median": 4.449585,
+              "p95": 11.48481259999998,
+              "maximum": 33.327354
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 69,
+              "minimum": -26.378658,
+              "median": 4.005225,
+              "p95": 10.704150999999978,
+              "maximum": 31.780536
+            }
+          },
+          "px4_calibration_flight:/fast_livo2/odom": {
+            "samples": 69,
+            "callback_gap_ms": {
+              "samples": 68,
+              "minimum": 64.689898,
+              "median": 99.2365685,
+              "p95": 120.76886305,
+              "maximum": 197.682605
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 69,
+              "minimum": 0.022725,
+              "median": 0.038768,
+              "p95": 0.06778479999999998,
+              "maximum": 0.226724
+            },
+            "dds_metadata_samples": 69,
+            "dds_received_to_callback_ms": {
+              "samples": 69,
+              "minimum": 1.894581,
+              "median": 5.533235,
+              "p95": 12.74523619999999,
+              "maximum": 43.422741
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 69,
+              "minimum": -25.624675,
+              "median": 4.537578,
+              "p95": 12.41873159999999,
+              "maximum": 41.864261
+            }
+          }
+        },
+        "same_measurement_cross_node_callback_spread_ms": {
+          "samples": 69,
+          "minimum": 0.355704,
+          "median": 1.662579,
+          "p95": 7.834975199999997,
+          "maximum": 32.85811
+        },
+        "dds_metadata_limitation": null,
+        "restoration": {
+          "mode": "obstacle",
+          "exit_code": 1,
+          "failure": "",
+          "original_baseline_preserved": true,
+          "execution_sources_unchanged": true
+        }
+      },
+      "processing_stages_ms": {
+        "LIO": {
+          "processing_us": {
+            "samples": 68,
+            "minimum": 24.076,
+            "median": 35.913,
+            "p95": 57.2722,
+            "maximum": 96.242
+          },
+          "thread_cpu_us": {
+            "samples": 68,
+            "minimum": 19.302,
+            "median": 26.529,
+            "p95": 32.4244,
+            "maximum": 33.972
+          },
+          "thread_scheduler_wait_us": {
+            "samples": 68,
+            "minimum": 1.27,
+            "median": 5.23,
+            "p95": 23.521049999999992,
+            "maximum": 44.557
+          }
+        },
+        "VIO": {
+          "processing_us": {
+            "samples": 68,
+            "minimum": 10.661,
+            "median": 16.7765,
+            "p95": 24.0919,
+            "maximum": 37.012
+          },
+          "thread_cpu_us": {
+            "samples": 68,
+            "minimum": 9.574,
+            "median": 11.4175,
+            "p95": 13.40935,
+            "maximum": 14.802
+          },
+          "thread_scheduler_wait_us": {
+            "samples": 68,
+            "minimum": 0.295,
+            "median": 2.276,
+            "p95": 8.0415,
+            "maximum": 18.384
+          }
+        }
+      },
+      "supervisor_tracking_samples": {
+        "available": true,
+        "samples": 128,
+        "supervisor_odom_receipt_age_ms": {
+          "samples": 128,
+          "minimum": 2.285459981067106,
+          "median": 47.9734780092258,
+          "p95": 100.8392032497795,
+          "maximum": 143.70243999292143
+        },
+        "supervisor_odom_measurement_age_ms": {
+          "samples": 128,
+          "minimum": 40.0,
+          "median": 106.0,
+          "p95": 158.59999999999997,
+          "maximum": 204.0
+        },
+        "bridge_odom_receipt_age_ms": {
+          "samples": 128,
+          "minimum": 1.5808720199856907,
+          "median": 49.28744799690321,
+          "p95": 101.8416926352074,
+          "maximum": 146.13763699890114
+        },
+        "samples_over_250ms_receipt": 0,
+        "deferred_odom_callback_count_at_end": 0
+      }
+    },
+    {
+      "run": "indoor_ready_batch_117_01",
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "reached_goals": 1,
+      "executor_timing": {
+        "run": "indoor_ready_batch_117_01",
+        "flight_complete": false,
+        "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+        "executor": "original-single-threaded",
+        "scope": "Flight execution only; batch metrics cover the retained tail, not the entire flight. CPU fraction is receive-batch thread CPU / elapsed tail wall time, not total host CPU. Independent callback time differences are scheduling/transport proxies, not DDS queue latency.",
+        "batch_tail": {
+          "samples": 2048,
+          "span_sec": 11.684325327,
+          "receive_thread_cpu_fraction": 0.8089805071720766,
+          "wall_ms": {
+            "samples": 2048,
+            "minimum": 0.177144,
+            "median": 5.5426009999999994,
+            "p95": 8.0526393,
+            "maximum": 15.662787
+          },
+          "cpu_ms": {
+            "samples": 2048,
+            "minimum": 0.177085,
+            "median": 5.151916,
+            "p95": 7.476904199999999,
+            "maximum": 9.646107
+          },
+          "scheduler_wait_ms": {
+            "samples": 2048,
+            "minimum": 0.0,
+            "median": 0.013341,
+            "p95": 0.8150975999999994,
+            "maximum": 10.481295
+          },
+          "spin_calls": {
+            "samples": 2048,
+            "minimum": 1.0,
+            "median": 7.0,
+            "p95": 11.0,
+            "maximum": 15.0
+          },
+          "budget_exhausted_fraction": 0.60693359375
+        },
+        "odom_callbacks": {
+          "guarded_bspline_bridge:/fast_livo2/odom": {
+            "samples": 1378,
+            "callback_gap_ms": {
+              "samples": 1377,
+              "minimum": 55.827061,
+              "median": 99.728082,
+              "p95": 118.288352,
+              "maximum": 183.535409
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 1378,
+              "minimum": 0.01633,
+              "median": 0.028491500000000003,
+              "p95": 0.05281044999999992,
+              "maximum": 3.218737
+            },
+            "dds_metadata_samples": 1378,
+            "dds_received_to_callback_ms": {
+              "samples": 1378,
+              "minimum": 0.6179,
+              "median": 2.7810870000000003,
+              "p95": 5.526202899999994,
+              "maximum": 15.332987
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 1378,
+              "minimum": -29.623951,
+              "median": 2.267365,
+              "p95": 5.247578499999999,
+              "maximum": 14.812853
+            }
+          },
+          "preview_bspline:/fast_livo2/odom": {
+            "samples": 1378,
+            "callback_gap_ms": {
+              "samples": 1377,
+              "minimum": 55.145619,
+              "median": 99.702984,
+              "p95": 118.11685800000001,
+              "maximum": 186.724694
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 1378,
+              "minimum": 0.020431,
+              "median": 0.035102,
+              "p95": 0.05807749999999999,
+              "maximum": 1.332515
+            },
+            "dds_metadata_samples": 1378,
+            "dds_received_to_callback_ms": {
+              "samples": 1378,
+              "minimum": 0.799925,
+              "median": 3.326936,
+              "p95": 6.25605485,
+              "maximum": 16.360714
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 1378,
+              "minimum": -28.861609,
+              "median": 2.7820255,
+              "p95": 5.922822199999998,
+              "maximum": 15.850959
+            }
+          },
+          "px4_calibration_flight:/fast_livo2/odom": {
+            "samples": 1378,
+            "callback_gap_ms": {
+              "samples": 1377,
+              "minimum": 55.128636,
+              "median": 99.70026,
+              "p95": 117.9267916,
+              "maximum": 181.188262
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 1378,
+              "minimum": 0.023598,
+              "median": 0.04474,
+              "p95": 0.08508409999999994,
+              "maximum": 3.07718
+            },
+            "dds_metadata_samples": 1378,
+            "dds_received_to_callback_ms": {
+              "samples": 1378,
+              "minimum": 0.422818,
+              "median": 2.0787769999999997,
+              "p95": 4.7157871999999985,
+              "maximum": 11.858466
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 1378,
+              "minimum": -30.568286,
+              "median": 1.557469,
+              "p95": 4.350715,
+              "maximum": 8.649564
+            }
+          }
+        },
+        "same_measurement_cross_node_callback_spread_ms": {
+          "samples": 1378,
+          "minimum": 0.360081,
+          "median": 1.0232009999999998,
+          "p95": 2.52823505,
+          "maximum": 8.182672
+        },
+        "dds_metadata_limitation": null,
+        "restoration": {
+          "mode": "obstacle",
+          "exit_code": 1,
+          "failure": "",
+          "original_baseline_preserved": true,
+          "execution_sources_unchanged": true
+        }
+      },
+      "processing_stages_ms": {
+        "LIO": {
+          "processing_us": {
+            "samples": 1377,
+            "minimum": 21.545,
+            "median": 34.37,
+            "p95": 43.93900000000001,
+            "maximum": 94.997
+          },
+          "thread_cpu_us": {
+            "samples": 1377,
+            "minimum": 18.57,
+            "median": 26.336,
+            "p95": 32.141,
+            "maximum": 36.078
+          },
+          "thread_scheduler_wait_us": {
+            "samples": 1377,
+            "minimum": 0.222,
+            "median": 3.931,
+            "p95": 9.278800000000002,
+            "maximum": 52.742
+          }
+        },
+        "VIO": {
+          "processing_us": {
+            "samples": 1377,
+            "minimum": 9.349,
+            "median": 15.687,
+            "p95": 21.3548,
+            "maximum": 36.757
+          },
+          "thread_cpu_us": {
+            "samples": 1377,
+            "minimum": 8.603,
+            "median": 12.338,
+            "p95": 14.5998,
+            "maximum": 16.207
+          },
+          "thread_scheduler_wait_us": {
+            "samples": 1377,
+            "minimum": 0.003,
+            "median": 1.545,
+            "p95": 4.733,
+            "maximum": 16.254
+          }
+        }
+      },
+      "supervisor_tracking_samples": {
+        "available": true,
+        "samples": 2553,
+        "supervisor_odom_receipt_age_ms": {
+          "samples": 2553,
+          "minimum": 0.936899974476546,
+          "median": 49.877184006618336,
+          "p95": 98.68660040083341,
+          "maximum": 177.89835698204115
+        },
+        "supervisor_odom_measurement_age_ms": {
+          "samples": 2553,
+          "minimum": 36.0,
+          "median": 100.0,
+          "p95": 144.0,
+          "maximum": 216.0
+        },
+        "bridge_odom_receipt_age_ms": {
+          "samples": 2553,
+          "minimum": 1.2401370040606707,
+          "median": 50.3075769811403,
+          "p95": 98.63384198979475,
+          "maximum": 177.4567480024416
+        },
+        "samples_over_250ms_receipt": 0,
+        "deferred_odom_callback_count_at_end": 0
+      }
+    },
+    {
+      "run": "indoor_events_executor_117_01",
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "reached_goals": 4,
+      "executor_timing": {
+        "run": "indoor_events_executor_117_01",
+        "flight_complete": true,
+        "fault": "",
+        "executor": "events",
+        "scope": "Flight execution only; batch metrics cover the retained tail, not the entire flight. CPU fraction is receive-batch thread CPU / elapsed tail wall time, not total host CPU. Independent callback time differences are scheduling/transport proxies, not DDS queue latency.",
+        "batch_tail": {
+          "samples": 2048,
+          "span_sec": 8.949451494,
+          "receive_thread_cpu_fraction": 0.3006252644426032,
+          "wall_ms": {
+            "samples": 2048,
+            "minimum": 2.130255,
+            "median": 3.6013425,
+            "p95": 5.454953149999997,
+            "maximum": 11.0463
+          },
+          "cpu_ms": {
+            "samples": 2048,
+            "minimum": 0.504114,
+            "median": 1.1586509999999999,
+            "p95": 2.2768439,
+            "maximum": 4.183763
+          },
+          "scheduler_wait_ms": {
+            "samples": 2048,
+            "minimum": 0.0,
+            "median": 0.209758,
+            "p95": 1.568465149999999,
+            "maximum": 7.317413
+          },
+          "spin_calls": {
+            "samples": 2048,
+            "minimum": 4.0,
+            "median": 33.0,
+            "p95": 33.0,
+            "maximum": 33.0
+          },
+          "budget_exhausted_fraction": 0.0791015625
+        },
+        "odom_callbacks": {
+          "guarded_bspline_bridge:/fast_livo2/odom": {
+            "samples": 2774,
+            "callback_gap_ms": {
+              "samples": 2773,
+              "minimum": 57.401557,
+              "median": 99.821399,
+              "p95": 116.0267304,
+              "maximum": 184.577486
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 2774,
+              "minimum": 0.015648,
+              "median": 0.02986,
+              "p95": 0.05285025,
+              "maximum": 2.165385
+            },
+            "dds_metadata_samples": 0,
+            "dds_received_to_callback_ms": {
+              "samples": 0
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 2774,
+              "minimum": -34.399712,
+              "median": 0.180004,
+              "p95": 1.8393611999999995,
+              "maximum": 24.299129
+            }
+          },
+          "preview_bspline:/fast_livo2/odom": {
+            "samples": 2774,
+            "callback_gap_ms": {
+              "samples": 2773,
+              "minimum": 57.497352,
+              "median": 99.769272,
+              "p95": 116.0871046,
+              "maximum": 184.591568
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 2774,
+              "minimum": 0.020377,
+              "median": 0.035532,
+              "p95": 0.05736394999999998,
+              "maximum": 1.836517
+            },
+            "dds_metadata_samples": 0,
+            "dds_received_to_callback_ms": {
+              "samples": 0
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 2774,
+              "minimum": -34.160021,
+              "median": 0.4111205,
+              "p95": 2.16528275,
+              "maximum": 24.502526
+            }
+          },
+          "px4_calibration_flight:/fast_livo2/odom": {
+            "samples": 2774,
+            "callback_gap_ms": {
+              "samples": 2773,
+              "minimum": 56.857629,
+              "median": 99.767733,
+              "p95": 115.8061592,
+              "maximum": 184.55676
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 2774,
+              "minimum": 0.022627,
+              "median": 0.0479265,
+              "p95": 0.09602374999999992,
+              "maximum": 4.566253
+            },
+            "dds_metadata_samples": 0,
+            "dds_received_to_callback_ms": {
+              "samples": 0
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 2774,
+              "minimum": -34.651052,
+              "median": -0.0969775,
+              "p95": 1.37055295,
+              "maximum": 24.060963
+            }
+          }
+        },
+        "same_measurement_cross_node_callback_spread_ms": {
+          "samples": 2774,
+          "minimum": 0.247007,
+          "median": 0.466233,
+          "p95": 1.5005553499999997,
+          "maximum": 11.815444
+        },
+        "dds_metadata_limitation": "Installed experimental EventsExecutor does not supply MessageInfo; DDS queue latency cannot be certified from this trace.",
+        "restoration": {
+          "mode": "obstacle",
+          "exit_code": 0,
+          "failure": "",
+          "original_baseline_preserved": true,
+          "execution_sources_unchanged": true
+        }
+      },
+      "processing_stages_ms": {
+        "LIO": {
+          "processing_us": {
+            "samples": 2775,
+            "minimum": 17.898,
+            "median": 29.151,
+            "p95": 38.2406,
+            "maximum": 105.196
+          },
+          "thread_cpu_us": {
+            "samples": 2775,
+            "minimum": 15.731,
+            "median": 23.649,
+            "p95": 29.214899999999997,
+            "maximum": 35.062
+          },
+          "thread_scheduler_wait_us": {
+            "samples": 2775,
+            "minimum": 0.004,
+            "median": 2.026,
+            "p95": 6.0323,
+            "maximum": 73.86
+          }
+        },
+        "VIO": {
+          "processing_us": {
+            "samples": 2775,
+            "minimum": 9.302,
+            "median": 14.995,
+            "p95": 19.960299999999997,
+            "maximum": 55.407
+          },
+          "thread_cpu_us": {
+            "samples": 2775,
+            "minimum": 8.514,
+            "median": 12.288,
+            "p95": 14.395499999999998,
+            "maximum": 16.893
+          },
+          "thread_scheduler_wait_us": {
+            "samples": 2775,
+            "minimum": 0.003,
+            "median": 1.114,
+            "p95": 3.517399999999998,
+            "maximum": 23.208
+          }
+        }
+      },
+      "supervisor_tracking_samples": {
+        "available": true,
+        "samples": 5258,
+        "supervisor_odom_receipt_age_ms": {
+          "samples": 5258,
+          "minimum": 1.2287610152270645,
+          "median": 50.132748001487926,
+          "p95": 97.62274590029847,
+          "maximum": 161.9599969999399
+        },
+        "supervisor_odom_measurement_age_ms": {
+          "samples": 5258,
+          "minimum": 28.0,
+          "median": 88.0,
+          "p95": 136.0,
+          "maximum": 192.0
+        },
+        "bridge_odom_receipt_age_ms": {
+          "samples": 5258,
+          "minimum": 1.0588810255285352,
+          "median": 50.10393950215075,
+          "p95": 97.55987523967633,
+          "maximum": 161.75406399997883
+        },
+        "samples_over_250ms_receipt": 0,
+        "deferred_odom_callback_count_at_end": 30
+      },
+      "indoor_safety_audit": {
+        "complete_route_verified": false,
+        "blocked_path_avoidance_verified": false,
+        "actual_horizontal_path_m": 29.242929437152668,
+        "whole_flight_minimum_surface_distance_m": 0.7564074997386542,
+        "planned_continuous_clearance_passed": false,
+        "combined_setpoint_max_send_gap_ms": 62.79802,
+        "goal_transition_holds_passed": true,
+        "execution_reset_events": {
+          "xy_reset_counter": 0,
+          "z_reset_counter": 0,
+          "heading_reset_counter": 0
+        },
+        "armed_failsafe_samples": 0,
+        "minimum_published_trajectory_distance_m": 0.4530212810261812,
+        "minimum_published_trajectory_continuous_lower_bound_m": 0.4526177177325817
+      }
+    },
+    {
+      "run": "indoor_events_executor_117_02",
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "reached_goals": 4,
+      "executor_timing": {
+        "run": "indoor_events_executor_117_02",
+        "flight_complete": true,
+        "fault": "",
+        "executor": "events",
+        "scope": "Flight execution only; batch metrics cover the retained tail, not the entire flight. CPU fraction is receive-batch thread CPU / elapsed tail wall time, not total host CPU. Independent callback time differences are scheduling/transport proxies, not DDS queue latency.",
+        "batch_tail": {
+          "samples": 2048,
+          "span_sec": 8.85030177,
+          "receive_thread_cpu_fraction": 0.2999779840275435,
+          "wall_ms": {
+            "samples": 2048,
+            "minimum": 2.125563,
+            "median": 3.5805615,
+            "p95": 5.314995549999998,
+            "maximum": 7.80366
+          },
+          "cpu_ms": {
+            "samples": 2048,
+            "minimum": 0.608677,
+            "median": 1.1504535,
+            "p95": 2.2112182999999996,
+            "maximum": 3.66388
+          },
+          "scheduler_wait_ms": {
+            "samples": 2048,
+            "minimum": 0.0,
+            "median": 0.19836949999999998,
+            "p95": 1.5589705499999997,
+            "maximum": 4.203253
+          },
+          "spin_calls": {
+            "samples": 2048,
+            "minimum": 2.0,
+            "median": 33.0,
+            "p95": 33.0,
+            "maximum": 33.0
+          },
+          "budget_exhausted_fraction": 0.06982421875
+        },
+        "odom_callbacks": {
+          "guarded_bspline_bridge:/fast_livo2/odom": {
+            "samples": 2795,
+            "callback_gap_ms": {
+              "samples": 2794,
+              "minimum": 47.041571,
+              "median": 99.6951655,
+              "p95": 115.86870495000001,
+              "maximum": 173.108279
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 2795,
+              "minimum": 0.01644,
+              "median": 0.03005,
+              "p95": 0.05380379999999995,
+              "maximum": 2.813621
+            },
+            "dds_metadata_samples": 0,
+            "dds_received_to_callback_ms": {
+              "samples": 0
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 2795,
+              "minimum": -31.314884,
+              "median": 0.199248,
+              "p95": 1.9169996,
+              "maximum": 31.564146
+            }
+          },
+          "preview_bspline:/fast_livo2/odom": {
+            "samples": 2795,
+            "callback_gap_ms": {
+              "samples": 2794,
+              "minimum": 47.191325,
+              "median": 99.63283849999999,
+              "p95": 115.89985304999999,
+              "maximum": 173.117922
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 2795,
+              "minimum": 0.019491,
+              "median": 0.035606,
+              "p95": 0.059055899999999995,
+              "maximum": 2.828788
+            },
+            "dds_metadata_samples": 0,
+            "dds_received_to_callback_ms": {
+              "samples": 0
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 2795,
+              "minimum": -31.076735,
+              "median": 0.430003,
+              "p95": 2.3150288999999997,
+              "maximum": 31.815811
+            }
+          },
+          "px4_calibration_flight:/fast_livo2/odom": {
+            "samples": 2795,
+            "callback_gap_ms": {
+              "samples": 2794,
+              "minimum": 46.856295,
+              "median": 99.7245565,
+              "p95": 115.82264319999999,
+              "maximum": 173.25108
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 2795,
+              "minimum": 0.021983,
+              "median": 0.047443,
+              "p95": 0.09103349999999978,
+              "maximum": 2.400765
+            },
+            "dds_metadata_samples": 0,
+            "dds_received_to_callback_ms": {
+              "samples": 0
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 2795,
+              "minimum": -32.442883,
+              "median": -0.081411,
+              "p95": 1.3894402,
+              "maximum": 31.218469
+            }
+          }
+        },
+        "same_measurement_cross_node_callback_spread_ms": {
+          "samples": 2795,
+          "minimum": 0.245158,
+          "median": 0.462186,
+          "p95": 1.5343841999999999,
+          "maximum": 4.744742
+        },
+        "dds_metadata_limitation": "Installed experimental EventsExecutor does not supply MessageInfo; DDS queue latency cannot be certified from this trace.",
+        "restoration": {
+          "mode": "obstacle",
+          "exit_code": 0,
+          "failure": "",
+          "original_baseline_preserved": true,
+          "execution_sources_unchanged": true
+        }
+      },
+      "processing_stages_ms": {
+        "LIO": {
+          "processing_us": {
+            "samples": 2795,
+            "minimum": 17.405,
+            "median": 29.157,
+            "p95": 38.7527,
+            "maximum": 91.742
+          },
+          "thread_cpu_us": {
+            "samples": 2795,
+            "minimum": 15.001,
+            "median": 23.707,
+            "p95": 29.879899999999996,
+            "maximum": 34.674
+          },
+          "thread_scheduler_wait_us": {
+            "samples": 2795,
+            "minimum": 0.0,
+            "median": 1.995,
+            "p95": 5.871899999999999,
+            "maximum": 56.92
+          }
+        },
+        "VIO": {
+          "processing_us": {
+            "samples": 2795,
+            "minimum": 9.414,
+            "median": 14.778,
+            "p95": 20.230099999999997,
+            "maximum": 42.018
+          },
+          "thread_cpu_us": {
+            "samples": 2795,
+            "minimum": 7.957,
+            "median": 12.215,
+            "p95": 14.369499999999999,
+            "maximum": 16.902
+          },
+          "thread_scheduler_wait_us": {
+            "samples": 2795,
+            "minimum": 0.0,
+            "median": 1.033,
+            "p95": 3.665499999999993,
+            "maximum": 22.191
+          }
+        }
+      },
+      "supervisor_tracking_samples": {
+        "available": true,
+        "samples": 5310,
+        "supervisor_odom_receipt_age_ms": {
+          "samples": 5310,
+          "minimum": 1.186017005238682,
+          "median": 50.16772499948274,
+          "p95": 97.82316598721081,
+          "maximum": 165.98862200044096
+        },
+        "supervisor_odom_measurement_age_ms": {
+          "samples": 5310,
+          "minimum": 24.0,
+          "median": 88.0,
+          "p95": 136.0,
+          "maximum": 212.0
+        },
+        "bridge_odom_receipt_age_ms": {
+          "samples": 5310,
+          "minimum": 1.2561699841171503,
+          "median": 50.18035601824522,
+          "p95": 97.72489980823593,
+          "maximum": 165.79122602706775
+        },
+        "samples_over_250ms_receipt": 0,
+        "deferred_odom_callback_count_at_end": 0
+      },
+      "indoor_safety_audit": {
+        "complete_route_verified": true,
+        "blocked_path_avoidance_verified": true,
+        "actual_horizontal_path_m": 29.559521411976135,
+        "whole_flight_minimum_surface_distance_m": 0.7829933466777791,
+        "planned_continuous_clearance_passed": true,
+        "combined_setpoint_max_send_gap_ms": 96.042677,
+        "goal_transition_holds_passed": true,
+        "execution_reset_events": {
+          "xy_reset_counter": 0,
+          "z_reset_counter": 0,
+          "heading_reset_counter": 0
+        },
+        "armed_failsafe_samples": 0,
+        "minimum_published_trajectory_distance_m": 0.7419570329744393,
+        "minimum_published_trajectory_continuous_lower_bound_m": 0.741461946119023
+      }
+    },
+    {
+      "run": "indoor_events_mapstop_117_01",
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "local map not ready or heartbeat stale",
+      "reached_goals": 0,
+      "executor_timing": {
+        "run": "indoor_events_mapstop_117_01",
+        "flight_complete": false,
+        "fault": "local map not ready or heartbeat stale",
+        "executor": "events",
+        "scope": "Flight execution only; batch metrics cover the retained tail, not the entire flight. CPU fraction is receive-batch thread CPU / elapsed tail wall time, not total host CPU. Independent callback time differences are scheduling/transport proxies, not DDS queue latency.",
+        "batch_tail": {
+          "samples": 520,
+          "span_sec": 2.244959549,
+          "receive_thread_cpu_fraction": 0.2908544683091749,
+          "wall_ms": {
+            "samples": 520,
+            "minimum": 2.236772,
+            "median": 3.6323619999999996,
+            "p95": 5.4148751499999985,
+            "maximum": 8.312196
+          },
+          "cpu_ms": {
+            "samples": 520,
+            "minimum": 0.629099,
+            "median": 1.1170935,
+            "p95": 2.2811774499999986,
+            "maximum": 3.167393
+          },
+          "scheduler_wait_ms": {
+            "samples": 520,
+            "minimum": 0.0,
+            "median": 0.219022,
+            "p95": 1.7852662999999986,
+            "maximum": 4.501731
+          },
+          "spin_calls": {
+            "samples": 520,
+            "minimum": 10.0,
+            "median": 33.0,
+            "p95": 33.0,
+            "maximum": 33.0
+          },
+          "budget_exhausted_fraction": 0.08461538461538462
+        },
+        "odom_callbacks": {
+          "guarded_bspline_bridge:/fast_livo2/odom": {
+            "samples": 22,
+            "callback_gap_ms": {
+              "samples": 21,
+              "minimum": 85.002619,
+              "median": 100.344152,
+              "p95": 119.816692,
+              "maximum": 124.858575
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 22,
+              "minimum": 0.019674,
+              "median": 0.029332,
+              "p95": 0.0466633,
+              "maximum": 0.068689
+            },
+            "dds_metadata_samples": 0,
+            "dds_received_to_callback_ms": {
+              "samples": 0
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 22,
+              "minimum": -2.471833,
+              "median": 0.1200195,
+              "p95": 1.37130665,
+              "maximum": 1.639308
+            }
+          },
+          "preview_bspline:/fast_livo2/odom": {
+            "samples": 22,
+            "callback_gap_ms": {
+              "samples": 21,
+              "minimum": 85.041033,
+              "median": 100.319614,
+              "p95": 119.820735,
+              "maximum": 124.867223
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 22,
+              "minimum": 0.024805,
+              "median": 0.035111500000000004,
+              "p95": 0.041622,
+              "maximum": 0.111321
+            },
+            "dds_metadata_samples": 0,
+            "dds_received_to_callback_ms": {
+              "samples": 0
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 22,
+              "minimum": -2.246657,
+              "median": 0.3352655,
+              "p95": 1.6402717999999998,
+              "maximum": 1.906836
+            }
+          },
+          "px4_calibration_flight:/fast_livo2/odom": {
+            "samples": 22,
+            "callback_gap_ms": {
+              "samples": 21,
+              "minimum": 84.945814,
+              "median": 100.411414,
+              "p95": 119.851093,
+              "maximum": 124.574813
+            },
+            "gaps_over_250ms": 0,
+            "callback_wall_ms": {
+              "samples": 22,
+              "minimum": 0.031246,
+              "median": 0.053209,
+              "p95": 0.2840380499999999,
+              "maximum": 1.037572
+            },
+            "dds_metadata_samples": 0,
+            "dds_received_to_callback_ms": {
+              "samples": 0
+            },
+            "callback_minus_monitor_ms_proxy": {
+              "samples": 22,
+              "minimum": -2.715605,
+              "median": -0.1740375,
+              "p95": 0.9467786999999998,
+              "maximum": 1.322881
+            }
+          }
+        },
+        "same_measurement_cross_node_callback_spread_ms": {
+          "samples": 22,
+          "minimum": 0.358593,
+          "median": 0.48140249999999996,
+          "p95": 1.48993255,
+          "maximum": 1.614543
+        },
+        "dds_metadata_limitation": "Installed experimental EventsExecutor does not supply MessageInfo; DDS queue latency cannot be certified from this trace.",
+        "restoration": {
+          "mode": "obstacle",
+          "exit_code": 0,
+          "failure": "",
+          "original_baseline_preserved": true,
+          "execution_sources_unchanged": true
+        }
+      },
+      "processing_stages_ms": {
+        "LIO": {
+          "processing_us": {
+            "samples": 23,
+            "minimum": 20.111,
+            "median": 28.636,
+            "p95": 36.415499999999994,
+            "maximum": 38.611
+          },
+          "thread_cpu_us": {
+            "samples": 23,
+            "minimum": 18.031,
+            "median": 22.16,
+            "p95": 27.598499999999998,
+            "maximum": 30.61
+          },
+          "thread_scheduler_wait_us": {
+            "samples": 23,
+            "minimum": 0.176,
+            "median": 2.756,
+            "p95": 7.346999999999998,
+            "maximum": 9.423
+          }
+        },
+        "VIO": {
+          "processing_us": {
+            "samples": 23,
+            "minimum": 11.068,
+            "median": 13.234,
+            "p95": 16.3549,
+            "maximum": 20.469
+          },
+          "thread_cpu_us": {
+            "samples": 23,
+            "minimum": 9.408,
+            "median": 10.463,
+            "p95": 12.0209,
+            "maximum": 12.151
+          },
+          "thread_scheduler_wait_us": {
+            "samples": 23,
+            "minimum": 0.246,
+            "median": 1.096,
+            "p95": 3.0204999999999997,
+            "maximum": 6.226
+          }
+        }
+      },
+      "supervisor_tracking_samples": {
+        "available": true,
+        "samples": 43,
+        "supervisor_odom_receipt_age_ms": {
+          "samples": 43,
+          "minimum": 1.9362400053068995,
+          "median": 48.63977400236763,
+          "p95": 93.96337969228625,
+          "maximum": 117.76548999478109
+        },
+        "supervisor_odom_measurement_age_ms": {
+          "samples": 43,
+          "minimum": 40.0,
+          "median": 88.0,
+          "p95": 131.6,
+          "maximum": 144.0
+        },
+        "bridge_odom_receipt_age_ms": {
+          "samples": 43,
+          "minimum": 1.6942120273597538,
+          "median": 48.40544200851582,
+          "p95": 93.72847027843818,
+          "maximum": 117.50466798548587
+        },
+        "samples_over_250ms_receipt": 0,
+        "deferred_odom_callback_count_at_end": 0
+      }
+    }
+  ],
+  "remaining": [
+    "Longer repeats and larger environments are not certified; LIO wall processing still occasionally reached ~100ms, including scheduler waits.",
+    "Determine why 8 of 233 raw published trajectories in events run 01 had continuous known-obstacle clearance below 0.55m, and whether they were accepted/executed or replaced.",
+    "EventsExecutor lacks DDS MessageInfo in this installed release, so use independent subscriber callback comparisons and physical flight gates; no DDS queue latency certification for event traces."
+  ]
+}
