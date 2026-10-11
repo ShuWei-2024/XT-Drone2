@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-10",
+  "date": "2026-10-11",
   "framework_branch": "astra/px4-1.17",
   "px4_tag": "v1.17.0",
   "px4_build_passed": true,
@@ -37,7 +37,7 @@
   "sensor_runtime_verified": true,
   "px4_1_17_flight_verified": true,
   "github_push_performed": false,
-  "stage": "Explicit sensor/body references and corrected extrinsics validated by 18 geometry checks and one five-leg obstacle flight; dynamic height residual and wide-area memory remain unverified",
+  "stage": "Two normal-noise five-goal flights passed without receipt timeouts or resets; supervisor delivery instrumented, cruise height dips up to0.122m remain",
   "ros_package_count": 19,
   "flight_scope": "Final magnetometer path; 0.4 m forward/side/return plus EGO 5 m/3 m goal and return; no strict hover or hardware certification",
   "frame_alignment_certified": false,
@@ -83,5 +83,14 @@
   "height_diagnostic_low_noise_route_complete": false,
   "height_offline_audit_rejects_active_simulator": true,
   "height_diagnostics_runner_regression_passed": 20,
-  "height_diagnostics_cleanup_report": "astra/validation/height_diagnostics_cleanup_117.json"
+  "height_diagnostics_cleanup_report": "astra/validation/height_diagnostics_cleanup_117.json",
+  "quiet_normal_noise_repeat_report": "astra/validation/normal_quiet_comparison_117.json",
+  "quiet_normal_noise_routes_completed": 2,
+  "quiet_normal_noise_goals_completed": 10,
+  "quiet_normal_noise_receipt_timeouts": 0,
+  "quiet_normal_noise_scope": "Two five-goal routes with3Pa pressure noise/110ms GPS delay, no concurrent offline analysis. No reset/failsafe/timeout; actual height dips up to0.122m persist. Not indefinite reliability or general alignment certification.",
+  "quiet_instrumented_supervisor_receipt_age_max_ms": 130.7672449911479,
+  "quiet_instrumented_supervisor_measurement_age_max_ms": 156.0,
+  "quiet_regression_tests_passed": 39,
+  "quiet_cleanup_report": "astra/validation/normal_quiet_cleanup_117.json"
 }

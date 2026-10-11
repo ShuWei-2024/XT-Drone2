@@ -1,0 +1,165 @@
+{
+  "flight_complete": true,
+  "disarmed": true,
+  "fault": "",
+  "actual_displacement_enu": [
+    -0.0376888265550562,
+    0.05134209491552574,
+    0.008531146870260908
+  ],
+  "endpoint_px4_error_m": 0.0038317469152745207,
+  "goals_livo_m": [
+    [
+      5.026232025470598,
+      2.9607819642422766,
+      1.5990707799172812
+    ],
+    [
+      5.026232025470598,
+      -3.0392180357577234,
+      1.5990707799172812
+    ],
+    [
+      0.026232025470598015,
+      -3.0392180357577234,
+      1.5990707799172812
+    ],
+    [
+      0.026232025470598015,
+      2.9607819642422766,
+      1.5990707799172812
+    ],
+    [
+      0.026232025470598015,
+      -0.03921803575772341,
+      1.5990707799172812
+    ]
+  ],
+  "route": "multiple destination goals; each leg autonomously EGO-planned",
+  "actual_sampled_path_length_m": 30.499422253560695,
+  "frame_alignment_certified": false,
+  "test_limits": {
+    "planner_speed_mps": 0.2,
+    "planner_acceleration_mps2": 0.25,
+    "tracking_error_m": 0.6,
+    "truth_clearance_stop_m": 0.55,
+    "map_inflation_m": 0.65,
+    "self_return_filter_m": 0.45,
+    "odom_receipt_age_sec": 0.25,
+    "map_cloud_age_sec": 1.0,
+    "odom_step_m": 0.12,
+    "fixed_enu_ned_transform": true,
+    "max_estimator_xy_disagreement_m": 0.3,
+    "max_tracking_error_m": 0.6,
+    "velocity_feedforward": true,
+    "freeze_tracking_yaw": true,
+    "max_initial_yaw_disagreement_deg": 5.0
+  },
+  "alignment_rotation_source": "fixed ENU/NED for zero-yaw SITL spawn",
+  "audited_obstacle_count": 10,
+  "bridge_samples": 5705,
+  "tracking_samples": 5705,
+  "execution_elapsed_sec": 302.232,
+  "last_ego_execution_truth_m": [
+    -0.004327338382631154,
+    0.0481998767980096,
+    1.6612943380136433
+  ],
+  "minimum_sampled_center_box_clearance_m": 0.7832030658790532,
+  "minimum_sampled_all_obstacle_clearance_m": 0.7832030658790532,
+  "px4_tracking_error_p95_m": 0.05071521480366002,
+  "px4_tracking_error_max_m": 0.07316185198188604,
+  "bridge_send_gap_max_ms": 60.453254,
+  "bspline_count": 252,
+  "planned_peak_speed_mps": 0.19768481798804063,
+  "planned_peak_acceleration_mps2": 0.05939675635723089,
+  "goal_gazebo_from_initial_alignment_m": [
+    0.02259408657006076,
+    -0.03772190023644419,
+    1.9528824062030707
+  ],
+  "livo_to_truth_initial_alignment_pairs": 20,
+  "truth_xy_endpoint_error_after_hold_m": 0.06226676241988921,
+  "gazebo_truth_samples": 15370,
+  "minimum_center_box_clearance_m": 0.7838681186839747,
+  "actual_peak_speed_mps": 0.18454583619449616,
+  "actual_altitude_range_m": [
+    1.8295843554898998,
+    2.0181548238346405
+  ],
+  "minimum_all_obstacle_clearance_m": 0.7838681186839747,
+  "truth_xy_at_ego_end_m": [
+    -0.007523390029667676,
+    0.04801364086622596
+  ],
+  "actual_path_length_m": 31.783578174915316,
+  "goals_gazebo_from_initial_alignment_m": [
+    [
+      5.022731757231351,
+      2.962048636726992
+    ],
+    [
+      5.0224564053784055,
+      -3.0379513569547885
+    ],
+    [
+      0.022456410643588207,
+      -3.037721897077334
+    ],
+    [
+      0.022731762496533314,
+      2.962278096604446
+    ],
+    [
+      0.02259408657006076,
+      -0.03772190023644419
+    ]
+  ],
+  "direct_requested_segments_clearance_m": [
+    0.0,
+    0.6724880708414945,
+    0.6878884849483661,
+    1.1517035453975695,
+    3.427721903395554
+  ],
+  "armed_failsafe_samples": 0,
+  "external_vision_active_samples": {
+    "cs_ev_pos": 0,
+    "cs_ev_vel": 0,
+    "cs_ev_hgt": 0,
+    "cs_ev_yaw": 0
+  },
+  "execution_estimator_resets": {
+    "xy_reset_counter": 0,
+    "z_reset_counter": 0,
+    "heading_reset_counter": 0
+  },
+  "ulog_confirms_planner_setpoints": 1512,
+  "vehicle_gps_position_max_gap_sec": 0.036,
+  "sensor_gps_max_gap_sec": 1.024,
+  "sensor_mag_max_gap_sec": 1.0,
+  "battery_status_max_gap_sec": 0.208,
+  "sensor_log_execution_coverage": {
+    "vehicle_gps_position": {
+      "samples": 9160,
+      "logged_max_gap_sec": 0.036000000000001364,
+      "first_after_handoff_sec": 0.028000000000005798,
+      "last_before_end_sec": 0.016000000000019554
+    },
+    "sensor_mag": {
+      "samples": 302,
+      "logged_max_gap_sec": 1.0000000000000142,
+      "first_after_handoff_sec": 0.5799999999999983,
+      "last_before_end_sec": 0.7080000000000268
+    },
+    "battery_status": {
+      "samples": 1511,
+      "logged_max_gap_sec": 0.20800000000002683,
+      "first_after_handoff_sec": 0.14799999999999613,
+      "last_before_end_sec": 0.13999999999998636
+    }
+  },
+  "odom_measurement_age_p95_ms": 48.0,
+  "real_time_factor": 0.993798733070471,
+  "original_parameters_unchanged": true
+}

@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "exit_code": 2,
+  "evidence": "usage: audit_odom_delivery_117.py [-h] --output OUTPUT run_dir\naudit_odom_delivery_117.py: error: Stop isolated Astra SITL before offline delivery audit; active PIDs: 2498876",
+  "scope": "Controlled sleep process with simulator argv and partition; no simulator launched"
+}

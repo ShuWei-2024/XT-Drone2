@@ -1,0 +1,171 @@
+{
+  "run": "lateral_normal_quiet_117_02",
+  "flight_complete": true,
+  "disarmed": true,
+  "fault": "",
+  "execution_interval_measurement_ns": [
+    92012000000,
+    394300000000
+  ],
+  "processing_stages_ms": {
+    "LIO": {
+      "processing_us": {
+        "samples": 3022,
+        "minimum": 11.685,
+        "median": 18.222,
+        "p95": 24.20685,
+        "maximum": 34.365
+      },
+      "thread_cpu_us": {
+        "samples": 3022,
+        "minimum": 10.672,
+        "median": 15.8765,
+        "p95": 20.382849999999998,
+        "maximum": 25.028
+      },
+      "thread_scheduler_wait_us": {
+        "samples": 3022,
+        "minimum": 0.0,
+        "median": 1.074,
+        "p95": 3.4789,
+        "maximum": 11.608
+      }
+    },
+    "VIO": {
+      "processing_us": {
+        "samples": 3022,
+        "minimum": 7.861,
+        "median": 13.154499999999999,
+        "p95": 17.10195,
+        "maximum": 25.345
+      },
+      "thread_cpu_us": {
+        "samples": 3022,
+        "minimum": 7.155,
+        "median": 10.5015,
+        "p95": 12.460849999999995,
+        "maximum": 14.686
+      },
+      "thread_scheduler_wait_us": {
+        "samples": 3022,
+        "minimum": 0.0,
+        "median": 1.089,
+        "p95": 3.209449999999998,
+        "maximum": 10.766
+      }
+    }
+  },
+  "publisher_lio_end_wall_cadence": {
+    "callback_or_update_gap_ms": {
+      "samples": 3021,
+      "minimum": 74.956445,
+      "median": 100.265421,
+      "p95": 112.979543,
+      "maximum": 134.414921
+    },
+    "gaps_over_250ms": 0,
+    "largest_gap": {
+      "before_measurement_ns": 139000000000,
+      "after_measurement_ns": 139128000000,
+      "before_wall_ns": 133286719732592,
+      "after_wall_ns": 133286854147513
+    }
+  },
+  "monitor_callback_cadence": {
+    "callback_or_update_gap_ms": {
+      "samples": 3021,
+      "minimum": 67.723373,
+      "median": 100.265896,
+      "p95": 113.944083,
+      "maximum": 134.039944
+    },
+    "gaps_over_250ms": 0,
+    "largest_gap": {
+      "before_measurement_ns": 139000000000,
+      "after_measurement_ns": 139128000000,
+      "before_wall_ns": 133286717654132,
+      "after_wall_ns": 133286851694076
+    }
+  },
+  "frame_callback_cadence": {
+    "callback_or_update_gap_ms": {
+      "samples": 3021,
+      "minimum": 74.088286,
+      "median": 100.214396,
+      "p95": 112.69814,
+      "maximum": 133.868369
+    },
+    "gaps_over_250ms": 0,
+    "largest_gap": {
+      "before_measurement_ns": 139000000000,
+      "after_measurement_ns": 139128000000,
+      "before_wall_ns": 133286717798962,
+      "after_wall_ns": 133286851667331
+    }
+  },
+  "monitor_measurement_age_at_callback_ms": {
+    "samples": 3022,
+    "minimum": 12.0,
+    "median": 32.0,
+    "p95": 48.0,
+    "maximum": 64.0
+  },
+  "frame_callback_minus_monitor_callback_ms": {
+    "samples": 3022,
+    "minimum": -29.327899,
+    "median": 0.0032075000000000003,
+    "p95": 1.2209729,
+    "maximum": 10.866329
+  },
+  "callback_after_update": {
+    "monitor": {
+      "matched_samples": 3022,
+      "callback_minus_lio_end_wall_ms_proxy": {
+        "samples": 3022,
+        "minimum": -6.288152,
+        "median": -2.2341945,
+        "p95": -0.9747284500000005,
+        "maximum": 27.481759
+      }
+    },
+    "frame_auditor": {
+      "matched_samples": 3022,
+      "callback_minus_lio_end_wall_ms_proxy": {
+        "samples": 3022,
+        "minimum": -7.474506,
+        "median": -2.212059,
+        "p95": -0.9557111,
+        "maximum": 6.98679
+      }
+    }
+  },
+  "supervisor_tracking_samples": {
+    "available": true,
+    "samples": 5705,
+    "supervisor_odom_receipt_age_ms": {
+      "samples": 5705,
+      "minimum": 0.47488699783571064,
+      "median": 49.924625986022875,
+      "p95": 96.76081400248222,
+      "maximum": 130.7672449911479
+    },
+    "supervisor_odom_measurement_age_ms": {
+      "samples": 5705,
+      "minimum": 24.0,
+      "median": 84.0,
+      "p95": 131.20000000000073,
+      "maximum": 156.0
+    },
+    "bridge_odom_receipt_age_ms": {
+      "samples": 5705,
+      "minimum": 0.4711769870482385,
+      "median": 50.05983100272715,
+      "p95": 96.6793920029886,
+      "maximum": 130.90843299869448
+    },
+    "samples_over_250ms_receipt": 0,
+    "deferred_odom_callback_count_at_end": 22
+  },
+  "abort_event": null,
+  "scope": "Execution only. processing_end_wall_ns is an upper proxy after LIO publication, not the exact DDS send timestamp; callback-minus-end may be slightly negative. Thread CPU, scheduler wait and wall processing are separate measurements. ROS clock age includes callback ordering and transport. Independent callbacks do not prove supervisor freshness. Supervisor samples are recorded only from the instrumented run; no safety thresholds or callbacks are changed."
+}

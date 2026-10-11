@@ -373,3 +373,54 @@ python3 astra/tools/audit_height_dynamics_117.py astra/runtime/gps_delay_recheck
 汇总证据：`height_diagnostics_comparison_117.json`、`height_dynamics_baseline_117.json`、`height_dynamics_gpsdelay0_117.json`、`height_dynamics_pressure005_117.json`、`pressure0_failed_attempt_117.json`、`height_audit_active_guard_117.json`、`height_diagnostics_cleanup_117.json`。完整正常路线为 `lateral_gpsdelay0_117_01`；低噪声部分路线为 `lateral_pressure005_117_01`。下一轮需要在正常 3 Pa 噪声下、无离线计算竞争时复测接收可靠性，并继续分开起飞/交接动态和巡航气压滤波影响；不盲改 GPS 延迟，不关闭 reset/超时保护。
 
 ![低噪声原因诊断，4/5 目标后因接收超时中止](height_dynamics_pressure005_117.png)
+
+
+## 2026-10-11：正常噪声、无离线分析竞争的两轮复测
+
+`lateral_normal_quiet_117_01` 与 `_02` 均使用正常气压噪声 3 Pa、GPS 延迟 110 ms、EKF 气压观测标准差 0.3 m 和同一五目标路线。两轮分别完成 5/5，规划执行约 302.4/302.2 秒，起飞、前进、两次相反侧移、后退、返回、降落均完成。真实水平航程约 30 m；实际位移与逐目标端点误差在 `normal_quiet_1/2_route_motion_117.json`。无 armed failsafe、运动 XY/Z/yaw reset、External Vision 融合或接收保护中止。ULog 初始参数与修正几何基线无差异；模型唯一文本差别是气压噪声 `3` 序列化为 `3.0`，数值相同，归一化检查通过，FAST-LIVO2 配置和传感器 SDF 哈希相同。
+
+这里的“无竞争”指飞行期间未启动离线 ULog 读取、绘图、编译或 Gazebo GUI，控制、地图、规划与必要监测仍在运行，并不表示操作系统没有其他负载。第一轮没有新接收日志；第二轮只给监督节点的轨迹采样加入 odom 原始测量时间、接收时间、接收年龄和桥接收年龄，未改变 spin、控制接口、setpoint 或门限。
+
+| 指标（冻结执行前参考、测量时间配对） | 第 1 轮 | 第 2 轮 |
+| --- | --- | --- |
+| FAST-LIVO2 XY / Z p95 | 0.00515 / 0.02170 m | 0.00459 / 0.01443 m |
+| PX4 XY / Z p95 | 0.04696 / 0.05973 m | 0.06282 / 0.07133 m |
+| PX4 Z 最大绝对误差 | 0.09168 m | 0.11972 m |
+| PX4 航向 p95 | 0.570° | 1.361° |
+| 地面冻结后的两估计器高度差 p95 | 0.06339 m | 0.06375 m |
+| 实际高度相对冻结目标 p95（20 Hz 网格） | 0.05913 m | 0.07623 m |
+| 实际高度相对冻结目标最大绝对偏差 | 0.08708 m | 0.12237 m |
+| 机身中心最小水平障碍距离 | 0.83539 m | 0.78387 m |
+| 轨迹桥最大发送间隔 | 61.19 ms | 60.45 ms |
+
+障碍距离仍是机身参考点与障碍水平投影的距离，不能当作旋翼/整个机体间隙。两轮结果支持这条低速、宽裕间距的仿真路线能闭环执行，未证明严格悬停、精确高度控制、近障碍或真机条件已经通过。
+
+新增 `audit_odom_delivery_117.py` 按执行段分开计算 LIO/VIO 墙钟、线程 CPU、调度等待，以及两个独立订阅者的接收间隔和监督节点检查时的年龄。它使用 `processing_end_wall_ns` 作为 odom 已发布后的上界参考，而不是精确 DDS 发布时间；订阅回调减这个时间可略为负，报告明示此限制，不把负值当作时钟错误。CLI 与高度审计一样，在隔离仿真活跃时拒绝运行。
+
+两轮 LIO 最大墙钟耗时为 31.81/34.37 ms，VIO 为 24.84/25.35 ms；最大线程 CPU 约 24.23/25.03 ms（LIO）和 14.68/14.69 ms（VIO）。LIO 处理结束/发布间隔上界最大 135.89/134.41 ms。独立 monitor odom 接收间隔最大 147.04/134.04 ms，测量年龄 p95 均 48 ms、最大 68/64 ms，均无超过 250 ms 的执行段接收间隔。
+
+第二轮监督节点共有 5705 个轨迹采样：**检查时 odom 接收年龄 p95=96.76 ms、最大 130.77 ms；检查时测量年龄 p95=131.2 ms、最大 156 ms**。桥接收年龄最大 130.91 ms。48 ms 是消息刚回调时测量年龄，131.2 ms 是控制循环抽样时年龄，两者不能混用；10 Hz odom 在两个消息之间仍会自然变老。相同时间戳在 auditor 与 monitor 的回调时差 p95 约 1.2 ms。监督回调累计 22 次先于其 ROS /clock 对应更新，沿用原 pending 处理后正常恢复，未触发未来时间戳保护。
+
+与前一次低噪声诊断中的 435.6 ms 监督接收年龄不同，这两轮未复现超时，支持避免重型离线计算和飞行并行这一工作方式。不过没有重新注入负载做因果实验，也没有证明所有主机负载下都稳定，因此不把离线绘图写成已经确认的唯一根因。保护仍为原 250 ms，未延长超时或降低地图/odom 安全门控。
+
+高度瞬态审计增加了 20 Hz 公共网格上的绝对误差峰值检查：超过 0.10 m、峰间至少 2 秒，保存每个峰附近 ±2 秒气压与 GNSS 创新/融合状态和滤波故障。第一轮没有超过 0.10 m 的实际高度跟踪峰；第二轮在 122.562/374.862 s 发生 −0.11786/−0.12237 m 偏差，交接后分别 30.55/282.85 秒，不能归为尚未完成起飞。
+
+第二次峰值的分解为：PX4 估计比真值高 0.07634 m，控制对自身估计的高度跟踪偏差 −0.04602 m，实际合计低约 0.12237 m。附近气压/GNSS 均保持融合，未拒绝观测，滤波故障位为零，最大气压/GNSS 垂直速度创新 test ratio 约 0.0672/0.00056，未达到拒绝门限。目标高度跨度约 0.00000012 m；目标没有在上下跳。不能用“没有创新拒绝”证明估计精确，也不能据峰附近相关性证明某次气压噪声独立导致该峰。原模型杠杆臂或大 VIO 修正不是这些记录支持的解释，气压估计波动与控制跟踪仍是重点。
+
+两轮 RSS 约 183.96→403.87 MiB、183.95→407.11 MiB；最后一分钟增量 0.28/2.01 MiB，最后两分钟仍为 6.87/10.79 MiB。保存完整内存报告，不能因此宣称新区域地图已长期平台化。
+
+验证：39 个轨迹桥/路线回归通过；新离线接收审计的活动仿真拒绝检查通过（使用受控 sleep 进程模拟 argv/分区，未启动飞机）。所有进程退出，原 1.15 参数/源码基线哈希保留。默认参数、正常噪声模型与保护未改；本地提交未推送 GitHub。
+
+```bash
+# 每轮必须使用新名称，运行期间不要启动离线绘图/分析或另一套仿真。
+bash astra/run_117.bash obstacle quiet_recheck_01 --calibrate-ground-height --route-json astra/config/route_lateral_rectangle.json
+# 等仿真全部退出后，再分析。
+python3 astra/tools/analyze_ego_obstacle_20261010.py astra/runtime/quiet_recheck_01
+python3 astra/tools/audit_obstacle_reliability_20261010.py astra/runtime/quiet_recheck_01
+python3 astra/tools/audit_odom_delivery_117.py astra/runtime/quiet_recheck_01 --output astra/validation/quiet_delivery_01.json
+python3 astra/tools/audit_height_dynamics_117.py astra/runtime/quiet_recheck_01 --output astra/validation/quiet_height_01.json --plot astra/validation/quiet_height_01.png
+```
+
+汇总 `normal_quiet_comparison_117.json`；原始数据分别在 `astra/runtime/lateral_normal_quiet_117_01` 和 `_02`，高度曲线与接收、运动、地图内存报告均已保存。下一步若要改善高度控制，应针对真实噪声下的滤波/控制动态做有对照的实验，不能把仿真噪声直接降小来替代正式验收。这两轮已有结果允许继续低速、宽裕距离的仿真开发；通用坐标认证、近障碍、长期运行与真机验收仍分别保持未通过状态。
+
+![正常噪声第二轮：高度估计与跟踪，两个超过 10 cm 的瞬态仍存在](height_dynamics_normal_quiet_2_117.png)

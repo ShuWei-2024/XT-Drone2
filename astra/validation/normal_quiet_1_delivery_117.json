@@ -1,0 +1,148 @@
+{
+  "run": "lateral_normal_quiet_117_01",
+  "flight_complete": true,
+  "disarmed": true,
+  "fault": "",
+  "execution_interval_measurement_ns": [
+    92084000000,
+    394500000000
+  ],
+  "processing_stages_ms": {
+    "LIO": {
+      "processing_us": {
+        "samples": 3024,
+        "minimum": 11.296,
+        "median": 17.536,
+        "p95": 23.3184,
+        "maximum": 31.813
+      },
+      "thread_cpu_us": {
+        "samples": 3024,
+        "minimum": 10.26,
+        "median": 15.4285,
+        "p95": 19.8615,
+        "maximum": 24.228
+      },
+      "thread_scheduler_wait_us": {
+        "samples": 3024,
+        "minimum": 0.0,
+        "median": 0.962,
+        "p95": 3.2232999999999983,
+        "maximum": 11.835
+      }
+    },
+    "VIO": {
+      "processing_us": {
+        "samples": 3024,
+        "minimum": 6.732,
+        "median": 13.048,
+        "p95": 17.043599999999998,
+        "maximum": 24.842
+      },
+      "thread_cpu_us": {
+        "samples": 3024,
+        "minimum": 6.31,
+        "median": 10.572,
+        "p95": 12.44785,
+        "maximum": 14.682
+      },
+      "thread_scheduler_wait_us": {
+        "samples": 3024,
+        "minimum": 0.0,
+        "median": 1.05,
+        "p95": 3.11485,
+        "maximum": 8.335
+      }
+    }
+  },
+  "publisher_lio_end_wall_cadence": {
+    "callback_or_update_gap_ms": {
+      "samples": 3023,
+      "minimum": 74.301755,
+      "median": 100.297664,
+      "p95": 113.1394263,
+      "maximum": 135.888885
+    },
+    "gaps_over_250ms": 0,
+    "largest_gap": {
+      "before_measurement_ns": 360100000000,
+      "after_measurement_ns": 360228000000,
+      "before_wall_ns": 132990878369382,
+      "after_wall_ns": 132991014258267
+    }
+  },
+  "monitor_callback_cadence": {
+    "callback_or_update_gap_ms": {
+      "samples": 3023,
+      "minimum": 70.381854,
+      "median": 100.198931,
+      "p95": 113.7188783,
+      "maximum": 147.044589
+    },
+    "gaps_over_250ms": 0,
+    "largest_gap": {
+      "before_measurement_ns": 307300000000,
+      "after_measurement_ns": 307428000000,
+      "before_wall_ns": 132937758462998,
+      "after_wall_ns": 132937905507587
+    }
+  },
+  "frame_callback_cadence": {
+    "callback_or_update_gap_ms": {
+      "samples": 3023,
+      "minimum": 74.325942,
+      "median": 100.219408,
+      "p95": 112.8338461,
+      "maximum": 135.427959
+    },
+    "gaps_over_250ms": 0,
+    "largest_gap": {
+      "before_measurement_ns": 360100000000,
+      "after_measurement_ns": 360228000000,
+      "before_wall_ns": 132990876026265,
+      "after_wall_ns": 132991011454224
+    }
+  },
+  "monitor_measurement_age_at_callback_ms": {
+    "samples": 3024,
+    "minimum": 4.0,
+    "median": 32.0,
+    "p95": 48.0,
+    "maximum": 68.0
+  },
+  "frame_callback_minus_monitor_callback_ms": {
+    "samples": 3024,
+    "minimum": -32.563955,
+    "median": 0.028593,
+    "p95": 1.27333635,
+    "maximum": 3.262611
+  },
+  "callback_after_update": {
+    "monitor": {
+      "matched_samples": 3024,
+      "callback_minus_lio_end_wall_ms_proxy": {
+        "samples": 3024,
+        "minimum": -6.517017,
+        "median": -2.250257,
+        "p95": -0.9737002000000008,
+        "maximum": 30.528388
+      }
+    },
+    "frame_auditor": {
+      "matched_samples": 3024,
+      "callback_minus_lio_end_wall_ms_proxy": {
+        "samples": 3024,
+        "minimum": -7.043391,
+        "median": -2.1782880000000002,
+        "p95": -0.8707199500000002,
+        "maximum": 0.832877
+      }
+    }
+  },
+  "supervisor_tracking_samples": {
+    "available": false,
+    "samples": 0
+  },
+  "abort_event": null,
+  "scope": "Execution only. processing_end_wall_ns is an upper proxy after LIO publication, not the exact DDS send timestamp; callback-minus-end may be slightly negative. Thread CPU, scheduler wait and wall processing are separate measurements. ROS clock age includes callback ordering and transport. Independent callbacks do not prove supervisor freshness. Supervisor samples are recorded only from the instrumented run; no safety thresholds or callbacks are changed."
+}

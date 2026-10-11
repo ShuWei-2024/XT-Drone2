@@ -270,8 +270,18 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                 break
             if now >= next_tick:
                 bridge.tick()
+                sample_wall=time.monotonic_ns()
+                odom_stamp=None if node.odom is None else stamp_ns(node.odom.header.stamp)
                 bridge_rows.append(dict(sim_ns=node.get_clock().now().nanoseconds,
-                    wall_ns=time.monotonic_ns(), state=bridge.mode, truth=list(node.truth), goal_index=goal_index,
+                    wall_ns=sample_wall, state=bridge.mode, truth=list(node.truth), goal_index=goal_index,
+                    supervisor_odom_measurement_ns=odom_stamp,
+                    supervisor_odom_receipt_monotonic_ns=int(node.odom_wall*1e9),
+                    supervisor_odom_receipt_age_sec=sample_wall/1e9-node.odom_wall,
+                    supervisor_odom_measurement_age_sec=None if odom_stamp is None else
+                        (node.get_clock().now().nanoseconds-odom_stamp)/1e9,
+                    bridge_odom_receipt_age_sec=None if bridge.odom_wall is None else
+                        sample_wall/1e9-bridge.odom_wall,
+                    deferred_supervisor_odom_count=node.deferred_odom_count,
                     tracking_yaw_ned_rad=bridge.tracking_yaw,
                     px4=[node.local.x,node.local.y,node.local.z],
                     target=None if bridge.pose is None else bridge.transform((

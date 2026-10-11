@@ -7,7 +7,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 import numpy as np
-from scipy.signal import butter, sosfiltfilt
+from scipy.signal import butter, find_peaks, sosfiltfilt
 from audit_obstacle_reliability_20261010 import pair
 from run_sitl_117 import is_simulation_command
 sys.path.append(str(Path.home()/'dev/px4/venv/lib/python3.12/site-packages'))
@@ -91,6 +91,25 @@ def audit(directory,plot_path=None):
     phase_stats={'after_first_10_seconds':dict(
         px4_estimation_error_m=stats(estimate_error[after_handoff]),
         actual_tracking_error_m=stats(true_tracking[after_handoff]))}
+    peak_indices,_=find_peaks(abs(true_tracking),height=.10,distance=40)
+    height_transients=[]
+    for index in peak_indices:
+        time_sec=float(grid[index])
+        goal=max((e for e in goals if e['sim_ns']/1e9<=time_sec),key=lambda e:e['sim_ns'])
+        event=dict(measurement_time_sec=time_sec,goal_index=goal['goal_index'],
+            seconds_after_goal=time_sec-goal['sim_ns']/1e9,
+            actual_tracking_error_m=float(true_tracking[index]),
+            px4_estimation_error_m=float(estimate_error[index]),
+            controller_tracking_error_m=float(control_error[index]),
+            seconds_after_handoff=time_sec-lo,observations={})
+        for topic,fields in (
+            ('estimator_aid_src_baro_hgt',('innovation','innovation_filtered','test_ratio','fused','innovation_rejected')),
+            ('estimator_aid_src_gnss_vel',('innovation[2]','innovation_filtered[2]','test_ratio[2]','fused','innovation_rejected')),
+            ('estimator_status',('filter_fault_flags','output_tracking_error[2]'))):
+            d=data[topic];t=d['timestamp_sample'].astype(float)/1e6
+            window=(t>=time_sec-2.)&(t<=time_sec+2.)
+            event['observations'][topic]={k:stats(d[k][window]) for k in fields if k in d}
+        height_transients.append(event)
     gps=data['vehicle_gps_position'];gt=gps['timestamp_sample'].astype(float)/1e6
     velocity_truth=data['vehicle_local_position_groundtruth']
     vt=velocity_truth['timestamp_sample'].astype(float)/1e6
@@ -152,6 +171,9 @@ def audit(directory,plot_path=None):
         gps_publication_minus_measurement_ms=stats((gps['timestamp'][gps_mask].astype(float)-
             gps['timestamp_sample'][gps_mask])/1000.),
         worst_actual_tracking_event=worst_event,descriptive_phase_statistics=phase_stats,
+        actual_tracking_peaks_over_010m=height_transients,
+        peak_detection_scope='20 Hz absolute tracking error local maxima above 0.10 m, '
+            'at least 2 seconds apart; +/-2 second observations are descriptive, not causal attribution',
         baro_lowpass_error_correlations=sensor_correlations,
         px4_time_shift_error_m=lag_errors,
         scope='Offline common 20 Hz grid using measured Gazebo body pose and initial frozen offsets; '
