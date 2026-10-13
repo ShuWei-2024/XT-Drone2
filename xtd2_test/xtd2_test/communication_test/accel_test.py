@@ -31,7 +31,9 @@ class TestAccelerationPublisher(Node):
         # 订阅PX4的本地位置信息
         self.position_subscription = self.create_subscription(
             VehicleLocalPosition,
-            f'/{namespace}/fmu/out/vehicle_local_position',
+            f'/{namespace}/fmu/out/vehicle_local_position' + (
+                f'_v{VehicleLocalPosition.MESSAGE_VERSION}'
+                if getattr(VehicleLocalPosition, 'MESSAGE_VERSION', 0) else ''),
             self.position_callback,
             QoSProfile(depth=10, reliability=qos_profile_sensor_data.reliability)
         )

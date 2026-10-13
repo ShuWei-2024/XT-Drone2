@@ -1,0 +1,38 @@
+{
+  "observed_orphan": {
+    "pid": 1956438,
+    "process_group": 1956406,
+    "parent_pid": 88579,
+    "rewritten_argv_0": "gz sim -s -r /home/cyf/dev/XT-Drone2-astra/astra/runtime/map_loss_117_01/test_world.sdf",
+    "gz_partition": "astra_px4_117",
+    "terminated_by": "verified owned process group, SIGTERM then SIGKILL"
+  },
+  "failed_preflight_runs": [
+    {
+      "run": "repeat_north_south_117_01",
+      "flight_started": false,
+      "preflight_passed": false,
+      "raw_lidar_received": true,
+      "raw_camera_received": true,
+      "odom_received": false,
+      "reason": "RuntimeError: Passive health gate failed; no arming commands sent"
+    },
+    {
+      "run": "repeat_north_south_117_02",
+      "flight_started": false,
+      "preflight_passed": false,
+      "raw_lidar_received": true,
+      "raw_camera_received": true,
+      "odom_received": false,
+      "reason": "RuntimeError: Passive health gate failed; no arming commands sent"
+    }
+  ],
+  "input_evidence": "raw lidar/camera/IMU callbacks received; adapter audit clock_ns stayed zero, no sync timer events; estimator lidar/rgb callbacks stayed zero",
+  "fix": "Recognize full rewritten gz sim argv title; signal owned groups even if launcher already exited; reap after SIGINT/TERM/KILL",
+  "causal_scope": "Blocked input synchronization was observed with orphan sharing partition; removal restored passive health in next run. Not a claim about historical PX4 sensor outages.",
+  "clean_restart": {
+    "run": "repeat_north_south_117_03",
+    "passive_health_passed": true,
+    "planner_control_handoff_seen": true
+  }
+}

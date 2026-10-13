@@ -1,0 +1,82 @@
+{
+  "run": "lateral_normal_quiet_117_01",
+  "estimator_config_source": "astra/runtime/lateral_normal_quiet_117_01/estimator_config.yaml",
+  "published_reference_translation_imu_m": [
+    0.0,
+    0.0,
+    -0.12
+  ],
+  "published_odom_child_frame": "base_link",
+  "geometry_model_frame_m": {
+    "px4_imu_base_link": [
+      0.0,
+      0.0,
+      0.24
+    ],
+    "livo_imu": [
+      0.0,
+      0.0,
+      0.36
+    ],
+    "lidar_link": [
+      0.0,
+      0.0,
+      0.42
+    ],
+    "lidar_scan_origin": [
+      0.0,
+      0.0,
+      0.45999999999999996
+    ]
+  },
+  "livo_imu_relative_to_base_m": [
+    0.0,
+    0.0,
+    0.12
+  ],
+  "expected_lidar_to_imu_translation_m": [
+    0.0,
+    0.0,
+    0.09999999999999998
+  ],
+  "configured_lidar_to_imu_translation_m": [
+    0.0,
+    0.0,
+    0.1
+  ],
+  "expected_lidar_to_camera_optical_translation_m": [
+    -7.834444204452502e-13,
+    -0.1600000000007834,
+    -0.15999999999921655
+  ],
+  "configured_lidar_to_camera_translation_m": [
+    0.0,
+    -0.16,
+    -0.16
+  ],
+  "convention": "p_imu=R_IL*p_lidar+t_IL as used by transformLidar; expected geometry assumes PointCloud2 XYZ originate at the GPU lidar scan origin. Adapter copies XYZ without translation.",
+  "timestamp_paired_samples": 3024,
+  "frozen_ground_offset_m": 0.14315590335036713,
+  "frozen_airborne_offset_m": 0.1190319010730776,
+  "airborne_minus_ground_offset_m": -0.02412400227728953,
+  "execution_height_difference_after_ground_offset": {
+    "signed_median_m": -0.010981650091592049,
+    "signed_min_m": -0.11335253930572867,
+    "signed_max_m": 0.06548710821619205,
+    "absolute_p95_m": 0.06338722214159147
+  },
+  "execution_height_difference_after_airborne_offset": {
+    "signed_median_m": 0.013142352185697481,
+    "signed_min_m": -0.08922853702843914,
+    "signed_max_m": 0.08961111049348158,
+    "absolute_p95_m": 0.06795034618409862
+  },
+  "maximum_px4_tilt_deg": 0.9293591380119324,
+  "max_vertical_lever_change_from_level_m": 1.5785693904035725e-05,
+  "ekf_imu_position_parameters": {
+    "EKF2_IMU_POS_X": 0.0,
+    "EKF2_IMU_POS_Y": 0.0,
+    "EKF2_IMU_POS_Z": 0.0
+  },
+  "scope": "Offline model and log audit. No flight gates, estimator parameters or model positions changed; airborne offset was frozen before route execution, not refitted to flight data. Mounting discrepancies are not proof of the source of the observed height residual."
+}

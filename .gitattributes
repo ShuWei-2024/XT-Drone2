@@ -1,0 +1,4 @@
+# Patch context and upstream vendored whitespace are preserved as source data.
+astra/config/*.patch -whitespace
+astra/baseline/*.patch -whitespace
+astra/vendor/Sophus-legacy/** -whitespace

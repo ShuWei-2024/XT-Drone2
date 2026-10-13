@@ -1,0 +1,39 @@
+{
+  "passed": true,
+  "checks": {
+    "scan_tf_origin_matches_sensor": true,
+    "lidar_to_imu_rotation": true,
+    "lidar_to_imu_translation": true,
+    "lidar_to_camera_rotation": true,
+    "lidar_to_camera_translation": true,
+    "published_position_is_body_centre": true,
+    "imu_and_body_axes_match": true,
+    "odom_child_frame_is_body": true,
+    "static_tf_mid360_link": true,
+    "static_tf_mid360_scan_frame": true,
+    "static_tf_camera_link": true,
+    "static_tf_camera_color_optical_frame": true,
+    "static_tf_camera_depth_optical_frame": true,
+    "static_tf_imu_link": true,
+    "cloud_frame_is_scan_origin": true,
+    "adapter_frame_is_scan_origin": true,
+    "adapter_imu_translation": true,
+    "adapter_camera_translation": true
+  },
+  "model_to_body_translation_m": [
+    0.0,
+    0.0,
+    0.24
+  ],
+  "body_to_imu_translation_m": [
+    0.0,
+    0.0,
+    0.12
+  ],
+  "body_to_scan_translation_m": [
+    0.0,
+    0.0,
+    0.21999999999999997
+  ],
+  "scope": "Expanded SDF including inherited model offsets; checked against TF and active estimator config"
+}

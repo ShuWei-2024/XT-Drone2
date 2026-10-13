@@ -1,0 +1,282 @@
+[
+  {
+    "run": "astra/runtime/small_motion_01",
+    "mode": "small",
+    "exit_code": 1,
+    "failure": "RuntimeError: Passive health gate failed; no arming commands sent",
+    "original_baseline_preserved": true,
+    "failed_passive_checks": [
+      "px4_measurement_clock_difference_p95_below_20ms"
+    ],
+    "timing": {
+      "px4_measurement_clock_difference": {
+        "p95_ms": 28.0,
+        "max_ms": 32.0,
+        "min_ms": 0.0
+      }
+    }
+  },
+  {
+    "run": "astra/runtime/small_motion_02",
+    "mode": "small",
+    "exit_code": 1,
+    "failure": "RuntimeError: Passive health gate failed; no arming commands sent",
+    "original_baseline_preserved": true,
+    "failed_passive_checks": [
+      "px4_measurement_not_future_over_20ms"
+    ],
+    "timing": {
+      "px4_measurement_receipt_age": {
+        "p95_ms": 20.0,
+        "max_ms": 36.0,
+        "min_ms": -204.0
+      },
+      "px4_sample_to_publish": {
+        "p95_ms": 16.0,
+        "max_ms": 16.0,
+        "min_ms": 0.0
+      },
+      "px4_publish_to_last_received_clock": {
+        "p95_ms": 8.0,
+        "max_ms": 24.0,
+        "min_ms": -216.0
+      },
+      "px4_truth_pair_dt": {
+        "p95_ms": 8.0,
+        "max_ms": 12.0,
+        "min_ms": 0.0
+      },
+      "px4_truth_pair_fraction_within_20ms": 1.0
+    }
+  },
+  {
+    "run": "astra/runtime/small_motion_03",
+    "mode": "small",
+    "exit_code": 1,
+    "failure": "",
+    "original_baseline_preserved": true,
+    "flight_result": {
+      "route_complete": false,
+      "fault": "initial position/height alignment invalid",
+      "injection_requested": false,
+      "injection_started": false,
+      "disarmed": true,
+      "test_mode": "open_motion_audit",
+      "deferred_odom_count": 0,
+      "setpoint_recording": "all_send_calls"
+    },
+    "failed_passive_checks": [],
+    "timing": {
+      "px4_measurement_receipt_age": {
+        "p95_ms": 20.0,
+        "max_ms": 48.0,
+        "min_ms": -192.0
+      },
+      "px4_sample_to_publish": {
+        "p95_ms": 12.0,
+        "max_ms": 12.0,
+        "min_ms": 0.0
+      },
+      "px4_publish_to_last_received_clock": {
+        "p95_ms": 8.0,
+        "max_ms": 36.0,
+        "min_ms": -204.0
+      },
+      "px4_truth_pair_dt": {
+        "p95_ms": 8.0,
+        "max_ms": 8.0,
+        "min_ms": 0.0
+      },
+      "px4_truth_pair_fraction_within_20ms": 1.0
+    }
+  },
+  {
+    "run": "astra/runtime/small_motion_04",
+    "mode": "small",
+    "exit_code": 1,
+    "failure": "",
+    "original_baseline_preserved": true,
+    "flight_result": {
+      "route_complete": false,
+      "fault": "preflight did not remain healthy for 2 s: ",
+      "injection_requested": false,
+      "injection_started": false,
+      "disarmed": true,
+      "test_mode": "open_motion_audit",
+      "deferred_odom_count": 18,
+      "setpoint_recording": "all_send_calls"
+    },
+    "failed_passive_checks": [],
+    "timing": {
+      "px4_measurement_receipt_age": {
+        "p95_ms": 16.0,
+        "max_ms": 20.0,
+        "min_ms": 4.0
+      },
+      "px4_sample_to_publish": {
+        "p95_ms": 8.0,
+        "max_ms": 8.0,
+        "min_ms": 8.0
+      },
+      "px4_publish_to_last_received_clock": {
+        "p95_ms": 8.0,
+        "max_ms": 12.0,
+        "min_ms": -4.0
+      },
+      "px4_truth_pair_dt": {
+        "p95_ms": 8.0,
+        "max_ms": 8.0,
+        "min_ms": 0.0
+      },
+      "px4_truth_pair_fraction_within_20ms": 1.0
+    }
+  },
+  {
+    "run": "astra/runtime/small_baro_only_01",
+    "mode": "small",
+    "exit_code": 1,
+    "failure": "",
+    "original_baseline_preserved": true,
+    "flight_result": {
+      "route_complete": false,
+      "fault": "PX4 rejected Offboard/arming",
+      "injection_requested": false,
+      "injection_started": false,
+      "disarmed": true,
+      "test_mode": "open_motion_audit",
+      "deferred_odom_count": 0,
+      "setpoint_recording": "all_send_calls"
+    },
+    "failed_passive_checks": [],
+    "timing": {
+      "px4_measurement_receipt_age": {
+        "p95_ms": 8.0,
+        "max_ms": 16.0,
+        "min_ms": -4.0
+      },
+      "px4_sample_to_publish": {
+        "p95_ms": 4.0,
+        "max_ms": 8.0,
+        "min_ms": 0.0
+      },
+      "px4_publish_to_last_received_clock": {
+        "p95_ms": 8.0,
+        "max_ms": 8.0,
+        "min_ms": -4.0
+      },
+      "px4_truth_pair_dt": {
+        "p95_ms": 8.0,
+        "max_ms": 12.0,
+        "min_ms": 0.0
+      },
+      "px4_truth_pair_fraction_within_20ms": 1.0
+    },
+    "interpretation": "EKF2_GPS_CTRL=1 removes velocity aiding, not altitude. Parameter-bit interpretation was incorrect; experiment does not test GPS height fusion and was reverted. No arming."
+  },
+  {
+    "run": "astra/runtime/small_mag_enu_01",
+    "mode": "small",
+    "exit_code": 1,
+    "failure": "RuntimeError: Passive health gate failed; no arming commands sent",
+    "original_baseline_preserved": true,
+    "runtime": {
+      "mode": "small",
+      "world": "/home/cyf/dev/XT-Drone2-astra/astra/runtime/small_mag_enu_01/test_world.sdf",
+      "px4": "/home/cyf/dev/px4/PX4-Autopilot-1.17",
+      "namespace": "x500_0",
+      "magnetometer_convention": "Gazebo world ENU / tesla -> body FLU -> PX4 body FRD / gauss",
+      "sensors_depth_removed": true,
+      "parameter_overrides": {
+        "UXRCE_DDS_SYNCT": 0,
+        "EKF2_EV_CTRL": 0,
+        "EKF2_HGT_REF": 0,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_MAG_TYPE": 1,
+        "EKF2_BARO_NOISE": 0.1,
+        "EKF2_GND_EFF_DZ": 0,
+        "MPC_XY_P": 1.2
+      },
+      "isolated_rootfs": "/home/cyf/dev/XT-Drone2-astra/astra/runtime/small_mag_enu_01",
+      "ros_domain": 94,
+      "gz_partition": "astra_px4_117"
+    }
+  },
+  {
+    "run": "astra/runtime/small_mag_enu_02",
+    "mode": "small",
+    "exit_code": 1,
+    "failure": "",
+    "original_baseline_preserved": true,
+    "runtime": {
+      "mode": "small",
+      "world": "/home/cyf/dev/XT-Drone2-astra/astra/runtime/small_mag_enu_02/test_world.sdf",
+      "px4": "/home/cyf/dev/px4/PX4-Autopilot-1.17",
+      "namespace": "x500_0",
+      "magnetometer_convention": "Gazebo world ENU / tesla -> body FLU -> PX4 body FRD / gauss",
+      "magnetometer_noise_scale_from_official_gauss_model": 0.0001,
+      "sensors_depth_removed": true,
+      "parameter_overrides": {
+        "UXRCE_DDS_SYNCT": 0,
+        "EKF2_EV_CTRL": 0,
+        "EKF2_HGT_REF": 0,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_MAG_TYPE": 1,
+        "EKF2_BARO_NOISE": 0.1,
+        "EKF2_GND_EFF_DZ": 0,
+        "MPC_XY_P": 1.2
+      },
+      "isolated_rootfs": "/home/cyf/dev/XT-Drone2-astra/astra/runtime/small_mag_enu_02",
+      "ros_domain": 94,
+      "gz_partition": "astra_px4_117"
+    },
+    "flight_result": {
+      "route_complete": false,
+      "fault": "preflight did not remain healthy for 2 s: initial position/height alignment outside 0.5 m XY / 0.15 m Z bounds",
+      "injection_requested": false,
+      "injection_started": false,
+      "disarmed": true,
+      "test_mode": "open_motion_audit",
+      "deferred_odom_count": 0,
+      "setpoint_recording": "all_send_calls"
+    }
+  },
+  {
+    "run": "astra/runtime/small_mag_baro_01",
+    "mode": "small",
+    "exit_code": 1,
+    "failure": "",
+    "original_baseline_preserved": true,
+    "runtime": {
+      "mode": "small",
+      "world": "/home/cyf/dev/XT-Drone2-astra/astra/runtime/small_mag_baro_01/test_world.sdf",
+      "px4": "/home/cyf/dev/px4/PX4-Autopilot-1.17",
+      "namespace": "x500_0",
+      "magnetometer_convention": "Gazebo world ENU / tesla -> body FLU -> PX4 body FRD / gauss",
+      "magnetometer_noise_scale_from_official_gauss_model": 0.0001,
+      "sensors_depth_removed": true,
+      "parameter_overrides": {
+        "UXRCE_DDS_SYNCT": 0,
+        "EKF2_EV_CTRL": 0,
+        "EKF2_HGT_REF": 0,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_MAG_TYPE": 1,
+        "EKF2_BARO_NOISE": 0.3,
+        "EKF2_GND_EFF_DZ": 0,
+        "MPC_XY_P": 1.2
+      },
+      "isolated_rootfs": "/home/cyf/dev/XT-Drone2-astra/astra/runtime/small_mag_baro_01",
+      "ros_domain": 94,
+      "gz_partition": "astra_px4_117"
+    },
+    "flight_result": {
+      "route_complete": false,
+      "fault": "preflight did not remain healthy for 2 s: initial position/height alignment outside 0.5 m XY / 0.15 m Z bounds",
+      "injection_requested": false,
+      "injection_started": false,
+      "disarmed": true,
+      "test_mode": "open_motion_audit",
+      "deferred_odom_count": 0,
+      "setpoint_recording": "all_send_calls"
+    }
+  }
+]

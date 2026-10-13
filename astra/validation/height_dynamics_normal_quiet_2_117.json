@@ -1,0 +1,583 @@
+{
+  "run": "lateral_normal_quiet_117_02",
+  "flight_complete": true,
+  "fault": "",
+  "configured_pressure_noise_pa": 3.0,
+  "diagnostic_noiseless_pressure": false,
+  "diagnostic_reduced_pressure_noise": false,
+  "measurement_interval_sec": [
+    93.012,
+    393.26199999998295
+  ],
+  "frozen_initial_truth_bias_m": {
+    "fast_livo2": 0.35381162628578955,
+    "px4": 0.32773414602014195
+  },
+  "target_reference": "Planner NED target mapped to Gazebo body height using the two seconds before the first goal; this is an offline frozen reference, not ground calibration",
+  "parameters": {
+    "EKF2_BARO_NOISE": 0.30000001192092896,
+    "EKF2_BARO_DELAY": 0.0,
+    "EKF2_GPS_DELAY": 110.0,
+    "EKF2_GPS_CTRL": 5,
+    "EKF2_HGT_REF": 0,
+    "EKF2_DELAY_MAX": 200.0,
+    "EKF2_TAU_POS": 0.25,
+    "EKF2_TAU_VEL": 0.25
+  },
+  "fusion_active_samples": {
+    "cs_baro_hgt": 300,
+    "cs_gps_hgt": 0,
+    "cs_ev_hgt": 0,
+    "cs_gnss_vel": 300,
+    "cs_gnd_effect": 0
+  },
+  "planned_height_span_m": 1.1920928955078125e-07,
+  "internal_height_target_span_m": 1.1920928955078125e-07,
+  "planned_vertical_velocity_mps": {
+    "samples": 6006,
+    "median": -4.25254073164977e-16,
+    "minimum": -2.060863624609275e-08,
+    "maximum": 1.0762870611208531e-08,
+    "stddev": 3.732320339216537e-09,
+    "absolute_p95": 9.790067867499853e-09
+  },
+  "true_height_span_m": 0.188545130449133,
+  "px4_estimation_error_m": {
+    "samples": 6006,
+    "median": 0.02264145011515828,
+    "minimum": -0.07005021115678445,
+    "maximum": 0.11975967425255463,
+    "stddev": 0.02916293424962181,
+    "absolute_p95": 0.07141992842535466
+  },
+  "livo_estimation_error_m": {
+    "samples": 6006,
+    "median": 0.0024800941212743677,
+    "minimum": -0.008666802253530115,
+    "maximum": 0.018573740648692993,
+    "stddev": 0.0063250376063857874,
+    "absolute_p95": 0.01439018761928601
+  },
+  "controller_estimated_tracking_error_m": {
+    "samples": 6006,
+    "median": 0.000778436660614723,
+    "minimum": -0.06425118446348344,
+    "maximum": 0.07188212871566901,
+    "stddev": 0.019578644831913836,
+    "absolute_p95": 0.038589447736806115
+  },
+  "actual_tracking_error_m": {
+    "samples": 6006,
+    "median": -0.02239139948418689,
+    "minimum": -0.12236528893153986,
+    "maximum": 0.06617984151759315,
+    "stddev": 0.030039330140624137,
+    "absolute_p95": 0.07622907689803182
+  },
+  "tracking_identity_max_residual_m": 0.0,
+  "baro_height_scatter_raw_samples_m": {
+    "samples": 5004,
+    "median": 0.0,
+    "minimum": -0.5822091652466038,
+    "maximum": 0.5314774667633894,
+    "stddev": 0.147207804815012,
+    "absolute_p95": 0.29393689804083195
+  },
+  "baro_height_scatter_interpolated_20hz_m": {
+    "samples": 6006,
+    "median": 0.0,
+    "minimum": -0.45239261828648625,
+    "maximum": 0.5108291022850361,
+    "stddev": 0.11999559828457453,
+    "absolute_p95": 0.2375208207000163
+  },
+  "gps_vertical_velocity_minus_truth_mps": {
+    "samples": 6006,
+    "median": 0.0001837293535892166,
+    "minimum": -0.07789323083083596,
+    "maximum": 0.07514904724804342,
+    "stddev": 0.02220457901345473,
+    "absolute_p95": 0.043518126649482305
+  },
+  "gps_velocity_time_shift_error_mps": {
+    "-0.2": {
+      "samples": 9086,
+      "median": -0.0003531918860972382,
+      "minimum": -0.09695349261164672,
+      "maximum": 0.09106312245130513,
+      "stddev": 0.025133162008623085,
+      "absolute_p95": 0.04936848678043913
+    },
+    "-0.11": {
+      "samples": 9086,
+      "median": -0.00021271314471960068,
+      "minimum": -0.09716130271553992,
+      "maximum": 0.08266641106456389,
+      "stddev": 0.023501845156272922,
+      "absolute_p95": 0.046009441185742794
+    },
+    "-0.05": {
+      "samples": 9086,
+      "median": 4.480853676937756e-05,
+      "minimum": -0.09664409756660468,
+      "maximum": 0.0783384287729859,
+      "stddev": 0.022899690829048983,
+      "absolute_p95": 0.04471981187816637
+    },
+    "0.0": {
+      "samples": 9086,
+      "median": -1.5410548076404563e-05,
+      "minimum": -0.09544533714652031,
+      "maximum": 0.07848935462534441,
+      "stddev": 0.02277806979720133,
+      "absolute_p95": 0.0443474589264934
+    },
+    "0.05": {
+      "samples": 9086,
+      "median": -2.7064792811341734e-05,
+      "minimum": -0.09421614147722662,
+      "maximum": 0.07975747548043832,
+      "stddev": 0.02302875568551934,
+      "absolute_p95": 0.04479756038635988
+    },
+    "0.11": {
+      "samples": 9086,
+      "median": 0.00018634409061647197,
+      "minimum": -0.0930115334689613,
+      "maximum": 0.08169679222628594,
+      "stddev": 0.02379694554696616,
+      "absolute_p95": 0.04649200115818551
+    },
+    "0.2": {
+      "samples": 9086,
+      "median": 9.282315150137017e-05,
+      "minimum": -0.10161791294812575,
+      "maximum": 0.08534857816993925,
+      "stddev": 0.025698007039388876,
+      "absolute_p95": 0.051154056447557716
+    }
+  },
+  "gps_publication_minus_measurement_ms": {
+    "samples": 9086,
+    "median": 0.0,
+    "minimum": 0.0,
+    "maximum": 0.0,
+    "stddev": 0.0,
+    "absolute_p95": 0.0
+  },
+  "worst_actual_tracking_event": {
+    "measurement_time_sec": 374.861999999984,
+    "goal_index": 4,
+    "seconds_after_latest_goal": 18.03399999998402,
+    "actual_tracking_error_m": -0.12236528893153986,
+    "estimator_error_m": 0.07634239693445255,
+    "controller_estimated_tracking_error_m": -0.04602289199708731,
+    "actual_body_height_m": 1.8295960232644444,
+    "target_body_height_m": 1.9519613121959842,
+    "livo_one_second_neighbourhood": {
+      "LIO": {
+        "samples": 20,
+        "processing_us": {
+          "samples": 20,
+          "median": 19164.5,
+          "minimum": 15549.0,
+          "maximum": 23660.0,
+          "stddev": 2247.073944043676,
+          "absolute_p95": 22710.95
+        },
+        "maximum_absolute_z_update_m": 0.0031143166500000596,
+        "lio_correspondences": {
+          "samples": 20,
+          "median": 6539.0,
+          "minimum": 6396.0,
+          "maximum": 6615.0,
+          "stddev": 77.22711635170641,
+          "absolute_p95": 6609.3
+        }
+      },
+      "VIO": {
+        "samples": 20,
+        "processing_us": {
+          "samples": 20,
+          "median": 13824.5,
+          "minimum": 9854.0,
+          "maximum": 16926.0,
+          "stddev": 1892.9353026450747,
+          "absolute_p95": 16573.55
+        },
+        "maximum_absolute_z_update_m": 0.003292325160000109,
+        "vio_accepted_patches": {
+          "samples": 20,
+          "median": 141.0,
+          "minimum": 134.0,
+          "maximum": 144.0,
+          "stddev": 2.277608394786075,
+          "absolute_p95": 144.0
+        },
+        "vio_update_rejected": {
+          "samples": 20,
+          "median": 0.0,
+          "minimum": 0.0,
+          "maximum": 0.0,
+          "stddev": 0.0,
+          "absolute_p95": 0.0
+        }
+      }
+    },
+    "frame_neighbourhood": {
+      "px4": {
+        "samples": 100,
+        "measurement_gap_ms": {
+          "samples": 99,
+          "median": 24.0,
+          "minimum": 16.0,
+          "maximum": 24.0,
+          "stddev": 3.999795933984511,
+          "absolute_p95": 24.0
+        }
+      },
+      "fast_livo2": {
+        "samples": 20,
+        "measurement_gap_ms": {
+          "samples": 19,
+          "median": 100.0,
+          "minimum": 96.0,
+          "maximum": 100.0,
+          "stddev": 1.7613895295454223,
+          "absolute_p95": 100.0
+        }
+      }
+    }
+  },
+  "descriptive_phase_statistics": {
+    "after_first_10_seconds": {
+      "px4_estimation_error_m": {
+        "samples": 5825,
+        "median": 0.02226776884699344,
+        "minimum": -0.07005021115678445,
+        "maximum": 0.11975967425255463,
+        "stddev": 0.028980360582817166,
+        "absolute_p95": 0.07034729048370095
+      },
+      "actual_tracking_error_m": {
+        "samples": 5825,
+        "median": -0.021951673456691356,
+        "minimum": -0.12236528893153986,
+        "maximum": 0.06617984151759315,
+        "stddev": 0.029937718982860864,
+        "absolute_p95": 0.07545240375817004
+      }
+    }
+  },
+  "actual_tracking_peaks_over_010m": [
+    {
+      "measurement_time_sec": 122.56199999999832,
+      "goal_index": 0,
+      "seconds_after_goal": 30.593999999998317,
+      "actual_tracking_error_m": -0.11785619174564776,
+      "px4_estimation_error_m": 0.09437470351796629,
+      "controller_tracking_error_m": -0.02348148822768148,
+      "seconds_after_handoff": 30.54999999999832,
+      "observations": {
+        "estimator_aid_src_baro_hgt": {
+          "innovation": {
+            "samples": 67,
+            "median": -0.03679966926574707,
+            "minimum": -0.3550184965133667,
+            "maximum": 0.3244962692260742,
+            "stddev": 0.15327641367912292,
+            "absolute_p95": 0.29649856090545645
+          },
+          "innovation_filtered": {
+            "samples": 67,
+            "median": -0.025914296507835388,
+            "minimum": -0.0973275676369667,
+            "maximum": 0.080722875893116,
+            "stddev": 0.043888770043849945,
+            "absolute_p95": 0.07405520156025887
+          },
+          "test_ratio": {
+            "samples": 67,
+            "median": 0.004498795606195927,
+            "minimum": 1.2428384252416436e-05,
+            "maximum": 0.0533393919467926,
+            "stddev": 0.012743163853883743,
+            "absolute_p95": 0.037235218286514264
+          },
+          "fused": {
+            "samples": 67,
+            "median": 1.0,
+            "minimum": 1.0,
+            "maximum": 1.0,
+            "stddev": 0.0,
+            "absolute_p95": 1.0
+          },
+          "innovation_rejected": {
+            "samples": 67,
+            "median": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "stddev": 0.0,
+            "absolute_p95": 0.0
+          }
+        },
+        "estimator_aid_src_gnss_vel": {
+          "innovation[2]": {
+            "samples": 121,
+            "median": 0.004816766828298569,
+            "minimum": -0.07699653506278992,
+            "maximum": 0.058410197496414185,
+            "stddev": 0.02990213967859745,
+            "absolute_p95": 0.06461642682552338
+          },
+          "innovation_filtered[2]": {
+            "samples": 121,
+            "median": 0.0032285077031701803,
+            "minimum": -0.04352017119526863,
+            "maximum": 0.030406702309846878,
+            "stddev": 0.022476091980934143,
+            "absolute_p95": 0.041827816516160965
+          },
+          "test_ratio[2]": {
+            "samples": 121,
+            "median": 3.829736670013517e-05,
+            "minimum": 1.92000929044589e-11,
+            "maximum": 0.0006551948026753962,
+            "stddev": 0.00014045082207303494,
+            "absolute_p95": 0.0004614648933056742
+          },
+          "fused": {
+            "samples": 121,
+            "median": 1.0,
+            "minimum": 1.0,
+            "maximum": 1.0,
+            "stddev": 0.0,
+            "absolute_p95": 1.0
+          },
+          "innovation_rejected": {
+            "samples": 121,
+            "median": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "stddev": 0.0,
+            "absolute_p95": 0.0
+          }
+        },
+        "estimator_status": {
+          "filter_fault_flags": {
+            "samples": 399,
+            "median": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "stddev": 0.0,
+            "absolute_p95": 0.0
+          },
+          "output_tracking_error[2]": {
+            "samples": 399,
+            "median": 0.01118902675807476,
+            "minimum": 0.001632319763302803,
+            "maximum": 0.03749384731054306,
+            "stddev": 0.006650174967944622,
+            "absolute_p95": 0.022520880773663515
+          }
+        }
+      }
+    },
+    {
+      "measurement_time_sec": 374.861999999984,
+      "goal_index": 4,
+      "seconds_after_goal": 18.03399999998402,
+      "actual_tracking_error_m": -0.12236528893153986,
+      "px4_estimation_error_m": 0.07634239693445255,
+      "controller_tracking_error_m": -0.04602289199708731,
+      "seconds_after_handoff": 282.849999999984,
+      "observations": {
+        "estimator_aid_src_baro_hgt": {
+          "innovation": {
+            "samples": 67,
+            "median": -0.015452146530151367,
+            "minimum": -0.35244882106781006,
+            "maximum": 0.39828741550445557,
+            "stddev": 0.1548549234867096,
+            "absolute_p95": 0.33720382452011105
+          },
+          "innovation_filtered": {
+            "samples": 67,
+            "median": -0.024172037839889526,
+            "minimum": -0.09031274169683456,
+            "maximum": 0.11375296860933304,
+            "stddev": 0.044790610671043396,
+            "absolute_p95": 0.08839029744267461
+          },
+          "test_ratio": {
+            "samples": 67,
+            "median": 0.004736039787530899,
+            "minimum": 3.76666343981924e-06,
+            "maximum": 0.06715239584445953,
+            "stddev": 0.014810455031692982,
+            "absolute_p95": 0.04812161326408386
+          },
+          "fused": {
+            "samples": 67,
+            "median": 1.0,
+            "minimum": 1.0,
+            "maximum": 1.0,
+            "stddev": 0.0,
+            "absolute_p95": 1.0
+          },
+          "innovation_rejected": {
+            "samples": 67,
+            "median": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "stddev": 0.0,
+            "absolute_p95": 0.0
+          }
+        },
+        "estimator_aid_src_gnss_vel": {
+          "innovation[2]": {
+            "samples": 121,
+            "median": -0.019746046513319016,
+            "minimum": -0.07140465825796127,
+            "maximum": 0.026657208800315857,
+            "stddev": 0.02209804765880108,
+            "absolute_p95": 0.05660140514373779
+          },
+          "innovation_filtered[2]": {
+            "samples": 121,
+            "median": -0.020777903497219086,
+            "minimum": -0.04167557507753372,
+            "maximum": -0.0007652427884750068,
+            "stddev": 0.010511954315006733,
+            "absolute_p95": 0.03825221583247185
+          },
+          "test_ratio[2]": {
+            "samples": 121,
+            "median": 4.906736648990773e-05,
+            "minimum": 9.47739775547518e-10,
+            "maximum": 0.000563492183573544,
+            "stddev": 0.00011940277181565762,
+            "absolute_p95": 0.00035409803967922926
+          },
+          "fused": {
+            "samples": 121,
+            "median": 1.0,
+            "minimum": 1.0,
+            "maximum": 1.0,
+            "stddev": 0.0,
+            "absolute_p95": 1.0
+          },
+          "innovation_rejected": {
+            "samples": 121,
+            "median": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "stddev": 0.0,
+            "absolute_p95": 0.0
+          }
+        },
+        "estimator_status": {
+          "filter_fault_flags": {
+            "samples": 398,
+            "median": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "stddev": 0.0,
+            "absolute_p95": 0.0
+          },
+          "output_tracking_error[2]": {
+            "samples": 398,
+            "median": 0.011241940781474113,
+            "minimum": 0.0006407476612366736,
+            "maximum": 0.043612316250801086,
+            "stddev": 0.00902591086924076,
+            "absolute_p95": 0.03298869263380766
+          }
+        }
+      }
+    }
+  ],
+  "peak_detection_scope": "20 Hz absolute tracking error local maxima above 0.10 m, at least 2 seconds apart; +/-2 second observations are descriptive, not causal attribution",
+  "baro_lowpass_error_correlations": {
+    "0.0": 0.1864056193915475,
+    "0.1": 0.272704109698304,
+    "0.2": 0.3690421758123594,
+    "0.5": 0.6608205784907021,
+    "1.0": 0.8754565287435856
+  },
+  "px4_time_shift_error_m": {
+    "-0.3": {
+      "samples": 6006,
+      "median": 0.022546661527877987,
+      "minimum": -0.07965599947347601,
+      "maximum": 0.13715948074144002,
+      "stddev": 0.034029449712030035,
+      "absolute_p95": 0.07960073559085595
+    },
+    "-0.2": {
+      "samples": 6006,
+      "median": 0.022604977641148882,
+      "minimum": -0.07690945941785343,
+      "maximum": 0.13188646944540805,
+      "stddev": 0.03246301533192802,
+      "absolute_p95": 0.07659175045570643
+    },
+    "-0.1": {
+      "samples": 6006,
+      "median": 0.02258552744481268,
+      "minimum": -0.07353794855929152,
+      "maximum": 0.12594091883414404,
+      "stddev": 0.030817981979403594,
+      "absolute_p95": 0.07374051835769124
+    },
+    "-0.05": {
+      "samples": 6006,
+      "median": 0.0226164501125542,
+      "minimum": -0.07176965472865127,
+      "maximum": 0.12284639551246967,
+      "stddev": 0.029986846733106278,
+      "absolute_p95": 0.07251372188808741
+    },
+    "0.0": {
+      "samples": 6006,
+      "median": 0.02264145011515828,
+      "minimum": -0.07005021115678445,
+      "maximum": 0.11975967425255463,
+      "stddev": 0.02916293424962181,
+      "absolute_p95": 0.07141992842535466
+    },
+    "0.05": {
+      "samples": 6006,
+      "median": 0.02253214521164537,
+      "minimum": -0.06846415614428847,
+      "maximum": 0.11717913258482726,
+      "stddev": 0.0283558562706168,
+      "absolute_p95": 0.0703756927042184
+    },
+    "0.1": {
+      "samples": 6006,
+      "median": 0.022685248484447307,
+      "minimum": -0.06705960596224458,
+      "maximum": 0.11503609933821335,
+      "stddev": 0.027574648408283938,
+      "absolute_p95": 0.06949605577309159
+    },
+    "0.2": {
+      "samples": 6006,
+      "median": 0.022521417133892774,
+      "minimum": -0.06504009310896475,
+      "maximum": 0.11024410932350537,
+      "stddev": 0.026123013424890224,
+      "absolute_p95": 0.06812609452311352
+    },
+    "0.3": {
+      "samples": 6006,
+      "median": 0.02249523385972152,
+      "minimum": -0.06325773421707548,
+      "maximum": 0.1049710980274734,
+      "stddev": 0.02486101977194581,
+      "absolute_p95": 0.06592751379471712
+    }
+  },
+  "scope": "Offline common 20 Hz grid using measured Gazebo body pose and initial frozen offsets; no offset refit. Sensor scatter uses median removal only for descriptive noise. Raw baro statistics preserve sensor samples; 20 Hz interpolation smooths noise. GPS primary comparison differentiates body truth; shift comparison uses PX4 Gazebo model-origin truth finite-difference velocity, including callback timing uncertainty. The first 10 seconds exclusion is descriptive, not a stable-hold certification. Correlation and shifted timestamps do not establish causality or authorize changing the flight reference."
+}

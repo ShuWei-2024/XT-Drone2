@@ -1,0 +1,95 @@
+{
+  "attempts": [
+    {
+      "run": "lateral_pressure0_117_01",
+      "diagnostic_only": true,
+      "pressure_noise_pa": 0,
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "PX4 estimator reset",
+      "reset_events": [
+        {
+          "counter": "xy_reset_counter",
+          "time_sec": 8.752,
+          "before": 2,
+          "after": 3,
+          "reported_delta_z_m": 0.0
+        },
+        {
+          "counter": "xy_reset_counter",
+          "time_sec": 9.064,
+          "before": 3,
+          "after": 4,
+          "reported_delta_z_m": 0.0
+        },
+        {
+          "counter": "z_reset_counter",
+          "time_sec": 74.168,
+          "before": 1,
+          "after": 2,
+          "reported_delta_z_m": -0.3136330544948578
+        },
+        {
+          "counter": "heading_reset_counter",
+          "time_sec": 9.872,
+          "before": 0,
+          "after": 1,
+          "reported_delta_z_m": 0.0
+        }
+      ],
+      "baro_health_errors": [
+        "[px4_launch-9] ERROR [vehicle_air_data] BARO #0 failed:  STALE!\t",
+        "[px4_launch-9] ERROR [vehicle_air_data] BARO #0 failed:  STALE!\t"
+      ],
+      "no_planner_execution": true,
+      "original_baseline_preserved": true
+    },
+    {
+      "run": "lateral_pressure0_117_02",
+      "diagnostic_only": true,
+      "pressure_noise_pa": 0,
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "PX4 estimator reset",
+      "reset_events": [
+        {
+          "counter": "xy_reset_counter",
+          "time_sec": 8.724,
+          "before": 2,
+          "after": 3,
+          "reported_delta_z_m": 0.0
+        },
+        {
+          "counter": "xy_reset_counter",
+          "time_sec": 9.016,
+          "before": 3,
+          "after": 4,
+          "reported_delta_z_m": 0.0
+        },
+        {
+          "counter": "z_reset_counter",
+          "time_sec": 73.688,
+          "before": 1,
+          "after": 2,
+          "reported_delta_z_m": -0.37021052837371826
+        },
+        {
+          "counter": "heading_reset_counter",
+          "time_sec": 9.832,
+          "before": 0,
+          "after": 1,
+          "reported_delta_z_m": 0.0
+        }
+      ],
+      "baro_health_errors": [
+        "[px4_launch-9] ERROR [vehicle_air_data] BARO #0 failed:  STALE!\t",
+        "[px4_launch-9] ERROR [vehicle_air_data] BARO #0 failed:  STALE!\t"
+      ],
+      "no_planner_execution": true,
+      "original_baseline_preserved": true
+    }
+  ],
+  "conclusion": "No valid route comparison: constant pressure was flagged BARO STALE, then height reset during climb triggered unchanged safety gates. Repeated values are rejected by DataValidator::confidence even when timestamps keep updating.",
+  "source": "PX4 src/modules/sensors/data_validator/DataValidator.cpp:84,115; VehicleAirData.cpp:379",
+  "scope": "Zero-noise simulation artefact; not the cause of earlier normal 3 Pa flights and not evidence of a GPS/magnetometer/battery work queue interruption."
+}

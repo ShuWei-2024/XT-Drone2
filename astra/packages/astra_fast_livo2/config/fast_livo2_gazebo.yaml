@@ -1,0 +1,57 @@
+/**:
+  ros__parameters:
+    # Stable Gazebo sensor inputs.
+    lidar_topic: /sensors/lidar/points
+    image_topic: /sensors/camera/color/image_raw
+    camera_info_topic: /sensors/camera/color/camera_info
+    imu_topic: /sensors/imu/data
+
+    # Adapter outputs for the future ROS 2 FAST-LIVO2 port.
+    output_lidar_topic: /fast_livo2/input/lidar
+    output_livox_topic: /fast_livo2/input/livox_custom
+    output_image_topic: /fast_livo2/input/image
+    output_camera_info_topic: /fast_livo2/input/camera_info
+    output_imu_topic: /fast_livo2/input/imu
+    diagnostics_topic: /fast_livo2/diagnostics
+
+    lidar_frame_id: mid360_scan_frame
+    image_frame_id: camera_color_optical_frame
+    imu_frame_id: imu_link
+
+    # The combined Gazebo launch selects snapshot timing for gpu_lidar.
+    # Standalone adapter default remains synthetic_scan for compatibility.
+    # Neither mode reproduces physical Livox firing times.
+    scan_period_sec: 0.1
+    max_lidar_image_delta_sec: 0.03
+    max_lidar_imu_delta_sec: 0.02
+    diagnostic_period_sec: 1.0
+
+    # CameraInfo measured from Gazebo, not copied from a physical D435i.
+    camera_model: pinhole
+    camera_width: 640
+    camera_height: 480
+    distortion_model: plumb_bob
+    camera_fx: 462.26634979
+    camera_fy: 462.26637840
+    camera_cx: 320.0
+    camera_cy: 240.0
+    camera_D: [0.0, 0.0, 0.0, 0.0, 0.0]
+    camera_R: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+    camera_P: [462.26634979, 0.0, 320.0, 0.0,
+              0.0, 462.26637840, 240.0, 0.0,
+              0.0, 0.0, 1.0, 0.0]
+
+    # FAST-LIVO2 reference convention: LiDAR -> IMU and LiDAR -> camera.
+    # Values are derived from the current static TF and are not physical D435i
+    # calibration measurements.
+    extrinsic_T_lidar_to_imu: [0.0, 0.0, 0.10]
+    extrinsic_R_lidar_to_imu: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+    extrinsic_T_lidar_to_camera_optical: [0.0, -0.16, -0.16]
+    extrinsic_R_lidar_to_camera_optical: [0.0, -1.0, 0.0,
+                                          0.0, 0.0, -1.0,
+                                          1.0, 0.0, 0.0]
+
+    # This selects a future standard PointCloud2 port with 16 synthetic rings.
+    # The current node does not run the estimator.
+    lidar_type: 2
+    scan_line: 16

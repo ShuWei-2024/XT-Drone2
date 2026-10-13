@@ -1,0 +1,572 @@
+{
+  "date": "2026-10-11",
+  "runs": [
+    {
+      "run": "lateral_normal_quiet_117_01",
+      "completed_goals": 5,
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "initial_parameter_differences_from_corrected_baseline": {},
+      "unchanged_geometry_and_livo_config": {
+        "estimator_config.yaml": true,
+        "models/astra_x500_sensors/model.sdf": true,
+        "x500_base_numeric_noise_normalized": true
+      },
+      "model_text_difference": "pressure stddev3 serialized as3.0; numeric value unchanged",
+      "execution_elapsed_sec": 302.392,
+      "actual_horizontal_path_m": 30.48609158483146,
+      "minimum_horizontal_body_centre_clearance_m": 0.835389018832494,
+      "execution_resets": {
+        "xy_reset_counter": 0,
+        "z_reset_counter": 0,
+        "heading_reset_counter": 0
+      },
+      "armed_failsafe_samples": 0,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "bridge_send_gap_max_ms": 61.191021,
+      "pose_errors": {
+        "fast_livo2_truth_xy_error_m": {
+          "count": 3024,
+          "p50": 0.0028514766515506072,
+          "p95": 0.005148825027887449,
+          "maximum": 0.01003519722689698
+        },
+        "fast_livo2_truth_z_error_m": {
+          "count": 3024,
+          "p50": 0.0069109611516268155,
+          "p95": 0.021698741612234385,
+          "maximum": 0.025717253246158034
+        },
+        "fast_livo2_truth_yaw_error_deg": {
+          "count": 3024,
+          "p50": 0.008946010221564236,
+          "p95": 0.025497521008023626,
+          "maximum": 0.04268977699464239
+        },
+        "fast_livo2_truth_pair_dt_ms": {
+          "count": 3024,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "px4_truth_xy_error_m": {
+          "count": 15121,
+          "p50": 0.024040645426028073,
+          "p95": 0.04696208677878161,
+          "maximum": 0.06847212846422567
+        },
+        "px4_truth_z_error_m": {
+          "count": 15121,
+          "p50": 0.020756389428429056,
+          "p95": 0.05972527728749588,
+          "maximum": 0.09167527929661001
+        },
+        "px4_truth_yaw_error_deg": {
+          "count": 15121,
+          "p50": 0.16011814041389563,
+          "p95": 0.5696873166985832,
+          "maximum": 1.0060266459161344
+        },
+        "px4_truth_pair_dt_ms": {
+          "count": 15121,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 12.0
+        },
+        "bridge_paired_xy_disagreement_m": {
+          "count": 3024,
+          "p50": 0.02434600768395378,
+          "p95": 0.04642849178871174,
+          "maximum": 0.07082682109479493
+        },
+        "bridge_paired_xy_samples_over_030m": 0,
+        "frozen_ground_height_disagreement_m": {
+          "count": 3024,
+          "p50": 0.021375487195176707,
+          "p95": 0.06338722214159147,
+          "maximum": 0.11335253930572867
+        },
+        "vio_accepted_patches": {
+          "count": 3024,
+          "p50": 133.0,
+          "p95": 155.0,
+          "maximum": 168.0
+        },
+        "vio_zero_patch_frames": 0,
+        "vio_rejected_frames": 0,
+        "lio_correspondences": {
+          "count": 3024,
+          "p50": 5802.0,
+          "p95": 6466.0,
+          "maximum": 6633.0
+        },
+        "lio_near_correspondences_045m": {
+          "count": 3024,
+          "p50": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "lio_normal_x_fraction": {
+          "count": 3024,
+          "p50": 0.1859714612645,
+          "p95": 0.23576931924285,
+          "maximum": 0.250553775668
+        },
+        "lio_normal_y_fraction": {
+          "count": 3024,
+          "p50": 0.482962026574,
+          "p95": 0.5082295963490501,
+          "maximum": 0.533904204153
+        },
+        "lio_normal_z_fraction": {
+          "count": 3024,
+          "p50": 0.329093981462,
+          "p95": 0.3747822465008,
+          "maximum": 0.392237655131
+        },
+        "lio_normal_min_eigen_fraction": {
+          "count": 3024,
+          "p50": 0.1815261787065,
+          "p95": 0.22290250116340002,
+          "maximum": 0.232264011379
+        },
+        "lio_mean_abs_residual_m": {
+          "count": 3024,
+          "p50": 0.03069482997275,
+          "p95": 0.037930422441975,
+          "maximum": 0.0397842279042
+        },
+        "lio_normal_min_eigen_fraction_minimum": 0.133161912103,
+        "lio_correspondences_minimum": 4989
+      },
+      "delivery_report": "normal_quiet_1_delivery_117.json",
+      "height_report": "height_dynamics_normal_quiet_1_117.json",
+      "height_transients": [],
+      "actual_height_tracking": {
+        "samples": 6009,
+        "median": 0.0072234858651218925,
+        "minimum": -0.08041954302440724,
+        "maximum": 0.08708057908095723,
+        "stddev": 0.02952430468315839,
+        "absolute_p95": 0.059128243249213924
+      },
+      "memory_report": "normal_quiet_1_memory_117.json"
+    },
+    {
+      "run": "lateral_normal_quiet_117_02",
+      "completed_goals": 5,
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "initial_parameter_differences_from_corrected_baseline": {},
+      "unchanged_geometry_and_livo_config": {
+        "estimator_config.yaml": true,
+        "models/astra_x500_sensors/model.sdf": true,
+        "x500_base_numeric_noise_normalized": true
+      },
+      "model_text_difference": "pressure stddev3 serialized as3.0; numeric value unchanged",
+      "execution_elapsed_sec": 302.232,
+      "actual_horizontal_path_m": 30.39897614651785,
+      "minimum_horizontal_body_centre_clearance_m": 0.7838681186839747,
+      "execution_resets": {
+        "xy_reset_counter": 0,
+        "z_reset_counter": 0,
+        "heading_reset_counter": 0
+      },
+      "armed_failsafe_samples": 0,
+      "external_vision_active_samples": {
+        "cs_ev_pos": 0,
+        "cs_ev_vel": 0,
+        "cs_ev_hgt": 0,
+        "cs_ev_yaw": 0
+      },
+      "bridge_send_gap_max_ms": 60.453254,
+      "pose_errors": {
+        "fast_livo2_truth_xy_error_m": {
+          "count": 3022,
+          "p50": 0.00201105238981397,
+          "p95": 0.004588060490665049,
+          "maximum": 0.008148347596162526
+        },
+        "fast_livo2_truth_z_error_m": {
+          "count": 3022,
+          "p50": 0.004285269131310887,
+          "p95": 0.014430256520107031,
+          "maximum": 0.018966921848231122
+        },
+        "fast_livo2_truth_yaw_error_deg": {
+          "count": 3022,
+          "p50": 0.012092298060853813,
+          "p95": 0.02672423656213935,
+          "maximum": 0.04082024932677005
+        },
+        "fast_livo2_truth_pair_dt_ms": {
+          "count": 3022,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "px4_truth_xy_error_m": {
+          "count": 15115,
+          "p50": 0.03631751133871169,
+          "p95": 0.0628223807054008,
+          "maximum": 0.08369456821060718
+        },
+        "px4_truth_z_error_m": {
+          "count": 15115,
+          "p50": 0.0256470160532154,
+          "p95": 0.0713284820018691,
+          "maximum": 0.11971750042493956
+        },
+        "px4_truth_yaw_error_deg": {
+          "count": 15115,
+          "p50": 0.2521882741103315,
+          "p95": 1.3614446511542708,
+          "maximum": 1.6242395438734158
+        },
+        "px4_truth_pair_dt_ms": {
+          "count": 15115,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 12.0
+        },
+        "bridge_paired_xy_disagreement_m": {
+          "count": 3022,
+          "p50": 0.03708378056257222,
+          "p95": 0.06320105321259101,
+          "maximum": 0.08209067198747316
+        },
+        "bridge_paired_xy_samples_over_030m": 0,
+        "frozen_ground_height_disagreement_m": {
+          "count": 3022,
+          "p50": 0.01926045790026376,
+          "p95": 0.06374941679867405,
+          "maximum": 0.10111294877322818
+        },
+        "vio_accepted_patches": {
+          "count": 3022,
+          "p50": 134.0,
+          "p95": 158.0,
+          "maximum": 171.0
+        },
+        "vio_zero_patch_frames": 0,
+        "vio_rejected_frames": 0,
+        "lio_correspondences": {
+          "count": 3022,
+          "p50": 5825.0,
+          "p95": 6472.0,
+          "maximum": 6671.0
+        },
+        "lio_near_correspondences_045m": {
+          "count": 3022,
+          "p50": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "lio_normal_x_fraction": {
+          "count": 3022,
+          "p50": 0.1871234777925,
+          "p95": 0.2337307387182,
+          "maximum": 0.27862724251
+        },
+        "lio_normal_y_fraction": {
+          "count": 3022,
+          "p50": 0.48288804498649995,
+          "p95": 0.5124341176908,
+          "maximum": 0.544487114733
+        },
+        "lio_normal_z_fraction": {
+          "count": 3022,
+          "p50": 0.33241892495049996,
+          "p95": 0.374257636983,
+          "maximum": 0.392233145322
+        },
+        "lio_normal_min_eigen_fraction": {
+          "count": 3022,
+          "p50": 0.182524351956,
+          "p95": 0.2205239855627,
+          "maximum": 0.241014808156
+        },
+        "lio_mean_abs_residual_m": {
+          "count": 3022,
+          "p50": 0.030111642725950002,
+          "p95": 0.03776656597202,
+          "maximum": 0.0408963882326
+        },
+        "lio_normal_min_eigen_fraction_minimum": 0.133338634963,
+        "lio_correspondences_minimum": 5023
+      },
+      "delivery_report": "normal_quiet_2_delivery_117.json",
+      "height_report": "height_dynamics_normal_quiet_2_117.json",
+      "height_transients": [
+        {
+          "measurement_time_sec": 122.56199999999832,
+          "goal_index": 0,
+          "seconds_after_goal": 30.593999999998317,
+          "actual_tracking_error_m": -0.11785619174564776,
+          "px4_estimation_error_m": 0.09437470351796629,
+          "controller_tracking_error_m": -0.02348148822768148,
+          "seconds_after_handoff": 30.54999999999832,
+          "observations": {
+            "estimator_aid_src_baro_hgt": {
+              "innovation": {
+                "samples": 67,
+                "median": -0.03679966926574707,
+                "minimum": -0.3550184965133667,
+                "maximum": 0.3244962692260742,
+                "stddev": 0.15327641367912292,
+                "absolute_p95": 0.29649856090545645
+              },
+              "innovation_filtered": {
+                "samples": 67,
+                "median": -0.025914296507835388,
+                "minimum": -0.0973275676369667,
+                "maximum": 0.080722875893116,
+                "stddev": 0.043888770043849945,
+                "absolute_p95": 0.07405520156025887
+              },
+              "test_ratio": {
+                "samples": 67,
+                "median": 0.004498795606195927,
+                "minimum": 1.2428384252416436e-05,
+                "maximum": 0.0533393919467926,
+                "stddev": 0.012743163853883743,
+                "absolute_p95": 0.037235218286514264
+              },
+              "fused": {
+                "samples": 67,
+                "median": 1.0,
+                "minimum": 1.0,
+                "maximum": 1.0,
+                "stddev": 0.0,
+                "absolute_p95": 1.0
+              },
+              "innovation_rejected": {
+                "samples": 67,
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0,
+                "stddev": 0.0,
+                "absolute_p95": 0.0
+              }
+            },
+            "estimator_aid_src_gnss_vel": {
+              "innovation[2]": {
+                "samples": 121,
+                "median": 0.004816766828298569,
+                "minimum": -0.07699653506278992,
+                "maximum": 0.058410197496414185,
+                "stddev": 0.02990213967859745,
+                "absolute_p95": 0.06461642682552338
+              },
+              "innovation_filtered[2]": {
+                "samples": 121,
+                "median": 0.0032285077031701803,
+                "minimum": -0.04352017119526863,
+                "maximum": 0.030406702309846878,
+                "stddev": 0.022476091980934143,
+                "absolute_p95": 0.041827816516160965
+              },
+              "test_ratio[2]": {
+                "samples": 121,
+                "median": 3.829736670013517e-05,
+                "minimum": 1.92000929044589e-11,
+                "maximum": 0.0006551948026753962,
+                "stddev": 0.00014045082207303494,
+                "absolute_p95": 0.0004614648933056742
+              },
+              "fused": {
+                "samples": 121,
+                "median": 1.0,
+                "minimum": 1.0,
+                "maximum": 1.0,
+                "stddev": 0.0,
+                "absolute_p95": 1.0
+              },
+              "innovation_rejected": {
+                "samples": 121,
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0,
+                "stddev": 0.0,
+                "absolute_p95": 0.0
+              }
+            },
+            "estimator_status": {
+              "filter_fault_flags": {
+                "samples": 399,
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0,
+                "stddev": 0.0,
+                "absolute_p95": 0.0
+              },
+              "output_tracking_error[2]": {
+                "samples": 399,
+                "median": 0.01118902675807476,
+                "minimum": 0.001632319763302803,
+                "maximum": 0.03749384731054306,
+                "stddev": 0.006650174967944622,
+                "absolute_p95": 0.022520880773663515
+              }
+            }
+          }
+        },
+        {
+          "measurement_time_sec": 374.861999999984,
+          "goal_index": 4,
+          "seconds_after_goal": 18.03399999998402,
+          "actual_tracking_error_m": -0.12236528893153986,
+          "px4_estimation_error_m": 0.07634239693445255,
+          "controller_tracking_error_m": -0.04602289199708731,
+          "seconds_after_handoff": 282.849999999984,
+          "observations": {
+            "estimator_aid_src_baro_hgt": {
+              "innovation": {
+                "samples": 67,
+                "median": -0.015452146530151367,
+                "minimum": -0.35244882106781006,
+                "maximum": 0.39828741550445557,
+                "stddev": 0.1548549234867096,
+                "absolute_p95": 0.33720382452011105
+              },
+              "innovation_filtered": {
+                "samples": 67,
+                "median": -0.024172037839889526,
+                "minimum": -0.09031274169683456,
+                "maximum": 0.11375296860933304,
+                "stddev": 0.044790610671043396,
+                "absolute_p95": 0.08839029744267461
+              },
+              "test_ratio": {
+                "samples": 67,
+                "median": 0.004736039787530899,
+                "minimum": 3.76666343981924e-06,
+                "maximum": 0.06715239584445953,
+                "stddev": 0.014810455031692982,
+                "absolute_p95": 0.04812161326408386
+              },
+              "fused": {
+                "samples": 67,
+                "median": 1.0,
+                "minimum": 1.0,
+                "maximum": 1.0,
+                "stddev": 0.0,
+                "absolute_p95": 1.0
+              },
+              "innovation_rejected": {
+                "samples": 67,
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0,
+                "stddev": 0.0,
+                "absolute_p95": 0.0
+              }
+            },
+            "estimator_aid_src_gnss_vel": {
+              "innovation[2]": {
+                "samples": 121,
+                "median": -0.019746046513319016,
+                "minimum": -0.07140465825796127,
+                "maximum": 0.026657208800315857,
+                "stddev": 0.02209804765880108,
+                "absolute_p95": 0.05660140514373779
+              },
+              "innovation_filtered[2]": {
+                "samples": 121,
+                "median": -0.020777903497219086,
+                "minimum": -0.04167557507753372,
+                "maximum": -0.0007652427884750068,
+                "stddev": 0.010511954315006733,
+                "absolute_p95": 0.03825221583247185
+              },
+              "test_ratio[2]": {
+                "samples": 121,
+                "median": 4.906736648990773e-05,
+                "minimum": 9.47739775547518e-10,
+                "maximum": 0.000563492183573544,
+                "stddev": 0.00011940277181565762,
+                "absolute_p95": 0.00035409803967922926
+              },
+              "fused": {
+                "samples": 121,
+                "median": 1.0,
+                "minimum": 1.0,
+                "maximum": 1.0,
+                "stddev": 0.0,
+                "absolute_p95": 1.0
+              },
+              "innovation_rejected": {
+                "samples": 121,
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0,
+                "stddev": 0.0,
+                "absolute_p95": 0.0
+              }
+            },
+            "estimator_status": {
+              "filter_fault_flags": {
+                "samples": 398,
+                "median": 0.0,
+                "minimum": 0.0,
+                "maximum": 0.0,
+                "stddev": 0.0,
+                "absolute_p95": 0.0
+              },
+              "output_tracking_error[2]": {
+                "samples": 398,
+                "median": 0.011241940781474113,
+                "minimum": 0.0006407476612366736,
+                "maximum": 0.043612316250801086,
+                "stddev": 0.00902591086924076,
+                "absolute_p95": 0.03298869263380766
+              }
+            }
+          }
+        }
+      ],
+      "actual_height_tracking": {
+        "samples": 6006,
+        "median": -0.02239139948418689,
+        "minimum": -0.12236528893153986,
+        "maximum": 0.06617984151759315,
+        "stddev": 0.030039330140624137,
+        "absolute_p95": 0.07622907689803182
+      },
+      "memory_report": "normal_quiet_2_memory_117.json"
+    }
+  ],
+  "defaults": {
+    "gps_delay_ms": 110,
+    "pressure_noise_pa": 3,
+    "ekf_baro_noise_m": 0.3,
+    "external_vision": false
+  },
+  "control_changes": "None; second run adds supervisor/bridge receipt-age fields only.",
+  "quiet_scope": "No offline ULog analysis, matplotlib, build or GUI started during flights. Normal ROS control/mapping/planning/recording remained active. This is not CPU isolation from all host software.",
+  "checks": {
+    "two_complete_five_goal_routes": true,
+    "no_execution_reset_or_failsafe": true,
+    "no_receipt_timeout_in_these_runs": true,
+    "indefinite_reliability_verified": false,
+    "frame_alignment_certified": false
+  },
+  "conclusions": [
+    "Normal-noise quiet runs completed10/10 legs without a250ms receipt timeout; offline-load causality remains unproven.",
+    "Instrumented supervisor receipt age max130.77ms and measurement age max156ms. Callback measurement age p9548ms differs from tick-time age p95131.2ms.",
+    "Second normal run still has11.8cm/12.2cm height dips30.55s/282.85s after handoff; not merely climb settling. Baro/GNSS fused and fault flags clear nearby.",
+    "No gates widened, pressure noise reduced or GPS delay changed. Normal slow-route performance supported; close-obstacle, strict height, hardware and long-term memory certification remain open."
+  ],
+  "validation": {
+    "regression_tests_passed": 39,
+    "log": "normal_quiet_regression_117.log"
+  },
+  "cleanup_report": "normal_quiet_cleanup_117.json"
+}

@@ -1,0 +1,13 @@
+{
+  "run": "astra/runtime/small_mag_enu_02",
+  "flight": false,
+  "reason": "preflight did not remain healthy for 2 s: initial position/height alignment outside 0.5 m XY / 0.15 m Z bounds",
+  "static_px4_yaw_error_deg_p95": 1.0338855070673294,
+  "mag_convention": "Gazebo world ENU / tesla -> body FLU -> PX4 body FRD / gauss",
+  "noise_physical_amplitude_preserved": true,
+  "source_evidence": {
+    "gazebo": "https://github.com/gazebosim/gz-sim/blob/gz-sim8/src/systems/magnetometer/Magnetometer.cc",
+    "px4": "https://github.com/PX4/PX4-Autopilot/blob/v1.17.0/src/modules/simulation/gz_bridge/GZBridge.cpp"
+  },
+  "first_conversion_run": "small_mag_enu_01: magnetic strength gate rejected; gauss-to-tesla model noise conversion then corrected"
+}

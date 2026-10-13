@@ -1,0 +1,157 @@
+{
+  "run": "indoor_ready_batch_117_01",
+  "flight_complete": false,
+  "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+  "executor": "original-single-threaded",
+  "scope": "Flight execution only; batch metrics cover the retained tail, not the entire flight. CPU fraction is receive-batch thread CPU / elapsed tail wall time, not total host CPU. Independent callback time differences are scheduling/transport proxies, not DDS queue latency.",
+  "batch_tail": {
+    "samples": 2048,
+    "span_sec": 11.684325327,
+    "receive_thread_cpu_fraction": 0.8089805071720766,
+    "wall_ms": {
+      "samples": 2048,
+      "minimum": 0.177144,
+      "median": 5.5426009999999994,
+      "p95": 8.0526393,
+      "maximum": 15.662787
+    },
+    "cpu_ms": {
+      "samples": 2048,
+      "minimum": 0.177085,
+      "median": 5.151916,
+      "p95": 7.476904199999999,
+      "maximum": 9.646107
+    },
+    "scheduler_wait_ms": {
+      "samples": 2048,
+      "minimum": 0.0,
+      "median": 0.013341,
+      "p95": 0.8150975999999994,
+      "maximum": 10.481295
+    },
+    "spin_calls": {
+      "samples": 2048,
+      "minimum": 1.0,
+      "median": 7.0,
+      "p95": 11.0,
+      "maximum": 15.0
+    },
+    "budget_exhausted_fraction": 0.60693359375
+  },
+  "odom_callbacks": {
+    "guarded_bspline_bridge:/fast_livo2/odom": {
+      "samples": 1378,
+      "callback_gap_ms": {
+        "samples": 1377,
+        "minimum": 55.827061,
+        "median": 99.728082,
+        "p95": 118.288352,
+        "maximum": 183.535409
+      },
+      "gaps_over_250ms": 0,
+      "callback_wall_ms": {
+        "samples": 1378,
+        "minimum": 0.01633,
+        "median": 0.028491500000000003,
+        "p95": 0.05281044999999992,
+        "maximum": 3.218737
+      },
+      "dds_metadata_samples": 1378,
+      "dds_received_to_callback_ms": {
+        "samples": 1378,
+        "minimum": 0.6179,
+        "median": 2.7810870000000003,
+        "p95": 5.526202899999994,
+        "maximum": 15.332987
+      },
+      "callback_minus_monitor_ms_proxy": {
+        "samples": 1378,
+        "minimum": -29.623951,
+        "median": 2.267365,
+        "p95": 5.247578499999999,
+        "maximum": 14.812853
+      }
+    },
+    "preview_bspline:/fast_livo2/odom": {
+      "samples": 1378,
+      "callback_gap_ms": {
+        "samples": 1377,
+        "minimum": 55.145619,
+        "median": 99.702984,
+        "p95": 118.11685800000001,
+        "maximum": 186.724694
+      },
+      "gaps_over_250ms": 0,
+      "callback_wall_ms": {
+        "samples": 1378,
+        "minimum": 0.020431,
+        "median": 0.035102,
+        "p95": 0.05807749999999999,
+        "maximum": 1.332515
+      },
+      "dds_metadata_samples": 1378,
+      "dds_received_to_callback_ms": {
+        "samples": 1378,
+        "minimum": 0.799925,
+        "median": 3.326936,
+        "p95": 6.25605485,
+        "maximum": 16.360714
+      },
+      "callback_minus_monitor_ms_proxy": {
+        "samples": 1378,
+        "minimum": -28.861609,
+        "median": 2.7820255,
+        "p95": 5.922822199999998,
+        "maximum": 15.850959
+      }
+    },
+    "px4_calibration_flight:/fast_livo2/odom": {
+      "samples": 1378,
+      "callback_gap_ms": {
+        "samples": 1377,
+        "minimum": 55.128636,
+        "median": 99.70026,
+        "p95": 117.9267916,
+        "maximum": 181.188262
+      },
+      "gaps_over_250ms": 0,
+      "callback_wall_ms": {
+        "samples": 1378,
+        "minimum": 0.023598,
+        "median": 0.04474,
+        "p95": 0.08508409999999994,
+        "maximum": 3.07718
+      },
+      "dds_metadata_samples": 1378,
+      "dds_received_to_callback_ms": {
+        "samples": 1378,
+        "minimum": 0.422818,
+        "median": 2.0787769999999997,
+        "p95": 4.7157871999999985,
+        "maximum": 11.858466
+      },
+      "callback_minus_monitor_ms_proxy": {
+        "samples": 1378,
+        "minimum": -30.568286,
+        "median": 1.557469,
+        "p95": 4.350715,
+        "maximum": 8.649564
+      }
+    }
+  },
+  "same_measurement_cross_node_callback_spread_ms": {
+    "samples": 1378,
+    "minimum": 0.360081,
+    "median": 1.0232009999999998,
+    "p95": 2.52823505,
+    "maximum": 8.182672
+  },
+  "dds_metadata_limitation": null,
+  "restoration": {
+    "mode": "obstacle",
+    "exit_code": 1,
+    "failure": "",
+    "original_baseline_preserved": true,
+    "execution_sources_unchanged": true
+  }
+}

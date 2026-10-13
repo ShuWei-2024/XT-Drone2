@@ -1,0 +1,145 @@
+{
+  "run": "indoor_large_events_117_02",
+  "flight_complete": true,
+  "fault": "",
+  "executor": "events",
+  "scope": "Flight execution only; batch metrics cover the retained tail, not the entire flight. CPU fraction is receive-batch thread CPU / elapsed tail wall time, not total host CPU. Independent callback time differences are scheduling/transport proxies, not DDS queue latency.",
+  "batch_tail": {
+    "samples": 2048,
+    "span_sec": 8.929102227,
+    "receive_thread_cpu_fraction": 0.30058518412794066,
+    "wall_ms": {
+      "samples": 2048,
+      "minimum": 2.03108,
+      "median": 3.5899585,
+      "p95": 5.33783365,
+      "maximum": 8.383464
+    },
+    "cpu_ms": {
+      "samples": 2048,
+      "minimum": 0.560847,
+      "median": 1.1711955,
+      "p95": 2.2428551999999997,
+      "maximum": 3.759678
+    },
+    "scheduler_wait_ms": {
+      "samples": 2048,
+      "minimum": 0.0,
+      "median": 0.21632099999999999,
+      "p95": 1.533910149999999,
+      "maximum": 4.143581
+    },
+    "spin_calls": {
+      "samples": 2048,
+      "minimum": 7.0,
+      "median": 33.0,
+      "p95": 33.0,
+      "maximum": 33.0
+    },
+    "budget_exhausted_fraction": 0.07373046875
+  },
+  "odom_callbacks": {
+    "guarded_bspline_bridge:/fast_livo2/odom": {
+      "samples": 3064,
+      "callback_gap_ms": {
+        "samples": 3063,
+        "minimum": 43.274247,
+        "median": 99.698198,
+        "p95": 115.8268462,
+        "maximum": 169.831171
+      },
+      "gaps_over_250ms": 0,
+      "callback_wall_ms": {
+        "samples": 3064,
+        "minimum": 0.015538,
+        "median": 0.029591,
+        "p95": 0.049820699999999996,
+        "maximum": 5.22004
+      },
+      "dds_metadata_samples": 0,
+      "dds_received_to_callback_ms": {
+        "samples": 0
+      },
+      "callback_minus_monitor_ms_proxy": {
+        "samples": 3064,
+        "minimum": -33.687759,
+        "median": 0.17358600000000002,
+        "p95": 1.9064249999999994,
+        "maximum": 40.519123
+      }
+    },
+    "preview_bspline:/fast_livo2/odom": {
+      "samples": 3064,
+      "callback_gap_ms": {
+        "samples": 3063,
+        "minimum": 43.100692,
+        "median": 99.673412,
+        "p95": 115.85688880000001,
+        "maximum": 169.210097
+      },
+      "gaps_over_250ms": 0,
+      "callback_wall_ms": {
+        "samples": 3064,
+        "minimum": 0.020383,
+        "median": 0.0352935,
+        "p95": 0.05324165,
+        "maximum": 3.438181
+      },
+      "dds_metadata_samples": 0,
+      "dds_received_to_callback_ms": {
+        "samples": 0
+      },
+      "callback_minus_monitor_ms_proxy": {
+        "samples": 3064,
+        "minimum": -33.558508,
+        "median": 0.40898599999999996,
+        "p95": 2.291049149999999,
+        "maximum": 40.765046
+      }
+    },
+    "px4_calibration_flight:/fast_livo2/odom": {
+      "samples": 3064,
+      "callback_gap_ms": {
+        "samples": 3063,
+        "minimum": 43.873071,
+        "median": 99.646912,
+        "p95": 115.6799933,
+        "maximum": 169.847616
+      },
+      "gaps_over_250ms": 0,
+      "callback_wall_ms": {
+        "samples": 3064,
+        "minimum": 0.022406,
+        "median": 0.047615000000000005,
+        "p95": 0.08503769999999998,
+        "maximum": 1.744637
+      },
+      "dds_metadata_samples": 0,
+      "dds_received_to_callback_ms": {
+        "samples": 0
+      },
+      "callback_minus_monitor_ms_proxy": {
+        "samples": 3064,
+        "minimum": -33.852131,
+        "median": -0.10181499999999999,
+        "p95": 1.3668372500000001,
+        "maximum": 38.966885
+      }
+    }
+  },
+  "same_measurement_cross_node_callback_spread_ms": {
+    "samples": 3064,
+    "minimum": 0.247055,
+    "median": 0.4624235,
+    "p95": 1.5366426499999999,
+    "maximum": 9.081679
+  },
+  "dds_metadata_limitation": "Installed experimental EventsExecutor does not supply MessageInfo; DDS queue latency cannot be certified from this trace.",
+  "restoration": {
+    "mode": "obstacle",
+    "exit_code": 0,
+    "failure": "",
+    "original_baseline_preserved": true,
+    "execution_sources_unchanged": true
+  }
+}

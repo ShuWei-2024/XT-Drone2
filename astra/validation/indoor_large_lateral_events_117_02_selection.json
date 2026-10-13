@@ -1,0 +1,12 @@
+{
+  "scope": "Diagnostic sampled setpoints only. Exact pose timestamps and position agreement identify splines; sparse samples do not certify continuous execution clearance. No original full-trajectory or physical-flight verdict is changed.",
+  "run": "indoor_large_lateral_events_117_02",
+  "full_route_verified": false,
+  "tracking_samples": 5670,
+  "samples_with_exact_pose_time": 5670,
+  "matched_samples": 5670,
+  "unresolved_samples": 0,
+  "minimum_matched_sampled_setpoint_distance_m": 0.9599360912179609,
+  "matched_sampled_setpoints_below_055m": 0,
+  "published_trajectories_below_limit": []
+}

@@ -1,0 +1,30 @@
+{
+  "asset": "Replica-SLAM cull_replica_mesh/office0.ply",
+  "sha256_verified": "0dd4b4d292cc325b52eeb596b0d089440cc333df8757cced7fa12daedb9309a6",
+  "bytes": 22569023,
+  "vertices": 589517,
+  "triangles": 1010496,
+  "bounds_min_raw": [
+    -2.005615234375,
+    -3.1536941528320312,
+    -1.168869137763977
+  ],
+  "bounds_max_raw": [
+    2.394385814666748,
+    1.8561344146728516,
+    1.8229918479919434
+  ],
+  "span_raw": [
+    4.400001049041748,
+    5.009828567504883,
+    2.991860866546631
+  ],
+  "valid_finite_vertices": true,
+  "valid_triangle_indices": true,
+  "has_vertex_rgba": true,
+  "has_uv_texture": false,
+  "culled_derivative": true,
+  "gazebo_imported": false,
+  "flight_validated": false,
+  "scale_and_gravity_axis_certified": false
+}

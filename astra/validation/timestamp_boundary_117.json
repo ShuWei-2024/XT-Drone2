@@ -1,0 +1,32 @@
+{
+  "run": "repeat_north_south_baro03_117_01",
+  "abort": {
+    "event": "test_aborted",
+    "wall_ns": 111330897811772,
+    "sim_ns": 461936000000,
+    "odom_age_sec": 0.032000001,
+    "odom_receipt_age_sec": 0.05067363500711508,
+    "map_ready": true,
+    "heading_good": true,
+    "truth": [
+      2.651216572982212,
+      3.1784698846781505,
+      1.699491905729381
+    ],
+    "px4": [
+      3.158668041229248,
+      2.6013927459716797,
+      -1.8487483263015747,
+      1.5873936414718628
+    ],
+    "reason": "ground-aligned height has no measurement pair within 20 ms"
+  },
+  "published_livo_stamp_ns": 461903999999,
+  "nearest_px4_sample_ns": 461924000000,
+  "recorded_pair_dt_ns": 20000001,
+  "rounded_livo_measurement_ns": 461904000000,
+  "rounded_pair_dt_ns": 20000000,
+  "threshold_ns": 20000000,
+  "cause": "sec2Stamp converted double fractional seconds by truncation; known scan boundary lost one ns",
+  "fix": "Round fractional nanoseconds to nearest integer and normalize carry; keep 20 ms threshold"
+}

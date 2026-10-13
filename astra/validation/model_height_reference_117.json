@@ -1,0 +1,75 @@
+{
+  "run": "lateral_rectangle_117_01",
+  "geometry_model_frame_m": {
+    "px4_imu_base_link": [
+      0.0,
+      0.0,
+      0.24
+    ],
+    "livo_imu": [
+      0.0,
+      0.0,
+      0.12
+    ],
+    "lidar_link": [
+      0.0,
+      0.0,
+      0.18
+    ],
+    "lidar_scan_origin": [
+      0.0,
+      0.0,
+      0.22
+    ]
+  },
+  "livo_imu_relative_to_base_m": [
+    0.0,
+    0.0,
+    -0.12
+  ],
+  "expected_lidar_to_imu_translation_m": [
+    0.0,
+    0.0,
+    0.1
+  ],
+  "configured_lidar_to_imu_translation_m": [
+    0.0,
+    0.0,
+    -0.06
+  ],
+  "expected_lidar_to_camera_optical_translation_m": [
+    -7.834444204452502e-13,
+    -0.16000000000078346,
+    -0.15999999999921655
+  ],
+  "configured_lidar_to_camera_translation_m": [
+    0.0,
+    -0.12,
+    -0.16
+  ],
+  "convention": "p_imu=R_IL*p_lidar+t_IL as used by transformLidar; expected geometry assumes PointCloud2 XYZ originate at the GPU lidar scan origin. Adapter copies XYZ without translation.",
+  "timestamp_paired_samples": 3002,
+  "frozen_ground_offset_m": -0.0868531812370224,
+  "frozen_airborne_offset_m": -0.13920968031304726,
+  "airborne_minus_ground_offset_m": -0.052356499076024854,
+  "execution_height_difference_after_ground_offset": {
+    "signed_median_m": -0.04386901056912368,
+    "signed_min_m": -0.17406179209431855,
+    "signed_max_m": 0.047112240766177094,
+    "absolute_p95_m": 0.10742645990163485
+  },
+  "execution_height_difference_after_airborne_offset": {
+    "signed_median_m": 0.008487488506901175,
+    "signed_min_m": -0.12170529301829369,
+    "signed_max_m": 0.09946873984220195,
+    "absolute_p95_m": 0.06861056018764478
+  },
+  "maximum_px4_tilt_deg": 1.0019057989120483,
+  "max_vertical_lever_change_from_level_m": 1.8346308934269473e-05,
+  "ekf_imu_position_parameters": {
+    "EKF2_IMU_POS_X": 0.0,
+    "EKF2_IMU_POS_Y": 0.0,
+    "EKF2_IMU_POS_Z": 0.0
+  },
+  "scope": "Offline model and log audit. No flight gates, estimator parameters or model positions changed; airborne offset was frozen before route execution, not refitted to flight data. Mounting discrepancies are not proof of the source of the observed height residual."
+}

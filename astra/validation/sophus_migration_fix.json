@@ -1,0 +1,5 @@
+{
+  "initial_static_failure": "libSophus.so runtime dependency missing; estimator failed before any arming",
+  "fix": "vendored legacy Sophus and explicit Sophus_DIR + runtime library path",
+  "original_parameters_modified": false
+}

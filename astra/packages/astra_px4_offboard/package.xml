@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>astra_px4_offboard</name>
+  <version>0.1.0</version>
+  <description>Staged PX4 v1.15.3 ROS 2 Offboard flight test for Astra.</description>
+  <maintainer email="cyf@example.com">Astra ROS 2 migration</maintainer>
+  <license>BSD-3-Clause</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend>
+  <depend>px4_msgs</depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>traj_utils</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-scipy</exec_depend>
+  <exec_depend>python3-gz-transport13</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,18 @@
+{
+  "active_isolated_simulator_pids": [],
+  "runs": {
+    "lateral_normal_quiet_117_01": {
+      "mode": "obstacle",
+      "exit_code": 0,
+      "failure": "",
+      "original_baseline_preserved": true
+    },
+    "lateral_normal_quiet_117_02": {
+      "mode": "obstacle",
+      "exit_code": 0,
+      "failure": "",
+      "original_baseline_preserved": true
+    }
+  },
+  "original_baseline_preserved": true
+}

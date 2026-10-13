@@ -13,7 +13,7 @@
 
 XTDrone2 is a universal drone simulation platform based on PX4, ROS2, and Gazebo Ignition.
 
-Building upon [XTDrone](https://gitee.com/robin_shaun/XTDrone), XTDrone2 has been updated to use the more modular and lightweight simulator Gazebo Ignition. Since ROS1 is no longer updated and maintained, XTDrone2 will be developed entirely based on ROS2. The PX4 version also adopts the newer and more stable v1.15.
+Building upon [XTDrone](https://gitee.com/robin_shaun/XTDrone), XTDrone2 has been updated to use the more modular and lightweight simulator Gazebo Ignition. Since ROS1 is no longer updated and maintained, XTDrone2 will be developed entirely based on ROS2. This Astra branch pins PX4 v1.17 with the ROS 2 Jazzy and Gazebo Harmonic stack.
 
 Due to the limited manpower of the open-source project team and being developed for passion, there will inevitably be many issues during the process. We are very grateful for your feedback on bugs or solutions you encounter. Please report bugs through the repository's issues, and you can also try to find answers in the issues for problems you encounter.
 

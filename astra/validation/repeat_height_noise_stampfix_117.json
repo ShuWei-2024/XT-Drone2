@@ -1,0 +1,91 @@
+{
+  "run": "repeat_north_south_stampfix_baro03_117_01",
+  "flight_complete": true,
+  "fault": "",
+  "interval_sec": [
+    92.14,
+    647.876
+  ],
+  "parameters": {
+    "EKF2_BARO_NOISE": 0.30000001192092896,
+    "EKF2_BARO_DELAY": 0.0,
+    "EKF2_HGT_REF": 0,
+    "EKF2_GPS_CTRL": 5
+  },
+  "configured_gazebo_pressure_sigma_pa": 3.0,
+  "near_sea_level_equivalent_height_sigma_m": 0.24972641950479876,
+  "barometric_height_minus_truth": {
+    "samples": 9263,
+    "scatter_stddev_m": 0.14499390220232142,
+    "absolute_deviation_from_median_p95_m": 0.283641212206708
+  },
+  "fused_observation_sigma_m": 0.30000001192092896,
+  "baro_rejected_updates": 0,
+  "frozen_ground_height_over_015m_samples": [
+    {
+      "measurement_sec": 442.4,
+      "pair_dt_ms": 4.0,
+      "livo_z_m": 1.5399775490757015,
+      "px4_z_ned_m": -1.4014801979064941,
+      "truth_z_m": 1.5367043553029034,
+      "frozen_ground_height_residual_m": -0.15089641196327597
+    },
+    {
+      "measurement_sec": 442.5,
+      "pair_dt_ms": 8.0,
+      "livo_z_m": 1.527779349011162,
+      "px4_z_ned_m": -1.3955278396606445,
+      "truth_z_m": 1.5260339413853856,
+      "frozen_ground_height_residual_m": -0.1571422537819659
+    },
+    {
+      "measurement_sec": 442.6,
+      "pair_dt_ms": 12.0,
+      "livo_z_m": 1.5169414337716782,
+      "px4_z_ned_m": -1.3899086713790894,
+      "truth_z_m": 1.5160423658134332,
+      "frozen_ground_height_residual_m": -0.16236100073989446
+    },
+    {
+      "measurement_sec": 442.728,
+      "pair_dt_ms": 4.0,
+      "livo_z_m": 1.5028059829828928,
+      "px4_z_ned_m": -1.3794845342636108,
+      "truth_z_m": 1.504179018086063,
+      "frozen_ground_height_residual_m": -0.16607231441320136
+    },
+    {
+      "measurement_sec": 442.828,
+      "pair_dt_ms": 8.0,
+      "livo_z_m": 1.4965926494826158,
+      "px4_z_ned_m": -1.3704062700271606,
+      "truth_z_m": 1.496780072080509,
+      "frozen_ground_height_residual_m": -0.16320738367702814
+    },
+    {
+      "measurement_sec": 442.928,
+      "pair_dt_ms": 4.0,
+      "livo_z_m": 1.4917359519159166,
+      "px4_z_ned_m": -1.362909197807312,
+      "truth_z_m": 1.4906824933548646,
+      "frozen_ground_height_residual_m": -0.16056700902387877
+    },
+    {
+      "measurement_sec": 443.028,
+      "pair_dt_ms": 8.0,
+      "livo_z_m": 1.4873212466586174,
+      "px4_z_ned_m": -1.3540334701538086,
+      "truth_z_m": 1.4859289224579815,
+      "frozen_ground_height_residual_m": -0.1561059866276745
+    },
+    {
+      "measurement_sec": 443.124,
+      "pair_dt_ms": 8.0,
+      "livo_z_m": 1.4834687417205632,
+      "px4_z_ned_m": -1.3480032682418823,
+      "truth_z_m": 1.4831347763332585,
+      "frozen_ground_height_residual_m": -0.15392828965380245
+    }
+  ],
+  "scope": "Measurement-aligned decomposition; barometric scatter includes filtering and is not a pure white noise estimate; no refit of flight alignment"
+}

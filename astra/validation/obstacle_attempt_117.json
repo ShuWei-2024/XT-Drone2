@@ -1,0 +1,145 @@
+{
+  "run": "astra/runtime/obstacle_mag_enu_01",
+  "flight_complete": false,
+  "disarmed": true,
+  "fault": "preflight not healthy: initial position/height alignment outside 0.5 m XY / 0.15 m Z bounds",
+  "ego_handoff_occurred": false,
+  "initial_yaw_static_error_p95_deg": 0.8674228686914466,
+  "runtime": {
+    "mode": "obstacle",
+    "world": "/home/cyf/dev/XT-Drone2-astra/astra/runtime/obstacle_mag_enu_01/test_world.sdf",
+    "px4": "/home/cyf/dev/px4/PX4-Autopilot-1.17",
+    "namespace": "x500_0",
+    "magnetometer_convention": "Gazebo world ENU / tesla -> body FLU -> PX4 body FRD / gauss",
+    "magnetometer_noise_scale_from_official_gauss_model": 0.0001,
+    "sensors_depth_removed": true,
+    "parameter_overrides": {
+      "UXRCE_DDS_SYNCT": 0,
+      "EKF2_EV_CTRL": 0,
+      "EKF2_HGT_REF": 0,
+      "EKF2_GPS_CTRL": 5,
+      "EKF2_MAG_TYPE": 1,
+      "EKF2_BARO_NOISE": 0.1,
+      "EKF2_GND_EFF_DZ": 0,
+      "MPC_XY_P": 1.2
+    },
+    "isolated_rootfs": "/home/cyf/dev/XT-Drone2-astra/astra/runtime/obstacle_mag_enu_01",
+    "ros_domain": 94,
+    "gz_partition": "astra_px4_117"
+  },
+  "preflight_health": {
+    "channels": {
+      "odom": {
+        "count": 120,
+        "rate_hz": 10.008411809403672,
+        "last_age_ms": 81.20814399444498,
+        "max_gap_ms": 415.8501130004879
+      },
+      "battery": {
+        "count": 12,
+        "rate_hz": 1.0274273099960705,
+        "last_age_ms": 535.1390059950063,
+        "max_gap_ms": 1001.0296370019205
+      },
+      "px4_imu": {
+        "count": 1101,
+        "rate_hz": 97.91035506520664,
+        "last_age_ms": 6.484012003056705,
+        "max_gap_ms": 335.3282399912132
+      },
+      "px4_local": {
+        "count": 552,
+        "rate_hz": 49.11169764160827,
+        "last_age_ms": 18.696369996177964,
+        "max_gap_ms": 335.2157890039962
+      },
+      "gps": {
+        "count": 337,
+        "rate_hz": 30.84735480826957,
+        "last_age_ms": 11.099504001322202,
+        "max_gap_ms": 37.84746798919514
+      },
+      "px4_status": {
+        "count": 22,
+        "rate_hz": 1.9911233032294162,
+        "last_age_ms": 354.7911549976561,
+        "max_gap_ms": 506.94991399359424
+      },
+      "imu": {
+        "count": 1080,
+        "rate_hz": 100.01243064606255,
+        "last_age_ms": 10.547037003561854,
+        "max_gap_ms": 18.63637000496965
+      },
+      "camera": {
+        "count": 328,
+        "rate_hz": 30.304022778710202,
+        "last_age_ms": 3.1059009925229475,
+        "max_gap_ms": 48.69719099951908
+      },
+      "lidar": {
+        "count": 108,
+        "rate_hz": 9.996955968012237,
+        "last_age_ms": 1.7106449959101155,
+        "max_gap_ms": 110.11619800410699
+      },
+      "ready": {
+        "count": 211,
+        "rate_hz": 19.9999778114583,
+        "last_age_ms": 30.98040699842386,
+        "max_gap_ms": 56.40668100386392
+      }
+    },
+    "odom_measurement_age": {
+      "p95_ms": 44.600000949999966,
+      "max_ms": 180.0,
+      "min_ms": 16.0
+    },
+    "px4_measurement_receipt_age": {
+      "p95_ms": 16.0,
+      "max_ms": 72.0,
+      "min_ms": -132.0
+    },
+    "px4_sample_to_publish": {
+      "p95_ms": 8.0,
+      "max_ms": 8.0,
+      "min_ms": 8.0
+    },
+    "px4_publish_to_last_received_clock": {
+      "p95_ms": 8.0,
+      "max_ms": 64.0,
+      "min_ms": -140.0
+    },
+    "px4_truth_pair_dt": {
+      "p95_ms": 8.0,
+      "max_ms": 8.0,
+      "min_ms": 0.0
+    },
+    "px4_truth_pair_fraction_within_20ms": 1.0,
+    "timing_note": "Receipt ages include processing, transport, and callback order. Nearest pairing is a coverage check, not independent clock-offset certification.",
+    "ready_last_10s_fraction": 1.0,
+    "checks": {
+      "lidar_received": true,
+      "camera_received": true,
+      "imu_received": true,
+      "odom_received": true,
+      "ready_received": true,
+      "px4_local_received": true,
+      "px4_status_received": true,
+      "gps_received": true,
+      "battery_received": true,
+      "px4_imu_received": true,
+      "ready_last_10s": true,
+      "px4_position_valid": true,
+      "odom_measurement_age_p95_below_250ms": true,
+      "px4_measurement_age_p95_below_250ms": true,
+      "px4_sample_not_after_its_publication": true,
+      "px4_truth_measurement_pairing_within_20ms_at_least_95pct": true,
+      "odom_currently_fresh": true,
+      "ready_currently_fresh": true,
+      "px4_local_currently_fresh": true
+    },
+    "passed": true
+  },
+  "baseline_preserved": true
+}

@@ -1,0 +1,240 @@
+{
+  "route_complete": true,
+  "disarmed": true,
+  "fault": "",
+  "test_mode": "open_motion_audit",
+  "strict_stable_hold_certified": false,
+  "axis_relation": "PX4 NED -> Gazebo ENU: [y,x,-z]",
+  "bias_method": "one frozen 2s interval preceding north; no fit on later flight data",
+  "frame_alignment_certified": false,
+  "phases": {
+    "north": {
+      "actual_delta_enu_m": [
+        -0.03711137206255022,
+        0.3359937781001231,
+        -0.005627140574840039
+      ],
+      "actual_delta_through_endpoint_observation_enu_m": [
+        -0.038871985325533355,
+        0.447794716250553,
+        -0.03494061948315408
+      ],
+      "fast_livo2_xy_residual_m": {
+        "count": 50,
+        "p50": 0.0017828323257907633,
+        "p95": 0.0029695293248330795,
+        "maximum": 0.003432255060234674
+      },
+      "fast_livo2_z_residual_m": {
+        "count": 50,
+        "p50": 0.000840756292658007,
+        "p95": 0.0021762664507000485,
+        "maximum": 0.004182721781904819
+      },
+      "fast_livo2_pair_dt_ms": {
+        "count": 50,
+        "p50": 7.9999994999999995,
+        "p95": 8.000001,
+        "maximum": 8.000001
+      },
+      "fast_livo2_absolute_yaw_residual_deg": {
+        "count": 50,
+        "p50": 0.01584506681286399,
+        "p95": 0.024351746109354484,
+        "maximum": 0.028286738233421975
+      },
+      "px4_xy_residual_m": {
+        "count": 250,
+        "p50": 0.03187377384928783,
+        "p95": 0.049424550400960915,
+        "maximum": 0.05022575628480756
+      },
+      "px4_z_residual_m": {
+        "count": 250,
+        "p50": 0.05098081475707805,
+        "p95": 0.10295727148529935,
+        "maximum": 0.10777442112084268
+      },
+      "px4_pair_dt_ms": {
+        "count": 250,
+        "p50": 4.0,
+        "p95": 8.0,
+        "maximum": 8.0
+      },
+      "px4_absolute_yaw_residual_deg": {
+        "count": 250,
+        "p50": 5.852034342118188,
+        "p95": 5.990722143243343,
+        "maximum": 6.0096269539961495
+      }
+    },
+    "east": {
+      "actual_delta_enu_m": [
+        0.3604585056727522,
+        -0.031097503734093535,
+        -0.021206103332085613
+      ],
+      "actual_delta_through_endpoint_observation_enu_m": [
+        0.37951742038810077,
+        -0.035280707595462035,
+        -0.014617329332751838
+      ],
+      "fast_livo2_xy_residual_m": {
+        "count": 50,
+        "p50": 0.0025427997576770436,
+        "p95": 0.0043678972062336265,
+        "maximum": 0.005111953093850595
+      },
+      "fast_livo2_z_residual_m": {
+        "count": 50,
+        "p50": 0.0012684797652210422,
+        "p95": 0.0023711002029832336,
+        "maximum": 0.004492575195062187
+      },
+      "fast_livo2_pair_dt_ms": {
+        "count": 50,
+        "p50": 4.000001,
+        "p95": 8.00000055,
+        "maximum": 8.000001
+      },
+      "fast_livo2_absolute_yaw_residual_deg": {
+        "count": 50,
+        "p50": 0.024443373922752164,
+        "p95": 0.03598462210315441,
+        "maximum": 0.037097671123469345
+      },
+      "px4_xy_residual_m": {
+        "count": 250,
+        "p50": 0.018312424060620752,
+        "p95": 0.03601433999544986,
+        "maximum": 0.036173702358258064
+      },
+      "px4_z_residual_m": {
+        "count": 250,
+        "p50": 0.05982947284490714,
+        "p95": 0.0877727059225209,
+        "maximum": 0.09366678297625564
+      },
+      "px4_pair_dt_ms": {
+        "count": 250,
+        "p50": 4.0,
+        "p95": 8.0,
+        "maximum": 8.0
+      },
+      "px4_absolute_yaw_residual_deg": {
+        "count": 250,
+        "p50": 5.754594881936819,
+        "p95": 5.834579774130776,
+        "maximum": 5.838831529855725
+      }
+    },
+    "return": {
+      "actual_delta_enu_m": [
+        -0.30371627229292325,
+        -0.2962532005357222,
+        -0.03732372784627236
+      ],
+      "actual_delta_through_endpoint_observation_enu_m": [
+        -0.3856059707125313,
+        -0.41173275783238694,
+        0.007426960200036525
+      ],
+      "fast_livo2_xy_residual_m": {
+        "count": 50,
+        "p50": 0.0018557462858198772,
+        "p95": 0.003322113453677171,
+        "maximum": 0.003498738071954671
+      },
+      "fast_livo2_z_residual_m": {
+        "count": 50,
+        "p50": 0.0012385860475533361,
+        "p95": 0.00337750085165469,
+        "maximum": 0.004313335402224006
+      },
+      "fast_livo2_pair_dt_ms": {
+        "count": 50,
+        "p50": 6.0,
+        "p95": 8.000001,
+        "maximum": 8.000001
+      },
+      "fast_livo2_absolute_yaw_residual_deg": {
+        "count": 50,
+        "p50": 0.019548104046291974,
+        "p95": 0.02821045276178868,
+        "maximum": 0.03262784205813922
+      },
+      "px4_xy_residual_m": {
+        "count": 250,
+        "p50": 0.06020401873034922,
+        "p95": 0.0693821097487256,
+        "maximum": 0.06970453599791789
+      },
+      "px4_z_residual_m": {
+        "count": 250,
+        "p50": 0.06910372680033128,
+        "p95": 0.11195826876657664,
+        "maximum": 0.12010737226652113
+      },
+      "px4_pair_dt_ms": {
+        "count": 250,
+        "p50": 4.0,
+        "p95": 8.0,
+        "maximum": 8.0
+      },
+      "px4_absolute_yaw_residual_deg": {
+        "count": 250,
+        "p50": 5.391432883292637,
+        "p95": 5.480075705464595,
+        "maximum": 5.49635403882492
+      }
+    }
+  },
+  "sensor_streams": {
+    "vehicle_gps_position": {
+      "samples": 3200,
+      "first_sec": 8.712,
+      "last_sec": 114.312,
+      "max_gap_ms": 68.0
+    },
+    "sensor_mag": {
+      "samples": 105,
+      "first_sec": 9.58,
+      "last_sec": 113.58,
+      "max_gap_ms": 1000.0
+    },
+    "battery_status": {
+      "samples": 529,
+      "first_sec": 8.788,
+      "last_sec": 114.188,
+      "max_gap_ms": 200.0
+    },
+    "sensor_combined": {
+      "samples": 26351,
+      "first_sec": 8.72,
+      "last_sec": 114.316,
+      "max_gap_ms": 48.0
+    }
+  },
+  "initial_bias_m": {
+    "fast_livo2": [
+      -0.01057079675491879,
+      0.00010549790869139315,
+      -0.016427167470061455
+    ],
+    "px4": [
+      0.04135470717220455,
+      0.010716440381833465,
+      -0.09921971580505684
+    ]
+  },
+  "px4_reset_counter_changes_after_motion_start": [
+    0,
+    0,
+    0
+  ],
+  "armed_failsafe_samples": 0,
+  "ekf2_ev_ctrl": 0,
+  "run": "astra/runtime/small_motion_05",
+  "magnetometer_path": "official Harmonic compatibility conversion",
+  "whole_record_fit_is_diagnostic_only": true
+}

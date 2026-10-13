@@ -1,0 +1,10 @@
+{
+  "unpatched_prerequisite_probe": "hrt_unpatched had no advancing simulation clock; calls=0/sentinel=0 does not diagnose the race",
+  "unpatched_online_result": "calls=1 sentinel=0 FAIL",
+  "patched_online_result": "calls=21 sentinel=50 PASS",
+  "patch_file": "astra/baseline/px4_1_15_3_hrt.patch",
+  "original_run": "astra/runtime/timer_original_01",
+  "patched_run": "astra/runtime/timer_fixed_01",
+  "binary_sha256": "a0acd8a934df9ee98796cab686d6e8273abfdaad0b3e570300f882a1865b3681",
+  "patch_sha256": "193d37de063112214800dd0d25cc8243f44831ef2f0d42a0b7d052dbabaa68ce"
+}

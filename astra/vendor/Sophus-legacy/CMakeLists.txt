@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.16)
+project(Sophus LANGUAGES CXX)
+find_package(Eigen3 REQUIRED)
+add_library(Sophus SHARED sophus/so2.cpp sophus/se2.cpp sophus/se3.cpp
+    sophus/so3.cpp sophus/scso3.cpp sophus/sim3.cpp)
+target_link_libraries(Sophus PUBLIC Eigen3::Eigen)
+set(Sophus_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+set(Sophus_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR};${EIGEN3_INCLUDE_DIR}")
+set(Sophus_LIBRARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+set(Sophus_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/libSophus.so")
+configure_file(SophusConfig.cmake.in SophusConfig.cmake @ONLY)

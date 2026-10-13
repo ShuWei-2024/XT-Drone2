@@ -1,0 +1,744 @@
+{
+  "run": "lateral_geometryfix_117_01",
+  "flight_complete": true,
+  "disarmed": true,
+  "fault": "",
+  "legs": [
+    {
+      "index": 0,
+      "reached": true,
+      "duration_sec": 68.46,
+      "endpoint_pair_dt_ms": [
+        4.0,
+        4.0
+      ],
+      "start_truth_enu_m": [
+        -0.05837768863806401,
+        0.01228776612410335,
+        1.9665484123917059
+      ],
+      "end_truth_enu_m": [
+        4.977785392153252,
+        2.996497417760493,
+        1.9884989815212326
+      ],
+      "actual_displacement_enu_m": [
+        5.036163080791316,
+        2.9842096516363896,
+        0.021950569129526754
+      ],
+      "actual_horizontal_path_m": 7.181057350404325,
+      "errors": {
+        "fast_livo2_truth_xy_error_m": {
+          "count": 684,
+          "p50": 0.0018042429322336104,
+          "p95": 0.0032787730996423864,
+          "maximum": 0.008195479900616207
+        },
+        "fast_livo2_truth_z_error_m": {
+          "count": 684,
+          "p50": 0.008823171950278486,
+          "p95": 0.016092807174101675,
+          "maximum": 0.017769992851324634
+        },
+        "fast_livo2_truth_yaw_error_deg": {
+          "count": 684,
+          "p50": 0.004706943851849247,
+          "p95": 0.014474773367855272,
+          "maximum": 0.025800615466406544
+        },
+        "fast_livo2_truth_pair_dt_ms": {
+          "count": 684,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 12.0
+        },
+        "px4_truth_xy_error_m": {
+          "count": 3421,
+          "p50": 0.046010061479350245,
+          "p95": 0.07134426358975879,
+          "maximum": 0.07901085576377342
+        },
+        "px4_truth_z_error_m": {
+          "count": 3421,
+          "p50": 0.02568591692975053,
+          "p95": 0.06479269804410848,
+          "maximum": 0.07768164249402476
+        },
+        "px4_truth_yaw_error_deg": {
+          "count": 3421,
+          "p50": 0.6145638765906287,
+          "p95": 1.1456595948978339,
+          "maximum": 1.2592291436963923
+        },
+        "px4_truth_pair_dt_ms": {
+          "count": 3421,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 12.0
+        },
+        "bridge_paired_xy_disagreement_m": {
+          "count": 684,
+          "p50": 0.0460747288511653,
+          "p95": 0.07118218198434173,
+          "maximum": 0.07797825572635456
+        },
+        "bridge_paired_xy_samples_over_030m": 0,
+        "frozen_ground_height_disagreement_m": {
+          "count": 684,
+          "p50": 0.023653171744730694,
+          "p95": 0.07453711453999172,
+          "maximum": 0.10627456414480735
+        },
+        "vio_accepted_patches": {
+          "count": 684,
+          "p50": 142.5,
+          "p95": 166.85000000000002,
+          "maximum": 182.0
+        },
+        "vio_zero_patch_frames": 0,
+        "vio_rejected_frames": 0,
+        "lio_correspondences": {
+          "count": 684,
+          "p50": 5837.0,
+          "p95": 6402.85,
+          "maximum": 6738.0
+        },
+        "lio_near_correspondences_045m": {
+          "count": 684,
+          "p50": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "lio_normal_x_fraction": {
+          "count": 684,
+          "p50": 0.2011363528135,
+          "p95": 0.2385524558946,
+          "maximum": 0.24823438015
+        },
+        "lio_normal_y_fraction": {
+          "count": 684,
+          "p50": 0.4915380260915,
+          "p95": 0.5066414021006,
+          "maximum": 0.52674772827
+        },
+        "lio_normal_z_fraction": {
+          "count": 684,
+          "p50": 0.30856502184150003,
+          "p95": 0.35361514665375,
+          "maximum": 0.366327920158
+        },
+        "lio_normal_min_eigen_fraction": {
+          "count": 684,
+          "p50": 0.19680357892,
+          "p95": 0.2270335108725,
+          "maximum": 0.235515590851
+        },
+        "lio_mean_abs_residual_m": {
+          "count": 684,
+          "p50": 0.029652531625100002,
+          "p95": 0.0361752973885,
+          "maximum": 0.0376528277045
+        },
+        "lio_normal_min_eigen_fraction_minimum": 0.136075032582,
+        "lio_correspondences_minimum": 5075
+      },
+      "actual_peak_horizontal_speed_mps": 0.1756459653266742,
+      "actual_peak_vertical_speed_mps": 0.10471150364875781,
+      "requested_truth_xy_from_initial_frame_m": [
+        4.940717801096917,
+        3.0129941602899954
+      ],
+      "endpoint_truth_xy_error_m": 0.04057275959069552
+    },
+    {
+      "index": 1,
+      "reached": true,
+      "duration_sec": 73.608,
+      "endpoint_pair_dt_ms": [
+        4.0,
+        4.0
+      ],
+      "start_truth_enu_m": [
+        4.977785392153252,
+        2.996497417760493,
+        1.9884989815212326
+      ],
+      "end_truth_enu_m": [
+        4.982031868132476,
+        -3.0161986064555104,
+        2.0130510172530163
+      ],
+      "actual_displacement_enu_m": [
+        0.004246475979224229,
+        -6.0126960242160035,
+        0.02455203573178366
+      ],
+      "actual_horizontal_path_m": 7.693638441942761,
+      "errors": {
+        "fast_livo2_truth_xy_error_m": {
+          "count": 737,
+          "p50": 0.002026353800061581,
+          "p95": 0.0042235709831748725,
+          "maximum": 0.007758898137114212
+        },
+        "fast_livo2_truth_z_error_m": {
+          "count": 737,
+          "p50": 0.020728885304729827,
+          "p95": 0.02288833067645921,
+          "maximum": 0.026503948572616842
+        },
+        "fast_livo2_truth_yaw_error_deg": {
+          "count": 737,
+          "p50": 0.006504566747201804,
+          "p95": 0.01675225086439053,
+          "maximum": 0.03666925491077462
+        },
+        "fast_livo2_truth_pair_dt_ms": {
+          "count": 737,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "px4_truth_xy_error_m": {
+          "count": 3680,
+          "p50": 0.051366176837864944,
+          "p95": 0.0707469168622087,
+          "maximum": 0.08226489196841538
+        },
+        "px4_truth_z_error_m": {
+          "count": 3680,
+          "p50": 0.01948332039590861,
+          "p95": 0.07107603833992626,
+          "maximum": 0.08663752479778886
+        },
+        "px4_truth_yaw_error_deg": {
+          "count": 3680,
+          "p50": 0.34373834853799473,
+          "p95": 0.7272615303716808,
+          "maximum": 0.7701058363307224
+        },
+        "px4_truth_pair_dt_ms": {
+          "count": 3680,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 12.0
+        },
+        "bridge_paired_xy_disagreement_m": {
+          "count": 737,
+          "p50": 0.050773243989057415,
+          "p95": 0.07045315723121365,
+          "maximum": 0.08149177145572635
+        },
+        "bridge_paired_xy_samples_over_030m": 0,
+        "frozen_ground_height_disagreement_m": {
+          "count": 737,
+          "p50": 0.019891607773229902,
+          "p95": 0.06339945207103144,
+          "maximum": 0.09927670964842311
+        },
+        "vio_accepted_patches": {
+          "count": 737,
+          "p50": 124.0,
+          "p95": 150.0,
+          "maximum": 163.0
+        },
+        "vio_zero_patch_frames": 0,
+        "vio_rejected_frames": 0,
+        "lio_correspondences": {
+          "count": 737,
+          "p50": 5309.0,
+          "p95": 5859.4,
+          "maximum": 6043.0
+        },
+        "lio_near_correspondences_045m": {
+          "count": 737,
+          "p50": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "lio_normal_x_fraction": {
+          "count": 737,
+          "p50": 0.219592962635,
+          "p95": 0.2367714905626,
+          "maximum": 0.247721984706
+        },
+        "lio_normal_y_fraction": {
+          "count": 737,
+          "p50": 0.49154599306,
+          "p95": 0.517314189062,
+          "maximum": 0.525378623922
+        },
+        "lio_normal_z_fraction": {
+          "count": 737,
+          "p50": 0.29145342988,
+          "p95": 0.32752655861080004,
+          "maximum": 0.336362892048
+        },
+        "lio_normal_min_eigen_fraction": {
+          "count": 737,
+          "p50": 0.206713466333,
+          "p95": 0.22085387820139998,
+          "maximum": 0.230801969268
+        },
+        "lio_mean_abs_residual_m": {
+          "count": 737,
+          "p50": 0.0367516013162,
+          "p95": 0.03889499512954,
+          "maximum": 0.0396172342388
+        },
+        "lio_normal_min_eigen_fraction_minimum": 0.182801749242,
+        "lio_correspondences_minimum": 5022
+      },
+      "actual_peak_horizontal_speed_mps": 0.17129945797878468,
+      "actual_peak_vertical_speed_mps": 0.12767658161193518,
+      "requested_truth_xy_from_initial_frame_m": [
+        4.940929751462612,
+        -2.9870058359664244
+      ],
+      "endpoint_truth_xy_error_m": 0.050414301974455566
+    },
+    {
+      "index": 2,
+      "reached": true,
+      "duration_sec": 60.372,
+      "endpoint_pair_dt_ms": [
+        4.0,
+        8.0
+      ],
+      "start_truth_enu_m": [
+        4.982031868132476,
+        -3.0161986064555104,
+        2.0130510172530163
+      ],
+      "end_truth_enu_m": [
+        -0.009174653294586003,
+        -3.032905214074966,
+        1.9352393018654743
+      ],
+      "actual_displacement_enu_m": [
+        -4.9912065214270624,
+        -0.01670660761945575,
+        -0.07781171538754195
+      ],
+      "actual_horizontal_path_m": 6.018267282809939,
+      "errors": {
+        "fast_livo2_truth_xy_error_m": {
+          "count": 603,
+          "p50": 0.002127518491742095,
+          "p95": 0.004087374207291004,
+          "maximum": 0.0066289021473496055
+        },
+        "fast_livo2_truth_z_error_m": {
+          "count": 603,
+          "p50": 0.008890076556655746,
+          "p95": 0.019581212049334627,
+          "maximum": 0.021191614165875006
+        },
+        "fast_livo2_truth_yaw_error_deg": {
+          "count": 603,
+          "p50": 0.01337156050440932,
+          "p95": 0.02822089730464206,
+          "maximum": 0.04049045711891018
+        },
+        "fast_livo2_truth_pair_dt_ms": {
+          "count": 603,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "px4_truth_xy_error_m": {
+          "count": 3019,
+          "p50": 0.05968152703961307,
+          "p95": 0.08286430519299272,
+          "maximum": 0.09416624106735286
+        },
+        "px4_truth_z_error_m": {
+          "count": 3019,
+          "p50": 0.028524801404818056,
+          "p95": 0.06978424901698221,
+          "maximum": 0.11618264889014762
+        },
+        "px4_truth_yaw_error_deg": {
+          "count": 3019,
+          "p50": 0.9032352315831919,
+          "p95": 1.0080436975498024,
+          "maximum": 1.0813368849882325
+        },
+        "px4_truth_pair_dt_ms": {
+          "count": 3019,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 12.0
+        },
+        "bridge_paired_xy_disagreement_m": {
+          "count": 603,
+          "p50": 0.05775749448499064,
+          "p95": 0.08217676638627841,
+          "maximum": 0.09657159201547147
+        },
+        "bridge_paired_xy_samples_over_030m": 0,
+        "frozen_ground_height_disagreement_m": {
+          "count": 603,
+          "p50": 0.02339719871285001,
+          "p95": 0.0882983364387179,
+          "maximum": 0.14302094532650195
+        },
+        "vio_accepted_patches": {
+          "count": 603,
+          "p50": 123.0,
+          "p95": 157.0,
+          "maximum": 163.0
+        },
+        "vio_zero_patch_frames": 0,
+        "vio_rejected_frames": 0,
+        "lio_correspondences": {
+          "count": 603,
+          "p50": 5594.0,
+          "p95": 5755.9,
+          "maximum": 5813.0
+        },
+        "lio_near_correspondences_045m": {
+          "count": 603,
+          "p50": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "lio_normal_x_fraction": {
+          "count": 603,
+          "p50": 0.180242074663,
+          "p95": 0.2114472638101,
+          "maximum": 0.218595819312
+        },
+        "lio_normal_y_fraction": {
+          "count": 603,
+          "p50": 0.468497948264,
+          "p95": 0.5009516461139,
+          "maximum": 0.513039211781
+        },
+        "lio_normal_z_fraction": {
+          "count": 603,
+          "p50": 0.349878308189,
+          "p95": 0.3857564510792,
+          "maximum": 0.392465822956
+        },
+        "lio_normal_min_eigen_fraction": {
+          "count": 603,
+          "p50": 0.176565881783,
+          "p95": 0.20331381409420002,
+          "maximum": 0.208966541904
+        },
+        "lio_mean_abs_residual_m": {
+          "count": 603,
+          "p50": 0.0321305341118,
+          "p95": 0.03840940079985,
+          "maximum": 0.0395095685731
+        },
+        "lio_normal_min_eigen_fraction_minimum": 0.15607328024,
+        "lio_correspondences_minimum": 5165
+      },
+      "actual_peak_horizontal_speed_mps": 0.1698751543291186,
+      "actual_peak_vertical_speed_mps": 0.16477311259692762,
+      "requested_truth_xy_from_initial_frame_m": [
+        -0.05907024541773707,
+        -2.987182461271171
+      ],
+      "endpoint_truth_xy_error_m": 0.06767673335258455
+    },
+    {
+      "index": 3,
+      "reached": true,
+      "duration_sec": 61.38,
+      "endpoint_pair_dt_ms": [
+        8.0,
+        8.0
+      ],
+      "start_truth_enu_m": [
+        -0.009174653294586003,
+        -3.032905214074966,
+        1.9352393018654743
+      ],
+      "end_truth_enu_m": [
+        -0.024926132400127456,
+        2.988734824554695,
+        1.9404553904004325
+      ],
+      "actual_displacement_enu_m": [
+        -0.015751479105541453,
+        6.021640038629661,
+        0.005216088534958141
+      ],
+      "actual_horizontal_path_m": 6.288816292463,
+      "errors": {
+        "fast_livo2_truth_xy_error_m": {
+          "count": 614,
+          "p50": 0.002005935958928742,
+          "p95": 0.0042211647359063345,
+          "maximum": 0.006116165625557598
+        },
+        "fast_livo2_truth_z_error_m": {
+          "count": 614,
+          "p50": 0.002210289602927795,
+          "p95": 0.004864296755265007,
+          "maximum": 0.007533843583737543
+        },
+        "fast_livo2_truth_yaw_error_deg": {
+          "count": 614,
+          "p50": 0.0060032506856870305,
+          "p95": 0.02115278574666588,
+          "maximum": 0.03549042035615274
+        },
+        "fast_livo2_truth_pair_dt_ms": {
+          "count": 614,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "px4_truth_xy_error_m": {
+          "count": 3069,
+          "p50": 0.055388847630407474,
+          "p95": 0.07761431783029649,
+          "maximum": 0.0851506042451611
+        },
+        "px4_truth_z_error_m": {
+          "count": 3069,
+          "p50": 0.02294761964533487,
+          "p95": 0.06458762890520332,
+          "maximum": 0.08278245340085588
+        },
+        "px4_truth_yaw_error_deg": {
+          "count": 3069,
+          "p50": 0.954843141231231,
+          "p95": 1.0373545729660443,
+          "maximum": 1.0950131942375692
+        },
+        "px4_truth_pair_dt_ms": {
+          "count": 3069,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 12.0
+        },
+        "bridge_paired_xy_disagreement_m": {
+          "count": 614,
+          "p50": 0.056505005060961705,
+          "p95": 0.07926841860142939,
+          "maximum": 0.08844738983715018
+        },
+        "bridge_paired_xy_samples_over_030m": 0,
+        "frozen_ground_height_disagreement_m": {
+          "count": 614,
+          "p50": 0.025565383382589568,
+          "p95": 0.07104848484396699,
+          "maximum": 0.1171921342618068
+        },
+        "vio_accepted_patches": {
+          "count": 614,
+          "p50": 131.0,
+          "p95": 141.0,
+          "maximum": 146.0
+        },
+        "vio_zero_patch_frames": 0,
+        "vio_rejected_frames": 0,
+        "lio_correspondences": {
+          "count": 614,
+          "p50": 6116.5,
+          "p95": 6439.05,
+          "maximum": 6522.0
+        },
+        "lio_near_correspondences_045m": {
+          "count": 614,
+          "p50": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "lio_normal_x_fraction": {
+          "count": 614,
+          "p50": 0.1638560029365,
+          "p95": 0.17445214645945,
+          "maximum": 0.179011338336
+        },
+        "lio_normal_y_fraction": {
+          "count": 614,
+          "p50": 0.48116625412799996,
+          "p95": 0.49375342353455,
+          "maximum": 0.500918306478
+        },
+        "lio_normal_z_fraction": {
+          "count": 614,
+          "p50": 0.35656370057849995,
+          "p95": 0.3815662250462,
+          "maximum": 0.39023326526
+        },
+        "lio_normal_min_eigen_fraction": {
+          "count": 614,
+          "p50": 0.1621293727325,
+          "p95": 0.1733259185857,
+          "maximum": 0.177730075407
+        },
+        "lio_mean_abs_residual_m": {
+          "count": 614,
+          "p50": 0.028800600705199998,
+          "p95": 0.03255179316806,
+          "maximum": 0.0343733158187
+        },
+        "lio_normal_min_eigen_fraction_minimum": 0.138499442134,
+        "lio_correspondences_minimum": 5531
+      },
+      "actual_peak_horizontal_speed_mps": 0.17044794741306893,
+      "actual_peak_vertical_speed_mps": 0.07013790482426341,
+      "requested_truth_xy_from_initial_frame_m": [
+        -0.05928219578343242,
+        3.012817534985249
+      ],
+      "endpoint_truth_xy_error_m": 0.04195612032683166
+    },
+    {
+      "index": 4,
+      "reached": true,
+      "duration_sec": 37.488,
+      "endpoint_pair_dt_ms": [
+        8.0,
+        0.0
+      ],
+      "start_truth_enu_m": [
+        -0.024926132400127456,
+        2.988734824554695,
+        1.9404553904004325
+      ],
+      "end_truth_enu_m": [
+        -0.025480868409554363,
+        0.008359338168787353,
+        2.0163148174588486
+      ],
+      "actual_displacement_enu_m": [
+        -0.0005547360094269073,
+        -2.980375486385908,
+        0.07585942705841608
+      ],
+      "actual_horizontal_path_m": 3.124762240852296,
+      "errors": {
+        "fast_livo2_truth_xy_error_m": {
+          "count": 375,
+          "p50": 0.0013489788041599715,
+          "p95": 0.0038800849607737026,
+          "maximum": 0.005582363737060566
+        },
+        "fast_livo2_truth_z_error_m": {
+          "count": 375,
+          "p50": 0.001523582247949129,
+          "p95": 0.0037756744638206786,
+          "maximum": 0.005375355708469254
+        },
+        "fast_livo2_truth_yaw_error_deg": {
+          "count": 375,
+          "p50": 0.004136818069107689,
+          "p95": 0.01645694287546081,
+          "maximum": 0.03289923565493232
+        },
+        "fast_livo2_truth_pair_dt_ms": {
+          "count": 375,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 8.0
+        },
+        "px4_truth_xy_error_m": {
+          "count": 1874,
+          "p50": 0.038856375222125636,
+          "p95": 0.05914532187344268,
+          "maximum": 0.07048664018896343
+        },
+        "px4_truth_z_error_m": {
+          "count": 1874,
+          "p50": 0.03315526743317698,
+          "p95": 0.06137150196238741,
+          "maximum": 0.0688893079073436
+        },
+        "px4_truth_yaw_error_deg": {
+          "count": 1874,
+          "p50": 0.8522302292846666,
+          "p95": 1.063451979008098,
+          "maximum": 1.0879159608942417
+        },
+        "px4_truth_pair_dt_ms": {
+          "count": 1874,
+          "p50": 4.0,
+          "p95": 8.0,
+          "maximum": 12.0
+        },
+        "bridge_paired_xy_disagreement_m": {
+          "count": 375,
+          "p50": 0.040410791689778035,
+          "p95": 0.05996860756821921,
+          "maximum": 0.07100365752128128
+        },
+        "bridge_paired_xy_samples_over_030m": 0,
+        "frozen_ground_height_disagreement_m": {
+          "count": 375,
+          "p50": 0.016239726249754838,
+          "p95": 0.07240566205036515,
+          "maximum": 0.10508658505339202
+        },
+        "vio_accepted_patches": {
+          "count": 375,
+          "p50": 130.0,
+          "p95": 141.0,
+          "maximum": 146.0
+        },
+        "vio_zero_patch_frames": 0,
+        "vio_rejected_frames": 0,
+        "lio_correspondences": {
+          "count": 375,
+          "p50": 6312.0,
+          "p95": 6447.3,
+          "maximum": 6486.0
+        },
+        "lio_near_correspondences_045m": {
+          "count": 375,
+          "p50": 0.0,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "lio_normal_x_fraction": {
+          "count": 375,
+          "p50": 0.155391953854,
+          "p95": 0.17242053753609998,
+          "maximum": 0.175594202041
+        },
+        "lio_normal_y_fraction": {
+          "count": 375,
+          "p50": 0.487292943069,
+          "p95": 0.4937164023037,
+          "maximum": 0.496506670038
+        },
+        "lio_normal_z_fraction": {
+          "count": 375,
+          "p50": 0.358514142459,
+          "p95": 0.368261525951,
+          "maximum": 0.371567640499
+        },
+        "lio_normal_min_eigen_fraction": {
+          "count": 375,
+          "p50": 0.152853104808,
+          "p95": 0.1712254866475,
+          "maximum": 0.174703037104
+        },
+        "lio_mean_abs_residual_m": {
+          "count": 375,
+          "p50": 0.0299370065084,
+          "p95": 0.03300293283188,
+          "maximum": 0.0338502907072
+        },
+        "lio_normal_min_eigen_fraction_minimum": 0.13441421832,
+        "lio_correspondences_minimum": 5907
+      },
+      "actual_peak_horizontal_speed_mps": 0.16763323069050326,
+      "actual_peak_vertical_speed_mps": 0.0664157261722198,
+      "requested_truth_xy_from_initial_frame_m": [
+        -0.05917622060058474,
+        0.012817536857039229
+      ],
+      "endpoint_truth_xy_error_m": 0.033989002557025805
+    }
+  ],
+  "scope": "Measurement-time Gazebo endpoints, <=20 ms pairing; initial frame frozen before execution; no strict stable-hover certification"
+}

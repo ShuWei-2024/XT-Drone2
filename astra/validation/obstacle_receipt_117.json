@@ -1,0 +1,43 @@
+{
+  "ready": {
+    "global_max_gap_ms": 364.59207,
+    "gap_start_sim_s": 52.504,
+    "gap_end_sim_s": 52.868,
+    "during_execution": false,
+    "execution_max_gap_ms": 88.471676
+  },
+  "odom": {
+    "global_max_gap_ms": 145.849146,
+    "gap_start_sim_s": 63.02,
+    "gap_end_sim_s": 63.164,
+    "during_execution": false,
+    "execution_max_gap_ms": 145.600331
+  },
+  "px4_local": {
+    "global_max_gap_ms": 58.453149,
+    "gap_start_sim_s": 208.632,
+    "gap_end_sim_s": 208.672,
+    "during_execution": true,
+    "execution_max_gap_ms": 58.453149
+  },
+  "rss": {
+    "local_map": {
+      "count": 208,
+      "first": 99288,
+      "last": 108476,
+      "maximum": 108476
+    },
+    "livo": {
+      "count": 208,
+      "first": 180172,
+      "last": 414960,
+      "maximum": 415704
+    },
+    "planner": {
+      "count": 208,
+      "first": 171228,
+      "last": 172440,
+      "maximum": 172632
+    }
+  }
+}

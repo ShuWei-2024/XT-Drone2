@@ -29,6 +29,9 @@ def generate_launch_description():
     model_name_arg = DeclareLaunchArgument('model_name', default_value='gz_x500', description='Name of the model to spawn')
     id_arg = DeclareLaunchArgument('id', default_value='0', description='ID of the model to spawn')
     name_space_arg = DeclareLaunchArgument('namespace', default_value='x500_0', description='ROS namespace for the model')
+    px4_dir_arg = DeclareLaunchArgument('px4_dir', default_value='~/dev/px4/PX4-Autopilot-1.17')
+    work_dir_arg = DeclareLaunchArgument('work_dir', default_value='')
+    communication_arg = DeclareLaunchArgument('enable_communication', default_value='false')
     
     #####################
     # Gazebo Simulation #
@@ -69,9 +72,12 @@ def generate_launch_description():
             ]),
             launch_arguments={
                 'world_name': LaunchConfiguration('world_name'),
-                'model': 'gz_x500',
-                'id': '0',
-                'namespace': 'x500_0',
+                'model': LaunchConfiguration('model_name'),
+                'id': LaunchConfiguration('id'),
+                'namespace': LaunchConfiguration('namespace'),
+                'px4_dir': LaunchConfiguration('px4_dir'),
+                'work_dir': LaunchConfiguration('work_dir'),
+                'enable_communication': LaunchConfiguration('enable_communication'),
             }.items()
         )
 
@@ -81,6 +87,9 @@ def generate_launch_description():
         model_name_arg,
         id_arg,
         name_space_arg,
+        px4_dir_arg,
+        work_dir_arg,
+        communication_arg,
         world_launch,
         xrce_dds_process,
         spawn

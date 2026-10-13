@@ -1,0 +1,32 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/PointCloud2
+      Enabled: true
+      Name: Mid-360 equivalent point cloud
+      Topic: /sensors/lidar/points
+      Size (m): 0.02
+      Style: Points
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Name: D435i RGB
+      Topic: /sensors/camera/color/image_raw
+    - Class: rviz_default_plugins/Image
+      Enabled: true
+      Name: D435i depth
+      Topic: /sensors/camera/depth/image_raw
+  Global Options:
+    Fixed Frame: base_link
+  Name: Astra sensors
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 5
+      Focal Point: {X: 0, Y: 0, Z: 0}

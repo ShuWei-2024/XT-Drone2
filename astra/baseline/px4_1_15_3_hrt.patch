@@ -1,0 +1,72 @@
+diff --git a/platforms/posix/src/px4/common/drv_hrt.cpp b/platforms/posix/src/px4/common/drv_hrt.cpp
+index b510229bc0..a479e7a10b 100644
+--- a/platforms/posix/src/px4/common/drv_hrt.cpp
++++ b/platforms/posix/src/px4/common/drv_hrt.cpp
+@@ -459,6 +459,9 @@ hrt_call_invoke()
+ 				//PX4_INFO("call deadline set to %lu now=%lu", call->deadline,  now);
+ 			}
+ 
++			// The callback or its worker may have requeued this entry while unlocked.
++			// Remove that insertion before re-entering to keep the list free of duplicates.
++			sq_rem(&call->link, &callout_queue);
+ 			hrt_call_enter(call);
+ 		}
+ 	}
+diff --git a/src/systemcmds/tests/test_hrt.cpp b/src/systemcmds/tests/test_hrt.cpp
+index e5274d72d7..637430c0cb 100644
+--- a/src/systemcmds/tests/test_hrt.cpp
++++ b/src/systemcmds/tests/test_hrt.cpp
+@@ -40,11 +40,53 @@
+ #include <px4_platform_common/log.h>
+ #include <px4_platform_common/posix.h>
+ #include <sys/time.h>
++#include <atomic>
++#include <cstring>
+ 
+ #include "tests_main.h"
+ 
++static hrt_call rescheduled_call{};
++static hrt_call sentinel_call{};
++static std::atomic<unsigned> rescheduled_count{0};
++static std::atomic<unsigned> sentinel_count{0};
++
++static void reschedule_periodic(void *)
++{
++	if (++rescheduled_count == 1) {
++		// Force the same requeue that a ScheduledWorkItem can race with its trampoline.
++		hrt_call_every(&rescheduled_call, 100000, 20000, reschedule_periodic, nullptr);
++	}
++}
++
++static void count_sentinel(void *)
++{
++	++sentinel_count;
++}
++
++static int test_periodic_reschedule()
++{
++	rescheduled_count = 0;
++	sentinel_count = 0;
++	hrt_call_every(&sentinel_call, 10000, 10000, count_sentinel, nullptr);
++	hrt_call_every(&rescheduled_call, 1000, 10000, reschedule_periodic, nullptr);
++	// Wall time keeps this diagnostic bounded even if the simulated timer stalls.
++	usleep(500000);
++	const bool passed = rescheduled_count >= 2 && sentinel_count >= 10;
++	printf("HRT reschedule: calls=%u sentinel=%u result=%s\n",
++	       rescheduled_count.load(), sentinel_count.load(), passed ? "PASS" : "FAIL");
++	fflush(stdout);
++	if (passed) {
++		hrt_cancel(&rescheduled_call);
++		hrt_cancel(&sentinel_call);
++	}
++	return passed ? 0 : -1;
++}
++
+ int test_hrt(int argc, char *argv[])
+ {
++	if (argc > 1 && strcmp(argv[1], "reschedule") == 0) {
++		return test_periodic_reschedule();
++	}
+ 	struct hrt_call call;
+ 	hrt_abstime prev, now;
+ 	int i;

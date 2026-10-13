@@ -1,0 +1,135 @@
+{
+  "flight_complete": true,
+  "disarmed": true,
+  "fault": "",
+  "actual_displacement_enu": [
+    -0.03663969682739249,
+    -0.001924292281187203,
+    -0.0018657011649150235
+  ],
+  "endpoint_px4_error_m": 0.014609335630162389,
+  "goals_livo_m": [
+    [
+      5.031523152852759,
+      3.013950946078011,
+      1.6150286224574457
+    ],
+    [
+      0.0315231528527592,
+      0.01395094607801092,
+      1.6150286224574457
+    ]
+  ],
+  "route": "multiple destination goals; each leg autonomously EGO-planned",
+  "actual_sampled_path_length_m": 14.798294977072107,
+  "frame_alignment_certified": false,
+  "test_limits": {
+    "planner_speed_mps": 0.2,
+    "planner_acceleration_mps2": 0.25,
+    "tracking_error_m": 0.6,
+    "truth_clearance_stop_m": 0.55,
+    "map_inflation_m": 0.65,
+    "self_return_filter_m": 0.45,
+    "odom_receipt_age_sec": 0.25,
+    "map_cloud_age_sec": 1.0,
+    "odom_step_m": 0.12,
+    "fixed_enu_ned_transform": true,
+    "max_estimator_xy_disagreement_m": 0.3,
+    "max_tracking_error_m": 0.6,
+    "velocity_feedforward": true,
+    "freeze_tracking_yaw": true,
+    "max_initial_yaw_disagreement_deg": 5.0
+  },
+  "alignment_rotation_source": "fixed ENU/NED for zero-yaw SITL spawn",
+  "audited_obstacle_count": 10,
+  "bridge_samples": 2637,
+  "tracking_samples": 2637,
+  "execution_elapsed_sec": 139.92,
+  "last_ego_execution_truth_m": [
+    -0.02358237799418412,
+    0.0002615859655002342,
+    1.6320836691022313
+  ],
+  "minimum_sampled_center_box_clearance_m": 0.7435715904895956,
+  "minimum_sampled_all_obstacle_clearance_m": 0.7435715904895956,
+  "px4_tracking_error_p95_m": 0.07121041812013322,
+  "px4_tracking_error_max_m": 0.0975094854288548,
+  "bridge_send_gap_max_ms": 58.950185,
+  "bspline_count": 119,
+  "planned_peak_speed_mps": 0.19782024300529213,
+  "planned_peak_acceleration_mps2": 0.05579689697126033,
+  "goal_gazebo_from_initial_alignment_m": [
+    0.022281506421663603,
+    0.014751053277558185,
+    1.5984703259304052
+  ],
+  "livo_to_truth_initial_alignment_pairs": 20,
+  "truth_xy_endpoint_error_after_hold_m": 0.038931853387414714,
+  "gazebo_truth_samples": 7130,
+  "minimum_center_box_clearance_m": 0.743569970736515,
+  "actual_peak_speed_mps": 0.21031250886350034,
+  "actual_altitude_range_m": [
+    1.51331217702922,
+    1.7430414611468077
+  ],
+  "minimum_all_obstacle_clearance_m": 0.743569970736515,
+  "truth_xy_at_ego_end_m": [
+    -0.025161773042593344,
+    -0.0006183157891095047
+  ],
+  "actual_path_length_m": 16.758862583218615,
+  "goals_gazebo_from_initial_alignment_m": [
+    [
+      5.023258848695344,
+      3.013121547740388
+    ],
+    [
+      0.022281506421663603,
+      0.014751053277558185
+    ]
+  ],
+  "direct_requested_segments_clearance_m": [
+    0.0,
+    0.0
+  ],
+  "armed_failsafe_samples": 0,
+  "external_vision_active_samples": {
+    "cs_ev_pos": 0,
+    "cs_ev_vel": 0,
+    "cs_ev_hgt": 0,
+    "cs_ev_yaw": 0
+  },
+  "execution_estimator_resets": {
+    "xy_reset_counter": 0,
+    "z_reset_counter": 0,
+    "heading_reset_counter": 0
+  },
+  "ulog_confirms_planner_setpoints": 700,
+  "vehicle_gps_position_max_gap_sec": 0.036,
+  "sensor_gps_max_gap_sec": 1.024,
+  "sensor_mag_max_gap_sec": 1.008,
+  "battery_status_max_gap_sec": 0.212,
+  "sensor_log_execution_coverage": {
+    "vehicle_gps_position": {
+      "samples": 4242,
+      "logged_max_gap_sec": 0.036000000000001364,
+      "first_after_handoff_sec": 0.003999999999990678,
+      "last_before_end_sec": 0.007999999999981355
+    },
+    "sensor_mag": {
+      "samples": 140,
+      "logged_max_gap_sec": 1.0080000000000098,
+      "first_after_handoff_sec": 0.45600000000000307,
+      "last_before_end_sec": 0.5159999999999911
+    },
+    "battery_status": {
+      "samples": 700,
+      "logged_max_gap_sec": 0.21199999999998909,
+      "first_after_handoff_sec": 0.055999999999997385,
+      "last_before_end_sec": 0.10799999999997567
+    }
+  },
+  "odom_measurement_age_p95_ms": 48.0,
+  "real_time_factor": 0.9997666183973063,
+  "original_parameters_unchanged": true
+}

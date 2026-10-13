@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "framework": {
+    "url": "https://github.com/ShuWei-2024/XT-Drone2.git",
+    "commit": "15b2ef6eb9fd8c2631f931a27064f323d26a9ed3"
+  },
+  "px4": {
+    "url": "https://github.com/PX4/PX4-Autopilot.git",
+    "tag": "v1.17.0",
+    "commit": "d6f12ad1c4f70ad3230afd7d86e971421e02fef4",
+    "checkout": "/home/cyf/dev/px4/PX4-Autopilot-1.17",
+    "local_hrt_patch_applied": true,
+    "patch_file": "astra/baseline/px4_1_15_3_hrt.patch",
+    "local_gz_magnetometer_patch": "astra/config/px4_117_gz_magnetometer.patch",
+    "magnetometer_patch_enable_env": "ASTRA_GZ_MAG_ENU_TESLA=1"
+  },
+  "px4_msgs": {
+    "url": "https://github.com/PX4/px4_msgs.git",
+    "branch": "release/1.17",
+    "commit": "86d8239e962f6939e05c3737784f60c02fa884db"
+  },
+  "ros": "Jazzy",
+  "gazebo": "Harmonic",
+  "baseline_source_tag": "astra-1.15-source-baseline-20261010",
+  "legacy_ego_gitlink": "413a3f73ec4892b614a6c0f45a1d43ec6d47e4aa",
+  "sophus": {
+    "url": "https://github.com/strasdat/Sophus",
+    "commit": "a621ff2e56c56c839a6c40418d42c3c254424b5c",
+    "vendored": "astra/vendor/Sophus-legacy",
+    "local_modifications": [
+      "SO2 std::complex setter compatibility",
+      "modern standalone CMake"
+    ]
+  },
+  "xrce_agent": {
+    "tag": "v3.0.2",
+    "commit": "a88c712b41a01e92583f4723f7f4f686863cf657",
+    "binary": "/home/cyf/dev/third_party/Micro-XRCE-DDS-Agent/build/MicroXRCEAgent"
+  }
+}
