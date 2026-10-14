@@ -1,0 +1,1877 @@
+{
+  "date": "2026-10-14",
+  "tested_git_commit": "f0698d6",
+  "scope": "Single-factor grey/colour short-route comparison plus coloured box closed-loop flight; identical algorithm and control parameters; headless isolated SITL",
+  "change": "Explicit Ogre2 PBR colour atlas plus ambient and directional light; sensor RGB appearance changes together",
+  "controls": {
+    "route.json": {
+      "equal": true,
+      "sha256": [
+        "4f0733b06eb14431b1114af0a60c75f5c2951f4f85299bcb8f542f0c3621d782",
+        "4f0733b06eb14431b1114af0a60c75f5c2951f4f85299bcb8f542f0c3621d782"
+      ]
+    },
+    "mesh_guard.npz": {
+      "equal": true,
+      "sha256": [
+        "a377eb61c4f80973ea34596c7c187acf3b987876c4a4fc35557bc1784ea554de",
+        "a377eb61c4f80973ea34596c7c187acf3b987876c4a4fc35557bc1784ea554de"
+      ]
+    },
+    "astra_baylands/meshes/collision.stl": {
+      "equal": true,
+      "sha256": [
+        "cca78b19f31733de31dc5b933cd0bdbd7ee4670ba5382307be2618110d03fac7",
+        "cca78b19f31733de31dc5b933cd0bdbd7ee4670ba5382307be2618110d03fac7"
+      ]
+    },
+    "astra_baylands/meshes/baylands.dae": {
+      "equal": true,
+      "sha256": [
+        "1f7364dabd9c3853e0f5078d0993356dc90a2cefd8870b84e37dc4f03a9d107e",
+        "1f7364dabd9c3853e0f5078d0993356dc90a2cefd8870b84e37dc4f03a9d107e"
+      ]
+    },
+    "astra_baylands/meshes/scan_color.png": {
+      "equal": true,
+      "sha256": [
+        "90e7bdb407f4f6c3d150452ba071d85b9cd404116825d66c3fa9bcba189dff48",
+        "90e7bdb407f4f6c3d150452ba071d85b9cd404116825d66c3fa9bcba189dff48"
+      ]
+    }
+  },
+  "all_execution_source_and_binary_snapshots_identical": true,
+  "all_estimator_configurations_identical": true,
+  "attempts": 3,
+  "complete_routes": 3,
+  "all_disarmed": true,
+  "all_baselines_preserved": true,
+  "limitations": [
+    "One grey/colour pair cannot establish improvement or repeat stability",
+    "Only specified short and box routes tested; natural tree drift and expanded-route planning failures remain unresolved",
+    "Measurement-to-publication delay uses simulation measurement clock; processing and CPU/scheduler metrics use wall clocks",
+    "Known-surface clearance is body-centre distance, not rotor clearance",
+    "No wide-area memory-platform or hardware certification"
+  ],
+  "runs": [
+    {
+      "run": "appearance_grey_short_20261014_01",
+      "complete_route_verified": true,
+      "flight_complete": true,
+      "fault": "",
+      "disarmed": true,
+      "execution_sim_duration_s": 25.992,
+      "actual_horizontal_path_m": 2.677788785702577,
+      "ground_frozen_execution_errors": {
+        "fast_livo2_xy_m": {
+          "count": 260,
+          "p50": 0.004907872700589391,
+          "p95": 0.010958734185728706,
+          "maximum": 0.02865352308534427
+        },
+        "fast_livo2_z_m": {
+          "count": 260,
+          "p50": 0.003466548766379751,
+          "p95": 0.005603115409066438,
+          "maximum": 0.00821222658795695
+        },
+        "fast_livo2_signed_z_median": -0.003466548766379751,
+        "px4_xy_m": {
+          "count": 1300,
+          "p50": 0.02850721528636417,
+          "p95": 0.03739016833008777,
+          "maximum": 0.04096363974939507
+        },
+        "px4_z_m": {
+          "count": 1300,
+          "p50": 0.018869498762685954,
+          "p95": 0.03793337832358419,
+          "maximum": 0.05528762219473826
+        },
+        "px4_signed_z_median": -0.015387310953371758
+      },
+      "actual_route_legs": [
+        {
+          "goal_index": 0,
+          "reached": true,
+          "requested_delta_xy_m": [
+            0.5,
+            0.0
+          ],
+          "actual_delta_xy_m": [
+            0.49726605572477367,
+            0.02190915366073996
+          ],
+          "actual_progress_along_requested_direction_m": 0.49726605572477367,
+          "endpoint_truth_xy_error_m": 0.023095914510547984,
+          "measurement_pair_dt_ms": [
+            8.0,
+            0.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.025903385661696785,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 2.5733280130748533
+        },
+        {
+          "goal_index": 1,
+          "reached": true,
+          "requested_delta_xy_m": [
+            0.0,
+            0.5
+          ],
+          "actual_delta_xy_m": [
+            0.005855174224720816,
+            0.56766631284944
+          ],
+          "actual_progress_along_requested_direction_m": 0.56766631284944,
+          "endpoint_truth_xy_error_m": 0.06049041709118059,
+          "measurement_pair_dt_ms": [
+            0.0,
+            0.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.054420809288342,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 2.5733449527755323
+        },
+        {
+          "goal_index": 2,
+          "reached": true,
+          "requested_delta_xy_m": [
+            -0.5,
+            0.0
+          ],
+          "actual_delta_xy_m": [
+            -0.5292404932311124,
+            -0.0372916187118022
+          ],
+          "actual_progress_along_requested_direction_m": 0.5292404932311124,
+          "endpoint_truth_xy_error_m": 0.018174460898665513,
+          "measurement_pair_dt_ms": [
+            0.0,
+            4.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.01288373851784212,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 2.5720957212049687
+        },
+        {
+          "goal_index": 3,
+          "reached": true,
+          "requested_delta_xy_m": [
+            0.0,
+            -0.5
+          ],
+          "actual_delta_xy_m": [
+            -0.015554269071890843,
+            -0.508556933903485
+          ],
+          "actual_progress_along_requested_direction_m": 0.508556933903485,
+          "endpoint_truth_xy_error_m": 0.021654650006641768,
+          "measurement_pair_dt_ms": [
+            4.0,
+            0.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.02125424869551577,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 3.0750500634260716
+        }
+      ],
+      "actual_minimum_surface_distance_m": {
+        "count": 1376,
+        "minimum": 2.5720957212049687,
+        "p95": 3.1602038667580503,
+        "maximum": 3.1944659328729803
+      },
+      "planned_dynamics_passed": true,
+      "planned_continuous_clearance_passed": true,
+      "shared_envelope": {
+        "curve_count": 12,
+        "failed_curves": [],
+        "executed_curve_failures": [],
+        "preview_rejected_curve_failures": [],
+        "tracked_trajectory_id_count": 12,
+        "all_executed_curves_inside_shared_envelope": true,
+        "all_complete_curves_inside_shared_envelope": true,
+        "reserve_m": 0.4,
+        "ground_reference": [
+          0.0002467283444526416,
+          -0.018485913315917847
+        ],
+        "method": "Cubic Bezier convex-hull subdivision over each knot span; blocked/unknown cells rejected",
+        "scope": "Frozen descent certificate is a prior safety constraint; obstacle observations remain separate; planner candidates rejected by preview are reported separately"
+      },
+      "known_surface_blocked_path_avoidance_verified": false,
+      "blocked_path_trials": [
+        {
+          "goal_index": 0,
+          "direct_path": {
+            "length_m": 0.4792075833618265,
+            "sampled_minimum_clearance_m": 2.5985160003443823,
+            "continuous_clearance_lower_bound_m": 2.5935242546843633,
+            "violates_clearance_margin": false
+          },
+          "actual_maximum_lateral_deviation_m": 0.019275872920473967,
+          "reached": true,
+          "begin_measurement_pair_dt_ms": 8.0,
+          "measured_detour": false
+        },
+        {
+          "goal_index": 1,
+          "direct_path": {
+            "length_m": 0.5131311972169047,
+            "sampled_minimum_clearance_m": 2.579200127000253,
+            "continuous_clearance_lower_bound_m": 2.57426617318086,
+            "violates_clearance_margin": false
+          },
+          "actual_maximum_lateral_deviation_m": 0.02722417419228011,
+          "reached": true,
+          "begin_measurement_pair_dt_ms": 0.0,
+          "measured_detour": false
+        },
+        {
+          "goal_index": 2,
+          "direct_path": {
+            "length_m": 0.5282440661551867,
+            "sampled_minimum_clearance_m": 2.5733449527755323,
+            "continuous_clearance_lower_bound_m": 2.5683615181891626,
+            "violates_clearance_margin": false
+          },
+          "actual_maximum_lateral_deviation_m": 0.06140154371093269,
+          "reached": true,
+          "begin_measurement_pair_dt_ms": 0.0,
+          "measured_detour": false
+        },
+        {
+          "goal_index": 3,
+          "direct_path": {
+            "length_m": 0.5185563748759962,
+            "sampled_minimum_clearance_m": 3.098516000344382,
+            "continuous_clearance_lower_bound_m": 3.0935298813551895,
+            "violates_clearance_margin": false
+          },
+          "actual_maximum_lateral_deviation_m": 0.02758402141796498,
+          "reached": true,
+          "begin_measurement_pair_dt_ms": 4.0,
+          "measured_detour": false
+        }
+      ],
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "ev_publication_health": {
+        "published_measurements": 1165,
+        "rejected_measurements": 0,
+        "source_fault": "",
+        "health_events": [
+          {
+            "wall_ns": 439893546240452,
+            "sim_ns": 21944000000,
+            "reason": "ground reference not frozen",
+            "publication_age_s": 439893.5462552,
+            "fusion_status_age_s": 439893.546256018
+          },
+          {
+            "wall_ns": 439900046234081,
+            "sim_ns": 28444000000,
+            "reason": "PX4 EV position/height fusion inactive",
+            "publication_age_s": 0.006723641999997199,
+            "fusion_status_age_s": 0.9586064610048197
+          },
+          {
+            "wall_ns": 439900296288902,
+            "sim_ns": 28696000000,
+            "reason": "ready",
+            "publication_age_s": 0.06775449099950492,
+            "fusion_status_age_s": 0.024713913968298584
+          },
+          {
+            "wall_ns": 439906646337870,
+            "sim_ns": 34704000000,
+            "reason": "EV measurement publication stale",
+            "publication_age_s": 0.2826569210155867,
+            "fusion_status_age_s": 1.2549144449876621
+          },
+          {
+            "wall_ns": 439906747759682,
+            "sim_ns": 34792000000,
+            "reason": "ready",
+            "publication_age_s": 0.03385416103992611,
+            "fusion_status_age_s": 0.08856113499496132
+          }
+        ]
+      },
+      "ev_fusion_confirmed": true,
+      "ev_aid_sources": {
+        "estimator_aid_src_ev_pos": {
+          "recorded": true,
+          "scope": "armed",
+          "count": 743,
+          "fused_count": 743,
+          "fused_fraction": 1.0,
+          "rejected_count": 0,
+          "last_fuse_advanced_count": 742,
+          "maximum_fusion_age_ms": 184.0,
+          "innovation_abs_m": {
+            "count": 1486,
+            "p95": 0.014332310063764453,
+            "maximum": 0.03753809630870819
+          }
+        },
+        "estimator_aid_src_ev_hgt": {
+          "recorded": true,
+          "scope": "armed",
+          "count": 743,
+          "fused_count": 743,
+          "fused_fraction": 1.0,
+          "rejected_count": 0,
+          "last_fuse_advanced_count": 742,
+          "maximum_fusion_age_ms": 184.0,
+          "innovation_abs_m": {
+            "count": 743,
+            "p95": 0.02993479967117309,
+            "maximum": 0.04525399208068848
+          }
+        }
+      },
+      "ev_reset_events": [
+        {
+          "timestamp_sample_us": 28664000,
+          "before": [
+            4,
+            1,
+            1
+          ],
+          "after": [
+            4,
+            2,
+            1
+          ],
+          "armed": false
+        },
+        {
+          "timestamp_sample_us": 85012000,
+          "before": [
+            4,
+            2,
+            1
+          ],
+          "after": [
+            4,
+            2,
+            2
+          ],
+          "armed": true
+        }
+      ],
+      "execution_pose_audit": {
+        "start_measurement_ns": 109100000000,
+        "end_measurement_ns": 135092000000,
+        "duration_sim_s": 25.992,
+        "fast_livo2": {
+          "offered_samples": 260,
+          "paired_samples": 260,
+          "pairing_fraction": 1.0,
+          "xy_m": {
+            "count": 260,
+            "p50": 0.004907872700589391,
+            "p95": 0.010958734185728706,
+            "maximum": 0.02865352308534427
+          },
+          "z_m": {
+            "count": 260,
+            "p50": 0.003466548766379751,
+            "p95": 0.005603115409066438,
+            "maximum": 0.00821222658795695
+          },
+          "signed_z_first_second_m": -0.002631109508312246,
+          "signed_z_last_second_m": -0.004158884250718531,
+          "signed_z_change_m": -0.0015277747424062849,
+          "truth_pair_dt_ms": {
+            "count": 260,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 8.0
+          }
+        },
+        "px4": {
+          "offered_samples": 1300,
+          "paired_samples": 1300,
+          "pairing_fraction": 1.0,
+          "xy_m": {
+            "count": 1300,
+            "p50": 0.02850721528636417,
+            "p95": 0.03739016833008777,
+            "maximum": 0.04096363974939507
+          },
+          "z_m": {
+            "count": 1300,
+            "p50": 0.018869498762685954,
+            "p95": 0.03793337832358419,
+            "maximum": 0.05528762219473826
+          },
+          "signed_z_first_second_m": -0.01807841802022714,
+          "signed_z_last_second_m": -0.019442979275243633,
+          "signed_z_change_m": -0.0013645612550164943,
+          "truth_pair_dt_ms": {
+            "count": 1300,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 16.0
+          }
+        },
+        "supervisor_frozen_height_difference_m": {
+          "count": 260,
+          "p50": 0.0099186773300656,
+          "p95": 0.05063729817773916,
+          "maximum": 0.06784445098127254
+        },
+        "supervisor_height_pair_dt_ms": {
+          "count": 260,
+          "p50": 4.0,
+          "p95": 12.0,
+          "maximum": 12.0
+        },
+        "actual_horizontal_path_m": 2.677788785702577
+      },
+      "stage_diagnostics": {
+        "LIO": {
+          "count": 260,
+          "processing_ms": {
+            "count": 260,
+            "p50": 20.2985,
+            "p95": 26.68085,
+            "maximum": 33.361000000000004,
+            "minimum": 12.644
+          },
+          "thread_cpu_ms": {
+            "count": 260,
+            "p50": 16.387,
+            "p95": 19.6707,
+            "maximum": 21.239,
+            "minimum": 10.752
+          },
+          "process_cpu_ms": {
+            "count": 260,
+            "p50": 27.6855,
+            "p95": 32.68855,
+            "maximum": 34.126,
+            "minimum": 17.163
+          },
+          "thread_scheduler_wait_ms": {
+            "count": 260,
+            "p50": 1.672,
+            "p95": 4.743499999999997,
+            "maximum": 12.293000000000001,
+            "minimum": 0.013000000000000001
+          },
+          "vio_accepted_patches": {},
+          "vio_mean_squared_residual": {},
+          "vio_hessian_condition": {},
+          "vio_proposed_planar_correction_m": {},
+          "lio_correspondences": {
+            "count": 260,
+            "p50": 4792.5,
+            "p95": 4965.1,
+            "maximum": 5088.0,
+            "minimum": 4542.0
+          },
+          "lio_mean_abs_residual_m": {
+            "count": 260,
+            "p50": 0.031159979224449998,
+            "p95": 0.033890419753769996,
+            "maximum": 0.0353560000891,
+            "minimum": 0.0278502475945
+          },
+          "rejected_visual_updates": 0,
+          "measurement_to_odom_publish_ms": {
+            "count": 260,
+            "p50": 40.0,
+            "p95": 56.0,
+            "maximum": 80.0,
+            "minimum": 28.0
+          },
+          "measurement_to_sync_ready_ms": {
+            "count": 260,
+            "p50": 24.0,
+            "p95": 32.19999999999993,
+            "maximum": 52.0,
+            "minimum": 12.0
+          },
+          "nonfinite_numeric_cells": {
+            "processing_us": 0,
+            "thread_cpu_us": 0,
+            "vio_mean_squared_residual": 0,
+            "vio_hessian_condition": 0,
+            "update_x": 0,
+            "update_y": 0,
+            "update_z": 0
+          }
+        },
+        "VIO": {
+          "count": 260,
+          "processing_ms": {
+            "count": 260,
+            "p50": 10.1165,
+            "p95": 15.857449999999995,
+            "maximum": 20.22,
+            "minimum": 6.503
+          },
+          "thread_cpu_ms": {
+            "count": 260,
+            "p50": 8.6045,
+            "p95": 11.095849999999999,
+            "maximum": 13.567,
+            "minimum": 6.173
+          },
+          "process_cpu_ms": {
+            "count": 260,
+            "p50": 12.925,
+            "p95": 16.624899999999993,
+            "maximum": 20.151,
+            "minimum": 8.713000000000001
+          },
+          "thread_scheduler_wait_ms": {
+            "count": 260,
+            "p50": 0.4455,
+            "p95": 2.9322,
+            "maximum": 5.676,
+            "minimum": 0.003
+          },
+          "vio_accepted_patches": {
+            "count": 260,
+            "p50": 97.0,
+            "p95": 118.0,
+            "maximum": 126.0,
+            "minimum": 76.0
+          },
+          "vio_mean_squared_residual": {
+            "count": 260,
+            "p50": 0.189844563603,
+            "p95": 9.797716283801996,
+            "maximum": 14.3283891678,
+            "minimum": 0.00445564370602
+          },
+          "vio_hessian_condition": {
+            "count": 260,
+            "p50": 87819108.5099,
+            "p95": 20663190453.34476,
+            "maximum": 1.53529600201e+17,
+            "minimum": 1902.01383666
+          },
+          "vio_proposed_planar_correction_m": {
+            "count": 260,
+            "p50": 0.00085249740244,
+            "p95": 0.006806108457718997,
+            "maximum": 0.0278881500271,
+            "minimum": 6.15982930736e-09
+          },
+          "lio_correspondences": {},
+          "lio_mean_abs_residual_m": {},
+          "rejected_visual_updates": 0,
+          "measurement_to_odom_publish_ms": {},
+          "measurement_to_sync_ready_ms": {
+            "count": 260,
+            "p50": 44.0,
+            "p95": 56.0,
+            "maximum": 80.0,
+            "minimum": 28.0
+          },
+          "nonfinite_numeric_cells": {
+            "processing_us": 0,
+            "thread_cpu_us": 0,
+            "vio_mean_squared_residual": 0,
+            "vio_hessian_condition": 0,
+            "update_x": 0,
+            "update_y": 0,
+            "update_z": 0
+          }
+        }
+      },
+      "flight_metrics": {
+        "planned_peak_speed_mps": 0.1923558961166407,
+        "planned_peak_acceleration_mps2": 0.1972329505771654,
+        "actual_peak_3d_speed_mps": 0.22863840694709836,
+        "combined_setpoint_send_max_gap_ms": 64.186056,
+        "supervisor_measurement_age_ms": {
+          "count": 374,
+          "minimum": 32.0,
+          "p95": 141.39999999999986,
+          "maximum": 176.0
+        },
+        "whole_flight_envelope_passed": true,
+        "whole_flight_envelope_breach_samples": 0
+      },
+      "execution_reset_events": [],
+      "execution_odom_receipt_gap_ms": {
+        "count": 259,
+        "p50": 100.406011,
+        "p95": 117.7129023,
+        "maximum": 128.650656,
+        "minimum": 65.354816
+      },
+      "execution_odom_measurement_gap_ms": {
+        "count": 259,
+        "p50": 100.0,
+        "p95": 100.0,
+        "maximum": 128.0,
+        "minimum": 96.0
+      },
+      "execution_odom_step_m": {
+        "count": 259,
+        "p50": 0.010816953468823368,
+        "p95": 0.022271239822038234,
+        "maximum": 0.027843947138007717,
+        "minimum": 0.0012121017075519551
+      },
+      "execution_odom_yaw_step_deg": {
+        "count": 259,
+        "p50": 0.027602016852089618,
+        "p95": 0.10113342228913083,
+        "maximum": 0.13948974353210764,
+        "minimum": 0.0005383779571342834
+      },
+      "fast_livo2_rss_mib": {
+        "first": 196.1875,
+        "last": 447.75,
+        "count": 111,
+        "p50": 324.265625,
+        "p95": 447.75,
+        "maximum": 448.94140625,
+        "minimum": 196.1875
+      },
+      "initial_camera": {
+        "colour_pixel_fraction_channel_range_gt20": 0.0,
+        "mean_channel_range": 0.0,
+        "per_channel_std": [
+          32.474039876893436,
+          32.474039876893436,
+          32.474039876893436
+        ]
+      }
+    },
+    {
+      "run": "appearance_colour_short_20261014_01",
+      "complete_route_verified": true,
+      "flight_complete": true,
+      "fault": "",
+      "disarmed": true,
+      "execution_sim_duration_s": 26.288,
+      "actual_horizontal_path_m": 2.8473288827099243,
+      "ground_frozen_execution_errors": {
+        "fast_livo2_xy_m": {
+          "count": 263,
+          "p50": 0.026241564041433935,
+          "p95": 0.03499902657130847,
+          "maximum": 0.046415719961764614
+        },
+        "fast_livo2_z_m": {
+          "count": 263,
+          "p50": 0.009673090655703653,
+          "p95": 0.01176335904771466,
+          "maximum": 0.01299251479632102
+        },
+        "fast_livo2_signed_z_median": -0.009673090655703653,
+        "px4_xy_m": {
+          "count": 1314,
+          "p50": 0.039267226592956755,
+          "p95": 0.05955891176807668,
+          "maximum": 0.06531420228354429
+        },
+        "px4_z_m": {
+          "count": 1314,
+          "p50": 0.0077223965369118686,
+          "p95": 0.023399711672090744,
+          "maximum": 0.02859117833395075
+        },
+        "px4_signed_z_median": -0.0031121811427388124
+      },
+      "actual_route_legs": [
+        {
+          "goal_index": 0,
+          "reached": true,
+          "requested_delta_xy_m": [
+            0.5,
+            0.0
+          ],
+          "actual_delta_xy_m": [
+            0.5787172868717055,
+            -0.01600282468149486
+          ],
+          "actual_progress_along_requested_direction_m": 0.5787172868717055,
+          "endpoint_truth_xy_error_m": 0.05781920942450029,
+          "measurement_pair_dt_ms": [
+            4.0,
+            8.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.0688531979927183,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 2.488337136276601
+        },
+        {
+          "goal_index": 1,
+          "reached": true,
+          "requested_delta_xy_m": [
+            0.0,
+            0.5
+          ],
+          "actual_delta_xy_m": [
+            -0.039561483632044814,
+            0.5259883688368417
+          ],
+          "actual_progress_along_requested_direction_m": 0.5259883688368417,
+          "endpoint_truth_xy_error_m": 0.017070788793272278,
+          "measurement_pair_dt_ms": [
+            8.0,
+            8.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.02270581335280059,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 2.5102967771641547
+        },
+        {
+          "goal_index": 2,
+          "reached": true,
+          "requested_delta_xy_m": [
+            -0.5,
+            0.0
+          ],
+          "actual_delta_xy_m": [
+            -0.5305095821311009,
+            0.01319206698173836
+          ],
+          "actual_progress_along_requested_direction_m": 0.5305095821311009,
+          "endpoint_truth_xy_error_m": 0.025809235079162902,
+          "measurement_pair_dt_ms": [
+            8.0,
+            8.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.018637713549336354,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 2.5832603476475757
+        },
+        {
+          "goal_index": 3,
+          "reached": true,
+          "requested_delta_xy_m": [
+            0.0,
+            -0.5
+          ],
+          "actual_delta_xy_m": [
+            0.04301415448946978,
+            -0.5281418135038387
+          ],
+          "actual_progress_along_requested_direction_m": 0.5281418135038387,
+          "endpoint_truth_xy_error_m": 0.028719257244164964,
+          "measurement_pair_dt_ms": [
+            8.0,
+            8.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.04214217012247182,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 3.0641865233112844
+        }
+      ],
+      "actual_minimum_surface_distance_m": {
+        "count": 1383,
+        "minimum": 2.488337136276601,
+        "p95": 3.140462524094384,
+        "maximum": 3.170049123305192
+      },
+      "planned_dynamics_passed": true,
+      "planned_continuous_clearance_passed": true,
+      "shared_envelope": {
+        "curve_count": 13,
+        "failed_curves": [],
+        "executed_curve_failures": [],
+        "preview_rejected_curve_failures": [],
+        "tracked_trajectory_id_count": 13,
+        "all_executed_curves_inside_shared_envelope": true,
+        "all_complete_curves_inside_shared_envelope": true,
+        "reserve_m": 0.4,
+        "ground_reference": [
+          3.872229309155499e-05,
+          -0.02419541315102186
+        ],
+        "method": "Cubic Bezier convex-hull subdivision over each knot span; blocked/unknown cells rejected",
+        "scope": "Frozen descent certificate is a prior safety constraint; obstacle observations remain separate; planner candidates rejected by preview are reported separately"
+      },
+      "known_surface_blocked_path_avoidance_verified": false,
+      "blocked_path_trials": [
+        {
+          "goal_index": 0,
+          "direct_path": {
+            "length_m": 0.5240148514556031,
+            "sampled_minimum_clearance_m": 2.5985281228783483,
+            "continuous_clearance_lower_bound_m": 2.5935845865438614,
+            "violates_clearance_margin": false
+          },
+          "actual_maximum_lateral_deviation_m": 0.036446591312460946,
+          "reached": true,
+          "begin_measurement_pair_dt_ms": 4.0,
+          "measured_detour": false
+        },
+        {
+          "goal_index": 1,
+          "direct_path": {
+            "length_m": 0.5240180049358131,
+            "sampled_minimum_clearance_m": 2.543698864015531,
+            "continuous_clearance_lower_bound_m": 2.538755297931231,
+            "violates_clearance_margin": false
+          },
+          "actual_maximum_lateral_deviation_m": 0.04732444070023297,
+          "reached": true,
+          "begin_measurement_pair_dt_ms": 8.0,
+          "measured_detour": false
+        },
+        {
+          "goal_index": 2,
+          "direct_path": {
+            "length_m": 0.5166263423692701,
+            "sampled_minimum_clearance_m": 2.5832603476475757,
+            "continuous_clearance_lower_bound_m": 2.5782927866632557,
+            "violates_clearance_margin": false
+          },
+          "actual_maximum_lateral_deviation_m": 0.021051521524180522,
+          "reached": true,
+          "begin_measurement_pair_dt_ms": 8.0,
+          "measured_detour": false
+        },
+        {
+          "goal_index": 3,
+          "direct_path": {
+            "length_m": 0.522445616458903,
+            "sampled_minimum_clearance_m": 3.0985281228783483,
+            "continuous_clearance_lower_bound_m": 3.093599390647604,
+            "violates_clearance_margin": false
+          },
+          "actual_maximum_lateral_deviation_m": 0.03369984624034554,
+          "reached": true,
+          "begin_measurement_pair_dt_ms": 8.0,
+          "measured_detour": false
+        }
+      ],
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "ev_publication_health": {
+        "published_measurements": 1201,
+        "rejected_measurements": 9,
+        "source_fault": "",
+        "health_events": [
+          {
+            "wall_ns": 440324629562971,
+            "sim_ns": 0,
+            "reason": "ground reference not frozen",
+            "publication_age_s": 440324.6295896,
+            "fusion_status_age_s": 440324.629590597
+          },
+          {
+            "wall_ns": 440331229447323,
+            "sim_ns": 28488000000,
+            "reason": "PX4 EV position/height fusion inactive",
+            "publication_age_s": 0.047851942013949156,
+            "fusion_status_age_s": 0.004091267997864634
+          },
+          {
+            "wall_ns": 440331429396462,
+            "sim_ns": 28688000000,
+            "reason": "ready",
+            "publication_age_s": 0.06007238500751555,
+            "fusion_status_age_s": 0.02067461598198861
+          },
+          {
+            "wall_ns": 440339879454834,
+            "sim_ns": 36680000000,
+            "reason": "EV measurement publication stale",
+            "publication_age_s": 0.26233654597308487,
+            "fusion_status_age_s": 0.1648627960239537
+          },
+          {
+            "wall_ns": 440341479466071,
+            "sim_ns": 38480000000,
+            "reason": "PX4 EV position/height fusion inactive",
+            "publication_age_s": 0.0409254829864949,
+            "fusion_status_age_s": 0.32297786901472136
+          },
+          {
+            "wall_ns": 440341679516737,
+            "sim_ns": 38680000000,
+            "reason": "ready",
+            "publication_age_s": 0.03602986695477739,
+            "fusion_status_age_s": 0.014148614020086825
+          }
+        ]
+      },
+      "ev_fusion_confirmed": true,
+      "ev_aid_sources": {
+        "estimator_aid_src_ev_pos": {
+          "recorded": true,
+          "scope": "armed",
+          "count": 749,
+          "fused_count": 749,
+          "fused_fraction": 1.0,
+          "rejected_count": 0,
+          "last_fuse_advanced_count": 748,
+          "maximum_fusion_age_ms": 184.0,
+          "innovation_abs_m": {
+            "count": 1498,
+            "p95": 0.01687079882249236,
+            "maximum": 0.06354063004255295
+          }
+        },
+        "estimator_aid_src_ev_hgt": {
+          "recorded": true,
+          "scope": "armed",
+          "count": 749,
+          "fused_count": 749,
+          "fused_fraction": 1.0,
+          "rejected_count": 0,
+          "last_fuse_advanced_count": 748,
+          "maximum_fusion_age_ms": 184.0,
+          "innovation_abs_m": {
+            "count": 749,
+            "p95": 0.03025702983140949,
+            "maximum": 0.06316117942333221
+          }
+        }
+      },
+      "ev_reset_events": [
+        {
+          "timestamp_sample_us": 28668000,
+          "before": [
+            4,
+            1,
+            1
+          ],
+          "after": [
+            4,
+            2,
+            1
+          ],
+          "armed": false
+        },
+        {
+          "timestamp_sample_us": 38660000,
+          "before": [
+            4,
+            2,
+            1
+          ],
+          "after": [
+            4,
+            3,
+            1
+          ],
+          "armed": false
+        },
+        {
+          "timestamp_sample_us": 89900000,
+          "before": [
+            4,
+            3,
+            1
+          ],
+          "after": [
+            4,
+            3,
+            2
+          ],
+          "armed": true
+        }
+      ],
+      "execution_pose_audit": {
+        "start_measurement_ns": 113916000000,
+        "end_measurement_ns": 140204000000,
+        "duration_sim_s": 26.288,
+        "fast_livo2": {
+          "offered_samples": 263,
+          "paired_samples": 263,
+          "pairing_fraction": 1.0,
+          "xy_m": {
+            "count": 263,
+            "p50": 0.026241564041433935,
+            "p95": 0.03499902657130847,
+            "maximum": 0.046415719961764614
+          },
+          "z_m": {
+            "count": 263,
+            "p50": 0.009673090655703653,
+            "p95": 0.01176335904771466,
+            "maximum": 0.01299251479632102
+          },
+          "signed_z_first_second_m": -0.01114548367014212,
+          "signed_z_last_second_m": -0.010863765828232896,
+          "signed_z_change_m": 0.00028171784190922367,
+          "truth_pair_dt_ms": {
+            "count": 263,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 12.0
+          }
+        },
+        "px4": {
+          "offered_samples": 1314,
+          "paired_samples": 1314,
+          "pairing_fraction": 1.0,
+          "xy_m": {
+            "count": 1314,
+            "p50": 0.039267226592956755,
+            "p95": 0.05955891176807668,
+            "maximum": 0.06531420228354429
+          },
+          "z_m": {
+            "count": 1314,
+            "p50": 0.0077223965369118686,
+            "p95": 0.023399711672090744,
+            "maximum": 0.02859117833395075
+          },
+          "signed_z_first_second_m": -0.011214342337486971,
+          "signed_z_last_second_m": 0.004618853455034544,
+          "signed_z_change_m": 0.015833195792521515,
+          "truth_pair_dt_ms": {
+            "count": 1314,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 12.0
+          }
+        },
+        "supervisor_frozen_height_difference_m": {
+          "count": 263,
+          "p50": 0.030798985442023766,
+          "p95": 0.04007128025104657,
+          "maximum": 0.0447327709529103
+        },
+        "supervisor_height_pair_dt_ms": {
+          "count": 263,
+          "p50": 8.0,
+          "p95": 12.0,
+          "maximum": 20.0
+        },
+        "actual_horizontal_path_m": 2.8473288827099243
+      },
+      "stage_diagnostics": {
+        "LIO": {
+          "count": 263,
+          "processing_ms": {
+            "count": 263,
+            "p50": 19.788,
+            "p95": 25.7072,
+            "maximum": 32.443,
+            "minimum": 12.378
+          },
+          "thread_cpu_ms": {
+            "count": 263,
+            "p50": 16.133,
+            "p95": 19.2532,
+            "maximum": 22.029,
+            "minimum": 10.66
+          },
+          "process_cpu_ms": {
+            "count": 263,
+            "p50": 26.952,
+            "p95": 32.0595,
+            "maximum": 35.399,
+            "minimum": 18.009
+          },
+          "thread_scheduler_wait_ms": {
+            "count": 263,
+            "p50": 1.327,
+            "p95": 5.317899999999997,
+            "maximum": 10.627,
+            "minimum": 0.005
+          },
+          "vio_accepted_patches": {},
+          "vio_mean_squared_residual": {},
+          "vio_hessian_condition": {},
+          "vio_proposed_planar_correction_m": {},
+          "lio_correspondences": {
+            "count": 263,
+            "p50": 4788.0,
+            "p95": 4922.3,
+            "maximum": 5013.0,
+            "minimum": 4566.0
+          },
+          "lio_mean_abs_residual_m": {
+            "count": 263,
+            "p50": 0.0312516512563,
+            "p95": 0.03473640023192,
+            "maximum": 0.0362080431382,
+            "minimum": 0.0280237079274
+          },
+          "rejected_visual_updates": 0,
+          "measurement_to_odom_publish_ms": {
+            "count": 263,
+            "p50": 40.0,
+            "p95": 55.59999999999991,
+            "maximum": 64.0,
+            "minimum": 24.0
+          },
+          "measurement_to_sync_ready_ms": {
+            "count": 263,
+            "p50": 24.0,
+            "p95": 32.0,
+            "maximum": 44.0,
+            "minimum": 12.0
+          },
+          "nonfinite_numeric_cells": {
+            "processing_us": 0,
+            "thread_cpu_us": 0,
+            "vio_mean_squared_residual": 0,
+            "vio_hessian_condition": 0,
+            "update_x": 0,
+            "update_y": 0,
+            "update_z": 0
+          }
+        },
+        "VIO": {
+          "count": 263,
+          "processing_ms": {
+            "count": 263,
+            "p50": 10.362,
+            "p95": 14.149799999999997,
+            "maximum": 22.837,
+            "minimum": 6.978
+          },
+          "thread_cpu_ms": {
+            "count": 263,
+            "p50": 8.924,
+            "p95": 10.681,
+            "maximum": 11.995000000000001,
+            "minimum": 6.695
+          },
+          "process_cpu_ms": {
+            "count": 263,
+            "p50": 13.167,
+            "p95": 15.959,
+            "maximum": 17.898,
+            "minimum": 9.122
+          },
+          "thread_scheduler_wait_ms": {
+            "count": 263,
+            "p50": 0.496,
+            "p95": 2.2887999999999993,
+            "maximum": 10.211,
+            "minimum": 0.0
+          },
+          "vio_accepted_patches": {
+            "count": 263,
+            "p50": 91.0,
+            "p95": 111.0,
+            "maximum": 115.0,
+            "minimum": 70.0
+          },
+          "vio_mean_squared_residual": {
+            "count": 263,
+            "p50": 0.574384272099,
+            "p95": 11.136533546419995,
+            "maximum": 15.1787700653,
+            "minimum": 0.131884738803
+          },
+          "vio_hessian_condition": {
+            "count": 263,
+            "p50": 388483.552874,
+            "p95": 12723895.398779996,
+            "maximum": 22462340.9158,
+            "minimum": 6987.69825972
+          },
+          "vio_proposed_planar_correction_m": {
+            "count": 263,
+            "p50": 0.00126439760453,
+            "p95": 0.008348110908771996,
+            "maximum": 0.0225893823306,
+            "minimum": 7.52421341115e-06
+          },
+          "lio_correspondences": {},
+          "lio_mean_abs_residual_m": {},
+          "rejected_visual_updates": 0,
+          "measurement_to_odom_publish_ms": {},
+          "measurement_to_sync_ready_ms": {
+            "count": 263,
+            "p50": 44.0,
+            "p95": 56.0,
+            "maximum": 64.0,
+            "minimum": 24.0
+          },
+          "nonfinite_numeric_cells": {
+            "processing_us": 0,
+            "thread_cpu_us": 0,
+            "vio_mean_squared_residual": 0,
+            "vio_hessian_condition": 0,
+            "update_x": 0,
+            "update_y": 0,
+            "update_z": 0
+          }
+        }
+      },
+      "flight_metrics": {
+        "planned_peak_speed_mps": 0.19994820213266334,
+        "planned_peak_acceleration_mps2": 0.21808431336686093,
+        "actual_peak_3d_speed_mps": 0.21952664927783397,
+        "combined_setpoint_send_max_gap_ms": 92.734099,
+        "supervisor_measurement_age_ms": {
+          "count": 410,
+          "minimum": 28.0,
+          "p95": 136.0,
+          "maximum": 176.0
+        },
+        "whole_flight_envelope_passed": true,
+        "whole_flight_envelope_breach_samples": 0
+      },
+      "execution_reset_events": [],
+      "execution_odom_receipt_gap_ms": {
+        "count": 262,
+        "p50": 100.72496100000001,
+        "p95": 120.48651644999998,
+        "maximum": 139.337573,
+        "minimum": 68.211036
+      },
+      "execution_odom_measurement_gap_ms": {
+        "count": 262,
+        "p50": 100.0,
+        "p95": 100.0,
+        "maximum": 128.0,
+        "minimum": 96.0
+      },
+      "execution_odom_step_m": {
+        "count": 262,
+        "p50": 0.01035951120793612,
+        "p95": 0.023043533292277592,
+        "maximum": 0.0357226199789501,
+        "minimum": 0.0005275686054809649
+      },
+      "execution_odom_yaw_step_deg": {
+        "count": 262,
+        "p50": 0.03092931582796061,
+        "p95": 0.09239068578453033,
+        "maximum": 0.18672423781916478,
+        "minimum": 0.0003248322469794597
+      },
+      "fast_livo2_rss_mib": {
+        "first": 189.44921875,
+        "last": 462.09765625,
+        "count": 116,
+        "p50": 307.96484375,
+        "p95": 462.12109375,
+        "maximum": 462.18359375,
+        "minimum": 189.44921875
+      },
+      "initial_camera": {
+        "colour_pixel_fraction_channel_range_gt20": 0.5307356770833334,
+        "mean_channel_range": 34.39902994791667,
+        "per_channel_std": [
+          39.95900721828211,
+          58.03528591308917,
+          68.9820737795132
+        ]
+      }
+    },
+    {
+      "run": "appearance_colour_box_20261014_01",
+      "complete_route_verified": true,
+      "flight_complete": true,
+      "fault": "",
+      "disarmed": true,
+      "execution_sim_duration_s": 161.736,
+      "actual_horizontal_path_m": 26.934151366015783,
+      "ground_frozen_execution_errors": {
+        "fast_livo2_xy_m": {
+          "count": 1618,
+          "p50": 0.013798207428933873,
+          "p95": 0.028363178787266293,
+          "maximum": 0.045337110243990564
+        },
+        "fast_livo2_z_m": {
+          "count": 1618,
+          "p50": 0.009874402473097121,
+          "p95": 0.01256496814258724,
+          "maximum": 0.015052524381804488
+        },
+        "fast_livo2_signed_z_median": -0.009874402473097121,
+        "px4_xy_m": {
+          "count": 8086,
+          "p50": 0.02588083110483952,
+          "p95": 0.04922611029913105,
+          "maximum": 0.08044152908509307
+        },
+        "px4_z_m": {
+          "count": 8086,
+          "p50": 0.01144931502913904,
+          "p95": 0.05135330280964531,
+          "maximum": 0.0854089839085147
+        },
+        "px4_signed_z_median": 0.009783266964660253
+      },
+      "actual_route_legs": [
+        {
+          "goal_index": 0,
+          "reached": true,
+          "requested_delta_xy_m": [
+            7.0,
+            0.0
+          ],
+          "actual_delta_xy_m": [
+            6.996760969321828,
+            -0.04457416158682612
+          ],
+          "actual_progress_along_requested_direction_m": 6.996760969321828,
+          "endpoint_truth_xy_error_m": 0.019364919223163177,
+          "measurement_pair_dt_ms": [
+            4.0,
+            4.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.018008428182020888,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 1.4583994832497973
+        },
+        {
+          "goal_index": 1,
+          "reached": true,
+          "requested_delta_xy_m": [
+            0.0,
+            4.0
+          ],
+          "actual_delta_xy_m": [
+            0.005518644690532426,
+            4.014945910654192
+          ],
+          "actual_progress_along_requested_direction_m": 4.014945910654192,
+          "endpoint_truth_xy_error_m": 0.0034413487627559494,
+          "measurement_pair_dt_ms": [
+            4.0,
+            4.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.002098071411972947,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 2.4685771709281155
+        },
+        {
+          "goal_index": 2,
+          "reached": true,
+          "requested_delta_xy_m": [
+            -7.0,
+            0.0
+          ],
+          "actual_delta_xy_m": [
+            -7.016523483835757,
+            -0.011070623918422395
+          ],
+          "actual_progress_along_requested_direction_m": 7.016523483835757,
+          "endpoint_truth_xy_error_m": 0.022896121718719305,
+          "measurement_pair_dt_ms": [
+            4.0,
+            4.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.0217779155295949,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 2.482569392636258
+        },
+        {
+          "goal_index": 3,
+          "reached": true,
+          "requested_delta_xy_m": [
+            0.0,
+            -4.0
+          ],
+          "actual_delta_xy_m": [
+            -0.0009001106106448949,
+            -4.021920578540911
+          ],
+          "actual_progress_along_requested_direction_m": 4.021920578540911,
+          "endpoint_truth_xy_error_m": 0.040746289554064674,
+          "measurement_pair_dt_ms": [
+            4.0,
+            8.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.03940714293831554,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 3.084372592890451
+        }
+      ],
+      "actual_minimum_surface_distance_m": {
+        "count": 8557,
+        "minimum": 1.4583994832497973,
+        "p95": 3.936027992413195,
+        "maximum": 4.0289947193818305
+      },
+      "planned_dynamics_passed": true,
+      "planned_continuous_clearance_passed": true,
+      "shared_envelope": {
+        "curve_count": 147,
+        "failed_curves": [],
+        "executed_curve_failures": [],
+        "preview_rejected_curve_failures": [],
+        "tracked_trajectory_id_count": 147,
+        "all_executed_curves_inside_shared_envelope": true,
+        "all_complete_curves_inside_shared_envelope": true,
+        "reserve_m": 0.4,
+        "ground_reference": [
+          0.0005635796189344449,
+          -0.0272907552237679
+        ],
+        "method": "Cubic Bezier convex-hull subdivision over each knot span; blocked/unknown cells rejected",
+        "scope": "Frozen descent certificate is a prior safety constraint; obstacle observations remain separate; planner candidates rejected by preview are reported separately"
+      },
+      "known_surface_blocked_path_avoidance_verified": true,
+      "blocked_path_trials": [
+        {
+          "goal_index": 0,
+          "direct_path": {
+            "length_m": 7.003771293395668,
+            "sampled_minimum_clearance_m": 0.004249538012641274,
+            "continuous_clearance_lower_bound_m": -0.000746019257969046,
+            "violates_clearance_margin": true
+          },
+          "actual_maximum_lateral_deviation_m": 2.999708853293481,
+          "reached": true,
+          "begin_measurement_pair_dt_ms": 4.0,
+          "measured_detour": true
+        },
+        {
+          "goal_index": 1,
+          "direct_path": {
+            "length_m": 4.018083178345526,
+            "sampled_minimum_clearance_m": 2.468060301718755,
+            "continuous_clearance_lower_bound_m": 2.46306268582529,
+            "violates_clearance_margin": false
+          },
+          "actual_maximum_lateral_deviation_m": 0.03782376160212972,
+          "reached": true,
+          "begin_measurement_pair_dt_ms": 4.0,
+          "measured_detour": false
+        },
+        {
+          "goal_index": 2,
+          "direct_path": {
+            "length_m": 6.998574914525392,
+            "sampled_minimum_clearance_m": 2.4982818907187694,
+            "continuous_clearance_lower_bound_m": 2.4932829086369654,
+            "violates_clearance_margin": false
+          },
+          "actual_maximum_lateral_deviation_m": 0.04540366897379462,
+          "reached": true,
+          "begin_measurement_pair_dt_ms": 4.0,
+          "measured_detour": false
+        },
+        {
+          "goal_index": 3,
+          "direct_path": {
+            "length_m": 3.98584487144183,
+            "sampled_minimum_clearance_m": 3.0985275508302665,
+            "continuous_clearance_lower_bound_m": 3.0935327577582843,
+            "violates_clearance_margin": false
+          },
+          "actual_maximum_lateral_deviation_m": 0.03495818542230711,
+          "reached": true,
+          "begin_measurement_pair_dt_ms": 4.0,
+          "measured_detour": false
+        }
+      ],
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "ev_publication_health": {
+        "published_measurements": 2524,
+        "rejected_measurements": 0,
+        "source_fault": "",
+        "health_events": [
+          {
+            "wall_ns": 440556400090931,
+            "sim_ns": 22436000000,
+            "reason": "ground reference not frozen",
+            "publication_age_s": 440556.40010423,
+            "fusion_status_age_s": 440556.400104744
+          },
+          {
+            "wall_ns": 440562600171470,
+            "sim_ns": 28636000000,
+            "reason": "PX4 EV position/height fusion inactive",
+            "publication_age_s": 0.008755412010941654,
+            "fusion_status_age_s": 0.12626359600108117
+          },
+          {
+            "wall_ns": 440562850040970,
+            "sim_ns": 28888000000,
+            "reason": "ready",
+            "publication_age_s": 0.060082647018134594,
+            "fusion_status_age_s": 0.02403919998323545
+          }
+        ]
+      },
+      "ev_fusion_confirmed": true,
+      "ev_aid_sources": {
+        "estimator_aid_src_ev_pos": {
+          "recorded": true,
+          "scope": "armed",
+          "count": 2103,
+          "fused_count": 2103,
+          "fused_fraction": 1.0,
+          "rejected_count": 0,
+          "last_fuse_advanced_count": 2102,
+          "maximum_fusion_age_ms": 180.0,
+          "innovation_abs_m": {
+            "count": 4206,
+            "p95": 0.01542704552412033,
+            "maximum": 0.046025753021240234
+          }
+        },
+        "estimator_aid_src_ev_hgt": {
+          "recorded": true,
+          "scope": "armed",
+          "count": 2103,
+          "fused_count": 2103,
+          "fused_fraction": 1.0,
+          "rejected_count": 0,
+          "last_fuse_advanced_count": 2102,
+          "maximum_fusion_age_ms": 180.0,
+          "innovation_abs_m": {
+            "count": 2103,
+            "p95": 0.026408344507217397,
+            "maximum": 0.04994779825210571
+          }
+        }
+      },
+      "ev_reset_events": [
+        {
+          "timestamp_sample_us": 28860000,
+          "before": [
+            5,
+            1,
+            1
+          ],
+          "after": [
+            5,
+            2,
+            1
+          ],
+          "armed": false
+        },
+        {
+          "timestamp_sample_us": 83612000,
+          "before": [
+            5,
+            2,
+            1
+          ],
+          "after": [
+            5,
+            2,
+            2
+          ],
+          "armed": true
+        }
+      ],
+      "execution_pose_audit": {
+        "start_measurement_ns": 107700000000,
+        "end_measurement_ns": 269436000000,
+        "duration_sim_s": 161.736,
+        "fast_livo2": {
+          "offered_samples": 1618,
+          "paired_samples": 1618,
+          "pairing_fraction": 1.0,
+          "xy_m": {
+            "count": 1618,
+            "p50": 0.013798207428933873,
+            "p95": 0.028363178787266293,
+            "maximum": 0.045337110243990564
+          },
+          "z_m": {
+            "count": 1618,
+            "p50": 0.009874402473097121,
+            "p95": 0.01256496814258724,
+            "maximum": 0.015052524381804488
+          },
+          "signed_z_first_second_m": -0.0041658624747562545,
+          "signed_z_last_second_m": -0.004280358622181124,
+          "signed_z_change_m": -0.00011449614742486958,
+          "truth_pair_dt_ms": {
+            "count": 1618,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 12.0
+          }
+        },
+        "px4": {
+          "offered_samples": 8086,
+          "paired_samples": 8086,
+          "pairing_fraction": 1.0,
+          "xy_m": {
+            "count": 8086,
+            "p50": 0.02588083110483952,
+            "p95": 0.04922611029913105,
+            "maximum": 0.08044152908509307
+          },
+          "z_m": {
+            "count": 8086,
+            "p50": 0.01144931502913904,
+            "p95": 0.05135330280964531,
+            "maximum": 0.0854089839085147
+          },
+          "signed_z_first_second_m": 0.030540096913634907,
+          "signed_z_last_second_m": 0.017228256547851872,
+          "signed_z_change_m": -0.013311840365783034,
+          "truth_pair_dt_ms": {
+            "count": 8086,
+            "p50": 4.0,
+            "p95": 8.0,
+            "maximum": 12.0
+          }
+        },
+        "supervisor_frozen_height_difference_m": {
+          "count": 1618,
+          "p50": 0.019426532245649802,
+          "p95": 0.06107965195148865,
+          "maximum": 0.09274513021391043
+        },
+        "supervisor_height_pair_dt_ms": {
+          "count": 1618,
+          "p50": 4.0,
+          "p95": 12.0,
+          "maximum": 20.0
+        },
+        "actual_horizontal_path_m": 26.934151366015783
+      },
+      "stage_diagnostics": {
+        "LIO": {
+          "count": 1618,
+          "processing_ms": {
+            "count": 1618,
+            "p50": 20.7155,
+            "p95": 27.52345,
+            "maximum": 58.688,
+            "minimum": 11.985
+          },
+          "thread_cpu_ms": {
+            "count": 1618,
+            "p50": 16.868000000000002,
+            "p95": 19.5876,
+            "maximum": 22.464000000000002,
+            "minimum": 10.749
+          },
+          "process_cpu_ms": {
+            "count": 1618,
+            "p50": 29.136499999999998,
+            "p95": 33.350300000000004,
+            "maximum": 36.633,
+            "minimum": 18.062
+          },
+          "thread_scheduler_wait_ms": {
+            "count": 1618,
+            "p50": 1.6320000000000001,
+            "p95": 6.408199999999994,
+            "maximum": 29.649,
+            "minimum": 0.004
+          },
+          "vio_accepted_patches": {},
+          "vio_mean_squared_residual": {},
+          "vio_hessian_condition": {},
+          "vio_proposed_planar_correction_m": {},
+          "lio_correspondences": {
+            "count": 1618,
+            "p50": 4873.0,
+            "p95": 5031.15,
+            "maximum": 5228.0,
+            "minimum": 4470.0
+          },
+          "lio_mean_abs_residual_m": {
+            "count": 1618,
+            "p50": 0.0333700684213,
+            "p95": 0.036591003683035,
+            "maximum": 0.0392226381684,
+            "minimum": 0.0275135223602
+          },
+          "rejected_visual_updates": 0,
+          "measurement_to_odom_publish_ms": {
+            "count": 1618,
+            "p50": 44.0,
+            "p95": 56.0,
+            "maximum": 100.0,
+            "minimum": 24.0
+          },
+          "measurement_to_sync_ready_ms": {
+            "count": 1618,
+            "p50": 24.0,
+            "p95": 36.0,
+            "maximum": 56.0,
+            "minimum": 12.0
+          },
+          "nonfinite_numeric_cells": {
+            "processing_us": 0,
+            "thread_cpu_us": 0,
+            "vio_mean_squared_residual": 0,
+            "vio_hessian_condition": 0,
+            "update_x": 0,
+            "update_y": 0,
+            "update_z": 0
+          }
+        },
+        "VIO": {
+          "count": 1618,
+          "processing_ms": {
+            "count": 1618,
+            "p50": 8.121,
+            "p95": 12.343149999999994,
+            "maximum": 26.85,
+            "minimum": 5.503
+          },
+          "thread_cpu_ms": {
+            "count": 1618,
+            "p50": 7.259,
+            "p95": 9.57505,
+            "maximum": 13.338000000000001,
+            "minimum": 5.389
+          },
+          "process_cpu_ms": {
+            "count": 1618,
+            "p50": 9.4725,
+            "p95": 13.70015,
+            "maximum": 19.644000000000002,
+            "minimum": 6.816
+          },
+          "thread_scheduler_wait_ms": {
+            "count": 1618,
+            "p50": 0.2165,
+            "p95": 2.055099999999998,
+            "maximum": 13.289,
+            "minimum": 0.0
+          },
+          "vio_accepted_patches": {
+            "count": 1618,
+            "p50": 29.0,
+            "p95": 85.0,
+            "maximum": 113.0,
+            "minimum": 11.0
+          },
+          "vio_mean_squared_residual": {
+            "count": 1618,
+            "p50": 134.8961639405,
+            "p95": 229.88379821745,
+            "maximum": 364.209503174,
+            "minimum": 0.0530706979334
+          },
+          "vio_hessian_condition": {
+            "count": 1618,
+            "p50": 51177.847579149995,
+            "p95": 609863.0161818498,
+            "maximum": 31627999.0375,
+            "minimum": 1483.58221835
+          },
+          "vio_proposed_planar_correction_m": {
+            "count": 1618,
+            "p50": 0.00372144540446,
+            "p95": 0.009245571409348997,
+            "maximum": 0.0341970469831,
+            "minimum": 7.56589708887e-06
+          },
+          "lio_correspondences": {},
+          "lio_mean_abs_residual_m": {},
+          "rejected_visual_updates": 0,
+          "measurement_to_odom_publish_ms": {},
+          "measurement_to_sync_ready_ms": {
+            "count": 1618,
+            "p50": 44.0,
+            "p95": 60.0,
+            "maximum": 104.0,
+            "minimum": 24.0
+          },
+          "nonfinite_numeric_cells": {
+            "processing_us": 0,
+            "thread_cpu_us": 0,
+            "vio_mean_squared_residual": 0,
+            "vio_hessian_condition": 0,
+            "update_x": 0,
+            "update_y": 0,
+            "update_z": 0
+          }
+        }
+      },
+      "flight_metrics": {
+        "planned_peak_speed_mps": 0.2000000000000002,
+        "planned_peak_acceleration_mps2": 0.2432719975550283,
+        "actual_peak_3d_speed_mps": 0.23760064558550992,
+        "combined_setpoint_send_max_gap_ms": 79.497136,
+        "supervisor_measurement_age_ms": {
+          "count": 2961,
+          "minimum": 28.0,
+          "p95": 144.0,
+          "maximum": 200.0
+        },
+        "whole_flight_envelope_passed": true,
+        "whole_flight_envelope_breach_samples": 0
+      },
+      "execution_reset_events": [],
+      "execution_odom_receipt_gap_ms": {
+        "count": 1617,
+        "p50": 100.819187,
+        "p95": 117.2525814,
+        "maximum": 167.865908,
+        "minimum": 73.730583
+      },
+      "execution_odom_measurement_gap_ms": {
+        "count": 1617,
+        "p50": 100.0,
+        "p95": 100.0,
+        "maximum": 128.0,
+        "minimum": 96.0
+      },
+      "execution_odom_step_m": {
+        "count": 1617,
+        "p50": 0.018341237200929346,
+        "p95": 0.0262396626212413,
+        "maximum": 0.04722494495975669,
+        "minimum": 0.00039484493424925493
+      },
+      "execution_odom_yaw_step_deg": {
+        "count": 1617,
+        "p50": 0.022513331882501347,
+        "p95": 0.0730888213914754,
+        "maximum": 0.14927257427096535,
+        "minimum": 2.9757075219868918e-05
+      },
+      "fast_livo2_rss_mib": {
+        "first": 195.16796875,
+        "last": 452.54296875,
+        "count": 246,
+        "p50": 432.73046875,
+        "p95": 452.54296875,
+        "maximum": 452.54296875,
+        "minimum": 195.01171875
+      },
+      "initial_camera": {
+        "colour_pixel_fraction_channel_range_gt20": 0.530732421875,
+        "mean_channel_range": 34.39928385416667,
+        "per_channel_std": [
+          39.95881346622004,
+          58.03517913119754,
+          68.98221341288155
+        ]
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 [总文档索引](../../docs/README.md) · [运行与审计方法](../../docs/OPERATIONS.md)
 
-更新：2026-10-14。报告记录当时版本与场景，历史失败不删除；判断当前状态先阅读最新两份报告。
+更新：2026-10-14。报告记录当时版本与场景，历史失败不删除；判断当前状态先阅读彩色复测、长距离漂移与重复验证报告。
 
 ## 当前状态
 
@@ -11,6 +11,7 @@
 | PX4 1.17 / ROS 2 栈 | 构建、传感器、受控起降与闭环路线已运行 | [运行验收](RUNTIME_117.md) |
 | 室内真实扫描绕障 | 部分指定路线通过，非整室任意点认证 | [扫描绕障](REAL_SCAN_AVOIDANCE_117.md) |
 | 室外箱体/圆柱绕障 | 多条指定路线通过，重复性仍有失败 | [重复验证](OUTDOOR_REPEAT_EV_117.md) |
+| 彩色 Baylands 外观 | 同参数短路线与 26.93 m 箱体绕障通过；各仅一轮 | [彩色复测](APPEARANCE_RETEST_117.md) |
 | EV XY/Z 与共享边界 | 实际融合、部分长路线通过；yaw/速度不融合 | [共享边界与 EV](SHARED_ENVELOPE_EV_117.md) |
 | 最新复杂/长距离路线 | 东侧 64.91 m 一轮完整通过；西侧精度失败；树旁超时；东侧重复拒绝 | [长距离漂移](OUTDOOR_LONG_DRIFT_117.md) |
 | 长期/跨地图/实物 | 尚未通过 | [项目上下文](../../docs/PROJECT_CONTEXT.md) |
@@ -27,6 +28,7 @@
 
 | 范围 | 报告 |
 | --- | --- |
+| 彩色场景的定位、延迟与闭环绕障复测 | [APPEARANCE_RETEST_117.md](APPEARANCE_RETEST_117.md)、[汇总 JSON](appearance_retest_117.json) |
 | 最新室外复测与失败清单 | [OUTDOOR_REPEAT_EV_117.md](OUTDOOR_REPEAT_EV_117.md)、[汇总 JSON](outdoor_repeat_ev_117.json) |
 | 最新分阶段/航段漂移与搜索失败 | [OUTDOOR_LONG_DRIFT_117.md](OUTDOOR_LONG_DRIFT_117.md)、[汇总 JSON](outdoor_long_drift_117.json) |
 | 共享路线边界与 EV 接入 | [SHARED_ENVELOPE_EV_117.md](SHARED_ENVELOPE_EV_117.md) |

@@ -28,7 +28,7 @@
 | B-spline 采样 / Offboard | [执行桥说明](../astra/packages/astra_px4_offboard/README.md)、[飞行监督器](../astra/tools/ego_sitl_flight.py) |
 | External Vision | [架构与接口](ARCHITECTURE.md)、[EV 节点](../astra/tools/external_vision_sitl.py)、[重复融合验证](../astra/validation/OUTDOOR_REPEAT_EV_117.md) |
 | RViz2 / 多航点任务 | [操作指南](OPERATIONS.md)、[交互飞行验收](../astra/validation/RVIZ_GOAL_FLIGHT_117.md) |
-| 场景转换 / 地图准备 | [快速启动](QUICKSTART.md)、[室内扫描绕障](../astra/validation/REAL_SCAN_AVOIDANCE_117.md)、[室外地图](../astra/validation/OUTDOOR_PARK_117.md) |
+| 场景转换 / 地图准备 | [快速启动](QUICKSTART.md)、[室内扫描绕障](../astra/validation/REAL_SCAN_AVOIDANCE_117.md)、[室外地图](../astra/validation/OUTDOOR_PARK_117.md)、[彩色场景复测](../astra/validation/APPEARANCE_RETEST_117.md) |
 | 真值配对 / 漂移 / 轨迹审计 | [操作指南](OPERATIONS.md)、[长距离漂移报告](../astra/validation/OUTDOOR_LONG_DRIFT_117.md)、[审计工具](../astra/tools) |
 
 ## 文档层级
