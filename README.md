@@ -40,13 +40,26 @@ bash astra/build_117.bash
 bash astra/run_117.bash static static_check_01 --seconds 60
 ```
 
-准备室外地图后启动交互任务：
+## RViz2 三维地图与航点
+
+地图准备完成后，在仓库根目录运行以下任一入口。省略运行名称时会自动生成时间戳，适合日常打开界面：
+
+```bash
+# 室外公园：三维地图、机载图像、多航点任务
+bash astra/rviz_outdoor_117.bash
+# 室内真实扫描场景：Replica office4
+bash astra/rviz_flight_117.bash
+```
+
+室外任务可显式启用 External Vision 位置融合，运行名称每次不同：
 
 ```bash
 bash astra/rviz_outdoor_117.bash outdoor_demo_01 --external-vision
 ```
 
-等待 READY，添加航点，点击“开始任务”后才起飞。支持连续航点、暂停/继续、末点降落或悬停等待追加目标。每次使用新的运行名称。详见 [操作指南](docs/OPERATIONS.md)。
+等待 READY，用 **2D Goal Pose / G** 点选 XY 或在中文窗口输入坐标，点击“开始任务”后才起飞。支持连续航点、暂停/继续、末点降落或悬停等待追加目标。显示是可旋转的三维视图；按钮名称中的 2D 表示选取 XY。详见 [地图航点操作指南](docs/OPERATIONS.md#rviz2-交互任务)。
+
+脚本、配置与任务控制代码随仓库上传；大型地图资源不上传，新电脑需按 [快速启动](docs/QUICKSTART.md) 准备地图。
 
 ## 验证状态
 
