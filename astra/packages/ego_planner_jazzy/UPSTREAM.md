@@ -23,10 +23,29 @@ Local changes in `plan_manage`:
   spline time before publication when necessary.
 - Use the node's ROS clock for trajectory timing and stop after three failed
   planning attempts per goal.
-- Expire the mapping readiness heartbeat after 1.25 s of silence using a
-  steady clock, including when the mapping process exits unexpectedly.
+- Expire the mapping readiness heartbeat using a steady clock, including
+  unexpected mapping-process exit. The Astra launch uses a 0.30 s timeout;
+  the source default and launch/runtime overrides must be distinguished.
 - Declare the direct `std_msgs` dependency used by the readiness input.
 
 The upstream simulation launch and trajectory server are present for source
 fidelity but are not started by the Astra planner-only launch. No PX4 code or
 command bridge is included in this integration.
+
+Further local changes for guarded outdoor execution:
+
+- Consume a frozen `/planning/execution_envelope` shared with the flight
+  supervisor and preview; reject changed or invalid envelopes.
+- Use a bounded global envelope guide across the local search window, with
+  sensor-grid fallback and progress-aware local targets.
+- Share planning budgets across search/optimization attempts and record
+  callback timing; avoid masking blocked planning with a separate heartbeat.
+- Check complete spline segments, preserve geometry during derivative-bound
+  retiming, and validate fallback boundary states and stationary endpoints.
+- Publish trajectory-valid acceptance after the curve and handoff checks,
+  preserving continuity across replans.
+
+These changes do not certify every route. Current envelope-search rejection
+diagnostics remain incomplete, and same-configuration repeated outdoor flight
+has failed. See the [architecture](../../../docs/ARCHITECTURE.md) and
+[validation index](../../validation/README.md) for current scope and evidence.

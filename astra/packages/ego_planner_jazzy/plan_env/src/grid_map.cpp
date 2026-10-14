@@ -1,3 +1,5 @@
+#include <plan_env/callback_timing.h>
+#include <plan_env/envelope_path.h>
 #include "plan_env/grid_map.h"
 
 // #define current_img_ md_.depth_image_[image_cnt_ & 1]
@@ -82,6 +84,30 @@ void GridMap::initMap(rclcpp::Node::SharedPtr node)
   node_->get_parameter("grid_map/local_map_margin", mp_.local_map_margin_);
   node_->get_parameter("grid_map/ground_height", mp_.ground_height_);
   node_->get_parameter("grid_map/odom_depth_timeout", mp_.odom_depth_timeout_);
+  require_envelope_ = node_->declare_parameter("grid_map/require_execution_envelope", false);
+  if (require_envelope_)
+    envelope_sub_ = node_->create_subscription<nav_msgs::msg::OccupancyGrid>(
+      "/planning/execution_envelope", rclcpp::QoS(1).transient_local(),
+      [this](nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg) {
+        const auto &g = msg->info;
+        const auto &q = g.origin.orientation;
+        const bool valid = msg->header.frame_id == mp_.frame_id_ &&
+          std::isfinite(g.resolution) && g.resolution >= .05 && g.resolution <= .2 &&
+          g.width > 0 && g.height > 0 && g.width <= 1200 && g.height <= 1200 &&
+          msg->data.size() == static_cast<size_t>(g.width)*g.height &&
+          std::isfinite(g.origin.position.x) && std::isfinite(g.origin.position.y) &&
+          q.x == 0 && q.y == 0 && q.z == 0 && q.w == 1 &&
+          std::all_of(msg->data.begin(), msg->data.end(), [](int8_t v){return v == 0 || v == 100;});
+        if (envelope_fault_ || !valid || (envelope_ && (envelope_->data != msg->data ||
+            envelope_->info != g))) {
+          envelope_.reset();
+          envelope_fault_ = true;
+          RCLCPP_ERROR(node_->get_logger(), "Invalid or changed frozen execution envelope; blocking planning");
+          return;
+        }
+        envelope_ = msg;
+        RCLCPP_INFO(node_->get_logger(), "Shared execution envelope accepted: %u x %u", g.width, g.height);
+      });
 
   if (mp_.virtual_ceil_height_ - mp_.ground_height_ > z_size)
   {
@@ -803,8 +829,58 @@ void GridMap::odomCallback(const nav_msgs::msg::Odometry::SharedPtr odom)
   md_.has_odom_ = true;
 }
 
+bool GridMap::envelopeAllows(const Eigen::Vector3d &pos) const
+{
+  if (!require_envelope_) return true;
+  if (!envelope_ || !pos.allFinite()) return false;
+  const auto &g = envelope_->info;
+  const double x = std::floor((pos.x()-g.origin.position.x)/g.resolution);
+  const double y = std::floor((pos.y()-g.origin.position.y)/g.resolution);
+  if (x < 0 || y < 0 || x >= g.width || y >= g.height) return false;
+  return envelope_->data[static_cast<size_t>(y)*g.width+static_cast<size_t>(x)] == 0;
+}
+
+bool GridMap::executionEnvelopeGuide(const Eigen::Vector3d &start, const Eigen::Vector3d &goal,
+                                     std::vector<Eigen::Vector3d> &path) const
+{
+  path.clear();
+  if (!envelopeAllows(start) || !envelopeAllows(goal) || !envelope_) return false;
+  const auto &g = envelope_->info;
+  const auto address = [&](const Eigen::Vector3d &p) {
+    return static_cast<uint32_t>(std::floor((p.y()-g.origin.position.y)/g.resolution))*g.width+
+           static_cast<uint32_t>(std::floor((p.x()-g.origin.position.x)/g.resolution));
+  };
+  const auto deadline=std::chrono::steady_clock::now()+std::chrono::milliseconds(20);
+  auto search_cells=envelope_->data;
+  const int padding=std::ceil(mp_.resolution_/g.resolution);
+  for (int y=0; y<int(g.height); ++y)
+    for (int x=0; x<int(g.width); ++x) {
+      if ((y*g.width+x)%1024 == 0 && std::chrono::steady_clock::now()>=deadline) return false;
+      if (search_cells[y*g.width+x] != 0) continue;
+      for (int dy=-padding; dy<=padding; ++dy)
+        for (int dx=-padding; dx<=padding; ++dx)
+          if (x+dx<0 || y+dy<0 || x+dx>=int(g.width) || y+dy>=int(g.height) ||
+              envelope_->data[(y+dy)*g.width+x+dx] != 0) search_cells[y*g.width+x]=100;
+    }
+  const auto cells = astra::envelopePath(search_cells, g.width, g.height,
+    address(start), address(goal), deadline);
+  if (cells.empty()) return false;
+  path.push_back(start);
+  for (size_t i=0; i<cells.size(); ++i) {
+    // Keep only direction changes; each retained line covers the same free cells.
+    if (i>0 && i+1<cells.size() &&
+        int64_t(cells[i])-cells[i-1] == int64_t(cells[i+1])-cells[i]) continue;
+    path.emplace_back(g.origin.position.x+(cells[i]%g.width+.5)*g.resolution,
+                      g.origin.position.y+(cells[i]/g.width+.5)*g.resolution,
+                      start.z()+(goal.z()-start.z())*double(i)/std::max(size_t(1),cells.size()-1));
+  }
+  path.push_back(goal);
+  return true;
+}
+
 void GridMap::cloudCallback(const sensor_msgs::msg::PointCloud2::ConstPtr &img)
 {
+  ego_planner::CallbackTiming callback_timing(node_->get_logger(), "cloudCallback");
 
   pcl::PointCloud<pcl::PointXYZ> latest_cloud;
   pcl::fromROSMsg(*img, latest_cloud);

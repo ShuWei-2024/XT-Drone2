@@ -26,11 +26,42 @@ def inflate_cells(cells, offsets):
     offsets = np.asarray(offsets, dtype=np.int64)
     lower = cells.min(axis=0) + offsets.min(axis=0)
     dimensions = cells.max(axis=0) + offsets.max(axis=0) - lower + 1
-    if math.prod(int(d) for d in dimensions) > np.iinfo(np.int64).max:
+    volume = math.prod(int(d) for d in dimensions)
+    if volume > np.iinfo(np.int64).max:
         raise ValueError('voxel extent exceeds integer key range')
     strides = np.asarray((dimensions[1] * dimensions[2], dimensions[2], 1))
-    keys = np.unique(((cells - lower) @ strides)[:, None] + (offsets @ strides)[None, :])
+    base_keys = (cells - lower) @ strides
+    offset_keys = offsets @ strides
+    if volume <= 8_000_000:
+        # Exact set union in at most 8 MB; avoid sorting millions of repeated
+        # keys from dense floor/obstacle scans. Chunk temporary indexing arrays.
+        occupied = np.zeros(volume, dtype=bool)
+        for begin in range(0, len(cells), 4096):
+            occupied[base_keys[begin:begin+4096, None] + offset_keys[None, :]] = True
+        keys = np.flatnonzero(occupied)
+    else:
+        # Sparse, widely separated coordinates must not allocate by extent.
+        keys = np.unique(base_keys[:, None] + offset_keys[None, :])
     return np.column_stack(np.unravel_index(keys, tuple(dimensions))) + lower
+
+
+def static_descent_obstacles(cells, offsets, voxel_size, minimum_obstacle_z, ceiling_z,
+                             column_offsets=None,maximum_obstacle_z=None):
+    """Conservative columns from observed objects only; never extrude the floor.
+
+    Used for isolated static-room tests that recover by landing at current XY.
+    The stored 3D occupied map remains unchanged. No scan mesh or truth enters.
+    """
+    inflated=inflate_cells(cells,offsets)
+    z=(cells[:,2]+.5)*voxel_size
+    maximum_obstacle_z=ceiling_z if maximum_obstacle_z is None else maximum_obstacle_z
+    elevated=cells[(z>=minimum_obstacle_z) & (z<=maximum_obstacle_z)]
+    if not len(elevated):return inflated
+    object_xy=np.unique(inflate_cells(elevated,offsets if column_offsets is None else column_offsets)[:,:2],axis=0)
+    heights=np.arange(0,int(math.ceil(ceiling_z/voxel_size)),dtype=np.int64)
+    columns=np.column_stack((np.repeat(object_xy,len(heights),axis=0),
+                             np.tile(heights,len(object_xy))))
+    return inflate_cells(np.vstack((inflated,columns)),np.zeros((1,3),dtype=np.int64))
 
 
 class LocalMappingGuard(Node):
@@ -48,6 +79,11 @@ class LocalMappingGuard(Node):
         self.declare_parameter('cloud_topic', '/fast_livo2/cloud_registered_full')
         self.declare_parameter('self_filter_radius_m', 0.0)
         self.declare_parameter('max_map_voxels', 5000)
+        self.declare_parameter('static_descent_columns', False)
+        self.declare_parameter('column_obstacle_min_z_m', .15)
+        self.declare_parameter('column_ceiling_m', 1.5)
+        self.declare_parameter('column_obstacle_max_z_m', -1.0)
+        self.declare_parameter('descent_column_inflation_m', 0.0)
 
         self.voxel_size = float(self.get_parameter('voxel_size_m').value)
         self.radius = float(self.get_parameter('radius_m').value)
@@ -60,6 +96,19 @@ class LocalMappingGuard(Node):
         self.min_voxels = int(self.get_parameter('min_map_voxels').value)
         self.max_voxels = int(self.get_parameter('max_map_voxels').value)
         self.self_filter_radius = float(self.get_parameter('self_filter_radius_m').value)
+        self.static_columns = bool(self.get_parameter('static_descent_columns').value)
+        self.column_min_z = float(self.get_parameter('column_obstacle_min_z_m').value)
+        self.column_ceiling = float(self.get_parameter('column_ceiling_m').value)
+        self.column_max_z = float(self.get_parameter('column_obstacle_max_z_m').value)
+        if self.column_max_z == -1.0:self.column_max_z=self.column_ceiling
+        if not math.isfinite(self.column_max_z) or not self.column_ceiling<=self.column_max_z<=5.:
+            raise ValueError('Invalid observed-object height range for descent columns')
+        self.column_inflation = float(self.get_parameter('descent_column_inflation_m').value)
+        if not math.isfinite(self.column_inflation) or not 0<=self.column_inflation<=1.5:
+            raise ValueError('Invalid descent-column horizontal inflation')
+        if self.static_columns and (not all(math.isfinite(x) for x in (self.column_min_z,self.column_ceiling))
+                or not 0<=self.column_min_z<self.column_ceiling<=2.3):
+            raise ValueError('Invalid static descent column heights in camera_init')
         if not math.isfinite(self.self_filter_radius) or self.self_filter_radius < 0:
             raise ValueError('self filter radius must be finite and non-negative')
         if min(self.voxel_size, self.radius, self.max_step, self.voxel_ttl) <= 0:
@@ -79,6 +128,12 @@ class LocalMappingGuard(Node):
         self.reason = 'waiting for odometry'
         self.ready = False
         self.offsets = self._inflation_offsets()
+        self.column_offsets=None
+        if self.column_inflation>self.inflation:
+            n=int(math.ceil(self.column_inflation/self.voxel_size))
+            xy=np.stack(np.meshgrid(np.arange(-n,n+1),np.arange(-n,n+1),indexing='ij'),axis=-1).reshape(-1,2)
+            xy=xy[np.linalg.norm(xy*self.voxel_size,axis=1)<=self.column_inflation+1e-9]
+            self.column_offsets=np.column_stack((xy,np.zeros(len(xy),dtype=int)))
         self.map_worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix='local_map')
         self.map_future = None
         self.map_generation = 0
@@ -133,7 +188,7 @@ class LocalMappingGuard(Node):
         self.ready = False
         self.ready_pub.publish(Bool(data=False))
 
-    def health_reason(self, now_ns):
+    def health_reason(self, now_ns, check_published_map=True):
         now_wall = time.monotonic()
         if self.good_odom < self.recovery_count:
             return self.reason if self.good_odom == 0 else 'recovering odometry'
@@ -147,7 +202,7 @@ class LocalMappingGuard(Node):
             return 'stale obstacle cloud'
         if len(self.voxels) < self.min_voxels:
             return 'insufficient local obstacle points'
-        if self.ready and (self.last_map_ns is None or self.last_map_wall is None or
+        if check_published_map and self.ready and (self.last_map_ns is None or self.last_map_wall is None or
                 now_ns - self.last_map_ns > self.max_cloud_age * 1e9 or
                 now_wall - self.last_map_wall > self.max_cloud_age):
             return 'stale published obstacle map'
@@ -159,11 +214,14 @@ class LocalMappingGuard(Node):
             self.max_health_interval_ms = max(
                 self.max_health_interval_ms, (now_wall - self.last_health_wall) * 1000)
         self.last_health_wall = now_wall
+        # A completed fresh snapshot may replace the old map at its expiry
+        # boundary. Validate and publish it before judging the old publication;
+        # stale inputs/results and in-flight work still fail closed below.
+        self.finish_map()
         if self.ready:
             reason = self.health_reason(self.get_clock().now().nanoseconds)
             if reason:
                 self.invalidate(reason)
-        self.finish_map()
         # Readiness is also a liveness heartbeat, independent of map publication.
         self.ready_pub.publish(Bool(data=self.ready))
 
@@ -232,6 +290,7 @@ class LocalMappingGuard(Node):
         self.last_cloud_wall = time.monotonic()
 
     def publish_map(self):
+        self.finish_map()
         now_ns = self.get_clock().now().nanoseconds
         if self.position is not None and self.voxels:
             keys = list(self.voxels)
@@ -256,6 +315,8 @@ class LocalMappingGuard(Node):
         status.level = DiagnosticStatus.OK if self.ready else DiagnosticStatus.WARN
         status.message = self.reason
         status.values = [KeyValue(key='voxel_count', value=str(len(self.voxels))),
+                         KeyValue(key='static_descent_columns', value=str(self.static_columns)),
+                         KeyValue(key='descent_column_inflation_m', value=str(max(self.inflation,self.column_inflation))),
                          KeyValue(key='consecutive_good_odom', value=str(self.good_odom)),
                          KeyValue(key='map_build_ms', value='%.3f' % self.map_build_ms),
                          KeyValue(key='map_build_pending', value=str(self.map_future is not None)),
@@ -277,7 +338,9 @@ class LocalMappingGuard(Node):
         self.map_future = self.map_worker.submit(self.build_clouds, cells, header)
 
     def build_clouds(self, cells, header):
-        inflated = inflate_cells(cells, self.offsets)
+        inflated = (static_descent_obstacles(cells,self.offsets,self.voxel_size,self.column_min_z,self.column_ceiling,
+                                            self.column_offsets,self.column_max_z)
+                    if self.static_columns else inflate_cells(cells, self.offsets))
         occupied = point_cloud2.create_cloud_xyz32(
             header, ((cells + 0.5) * self.voxel_size).astype(np.float32))
         obstacles = point_cloud2.create_cloud_xyz32(
@@ -290,14 +353,15 @@ class LocalMappingGuard(Node):
         future, self.map_future = self.map_future, None
         now_ns = self.get_clock().now().nanoseconds
         self.map_build_ms = (time.monotonic() - self.map_started_wall) * 1000
-        if (self.map_future_generation != self.map_generation or self.health_reason(now_ns) or
+        input_reason = self.health_reason(now_ns, check_published_map=False)
+        if (self.map_future_generation != self.map_generation or input_reason or
                 now_ns - self.map_snapshot_ns > self.max_cloud_age * 1e9 or
                 time.monotonic() - self.map_started_wall > self.max_cloud_age):
             self.map_results_discarded += 1
             self.get_logger().warning(
                 f'Discarded local map result: build_ms={self.map_build_ms:.1f}, '
                 f'voxels={len(self.voxels)}, generation={self.map_future_generation}/'
-                f'{self.map_generation}, reason={self.health_reason(now_ns) or "stale result"}')
+                f'{self.map_generation}, reason={input_reason or "stale result"}')
             return
         try:
             occupied, obstacles = future.result()

@@ -20,7 +20,7 @@ def describe(values):
 
 
 def positions(rows):
-    return np.array([[float(row[k]) for k in ('x_m', 'y_m', 'z_m')] for row in rows])
+    return np.array([[float(row[k]) for k in ('x_m', 'y_m', 'z_m')] for row in rows]).reshape((-1, 3))
 
 
 def pair(source, target):
@@ -62,7 +62,8 @@ def audit(directory):
             raise ValueError('Missing initial measurement pairs for ' + kind)
         bias[kind] = np.median(positions([b for a, b in paired]) -
                                positions([a for a, b in paired]) @ transforms[kind].T, axis=0)
-    begin = event['ego_control_handoff']['sim_ns']
+    # Resume can hand control to EGO again; retain the original flight beginning.
+    begin = next(e['sim_ns'] for e in events if e['event']=='ego_control_handoff')
     end = (event.get('ego_trajectory_sampled_to_end') or event.get('test_aborted'))['sim_ns']
     intervals = {'ego_execution': (begin, end)}
     for i, goal in enumerate(goals):

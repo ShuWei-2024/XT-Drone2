@@ -1,0 +1,274 @@
+{
+  "date": "2026-10-13",
+  "scope": "Four isolated PX4 1.17 flights in the same 70 m authored Baylands patch; larger routes remain unverified",
+  "display_patch_width_m": 70,
+  "previous_interactive_goal_radius_m": 10,
+  "prepared_test_goal_radius_m": 25,
+  "default_interactive_radius_m": 10,
+  "prepared_bounds_xy_m": [
+    [
+      -26,
+      -26
+    ],
+    [
+      26,
+      26
+    ]
+  ],
+  "planner_grid_size_xyz_m": [
+    64,
+    64,
+    4
+  ],
+  "local_update_range_m": 5,
+  "prepared_refined_descent_area_m2": 1254.91,
+  "complete_expanded_route_verified": false,
+  "natural_tree_route_verified": false,
+  "terrain_following_implemented": false,
+  "whole_park_certified": false,
+  "hardware_flight_tested": false,
+  "external_vision_enabled": false,
+  "tests": "158 passed, 3 warnings",
+  "thresholds_relaxed": false,
+  "truth_used_for_setpoints": false,
+  "changes": [
+    "Prepared radius is checked against the hashed geometry certificate and planner grid plus a 5 m local reserve. Original scene preserved.",
+    "Row pruning makes the same conservative rectangle certificate faster; checked identical on the original region.",
+    "Optional exact triangle-distance prism refinement subtracts a continuous covering radius; 442 false bbox exclusions re-certified at the unchanged 0.65 m lower bound.",
+    "Outdoor descent columns include observed branches up to 3.0 m, independently of the 1.5 m planning ceiling. Indoor default ceiling exclusion retained."
+  ],
+  "remaining": [
+    "Planner airspace validity does not guarantee admissibility within the independent certified descent region.",
+    "Ground-frozen PX4/LIVO height disagreement exceeds 0.20 m on both east and west return legs; estimator/control dynamics require further decomposition.",
+    "Fixed height and retained flat support plane do not implement terrain following."
+  ],
+  "runs": [
+    {
+      "run": "baylands_expanded_east_117_01",
+      "planned_goals": 8,
+      "reached_goals": 5,
+      "flight_complete": false,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "abort_sim_sec": 317.96,
+      "abort_model_xyz_m": [
+        19.106058656849072,
+        12.019376603539126,
+        0.7193736785612821
+      ],
+      "actual_maximum_takeoff_radius_m": 23.38513930857003,
+      "execution_horizontal_path_m": 38.449541843123804,
+      "whole_flight_minimum_known_obstacle_clearance_m": 1.1920719529004018,
+      "all_planned_curves_clearance_passed": true,
+      "all_planned_dynamics_passed": true,
+      "peak_planned_speed_mps": 0.20000000001279272,
+      "peak_planned_acceleration_mps2": 0.23326637050302784,
+      "maximum_odom_measurement_age_ms": 172.0,
+      "setpoint_maximum_gap_ms": 64.995741,
+      "armed_failsafe_samples": 0,
+      "disarmed": true,
+      "baseline_preserved": true,
+      "execution_sources_unchanged": true,
+      "ground_frozen_errors": {
+        "fast_livo2_xy_m": {
+          "count": 2115,
+          "p50": 0.04861277519808393,
+          "p95": 0.09053676230913159,
+          "maximum": 0.11575432785355613
+        },
+        "fast_livo2_z_m": {
+          "count": 2115,
+          "p50": 0.04462742255099439,
+          "p95": 0.0858865219347396,
+          "maximum": 0.09076180619847762
+        },
+        "fast_livo2_signed_z_median": -0.04462742255099439,
+        "px4_xy_m": {
+          "count": 10574,
+          "p50": 0.028574788581774098,
+          "p95": 0.06453847434000691,
+          "maximum": 0.08480801698953429
+        },
+        "px4_z_m": {
+          "count": 10574,
+          "p50": 0.025677036747426385,
+          "p95": 0.07982563260386953,
+          "maximum": 0.10979232699655328
+        },
+        "px4_signed_z_median": -0.011204819181336867
+      },
+      "observed_column_obstacle_max_z_m": 1.5
+    },
+    {
+      "run": "baylands_expanded_tree_117_01",
+      "planned_goals": 8,
+      "reached_goals": 3,
+      "flight_complete": false,
+      "fault": "approaching uncertified scan descent region",
+      "abort_sim_sec": 248.896,
+      "abort_model_xyz_m": [
+        -21.578773632259832,
+        4.306104127337014,
+        0.8763502840093715
+      ],
+      "actual_maximum_takeoff_radius_m": 21.995931200290332,
+      "execution_horizontal_path_m": 25.83540710249973,
+      "whole_flight_minimum_known_obstacle_clearance_m": 1.1609668323667208,
+      "all_planned_curves_clearance_passed": true,
+      "all_planned_dynamics_passed": true,
+      "peak_planned_speed_mps": 0.20000000000002874,
+      "peak_planned_acceleration_mps2": 0.20000000000000048,
+      "maximum_odom_measurement_age_ms": 172.0,
+      "setpoint_maximum_gap_ms": 74.832537,
+      "armed_failsafe_samples": 0,
+      "disarmed": true,
+      "baseline_preserved": true,
+      "execution_sources_unchanged": true,
+      "ground_frozen_errors": {
+        "fast_livo2_xy_m": {
+          "count": 1397,
+          "p50": 0.017257886345530694,
+          "p95": 0.03490170454662143,
+          "maximum": 0.050785918279886925
+        },
+        "fast_livo2_z_m": {
+          "count": 1397,
+          "p50": 0.004249147169075096,
+          "p95": 0.01205410595017149,
+          "maximum": 0.01713507128335423
+        },
+        "fast_livo2_signed_z_median": -0.002591367147918966,
+        "px4_xy_m": {
+          "count": 6990,
+          "p50": 0.042967371206886026,
+          "p95": 0.08049723177709697,
+          "maximum": 0.1096993951969335
+        },
+        "px4_z_m": {
+          "count": 6990,
+          "p50": 0.03003636964887979,
+          "p95": 0.08196512845227706,
+          "maximum": 0.13773127589423184
+        },
+        "px4_signed_z_median": 0.02723902776937992
+      },
+      "observed_column_obstacle_max_z_m": 1.5
+    },
+    {
+      "run": "baylands_expanded_tree_117_02",
+      "planned_goals": 8,
+      "reached_goals": 3,
+      "flight_complete": false,
+      "fault": "approaching uncertified scan descent region",
+      "abort_sim_sec": 253.648,
+      "abort_model_xyz_m": [
+        -22.896678853795397,
+        4.260931383204804,
+        0.7502757341625381
+      ],
+      "actual_maximum_takeoff_radius_m": 23.27544953176383,
+      "execution_horizontal_path_m": 26.669671147724525,
+      "whole_flight_minimum_known_obstacle_clearance_m": 0.755764107551508,
+      "all_planned_curves_clearance_passed": true,
+      "all_planned_dynamics_passed": true,
+      "peak_planned_speed_mps": 0.20000000000031054,
+      "peak_planned_acceleration_mps2": 0.24401765885021326,
+      "maximum_odom_measurement_age_ms": 164.0,
+      "setpoint_maximum_gap_ms": 98.949858,
+      "armed_failsafe_samples": 0,
+      "disarmed": true,
+      "baseline_preserved": true,
+      "execution_sources_unchanged": true,
+      "ground_frozen_errors": {
+        "fast_livo2_xy_m": {
+          "count": 1456,
+          "p50": 0.015739822902086222,
+          "p95": 0.048425535220286337,
+          "maximum": 0.07136261073360156
+        },
+        "fast_livo2_z_m": {
+          "count": 1456,
+          "p50": 0.06281867717223244,
+          "p95": 0.08562333782560277,
+          "maximum": 0.08825807482833481
+        },
+        "fast_livo2_signed_z_median": 0.06281867717223244,
+        "px4_xy_m": {
+          "count": 7278,
+          "p50": 0.027698088993405937,
+          "p95": 0.07133930833889333,
+          "maximum": 0.08587195386988183
+        },
+        "px4_z_m": {
+          "count": 7278,
+          "p50": 0.024201775918238244,
+          "p95": 0.07033625580273868,
+          "maximum": 0.10129285990049486
+        },
+        "px4_signed_z_median": 0.012054959175252344
+      },
+      "observed_column_obstacle_max_z_m": 3.0
+    },
+    {
+      "run": "baylands_expanded_west_117_01",
+      "planned_goals": 8,
+      "reached_goals": 5,
+      "flight_complete": false,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "abort_sim_sec": 325.952,
+      "abort_model_xyz_m": [
+        -9.811816367591748,
+        -4.136386814934323,
+        0.6493416770359364
+      ],
+      "actual_maximum_takeoff_radius_m": 21.915161995784654,
+      "execution_horizontal_path_m": 39.48492445487841,
+      "whole_flight_minimum_known_obstacle_clearance_m": 3.0357409802206043,
+      "all_planned_curves_clearance_passed": true,
+      "all_planned_dynamics_passed": true,
+      "peak_planned_speed_mps": 0.20000000001082824,
+      "peak_planned_acceleration_mps2": 0.20000000000000182,
+      "maximum_odom_measurement_age_ms": 192.0,
+      "setpoint_maximum_gap_ms": 94.821212,
+      "armed_failsafe_samples": 0,
+      "disarmed": true,
+      "baseline_preserved": true,
+      "execution_sources_unchanged": true,
+      "ground_frozen_errors": {
+        "fast_livo2_xy_m": {
+          "count": 2153,
+          "p50": 0.02996795231264401,
+          "p95": 0.051645191884235074,
+          "maximum": 0.08313002494520458
+        },
+        "fast_livo2_z_m": {
+          "count": 2153,
+          "p50": 0.04521080320486082,
+          "p95": 0.09791035867637081,
+          "maximum": 0.1037902515145277
+        },
+        "fast_livo2_signed_z_median": -0.04521080320486082,
+        "px4_xy_m": {
+          "count": 10767,
+          "p50": 0.03734093388430842,
+          "p95": 0.08529623844119895,
+          "maximum": 0.10006141134031084
+        },
+        "px4_z_m": {
+          "count": 10767,
+          "p50": 0.026745642216136067,
+          "p95": 0.08153777853849424,
+          "maximum": 0.16959062579653827
+        },
+        "px4_signed_z_median": 0.011576938064127518
+      },
+      "observed_column_obstacle_max_z_m": 3.0
+    }
+  ],
+  "coverage_image": "astra/runtime/baylands_expansion_117/expanded_actual_paths.png",
+  "shared_memory_maintenance": {
+    "archive": "astra/runtime/dds_shm_recovery_expansion_20261013_locked/unused_segments.tar.gz",
+    "manifest": "astra/runtime/dds_shm_recovery_expansion_20261013_locked/manifest.json",
+    "recovered_mib": 519.4,
+    "scope": "Old current-user Fast DDS data segments; lifetime/data POSIX and flock locks held; readable process refs checked; unreadable processes listed; byte-verified archive; no ports or semaphores removed"
+  }
+}

@@ -3,6 +3,20 @@ import math
 import statistics
 
 
+def execution_height_reference(ground_alignment, airborne_values):
+    """Use the supervisor's validated frozen reference in the execution bridge."""
+    if ground_alignment is not None:
+        if (not ground_alignment.complete or ground_alignment.error or
+                ground_alignment.offset_m is None or
+                not math.isfinite(ground_alignment.offset_m)):
+            raise ValueError('Execution needs a validated frozen ground height reference')
+        return float(ground_alignment.offset_m), 'validated frozen ground alignment'
+    values=list(airborne_values)
+    if not values or not all(math.isfinite(v) for v in values):
+        raise ValueError('Invalid paired airborne height reference')
+    return float(statistics.median(values)), 'paired airborne capture (no ground calibration)'
+
+
 class GroundHeightAlignment:
     def __init__(self, duration_ns=4_000_000_000, limit_m=.15):
         self.duration_ns = duration_ns

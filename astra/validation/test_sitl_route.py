@@ -1,8 +1,11 @@
 """Reject invalid routes before starting simulation or issuing flight commands."""
 import importlib.util
 from pathlib import Path
+import sys
 
 import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 
 spec = importlib.util.spec_from_file_location('run_sitl_117',
     Path(__file__).resolve().parents[1] / 'tools/run_sitl_117.py')

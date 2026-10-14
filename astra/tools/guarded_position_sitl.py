@@ -7,7 +7,9 @@ import os
 from pathlib import Path
 import time
 from collections import deque
+from contextlib import nullcontext
 from ground_height_alignment import GroundHeightAlignment
+from measurement_pair_gate import MeasurementPairGate, recent_measurement_pair
 
 import rclpy
 from nav_msgs.msg import Odometry
@@ -35,6 +37,12 @@ class GuardedPositionTest(SettledFlight):
         self.deferred_odom_count = 0
         self.odom_wall = self.ready_wall = 0.
         self.ready = False
+        self.require_external_vision = os.environ.get('ASTRA_REQUIRE_EXTERNAL_VISION') == '1'
+        self.ev_ready = False
+        self.ev_ready_wall = 0.
+        if self.require_external_vision:
+            self.create_subscription(Bool, '/astra/external_vision/ready', self.on_ev_ready,
+                QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
         self.injecting = False
         self.events, self.rows = [], []
         self.phase = 'preflight'
@@ -45,7 +53,9 @@ class GuardedPositionTest(SettledFlight):
         self.settle_timeout_s = 60.
         self.sample_reason = ''
         self.local_history = deque(maxlen=100)
+        self.height_measurements = deque(maxlen=10)
         self.ground_alignment = None
+        self.height_pair_gate = MeasurementPairGate()
         self.mesh_guard = None
         self.mesh_clearance_m = None
         self.mesh_guard_xyz = None
@@ -74,6 +84,15 @@ class GuardedPositionTest(SettledFlight):
                 return
             self.pending_odom = None
             self.odom, self.odom_wall = msg, now
+            self.remember_height(msg)
+
+    def remember_height(self, msg):
+        stamp=msg.header.stamp.sec*10**9+msg.header.stamp.nanosec
+        if not self.height_measurements or stamp>self.height_measurements[-1][0]:
+            self.height_measurements.append((stamp,msg.pose.pose.position.z))
+
+    def on_ev_ready(self, msg):
+        self.ev_ready, self.ev_ready_wall = msg.data, time.monotonic()
 
     def on_local(self, msg):
         super().on_local(msg)
@@ -122,12 +141,12 @@ class GuardedPositionTest(SettledFlight):
     def paired_height(self):
         if self.odom is None or not self.local_history:
             return None
-        s = self.odom.header.stamp
-        stamp = s.sec*10**9+s.nanosec
-        matched = min(self.local_history, key=lambda p:abs(p.timestamp_sample*1000-stamp))
-        if abs(matched.timestamp_sample*1000-stamp) > 20_000_000:
-            return None
-        return stamp, self.odom.pose.pose.position.z, matched
+        # Select an actual fresh pair from both histories, rather than forcing
+        # every individual LiDAR frame to have a matching PX4 output sample.
+        now_ns=self.get_clock().now().nanoseconds
+        candidate=recent_measurement_pair(self.height_measurements,self.local_history,now_ns,
+            z_reset_counter=self.local.z_reset_counter)
+        return self.height_pair_gate.select(candidate,self.get_clock().now().nanoseconds,time.monotonic())
 
     def align_ground_height(self):
         self.phase = 'ground_height_alignment'
@@ -161,6 +180,7 @@ class GuardedPositionTest(SettledFlight):
             s = self.pending_odom.header.stamp
             if s.sec * 10**9 + s.nanosec <= self.get_clock().now().nanoseconds:
                 self.odom, self.odom_wall = self.pending_odom, self.pending_odom_wall
+                self.remember_height(self.odom)
                 self.pending_odom = None
 
     def send(self, target):
@@ -178,7 +198,14 @@ class GuardedPositionTest(SettledFlight):
         return (self.get_clock().now().nanoseconds - s.sec * 10**9 - s.nanosec) / 1e9
 
     def fault(self):
+        if getattr(self,'operator_stop_requested',False):
+            return 'operator requested guarded landing'
+        selection = getattr(self, 'rviz_selection', None)
+        if selection is not None and selection.flight_fault():
+            return selection.flight_fault()
         now = time.monotonic()
+        if getattr(self, 'require_external_vision', False) and (not self.ev_ready or now-self.ev_ready_wall > .25):
+            return 'External Vision fusion unavailable or heartbeat stale'
         self.promote_pending_odom()
         if not self.fresh():
             return self.fresh_failure_reason
@@ -241,7 +268,9 @@ class GuardedPositionTest(SettledFlight):
         return ''
 
     def check_safe(self):
-        reason = self.fault()
+        audit = getattr(self, 'safety_timing_audit', None)
+        with audit.span('supervisor:safety_check') if audit else nullcontext():
+            reason = self.fault()
         if reason:
             raise RuntimeError(reason)
 
@@ -377,7 +406,7 @@ class GuardedPositionTest(SettledFlight):
                 self.send(hold)
                 next_send = time.monotonic() + .05
 
-    def wait_heading_alignment(self, target):
+    def wait_heading_alignment(self, target, minimum_truth_z_m=1.5):
         self.phase = 'heading_alignment'
         self.event('heading_alignment_wait', target=target)
         deadline = time.monotonic() + 18.
@@ -392,7 +421,7 @@ class GuardedPositionTest(SettledFlight):
             if now >= next_send:
                 self.send(target)
                 next_send = now + .05
-            if self.local.heading_good_for_control and self.truth[2] > 1.5:
+            if self.local.heading_good_for_control and self.truth[2] > minimum_truth_z_m:
                 good_since = good_since or now
                 if now-good_since >= 1.:
                     self.airborne = True

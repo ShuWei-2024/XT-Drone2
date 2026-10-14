@@ -121,6 +121,9 @@ bool AStar::ConvertToIndexAndAdjustStartEndPoints(Vector3d start_pt, Vector3d en
 bool AStar::AstarSearch(const double step_size, Vector3d start_pt, Vector3d end_pt)
 {
     rclcpp::Time time_1 = rclcpp::Clock().now();
+    const auto deadline = std::min(planning_deadline_,
+        std::chrono::steady_clock::now() + std::chrono::milliseconds(30));
+    gridPath_.clear();
     ++rounds_;
 
     step_size_ = step_size;
@@ -146,6 +149,7 @@ bool AStar::AstarSearch(const double step_size, Vector3d start_pt, Vector3d end_
     GridNodePtr neighborPtr = NULL;
     GridNodePtr current = NULL;
 
+    endPtr->index = end_idx;
     startPtr->index = start_idx;
     startPtr->rounds = rounds_;
     startPtr->gScore = 0;
@@ -154,13 +158,16 @@ bool AStar::AstarSearch(const double step_size, Vector3d start_pt, Vector3d end_
     startPtr->cameFrom = NULL;
     openSet_.push(startPtr); //put start in open set
 
-    endPtr->index = end_idx;
-
     double tentative_gScore;
 
     int num_iter = 0;
     while (!openSet_.empty())
     {
+        if (std::chrono::steady_clock::now() >= deadline)
+        {
+            RCLCPP_WARN(rclcpp::get_logger("AstarSearch"), "A star wall-time budget exhausted");
+            return false;
+        }
         num_iter++;
         current = openSet_.top();
         openSet_.pop();
@@ -181,7 +188,7 @@ bool AStar::AstarSearch(const double step_size, Vector3d start_pt, Vector3d end_
 
         for (int dx = -1; dx <= 1; dx++)
             for (int dy = -1; dy <= 1; dy++)
-                for (int dz = -1; dz <= 1; dz++)
+                for (int dz = planar_search_ ? 0 : -1; dz <= (planar_search_ ? 0 : 1); dz++)
                 {
                     if (dx == 0 && dy == 0 && dz == 0)
                         continue;

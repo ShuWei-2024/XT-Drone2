@@ -1,0 +1,44 @@
+{
+  "original_run": "astra/runtime/rviz_goal_20261013_135433",
+  "original_failed_checks": [
+    "ready_last_10s"
+  ],
+  "original_ready_fraction": 0.9484536082474226,
+  "changes": [
+    "Bounded continuous preflight observation: minimum 12 s, maximum 60 s, unchanged 95% readiness threshold",
+    "Require latest readiness value true as well as fresh",
+    "Report failed checks on timeout"
+  ],
+  "smoke_run": "astra/runtime/rviz_startup_health_fix_20261013",
+  "preflight_passed": true,
+  "health_wait": {
+    "elapsed_s": 12.006306866998784,
+    "timeout_s": 60.0,
+    "attempts": [
+      {
+        "elapsed_s": 12.00118865200784,
+        "failed_checks": [],
+        "ready_fraction": 1.0
+      }
+    ]
+  },
+  "ready_fraction": 1.0,
+  "odom_age": {
+    "p95_ms": 48.0,
+    "max_ms": 64.0,
+    "min_ms": 16.0
+  },
+  "reached_ready": true,
+  "termination": [
+    "RViz mission editing timed out without arming"
+  ],
+  "run_summary": {
+    "mode": "obstacle",
+    "exit_code": 1,
+    "failure": "",
+    "original_baseline_preserved": true,
+    "execution_sources_unchanged": true
+  },
+  "scope": "Startup-only smoke test, no Start request or flight; exit 1 expected for no-input timeout. Recovery and persistent-failure cases tested with a simulated clock.",
+  "tests": "34 related tests passed"
+}

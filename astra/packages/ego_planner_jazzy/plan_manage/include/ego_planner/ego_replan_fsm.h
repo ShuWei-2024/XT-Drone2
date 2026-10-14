@@ -85,6 +85,8 @@ namespace ego_planner
     Eigen::Vector3d end_pt_, end_vel_;                                       // goal state
     Eigen::Vector3d local_target_pt_, local_target_vel_;                     // local target state
     std::vector<Eigen::Vector3d> wps_;
+    std::vector<Eigen::Vector3d> envelope_guide_;
+    double envelope_progress_ = 0.;
     int current_wp_;
 
     bool flag_escape_emergency_;

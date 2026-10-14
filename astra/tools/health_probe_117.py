@@ -3,6 +3,7 @@ import argparse
 import bisect
 from collections import defaultdict
 import json
+import math
 import os
 from pathlib import Path
 import sys
@@ -100,6 +101,7 @@ class Probe(Node):
         checks = {f'{key}_received': key in channels and channels[key]['count'] >= 10
                   for key in ('lidar','camera','imu','odom','ready','px4_local','px4_status','gps','battery','px4_imu')}
         checks['ready_last_10s'] = bool(ready) and np.mean(ready) >= .95
+        checks['ready_currently_true'] = bool(self.ready) and self.ready[-1][1]
         checks['px4_position_valid'] = self.local is not None and self.local.xy_valid and self.local.z_valid
         checks['odom_measurement_age_p95_below_250ms'] = bool(self.odom_ages) and np.percentile(self.odom_ages,95) <= 250.
         # Receipt age includes computation and transport; it is not a clock offset.
@@ -130,15 +132,54 @@ class Probe(Node):
                 'checks':{k:bool(v) for k,v in checks.items()}, 'passed':all(checks.values())}
 
 
+def wait_for_health(probe, minimum_seconds, timeout_seconds, spin_once,
+                    monotonic=time.monotonic, report=print):
+    """Observe continuously; a failed snapshot never authorizes flight."""
+    start = monotonic()
+    next_check = start + minimum_seconds
+    attempts = []
+    while monotonic() < start + timeout_seconds:
+        spin_once()
+        now = monotonic()
+        if now < next_check:
+            continue
+        result = probe.summary()
+        failed = [key for key, passed in result['checks'].items() if not passed]
+        attempts.append(dict(elapsed_s=now-start, failed_checks=failed,
+                             ready_fraction=result['ready_last_10s_fraction']))
+        report('Preflight health: ' + ('PASS' if result['passed'] else
+               'waiting for ' + ', '.join(failed)), flush=True)
+        if result['passed']:
+            break
+        next_check = now + 1.
+    else:
+        result = probe.summary()
+    result['health_wait'] = dict(elapsed_s=monotonic()-start,
+                                timeout_s=timeout_seconds, attempts=attempts)
+    return result
+
+
 def main():
     p=argparse.ArgumentParser();p.add_argument('--output',type=Path,required=True)
     p.add_argument('--seconds',type=float,default=60.);p.add_argument('--stop-file',type=Path)
-    a=p.parse_args();rclpy.init();node=Probe();deadline=time.monotonic()+a.seconds
+    p.add_argument('--healthy-timeout-sec',type=float,
+                   help='Preflight only: recheck unchanged gates until healthy or timeout')
+    a=p.parse_args()
+    if a.healthy_timeout_sec is not None and (
+            not math.isfinite(a.healthy_timeout_sec) or not 12. <= a.seconds <= a.healthy_timeout_sec <= 60.
+            or a.stop_file is not None):
+        p.error('Health wait requires 12 <= seconds <= timeout <= 60 and no stop file')
+    rclpy.init();node=Probe();deadline=time.monotonic()+a.seconds
     try:
-        while rclpy.ok() and time.monotonic()<deadline:
-            if a.stop_file and a.stop_file.exists():break
-            rclpy.spin_once(node,timeout_sec=.005)
-        result=node.summary();a.output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result),flush=True)
+        if a.healthy_timeout_sec is not None:
+            result=wait_for_health(node,a.seconds,a.healthy_timeout_sec,
+                                   lambda:rclpy.spin_once(node,timeout_sec=.005))
+        else:
+            while rclpy.ok() and time.monotonic()<deadline:
+                if a.stop_file and a.stop_file.exists():break
+                rclpy.spin_once(node,timeout_sec=.005)
+            result=node.summary()
+        a.output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result),flush=True)
         a.output.with_suffix('.timing.json').write_text(json.dumps(node.px4_timing)+'\n')
     finally:
         node.destroy_node();rclpy.shutdown()

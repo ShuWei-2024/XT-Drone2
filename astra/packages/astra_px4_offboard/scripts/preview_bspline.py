@@ -77,6 +77,7 @@ class PreviewBspline(Node):
         self.hold_px4_position = None
         self.hold_pose = None
         self.spline = None
+        self.trajectory_validator = None
         self.trajectory_start_ns = None
         self.trajectory_id = None
         self.completed_trajectory_id = None
@@ -138,6 +139,8 @@ class PreviewBspline(Node):
     def on_trajectory(self, msg):
         try:
             spline, start, end = parse_spline(msg, self.max_speed, self.max_accel)
+            if self.trajectory_validator is not None:
+                self.trajectory_validator.validate_spline(spline)
         except ValueError as exc:
             self.spline = None
             self.get_logger().warning(str(exc))

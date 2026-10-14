@@ -149,6 +149,28 @@ class BridgeTest(unittest.TestCase):
         self.node.px4.z += .21
         self.assertIn('z=0.210m', self.node.health())
 
+    def test_single_missing_pair_uses_fresh_history_and_expires(self):
+        source=deepcopy(self.node.odom)
+        epoch=self.node.get_clock().now().nanoseconds-30_000_000
+        source.header.stamp.sec,source.header.stamp.nanosec=divmod(epoch,10**9)
+        # Latest source has no PX4 sample within 20 ms, preceding real pair does.
+        self.node.on_odom(source)
+        self.assertEqual('',self.node.health())
+        self.assertLessEqual(self.node.estimator_pair_dt_sec,.02)
+        for msg,_ in self.node.odom_history:
+            t=self.node.get_clock().now().nanoseconds-260_000_000
+            msg.header.stamp.sec,msg.header.stamp.nanosec=divmod(t,10**9)
+        # Keep a current source, with only unmatched PX4 samples in history.
+        fresh=deepcopy(source);fresh.header.stamp=self.node.get_clock().now().to_msg()
+        for msg in self.node.px4_history:msg.timestamp_sample-=100_000
+        self.node.on_odom(fresh)
+        self.assertEqual('estimator measurement times differ',self.node.state_health())
+
+    def test_fresh_history_does_not_hide_latest_invalid_position(self):
+        source=deepcopy(self.node.odom);source.pose.pose.position.x=math.nan
+        self.node.on_odom(source)
+        self.assertEqual('non-finite estimator position',self.node.health())
+
     def test_separate_preview_callbacks_commit_only_matching_pairs(self):
         preceding = self.node.pose
         pose, twist = deepcopy(self.node.pose), deepcopy(self.node.velocity)

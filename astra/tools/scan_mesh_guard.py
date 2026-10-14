@@ -43,19 +43,78 @@ class MeshGuard:
                 or not len(self.triangles) or not np.isfinite(self.triangles).all()):
             raise ValueError('Invalid guard triangles')
         self.centres = self.triangles.mean(axis=1)
-        self.max_radius = float(np.linalg.norm(
-            self.triangles-self.centres[:,None,:],axis=2).max())
+        self.radii = np.linalg.norm(
+            self.triangles-self.centres[:,None,:],axis=2).max(axis=1)
+        self.max_radius = float(self.radii.max())
         self.tree = cKDTree(self.centres)
         self.minimum_m = float(self.metadata['minimum_clearance_m'])
         self.bounds = np.asarray(self.metadata['allowed_xy_bounds_m'])
         self.z_bounds = self.metadata.get('allowed_body_z_bounds_m')
-        if self.minimum_m != .55 or self.bounds.shape != (2,2):
+        if (self.minimum_m != .55 or self.bounds.shape != (2,2)
+                or not np.isfinite(self.bounds).all() or np.any(self.bounds[1]<=self.bounds[0])):
             raise ValueError('Unexpected mesh guard margin/bounds')
+        if self.z_bounds is not None and (np.asarray(self.z_bounds).shape!=(2,)
+                or not np.isfinite(self.z_bounds).all() or self.z_bounds[1]<=self.z_bounds[0]):
+            raise ValueError('Invalid scan height envelope')
+        boxes=self.metadata.get('recovery_xy_boxes_m')
+        self.recovery_boxes=np.asarray(boxes,dtype=float) if boxes is not None else None
+        if self.recovery_boxes is not None:
+            lower=self.metadata.get('recovery_continuous_clearance_lower_bound_m',0.)
+            if (self.recovery_boxes.ndim!=3 or self.recovery_boxes.shape[1:]!=(2,2)
+                    or not len(self.recovery_boxes) or not np.isfinite(self.recovery_boxes).all()
+                    or np.any(self.recovery_boxes[:,1]<=self.recovery_boxes[:,0])
+                    or self.z_bounds is None or not np.isfinite(lower) or lower<.60
+                    or np.any(self.recovery_boxes[:,0]<self.bounds[0])
+                    or np.any(self.recovery_boxes[:,1]>self.bounds[1])):
+                raise ValueError('Invalid certified descent region')
+
+    def inside_recovery_region(self, xy):
+        if self.recovery_boxes is None:return True
+        xy=np.asarray(xy)
+        return bool(np.any(np.all((xy>=self.recovery_boxes[:,0]) &
+                                  (xy<=self.recovery_boxes[:,1]),axis=1)))
+
+    def recovery_segment_covered(self, start, end):
+        """Exact union-of-rectangles coverage; endpoints alone can miss a hole."""
+        if self.recovery_boxes is None:return True
+        start,end=np.asarray(start),np.asarray(end)
+        delta=end-start
+        lower=np.zeros(len(self.recovery_boxes));upper=np.ones(len(lower))
+        for axis in range(2):
+            if abs(delta[axis])<1e-12:
+                outside=(start[axis]<self.recovery_boxes[:,0,axis]) | (start[axis]>self.recovery_boxes[:,1,axis])
+                upper[outside]=-1.
+            else:
+                a=(self.recovery_boxes[:,0,axis]-start[axis])/delta[axis]
+                b=(self.recovery_boxes[:,1,axis]-start[axis])/delta[axis]
+                lower=np.maximum(lower,np.minimum(a,b));upper=np.minimum(upper,np.maximum(a,b))
+        intervals=sorted(zip(lower[upper>=lower],upper[upper>=lower]))
+        covered=0.
+        for begin,finish in intervals:
+            if begin>covered+1e-10:return False
+            covered=max(covered,finish)
+            if covered>=1.-1e-10:return True
+        return False
+
+    def clearance_candidates(self, point):
+        """Prune using enclosing spheres, with an exact achievable upper bound.
+
+        A triangle's entire surface is inside its centroid sphere. Therefore
+        centre distance minus radius is a lower bound, including huge triangles
+        whose centroids are far away. No potentially nearer surface is dropped.
+        """
+        point = np.asarray(point, dtype=float)
+        if point.shape != (3,) or not np.isfinite(point).all():
+            raise ValueError('Non-finite or invalid guard point')
+        _, nearest = self.tree.query(point)
+        upper = float(triangle_distances(point, self.triangles[nearest:nearest+1])[0])
+        indices = np.asarray(self.tree.query_ball_point(
+            point, upper+self.max_radius+1e-9), dtype=np.intp)
+        lower = np.linalg.norm(self.centres[indices]-point, axis=1)-self.radii[indices]
+        return indices[lower <= upper+1e-9]
 
     def clearance(self, point):
-        if not np.isfinite(point).all(): raise ValueError('Non-finite guard point')
-        upper, _ = self.tree.query(point)
-        indices = self.tree.query_ball_point(point, float(upper)+self.max_radius+1e-9)
+        indices = self.clearance_candidates(point)
         return float(triangle_distances(point,self.triangles[indices]).min())
 
     def fault(self, point, clearance=None):
@@ -63,6 +122,8 @@ class MeshGuard:
             return 'outside inspected scan flight envelope'
         if self.z_bounds is not None and not self.z_bounds[0] <= point[2] <= self.z_bounds[1]:
             return 'outside inspected scan height envelope'
+        if not self.inside_recovery_region(np.asarray(point)[:2]):
+            return 'outside certified scan descent region'
         clearance = self.clearance(point) if clearance is None else clearance
         if clearance < self.minimum_m:
             return f'scan mesh clearance below {self.minimum_m:.2f} m: {clearance:.3f} m'
@@ -74,6 +135,8 @@ class MeshGuard:
         if not np.isfinite(predicted).all():return 'invalid scan guard velocity'
         if np.any(predicted<self.bounds[0]) or np.any(predicted>self.bounds[1]):
             return 'approaching inspected scan flight boundary'
+        if not self.recovery_segment_covered(np.asarray(point)[:2],predicted):
+            return 'approaching uncertified scan descent region'
         return ''
 
 

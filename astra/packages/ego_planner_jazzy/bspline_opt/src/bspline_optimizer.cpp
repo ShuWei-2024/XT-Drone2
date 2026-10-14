@@ -841,6 +841,10 @@ namespace ego_planner
   int BsplineOptimizer::earlyExit(void *func_data, const double *x, const double *g, const double fx, const double xnorm, const double gnorm, const double step, int n, int k, int ls)
   {
     BsplineOptimizer *opt = reinterpret_cast<BsplineOptimizer *>(func_data);
+    if (opt->planningBudgetExpired()) {
+      opt->force_stop_type_ = STOP_FOR_ERROR;
+      return 1;
+    }
     // cout << "k=" << k << endl;
     // cout << "opt->flag_continue_to_optimize_=" << opt->flag_continue_to_optimize_ << endl;
     return (opt->force_stop_type_ == STOP_FOR_ERROR || opt->force_stop_type_ == STOP_FOR_REBOUND);
@@ -1555,6 +1559,7 @@ namespace ego_planner
     constexpr int MAX_RESART_NUMS_SET = 3;
     do
     {
+      if (planningBudgetExpired()) return false;
       /* ---------- prepare ---------- */
       min_cost_ = std::numeric_limits<double>::max();
       min_ellip_dist_ = INIT_min_ellip_dist_;
@@ -1581,6 +1586,7 @@ namespace ego_planner
       t2 = rclcpp::Clock().now();
       double time_ms = (t2 - t1).seconds() * 1000;
       double total_time_ms = (t2 - t0).seconds() * 1000;
+      if (planningBudgetExpired()) return false;
 
       /* ---------- success temporary, check collision again ---------- */
       // 收敛、达到最大迭代次数、已达到最小值或被停止，则进入碰撞检测阶段
@@ -1612,7 +1618,11 @@ namespace ego_planner
         double tm, tmp;
         traj.getTimeSpan(tm, tmp);
         // 计算时间步长
-        double t_step = (tmp - tm) / ((traj.evaluateDeBoorT(tmp) - traj.evaluateDeBoorT(tm)).norm() / grid_map_->getResolution());
+        // Bound travel per sample using the derivative hull, even for a
+        // detour whose endpoints are close together. Endpoint distance alone
+        // under-samples a bent curve and can accept occupied corners.
+        const double speed_bound = traj.getDerivative().getControlPoint().colwise().norm().maxCoeff();
+        double t_step = std::min(0.05, grid_map_->getResolution() / (4.0 * std::max(speed_bound, 1e-3)));
         // Check the complete local trajectory, including its tail.
         for (double t = tm; t < tmp; t += t_step)
         {
@@ -1763,7 +1773,11 @@ namespace ego_planner
       UniformBspline traj = UniformBspline(cps_.points, 3, bspline_interval_);
       double tm, tmp;
       traj.getTimeSpan(tm, tmp);
-      double t_step = (tmp - tm) / ((traj.evaluateDeBoorT(tmp) - traj.evaluateDeBoorT(tm)).norm() / grid_map_->getResolution()); // Step size is defined as the maximum size that can passes throgth every gird.
+      // Bound travel per sample using the derivative hull, even for a
+        // detour whose endpoints are close together. Endpoint distance alone
+        // under-samples a bent curve and can accept occupied corners.
+        const double speed_bound = traj.getDerivative().getControlPoint().colwise().norm().maxCoeff();
+        double t_step = std::min(0.05, grid_map_->getResolution() / (4.0 * std::max(speed_bound, 1e-3))); // Step size is defined as the maximum size that can passes throgth every gird.
       for (double t = tm; t < tmp; t += t_step)
       {
         if (grid_map_->getInflateOccupancy(traj.evaluateDeBoorT(t)))

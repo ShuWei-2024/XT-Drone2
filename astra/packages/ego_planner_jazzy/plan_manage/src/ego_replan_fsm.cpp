@@ -1,3 +1,4 @@
+#include <plan_env/callback_timing.h>
 
 #include <ego_planner/ego_replan_fsm.h>
 #include <stdexcept>
@@ -141,6 +142,12 @@ namespace ego_planner
         "/planning/trajectory_completed", 10);
     heartbeat_pub_ = node_->create_publisher<std_msgs::msg::Empty>("/planning/heartbeat", 10);
     heartbeat_timer_ = node_->create_wall_timer(std::chrono::milliseconds(50), [this]() {
+      static auto last = std::chrono::steady_clock::now();
+      const auto now = std::chrono::steady_clock::now();
+      const double gap_ms = std::chrono::duration<double, std::milli>(now - last).count();
+      if (gap_ms > 100.0)
+        RCLCPP_WARN(node_->get_logger(), "Planner heartbeat publication gap_ms=%.3f", gap_ms);
+      last = now;
       heartbeat_pub_->publish(std_msgs::msg::Empty());
     });
     data_disp_pub_ = node_->create_publisher<traj_utils::msg::DataDisp>("planning/data_display", 100);
@@ -219,6 +226,28 @@ namespace ego_planner
   void EGOReplanFSM::planNextWaypoint(const Eigen::Vector3d next_wp)
   {
     bool success = false;
+    envelope_guide_.clear();
+    envelope_progress_ = 0.;
+    auto grid = planner_manager_->grid_map_;
+    if (grid->executionEnvelopeRequired()) {
+      bool direct = true;
+      const int n = std::max(1,int(std::ceil((next_wp-odom_pos_).norm()/.05)));
+      for (int i=0; i<=n; ++i)
+        if (!grid->executionEnvelopeAllows(odom_pos_+(next_wp-odom_pos_)*(double(i)/n))) {
+          direct = false; break;
+        }
+      if (!direct && !grid->executionEnvelopeGuide(odom_pos_,next_wp,envelope_guide_)) {
+        trajectory_valid_pub_->publish(std_msgs::msg::Bool().set__data(false));
+        have_target_ = false;
+        RCLCPP_WARN(node_->get_logger(), "No bounded route in shared execution envelope; goal rejected");
+        return;
+      }
+      if (!envelope_guide_.empty()) {
+        double length=0.;
+        for (size_t i=1; i<envelope_guide_.size(); ++i) length+=(envelope_guide_[i]-envelope_guide_[i-1]).norm();
+        RCLCPP_INFO(node_->get_logger(), "Shared-envelope global guide: %.3f m, %zu corners", length,envelope_guide_.size());
+      }
+    }
     success = planner_manager_->planGlobalTraj(odom_pos_, odom_vel_, Eigen::Vector3d::Zero(), next_wp, Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero());
 
     if (success)
@@ -246,6 +275,7 @@ namespace ego_planner
       }
 
       visualization_->displayGlobalPathList(gloabl_traj, 0.1, 0);
+      if (!envelope_guide_.empty()) visualization_->displayGlobalPathList(envelope_guide_, .1, 0);
     }
     else
     {
@@ -275,6 +305,9 @@ namespace ego_planner
                            msg->pose.position.z);
 
     planning_failures_ = 0;
+    // A new guarded simulation goal is its own trigger. Real-world RC trigger
+    // semantics remain explicit after a completed trajectory.
+    if (!flag_realworld_experiment_) have_trigger_ = true;
     planNextWaypoint(end_wp);
   }
 
@@ -497,6 +530,7 @@ namespace ego_planner
 
   void EGOReplanFSM::execFSMCallback()
   {
+    CallbackTiming callback_timing(node_->get_logger(), "execFSMCallback");
     if (mapping_ready_ &&
         std::chrono::steady_clock::now() - last_ready_wall_ > ready_timeout_)
     {
@@ -630,7 +664,7 @@ namespace ego_planner
       /* determine if need to replan */
       LocalTrajData *info = &planner_manager_->local_data_;
       rclcpp::Time time_now = node_->now();
-      double t_cur = (time_now - info->start_time_).seconds();
+      double t_cur = std::clamp((time_now - info->start_time_).seconds(), 0.0, info->duration_);
       t_cur = std::min(info->duration_, t_cur);
 
       Eigen::Vector3d pos = info->position_traj_.evaluateDeBoorT(t_cur);
@@ -716,19 +750,20 @@ namespace ego_planner
 
   bool EGOReplanFSM::planFromGlobalTraj(const int trial_times /*=1*/) // zx-todo
   {
+    planner_manager_->beginPlanningBudget();
     start_pt_ = odom_pos_;
     start_vel_ = odom_vel_;
     start_acc_.setZero();
 
-    bool flag_random_poly_init;
-    if (timesOfConsecutiveStateCalls().first == 1)
-      flag_random_poly_init = false;
-    else
-      flag_random_poly_init = true;
+    // Failed callbacks do not call changeFSMExecState with the same state,
+    // so its consecutive-state counter can remain one indefinitely. Use the
+    // actual failure count and attempt index to reach the grid/random fallback.
+    const bool retry = planning_failures_ > 0 || timesOfConsecutiveStateCalls().first > 1;
 
     for (int i = 0; i < trial_times; i++)
     {
-      if (callReboundReplan(true, flag_random_poly_init))
+      if (planner_manager_->planningBudgetExpired()) break;
+      if (callReboundReplan(true, retry || i > 0))
       {
         return true;
       }
@@ -738,12 +773,13 @@ namespace ego_planner
 
   bool EGOReplanFSM::planFromCurrentTraj(const int trial_times /*=1*/)
   {
+    planner_manager_->beginPlanningBudget();
 
     LocalTrajData *info = &planner_manager_->local_data_;
     // ros::Time time_now = ros::Time::now();
     auto time_now = node_->now();
     // double t_cur = (time_now - info->start_time_).toSec();
-    double t_cur = (time_now - info->start_time_).seconds();
+    double t_cur = std::clamp((time_now - info->start_time_).seconds(), 0.0, info->duration_);
 
     start_pt_ = info->position_traj_.evaluateDeBoorT(t_cur);
     start_vel_ = info->velocity_traj_.evaluateDeBoorT(t_cur);
@@ -774,6 +810,7 @@ namespace ego_planner
 
   void EGOReplanFSM::checkCollisionCallback()
   {
+    CallbackTiming callback_timing(node_->get_logger(), "checkCollisionCallback");
     if (!mapping_ready_)
       return;
 
@@ -832,27 +869,19 @@ namespace ego_planner
       if (occ)
       {
 
-        if (planFromCurrentTraj()) // Make a chance
+        // Collision checks must stay short. Optimizing here as well as in
+        // execFSMCallback starved the heartbeat for a measured 572 ms.
+        if (t - t_cur < emergency_time_)
         {
-          changeFSMExecState(EXEC_TRAJ, "SAFETY");
-          publishSwarmTrajs(false);
-          return;
+          RCLCPP_WARN(node_->get_logger(), "Imminent occupied trajectory; emergency stop");
+          changeFSMExecState(EMERGENCY_STOP, "SAFETY");
         }
-        else
+        else if (exec_state_ != REPLAN_TRAJ)
         {
-          if (t - t_cur < emergency_time_) // 0.8s of emergency time
-          {
-            RCLCPP_WARN(node_->get_logger(), "Suddenly discovered obstacles. emergency stop! time=%f", t - t_cur);
-
-            changeFSMExecState(EMERGENCY_STOP, "SAFETY");
-          }
-          else
-          {
-            RCLCPP_WARN(node_->get_logger(), "current traj in collision, replan.");
-            changeFSMExecState(REPLAN_TRAJ, "SAFETY");
-          }
-          return;
+          RCLCPP_WARN(node_->get_logger(), "Occupied trajectory ahead; schedule bounded replan");
+          changeFSMExecState(REPLAN_TRAJ, "SAFETY");
         }
+        return;
         break;
       }
     }
@@ -1002,6 +1031,60 @@ namespace ego_planner
 
   void EGOReplanFSM::getLocalTarget()
   {
+    if (!envelope_guide_.empty()) {
+      double offset=0., nearest_distance=1e9, nearest_progress=envelope_progress_, total=0.;
+      bool found_window=false;
+      for (size_t i=1; i<envelope_guide_.size(); ++i) {
+        const auto delta=envelope_guide_[i]-envelope_guide_[i-1];
+        const double length=delta.norm();
+        if (length<1e-8) continue;
+        const double ratio=std::clamp((start_pt_-envelope_guide_[i-1]).dot(delta)/(length*length),0.,1.);
+        const double progress=offset+ratio*length;
+        const double distance=(start_pt_-(envelope_guide_[i-1]+ratio*delta)).norm();
+        if (progress>=envelope_progress_-.5 && progress<=envelope_progress_+3. && distance<nearest_distance) {
+          nearest_distance=distance; nearest_progress=progress; found_window=true;
+        }
+        offset+=length;
+      }
+      // A vehicle can move more than the short progress window while the
+      // planner is busy. Leaving nearest_progress at its old value then
+      // requests a target behind the vehicle (observed at a box corner), and
+      // the shared safety envelope correctly rejects that backward prefix.
+      // Recover from the missed window by selecting the closest point on the
+      // remaining guide, while never moving progress backwards.
+      if (!found_window) {
+        offset=0.; nearest_distance=1e9; nearest_progress=envelope_progress_;
+        for (size_t i=1; i<envelope_guide_.size(); ++i) {
+          const auto delta=envelope_guide_[i]-envelope_guide_[i-1];
+          const double length=delta.norm();
+          if (length<1e-8) continue;
+          const double ratio=std::clamp((start_pt_-envelope_guide_[i-1]).dot(delta)/(length*length),0.,1.);
+          const double progress=offset+ratio*length;
+          const double distance=(start_pt_-(envelope_guide_[i-1]+ratio*delta)).norm();
+          if (progress>=envelope_progress_-.5 && distance<nearest_distance) {
+            nearest_distance=distance; nearest_progress=progress;
+          }
+          offset+=length;
+        }
+      }
+      total=offset;
+      envelope_progress_=std::max(envelope_progress_,nearest_progress);
+      const double target_progress=std::min(total,envelope_progress_+std::min(4.,planning_horizen_));
+      offset=0.;
+      local_target_pt_=end_pt_; local_target_vel_.setZero();
+      for (size_t i=1; i<envelope_guide_.size(); ++i) {
+        const auto delta=envelope_guide_[i]-envelope_guide_[i-1];
+        const double length=delta.norm();
+        if (length<1e-8) continue;
+        if (offset+length>=target_progress) {
+          local_target_pt_=envelope_guide_[i-1]+delta*((target_progress-offset)/length);
+          if (target_progress<total-1e-6) local_target_vel_=delta/length*planner_manager_->pp_.max_vel_;
+          break;
+        }
+        offset+=length;
+      }
+      return;
+    }
     double t;
 
     // The horizon sampling can land exactly on the global duration. Keep a

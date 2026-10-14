@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert the pinned, culled Replica office0 scan into a passive Gazebo world.
+"""Convert a pinned, culled Replica scan into a passive Gazebo world.
 
 Run with the isolated map-tools venv (trimesh, fast-simplification, scipy, Pillow).
 Generated dataset assets stay under ignored astra/runtime, never in source Git.
@@ -20,6 +20,16 @@ REPO = Path(__file__).resolve().parents[2]
 SHA256 = '0dd4b4d292cc325b52eeb596b0d089440cc333df8757cced7fa12daedb9309a6'
 SOURCE_URL = ('https://huggingface.co/datasets/voviktyl/Replica-SLAM/resolve/'
               '7d7ae90b48035aa2e9baa58018f5e090bd6d5dc5/cull_replica_mesh/office0.ply')
+
+SCENE_HASHES = {
+    'office0': SHA256,
+    'office1': '3e62df3ff178b2362ff6cca56f52853a7a2ba194d13520969882bb708a5f4729',
+    'office2': 'dd8e3f6c4f16857641b91b25cb97394fd35f80f524066bbe540b46ed292d8f43',
+    'office3': 'eba681ca5518674de40996ab7a28383e57e52852ea0b6e2edf92c42d613f4a16',
+    'office4': 'dd2bbf6771825b2b3984408d32ca7f448f954420560f1c0d24c74a5e5b59d393',
+    'room0': '4b1c97fd0513aab840ebb7588ee0a3a1a82913c79a4926ff4e03048417a566de',
+    'room2': '61d29d90b4668e8f4af9cfb2ecc24d9ab84a477031240cc9c9dd0cd3fe23946f',
+}
 
 
 def write_dae(path, vertices, faces, colors):
@@ -97,13 +107,20 @@ def write_dae(path, vertices, faces, colors):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--source', type=Path,
-        default=REPO/'astra/runtime/map_candidates/replica_office0/office0.ply')
-    parser.add_argument('--output', type=Path, default=REPO/'astra/runtime/maps/replica_office0')
+    parser.add_argument('--scene', choices=sorted(SCENE_HASHES), default='office0')
+    parser.add_argument('--source', type=Path)
+    parser.add_argument('--output', type=Path)
+    parser.add_argument('--spawn-xy', type=float, nargs=2, help='Inspected native XY spawn; no scale/rotation change')
     parser.add_argument('--faces', type=int, default=100000)
     a = parser.parse_args()
+    model_name='replica_'+a.scene
+    a.source=a.source or REPO/f'astra/runtime/map_candidates/{model_name}/{a.scene}.ply'
+    a.output=a.output or REPO/f'astra/runtime/maps/{model_name}'
+    source_hash=SCENE_HASHES[a.scene]
+    source_url=SOURCE_URL.rsplit('/',1)[0]+'/'+a.scene+'.ply'
+    if a.spawn_xy is not None and not np.isfinite(a.spawn_xy).all():parser.error('Non-finite spawn')
     if not 20000 <= a.faces <= 200000: parser.error('Use 20000..200000 visual faces')
-    if hashlib.sha256(a.source.read_bytes()).hexdigest() != SHA256:
+    if hashlib.sha256(a.source.read_bytes()).hexdigest() != source_hash:
         parser.error('Source differs from the pinned Replica-SLAM mesh')
     a.output.mkdir(parents=True, exist_ok=False)
     original = trimesh.load(a.source, process=False)
@@ -114,7 +131,15 @@ def main():
     cross = np.cross(tv[:, 1]-tv[:, 0], tv[:, 2]-tv[:, 0])
     area2 = np.linalg.norm(cross, axis=1)
     centers = tv.mean(axis=1)
-    floor_mask = (centers[:, 2] < -1.05) & (np.abs(cross[:, 2]) > .98*area2)
+    horizontal = np.abs(cross[:, 2]) > .98*area2
+    if a.scene=='office0':
+        floor_mask = (centers[:, 2] < -1.05) & horizontal
+    else:
+        bins=np.arange(v[:,2].min(),v[:,2].max()+.04,.04)
+        hist,edges=np.histogram(centers[horizontal,2],bins=bins,weights=area2[horizontal])
+        eligible=np.flatnonzero(edges[:-1]<v[:,2].min()+.3)
+        floor_band=float(edges[eligible[np.argmax(hist[eligible])]])
+        floor_mask=horizontal & (centers[:,2]>=floor_band-.06) & (centers[:,2]<=floor_band+.08)
     if floor_mask.sum() < 1000: raise ValueError('Expected horizontal floor absent')
     floor = float(np.median(centers[floor_mask, 2]))
     # Select a spawn over observed floor, away from all sampled above-floor
@@ -125,26 +150,27 @@ def main():
     obstacle_xy = np.vstack((v[band, :2], centers[tc, :2]))
     candidates = centers[floor_mask, :2][::10]
     distance, _ = cKDTree(obstacle_xy).query(candidates)
-    spawn = candidates[np.argmax(distance)]
+    spawn = candidates[np.argmax(distance)] if a.spawn_xy is None else np.asarray(a.spawn_xy)
+    spawn_clearance=float(cKDTree(obstacle_xy).query(spawn)[0])
     # Put the observed floor just below an invisible, flat ground support.
     translation = np.array([-spawn[0], -spawn[1], -floor-.03])
     reduced = original.simplify_quadric_decimation(face_count=a.faces)
     nearest = cKDTree(v).query(reduced.vertices)[1]
     colors = np.asarray(original.visual.vertex_colors)[nearest]
     vertices = np.asarray(reduced.vertices) + translation
-    model = a.output/'replica_office0'
+    model = a.output/model_name
     meshes = model/'meshes'; meshes.mkdir(parents=True)
-    atlas = write_dae(meshes/'office0.dae', vertices, reduced.faces, colors)
+    atlas = write_dae(meshes/(a.scene+'.dae'), vertices, reduced.faces, colors)
     # Static concave collision triangles share the converted geometry. Do not
     # convexify: a room convex hull would fill the entire flight volume.
     trimesh.Trimesh(vertices, reduced.faces, process=False).export(meshes/'collision.stl')
-    (model/'model.config').write_text('<model><name>Replica office0</name><version>1</version>'
+    (model/'model.config').write_text(f'<model><name>Replica {a.scene}</name><version>1</version>'
         '<sdf version="1.9">model.sdf</sdf><description>Culled real scan; research use; '
         'passive integration, flight unvalidated.</description></model>\n')
-    (model/'model.sdf').write_text('''<?xml version="1.0"?>
-<sdf version="1.9"><model name="replica_office0"><static>true</static><link name="scan">
+    (model/'model.sdf').write_text(f'''<?xml version="1.0"?>
+<sdf version="1.9"><model name="{model_name}"><static>true</static><link name="scan">
 <collision name="scan_collision"><geometry><mesh><uri>meshes/collision.stl</uri></mesh></geometry></collision>
-<visual name="scan_visual"><geometry><mesh><uri>meshes/office0.dae</uri></mesh></geometry>
+<visual name="scan_visual"><geometry><mesh><uri>meshes/{a.scene}.dae</uri></mesh></geometry>
 <material><ambient>.3 .3 .3 1</ambient><diffuse>1 1 1 1</diffuse>
 <pbr><metal><albedo_map>meshes/scan_color.png</albedo_map><metalness>0</metalness><roughness>1</roughness></metal></pbr>
 </material></visual>
@@ -158,8 +184,8 @@ def main():
     ground = world.find("model[@name='ground_plane']/link")
     for visual in list(ground.findall('visual')): ground.remove(visual)
     inc = ET.SubElement(world, 'include')
-    ET.SubElement(inc, 'uri').text = 'model://replica_office0'
-    ET.SubElement(inc, 'name').text = 'replica_office0'
+    ET.SubElement(inc, 'uri').text = 'model://'+model_name
+    ET.SubElement(inc, 'name').text = model_name
     light = ET.SubElement(world, 'light', name='office_fill', type='directional')
     ET.SubElement(light, 'cast_shadows').text = 'false'
     ET.SubElement(light, 'diffuse').text = '.65 .65 .65 1'
@@ -168,19 +194,19 @@ def main():
     ET.SubElement(scene, 'ambient').text = '.3 .3 .3 1'
     xml.write(a.output/'world.sdf', encoding='utf-8', xml_declaration=True)
     shutil.copy2(a.source.parent/'REPLICA_LICENSE.txt', a.output/'REPLICA_LICENSE.txt')
-    manifest = dict(source_url=SOURCE_URL, source_sha256=SHA256,
+    manifest = dict(scene=a.scene,model_name=model_name,source_url=source_url, source_sha256=source_hash,
         source_faces=len(f), visual_and_collision_faces=len(reduced.faces),
         source_vertices=len(v), converted_vertices=len(vertices),
         native_floor_z=floor, native_spawn_xy=spawn.tolist(),
         translation_native_to_world_m=translation.tolist(), rotation='identity; native Z up',
         scale=1., floor_normal_tolerance_cos=.98, horizontal_floor_faces=int(floor_mask.sum()),
-        sampled_spawn_xy_clearance_m=float(distance.max()), clearance_certified=False,
+        sampled_spawn_xy_clearance_m=spawn_clearance, clearance_certified=False,
         transformed_bounds=[vertices.min(axis=0).tolist(), vertices.max(axis=0).tolist()],
         color_method='nearest source vertex RGB, baked interpolated triangle atlas',
         atlas_pixels=atlas, source_is_culled=True, synthetic_ground_collision_z=0.,
         synthetic_ground_visual=False, px4_armed=False, flight_validated=False,
         explicit_vertex_normals=True, dependencies={'trimesh':trimesh.__version__})
-    for asset in ['office0.dae','collision.stl','scan_color.png']:
+    for asset in [a.scene+'.dae','collision.stl','scan_color.png']:
         manifest.setdefault('asset_sha256', {})[asset] = hashlib.sha256((meshes/asset).read_bytes()).hexdigest()
     (a.output/'manifest.json').write_text(json.dumps(manifest, indent=2)+'\n')
     print(json.dumps(manifest, indent=2))

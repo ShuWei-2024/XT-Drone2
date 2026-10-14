@@ -6,6 +6,7 @@
 #include <Eigen/Eigen>
 #include <plan_env/grid_map.h>
 #include <queue>
+#include <chrono>
 
 constexpr double inf = 1 >> 20;
 struct GridNode;
@@ -59,7 +60,13 @@ private:
 
 	//bool (*checkOccupancyPtr)( const Eigen::Vector3d &pos );
 
-	inline bool checkOccupancy(const Eigen::Vector3d &pos) { return (bool)grid_map_->getInflateOccupancy(pos); }
+	inline bool checkOccupancy(const Eigen::Vector3d &pos) {
+    const double resolution = grid_map_->getResolution();
+    for (int x = -clearance_cells_; x <= clearance_cells_; ++x)
+      for (int y = -clearance_cells_; y <= clearance_cells_; ++y)
+        if (grid_map_->getInflateOccupancy(pos + Eigen::Vector3d(x*resolution,y*resolution,0))) return true;
+    return false;
+  }
 
 	std::vector<GridNodePtr> retrievePath(GridNodePtr current);
 
@@ -75,7 +82,12 @@ private:
 
 	int rounds_{0};
 
+std::chrono::steady_clock::time_point planning_deadline_{std::chrono::steady_clock::time_point::max()};
+  int clearance_cells_{0};
+  bool planar_search_{false};
 public:
+  void setSearchMargin(int cells, bool planar) { clearance_cells_ = cells; planar_search_ = planar; }
+  void setPlanningDeadline(std::chrono::steady_clock::time_point deadline) { planning_deadline_ = deadline; }
 	typedef std::shared_ptr<AStar> Ptr;
 
 	AStar(){};

@@ -1,15 +1,50 @@
-# PX4 1.17 迁移验证（2026-10-10）
+# 验证索引与当前状态
 
-完整运行结论、实际位移、修改与命令见 [RUNTIME_117.md](RUNTIME_117.md)。
+[总文档索引](../../docs/README.md) · [运行与审计方法](../../docs/OPERATIONS.md)
 
-- 官方 `v1.17.0` 的 SITL 二进制编译通过，固定提交与二进制哈希见 `summary.json`。
-- ROS 的 8 个接口/框架包编译通过；`traj_utils` 有原有编译警告，未导致失败。
-- 已使用的 8 种消息定义与 PX4 标签源码逐项匹配，见 `message_schema_check.json`。
-- 19 项既有桥保护检查、3 项版本/命名空间检查、1 项启动器隔离检查，共 23 项离线检查通过。
-- 两个 launch 的 `--show-args` 解析通过；该命令没有启动 PX4 或 Gazebo。
-- 旧版 251 个源码文件、PX4 提交/状态、参数 BSON 和定时器补丁哈希保持，见 `baseline_preservation_check.json`。
-- 已固定上游 commit、新分支、消息子模块提交，保存旧版源码标签；尚未推送 GitHub。
+更新：2026-10-14。报告记录当时版本与场景，历史失败不删除；判断当前状态先阅读最新两份报告。
 
-**新增运行结果**：完整 19 包已编译；静止通信/传感器/地图通过 60 秒测试；完成一次原生 NED 小范围飞行及降落。最终磁力计接口静止检查有效，但其飞行与新版绕障尚未通过，起飞前高度门控仍有失败。旧版飞行证据仍仅适用于旧版。新增时间检查后共有 27 项离线回归通过。
+## 当前状态
 
-运行命令详见仓库根目录 README。构建缓存、完整日志和飞行录制不纳入 Git；本目录保留验证结论和小型结构化证据。
+| 项目 | 结论 | 主要证据 |
+| --- | --- | --- |
+| PX4 1.17 / ROS 2 栈 | 构建、传感器、受控起降与闭环路线已运行 | [运行验收](RUNTIME_117.md) |
+| 室内真实扫描绕障 | 部分指定路线通过，非整室任意点认证 | [扫描绕障](REAL_SCAN_AVOIDANCE_117.md) |
+| 室外箱体/圆柱绕障 | 多条指定路线通过，重复性仍有失败 | [重复验证](OUTDOOR_REPEAT_EV_117.md) |
+| EV XY/Z 与共享边界 | 实际融合、部分长路线通过；yaw/速度不融合 | [共享边界与 EV](SHARED_ENVELOPE_EV_117.md) |
+| 最新复杂/长距离路线 | 东侧 64.91 m 一轮完整通过；西侧精度失败；树旁超时；东侧重复拒绝 | [长距离漂移](OUTDOOR_LONG_DRIFT_117.md) |
+| 长期/跨地图/实物 | 尚未通过 | [项目上下文](../../docs/PROJECT_CONTEXT.md) |
+
+任务流程完成与完整认证分别记录。检查实际位移、测量配对、全曲线距离、动态约束、目标误差及恢复事件，不以退出码替代认证。
+
+## 本次集成提交前检查
+
+2026-10-14：完整 19 个 ROS 包构建通过；228 项 Python/独立 C++ 回归通过；FAST-LIVO2 的 5 项 CTest 和规划器 `tail_obstacle` 回归通过。当前使用文档的本地链接、修改代码语法和 `git diff --check` 通过。
+
+此检查覆盖当前源码与文档，不新增飞行认证；构建仍有 PCL/CMake 既存提示，Python 有 protobuf 弃用提示。可复现命令见 [开发指南](../../docs/DEVELOPMENT.md)。
+
+## 报告导航
+
+| 范围 | 报告 |
+| --- | --- |
+| 最新室外复测与失败清单 | [OUTDOOR_REPEAT_EV_117.md](OUTDOOR_REPEAT_EV_117.md)、[汇总 JSON](outdoor_repeat_ev_117.json) |
+| 最新分阶段/航段漂移与搜索失败 | [OUTDOOR_LONG_DRIFT_117.md](OUTDOOR_LONG_DRIFT_117.md)、[汇总 JSON](outdoor_long_drift_117.json) |
+| 共享路线边界与 EV 接入 | [SHARED_ENVELOPE_EV_117.md](SHARED_ENVELOPE_EV_117.md) |
+| 室外扩大范围的早期失败 | [OUTDOOR_EXPANSION_117.md](OUTDOOR_EXPANSION_117.md) |
+| 箱体方向与圆柱等不同场景 | [OUTDOOR_GENERALIZATION_117.md](OUTDOOR_GENERALIZATION_117.md) |
+| 重规划连续性与调度 | [OUTDOOR_CONTINUITY_117.md](OUTDOOR_CONTINUITY_117.md) |
+| Baylands 场景和初始路线 | [OUTDOOR_PARK_117.md](OUTDOOR_PARK_117.md) |
+| RViz 三维多航点与任务保护 | [RVIZ_GOAL_FLIGHT_117.md](RVIZ_GOAL_FLIGHT_117.md) |
+| Replica office4 阻挡路径绕障 | [REAL_SCAN_AVOIDANCE_117.md](REAL_SCAN_AVOIDANCE_117.md) |
+| 室内大范围与重复运行 | [LARGE_INDOOR_117.md](LARGE_INDOOR_117.md)、[INDOOR_TRAVERSAL_117.md](INDOOR_TRAVERSAL_117.md) |
+| 扫描地图选择和首次接入 | [REAL_MAP_SELECTION.md](REAL_MAP_SELECTION.md)、[REPLICA_FLIGHT_117.md](REPLICA_FLIGHT_117.md) |
+| odom 处理/传输/接收时间 | [ODOM_DELAY_117.md](ODOM_DELAY_117.md) |
+| 基础迁移、传感器、起降 | [RUNTIME_117.md](RUNTIME_117.md) |
+
+## 证据规则
+
+- 原始 CSV、ULog、模型和视频保存在本机 `astra/runtime/<运行名>/`，不随仓库分发。汇总 JSON 为可审查结论，不能替代不存在的原始日志。
+- 报告中的本机绝对路径是历史证据位置，当前复现使用 [操作指南](../../docs/OPERATIONS.md) 的相对路径命令。
+- 不同修复版本的成功次数不构成同配置重复认证；候选曲线被拒绝不等同于该曲线已执行。
+- 真值精度使用起飞前冻结参考；距离注明机体中心/已知表面，不能直接写成旋翼净空。
+- 新报告须写日期、配置、运行名称、成功/失败、命令、指标和适用边界，并在本索引添加入口。

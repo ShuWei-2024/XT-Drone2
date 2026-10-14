@@ -2,6 +2,8 @@
 #include <ego_planner/planner_manager.h>
 #include <thread>
 #include <bspline_opt/stationary_terminal.h>
+#include <bspline_opt/retime_bspline.h>
+#include <bspline_opt/grid_bspline.h>
 #include "visualization_msgs/msg/marker.hpp" // zx-todo
 
 namespace ego_planner
@@ -14,6 +16,7 @@ namespace ego_planner
   void EGOPlannerManager::initPlanModules(rclcpp::Node::SharedPtr &node, PlanningVisualization::Ptr vis)
   {
     node_ = node;
+    grid_seed_fallback_ = node->declare_parameter("manager/grid_seed_fallback", false);
     min_goal_distance_m_ = node->declare_parameter("manager/min_goal_distance_m", 0.2);
     if (!std::isfinite(min_goal_distance_m_) || min_goal_distance_m_ <= 0.0)
       throw std::invalid_argument("minimum goal distance must be positive and finite");
@@ -64,6 +67,22 @@ namespace ego_planner
       return false;
     }
 
+    if (planningBudgetExpired()) return false;
+    bool envelope_detour = false;
+    if (grid_map_->executionEnvelopeRequired()) {
+      const int n = std::max(1, static_cast<int>(std::ceil((local_target_pt-start_pt).norm()/.1)));
+      for (int i=0; i<=n; ++i)
+        if (!grid_map_->executionEnvelopeAllows(start_pt+(local_target_pt-start_pt)*(double(i)/n))) {
+          envelope_detour = true;
+          break;
+        }
+    }
+    // A vertical search cannot cross an XY safety exclusion. Try the bounded
+    // sensor-grid detour first instead of exhausting the budget on fly-over seeds.
+    if (grid_seed_fallback_ && (flag_randomPolyTraj || envelope_detour) &&
+        gridFallbackReplan(start_pt, start_vel, start_acc, local_target_pt, local_target_vel))
+      return true;
+    if (planningBudgetExpired()) return false;
     bspline_optimizer_->setLocalTargetPt(local_target_pt);
     bspline_optimizer_->setStationaryTerminal(local_target_vel.norm() < 1e-6);
 
@@ -73,7 +92,10 @@ namespace ego_planner
     /*** STEP 1: INIT
     根据起始点和目标点的距离计算首个时间步长ts,向量的模大于0.1则用1.5倍否则用5倍
     ***/
-    double ts = (start_pt - local_target_pt).norm() > 0.1 ? pp_.ctrl_pt_dist / pp_.max_vel_ * 1.5 : pp_.ctrl_pt_dist / pp_.max_vel_ * 5; // pp_.ctrl_pt_dist / pp_.max_vel_ is too tense, and will surely exceed the acc/vel limits
+    // Arc-resampled controls are spaced at ctrl_pt_dist. A fixed 1.5x
+    // interval slowed every replan unnecessarily; final derivative hull
+    // retiming already enforces the configured speed/acceleration limits.
+    double ts = pp_.ctrl_pt_dist / pp_.max_vel_;
     vector<Eigen::Vector3d> point_set, start_end_derivatives;
     static bool flag_first_call = true, flag_force_polynomial = false;
     bool flag_regenerate = false;
@@ -164,7 +186,7 @@ namespace ego_planner
       {
 
         double t;
-        double t_cur = (node_->now() - local_data_.start_time_).seconds();
+        double t_cur = std::clamp((node_->now() - local_data_.start_time_).seconds(), 0.0, local_data_.duration_);
 
         vector<double> pseudo_arc_length;
         vector<Eigen::Vector3d> segment_point;
@@ -203,16 +225,28 @@ namespace ego_planner
           }
         }
 
+        if (pseudo_arc_length.size() < 2 || segment_point.size() != pseudo_arc_length.size() ||
+            !std::isfinite(pseudo_arc_length.back()) || pseudo_arc_length.back() < 1e-6)
+        {
+          RCLCPP_WARN(node_->get_logger(), "Degenerate previous trajectory seed; use polynomial retry");
+          return false;
+        }
+        int resampling_attempts = 0;
         double sample_length = 0;
         double cps_dist = pp_.ctrl_pt_dist * 1.5; // cps_dist will be divided by 1.5 in the next
         size_t id = 0;
         do
         {
+          if (++resampling_attempts > 32)
+          {
+            RCLCPP_WARN(node_->get_logger(), "Previous trajectory resampling limit reached");
+            return false;
+          }
           cps_dist /= 1.5;
           point_set.clear();
           sample_length = 0;
           id = 0;
-          while ((id <= pseudo_arc_length.size() - 2) && sample_length <= pseudo_arc_length.back())
+          while ((id + 1 < pseudo_arc_length.size()) && sample_length <= pseudo_arc_length.back())
           {
             if (sample_length >= pseudo_arc_length[id] && sample_length < pseudo_arc_length[id + 1])
             {
@@ -247,7 +281,9 @@ namespace ego_planner
     RCLCPP_INFO(node_->get_logger(), "Trajectory seed sampled: %zu points; starting optimization", point_set.size());
 
     vector<std::pair<int, int>> segments;
+    if (planningBudgetExpired()) return false;
     segments = bspline_optimizer_->initControlPoints(ctrl_pts, true);
+    if (planningBudgetExpired()) return false;
     // 计算时间差并更新时间
     auto now = node_->now();
     t_init = now - t_start;
@@ -318,69 +354,116 @@ namespace ego_planner
     UniformBspline pos = UniformBspline(ctrl_pts, 3, ts);
     pos.setPhysicalLimits(pp_.max_vel_, pp_.max_acc_, pp_.feasibility_tolerance_);
 
-    /*** STEP 3: REFINE(RE-ALLOCATE TIME) IF NECESSARY ***/
-    // Note: Only adjust time in single drone mode. But we still allow drone_0 to adjust its time profile.
-    if (pp_.drone_id <= 0)
+    // Keep the optimized detour instead of geometrically refitting its tail.
+    // Restore the new curve's head position/velocity after knot scaling so
+    // repeated replans do not repeatedly reduce the commanded speed. The
+    // changed head and complete tail must pass the occupancy check below.
+    double time_scale;
+    try
     {
-
-      double ratio;
-      bool flag_step_2_success = true;
-      if (!pos.checkFeasibility(ratio, false))
+      time_scale = retimeStartContinuousSpline(pos, start_pt, start_vel, pp_.max_vel_, pp_.max_acc_, start_acc);
+    }
+    catch (const std::invalid_argument &error)
+    {
+      // A highly curved handoff can make strict C2 continuity require more
+      // than the bounded time scale. Rebuild a braking prefix with the same
+      // position and velocity, then let the unchanged full occupancy check
+      // decide whether this safer handoff is usable.
+      if (start_acc.norm() <= 1e-8)
       {
-        cout << "Need to reallocate time." << endl;
-
-        Eigen::MatrixXd optimal_control_points;
-        flag_step_2_success = refineTrajAlgo(pos, start_end_derivatives, ratio, ts, optimal_control_points);
-        if (flag_step_2_success)
-          pos = UniformBspline(optimal_control_points, 3, ts);
+        RCLCPP_ERROR(node_->get_logger(), "Rejecting trajectory: %s", error.what());
+        continous_failures_count_++;
+        return false;
       }
-
-      if (!flag_step_2_success)
+      try
       {
-        printf("\033[34mThis refined trajectory hits obstacles. It doesn't matter if appeares occasionally. But if continously appearing, Increase parameter \"lambda_fitness\".\n\033[0m");
+        time_scale = retimeStartContinuousSpline(pos, start_pt, start_vel,
+                                                   pp_.max_vel_, pp_.max_acc_);
+        RCLCPP_WARN(node_->get_logger(),
+                    "Using bounded braking prefix after strict acceleration handoff was infeasible");
+      }
+      catch (const std::invalid_argument &fallback_error)
+      {
+        RCLCPP_ERROR(node_->get_logger(), "Rejecting trajectory: %s (fallback: %s)",
+                     error.what(), fallback_error.what());
         continous_failures_count_++;
         return false;
       }
     }
-    else
+    if (time_scale > 1.01)
+      RCLCPP_WARN(node_->get_logger(), "Scaled trajectory time by %.3f to meet motion limits", time_scale);
+
+    // An optimizer's nonuniform control spacing can make its derivative hull
+    // much faster than the actual vehicle, forcing the whole detour to crawl.
+    // Construct an arc-spaced candidate and accept it only after a fresh full
+    // occupancy check; otherwise retain the original bounded curve.
+    try
     {
-      static bool print_once = true;
-      if (print_once)
+      std::vector<Eigen::Vector3d> arc_path;
+      const double original_duration=pos.getTimeSum();
+      if (original_duration/0.05 < 20000)
       {
-        print_once = false;
-        RCLCPP_ERROR(rclcpp::get_logger("ego_planner"), "IN SWARM MODE, REFINE DISABLED!");
+        for (double t=0.; ; t=std::min(original_duration,t+0.05))
+        {
+          arc_path.push_back(pos.evaluateDeBoorT(t));
+          if (t>=original_duration || planningBudgetExpired()) break;
+        }
+        arc_path.front()=start_pt;
+        // Keep construction bounded even for a long slow curve.
+        if (arc_path.size()>2048)
+        {
+          std::vector<Eigen::Vector3d> compact;
+          for (size_t i=0;i<arc_path.size();i+=2) compact.push_back(arc_path[i]);
+          if ((compact.back()-arc_path.back()).norm()>1e-9) compact.push_back(arc_path.back());
+          arc_path=std::move(compact);
+        }
+        auto candidate=gridPathSpline(arc_path,start_vel,start_acc,
+                                     local_target_vel,pp_.ctrl_pt_dist,pp_.ctrl_pt_dist/pp_.max_vel_);
+        retimeStartContinuousSpline(candidate,start_pt,start_vel,pp_.max_vel_,pp_.max_acc_,start_acc);
+        bool free=true;
+        for (double t=0.; free; t=std::min(candidate.getTimeSum(),t+0.05))
+        {
+          const Eigen::Vector3d point=candidate.evaluateDeBoorT(t);
+          free=!planningBudgetExpired() && point.allFinite() && grid_map_->isInMap(point) &&
+               !grid_map_->getInflateOccupancy(point);
+          if (t>=candidate.getTimeSum()) break;
+        }
+        if (free && candidate.getTimeSum()<original_duration)
+        {
+          RCLCPP_INFO(node_->get_logger(), "Accepted arc-spaced detour: %.3f -> %.3f s",
+                      original_duration,candidate.getTimeSum());
+          pos=candidate;
+        }
       }
     }
+    catch (const std::invalid_argument &) { /* Retain the checked original below. */ }
 
-    // Derivative control points bound the entire spline, including the refined result.
-    const Eigen::MatrixXd vel_points = pos.getDerivative().getControlPoint();
-    const Eigen::MatrixXd acc_points = pos.getDerivative().getDerivative().getControlPoint();
-    double max_vel = 0.0, max_acc = 0.0;
-    for (int i = 0; i < vel_points.cols(); ++i)
-      max_vel = std::max(max_vel, vel_points.col(i).norm());
-    for (int i = 0; i < acc_points.cols(); ++i)
-      max_acc = std::max(max_acc, acc_points.col(i).norm());
-    const double time_scale = std::max({1.0, max_vel / pp_.max_vel_,
-                                       std::sqrt(max_acc / pp_.max_acc_)}) * 1.01;
-    if (!std::isfinite(time_scale) || time_scale > 5.0)
+    const double duration = pos.getTimeSum();
+    const double sample_dt = std::min(0.05, grid_map_->getResolution() /
+        (4.0 * std::max(pp_.max_vel_, 1e-3)));
+    if (!std::isfinite(duration) || duration <= 0.0 || duration / sample_dt > 20000)
     {
-      RCLCPP_ERROR(node_->get_logger(), "Rejecting trajectory with invalid motion limits");
       continous_failures_count_++;
       return false;
     }
-    if (time_scale > 1.01)
+    for (double t = 0.0; ; t = std::min(duration, t + sample_dt))
     {
-      Eigen::VectorXd knots = pos.getKnot();
-      const double start_knot = knots(3);
-      knots = ((knots.array() - start_knot) * time_scale + start_knot).matrix();
-      pos.setKnot(knots);
-      RCLCPP_WARN(node_->get_logger(), "Scaled trajectory time by %.3f to meet motion limits", time_scale);
+      const Eigen::Vector3d point = pos.evaluateDeBoorT(t);
+      if (!point.allFinite() || !grid_map_->isInMap(point) ||
+          grid_map_->getInflateOccupancy(point))
+      {
+        RCLCPP_WARN(node_->get_logger(), "Rejecting colliding final trajectory at t=%.3f", t);
+        continous_failures_count_++;
+        return false;
+      }
+      if (t >= duration) break;
     }
 
     // t_refine = ros::Time::now() - t_start;
     t_refine = node_->now() - t_start;
 
     // save planned results
+    if (planningBudgetExpired()) return false;
     updateTrajInfo(pos, node_->now());
 
     static double sum_time = 0;
@@ -395,6 +478,58 @@ namespace ego_planner
 
     // success. YoY
     continous_failures_count_ = 0;
+    return true;
+  }
+
+  bool EGOPlannerManager::gridFallbackReplan(const Eigen::Vector3d &start,
+      const Eigen::Vector3d &velocity, const Eigen::Vector3d &acceleration,
+      const Eigen::Vector3d &goal, const Eigen::Vector3d &goal_velocity)
+  {
+    if (planningBudgetExpired()) return false;
+    auto search = bspline_optimizer_->a_star_;
+    // A cell of extra horizontal clearance protects spline corner rounding.
+    // Live sensor occupancy plus the independent shared safety envelope.
+    search->setSearchMargin(1, std::abs(start.z()-goal.z()) < 0.15);
+    const double spacing=std::min(pp_.ctrl_pt_dist,grid_map_->getResolution()/2.0);
+    const double dt=spacing/pp_.max_vel_;
+    // A heading reversal needs a short forward prefix before the grid detour.
+    // Starting its control polygon backwards made a C1-continuous retime
+    // infeasible (or colliding) even when a safe turn exists.
+    const Eigen::Vector3d search_start = velocity.norm()>1e-4
+        ? Eigen::Vector3d(start+velocity.normalized()*(spacing+velocity.norm()*dt)) : start;
+    const bool found = search->AstarSearch(grid_map_->getResolution(), search_start, goal);
+    search->setSearchMargin(0, false);
+    if (!found || planningBudgetExpired()) return false;
+    auto path = search->getPath();
+    if (path.size() < 2 || path.size() > 2048) return false;
+    if ((path.front()-start).norm() > (path.back()-start).norm())
+      std::reverse(path.begin(),path.end());
+    path.front() = search_start;
+    path.back() = goal;
+    if ((search_start-start).norm()>1e-8) path.insert(path.begin(),start);
+    UniformBspline position = gridPathSpline(path,velocity,acceleration,goal_velocity,
+                                             spacing,dt);
+    try { retimeStartContinuousSpline(position,start,velocity,pp_.max_vel_,pp_.max_acc_,acceleration); }
+    catch (const std::invalid_argument &error) {
+      RCLCPP_WARN(node_->get_logger(), "Grid fallback retiming rejected: %s",error.what());
+      return false;
+    }
+    const double duration=position.getTimeSum();
+    for (double t=0.; ; t=std::min(duration,t+0.05))
+    {
+      const Eigen::Vector3d point=position.evaluateDeBoorT(t);
+      if (planningBudgetExpired() || !point.allFinite() || !grid_map_->isInMap(point) ||
+          grid_map_->getInflateOccupancy(point)) {
+        RCLCPP_WARN(node_->get_logger(), "Grid fallback rejected at t=%.3f XYZ=%.3f %.3f %.3f",t,point.x(),point.y(),point.z());
+        return false;
+      }
+      if (t >= duration) break;
+    }
+    if ((position.evaluateDeBoorT(0.)-start).norm()>1e-6 ||
+        (position.evaluateDeBoorT(duration)-goal).norm()>1e-6) return false;
+    RCLCPP_WARN(node_->get_logger(), "Accepted sensor-grid B-spline fallback: %ld controls, %.3f s",position.getControlPoint().cols(),duration);
+    updateTrajInfo(position,node_->now());
+    continous_failures_count_=0;
     return true;
   }
 

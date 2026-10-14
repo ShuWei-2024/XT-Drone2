@@ -85,9 +85,12 @@ class ExecutorTimingAudit:
         class Span:
             def __enter__(self):
                 self.wall=time.monotonic_ns();self.cpu=time.thread_time_ns()
+                self.wait=scheduler_wait_ns()
             def __exit__(self,*_):
+                finish_wait=scheduler_wait_ns()
                 audit.record(dict(label=label,wall_start_ns=self.wall,wall_end_ns=time.monotonic_ns(),
-                    wall_duration_ns=time.monotonic_ns()-self.wall,cpu_duration_ns=time.thread_time_ns()-self.cpu))
+                    wall_duration_ns=time.monotonic_ns()-self.wall,cpu_duration_ns=time.thread_time_ns()-self.cpu,
+                    scheduler_wait_ns=None if self.wait is None or finish_wait is None else finish_wait-self.wait))
         return Span()
 
     def restore(self):
