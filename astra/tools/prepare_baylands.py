@@ -118,7 +118,7 @@ def main():
     (model/'model.config').write_text('<model><name>Baylands park test patch</name><version>1</version><sdf version="1.9">model.sdf</sdf></model>\n')
     (model/'model.sdf').write_text('''<sdf version="1.9"><model name="astra_baylands"><static>true</static><link name="park">
 <collision name="collision"><geometry><mesh><uri>meshes/collision.stl</uri></mesh></geometry></collision>
-<visual name="visual"><geometry><mesh><uri>meshes/baylands.dae</uri></mesh></geometry><material><ambient>.5 .5 .5 1</ambient><diffuse>1 1 1 1</diffuse></material></visual>
+<visual name="visual"><geometry><mesh><uri>meshes/baylands.dae</uri></mesh></geometry><material><ambient>.5 .5 .5 1</ambient><diffuse>1 1 1 1</diffuse><pbr><metal><albedo_map>meshes/scan_color.png</albedo_map><metalness>0</metalness><roughness>1</roughness></metal></pbr></material></visual>
 </link></model></sdf>\n''')
     tree=ET.parse(REPO/'astra/packages/astra_gz_sensors/worlds/astra_px4_geometry_rich.sdf');world=tree.getroot().find('world')
     for m in list(world.findall('model')):
@@ -127,6 +127,20 @@ def main():
         world.find("model[@name='ground_plane']/link").remove(visual_node)
     include=ET.SubElement(world,'include');ET.SubElement(include,'uri').text='model://astra_baylands'
     ET.SubElement(include,'name').text='astra_baylands'
+    # The inherited test world has no lights. Explicit PBR also prevents the
+    # SDF colour override from replacing the COLLADA diffuse texture in Ogre2.
+    scene=ET.SubElement(world,'scene')
+    ET.SubElement(scene,'ambient').text='.4 .4 .4 1'
+    ET.SubElement(scene,'background').text='.65 .75 .85 1'
+    light=ET.SubElement(world,'light',name='astra_daylight',type='directional')
+    ET.SubElement(light,'cast_shadows').text='false'
+    ET.SubElement(light,'pose').text='0 0 10 0 0 0'
+    ET.SubElement(light,'diffuse').text='.9 .9 .9 1'
+    ET.SubElement(light,'specular').text='.1 .1 .1 1'
+    attenuation=ET.SubElement(light,'attenuation')
+    for name,value in [('range','1000'),('constant','1'),('linear','0'),('quadratic','0')]:
+        ET.SubElement(attenuation,name).text=value
+    ET.SubElement(light,'direction').text='-.4 .2 -1'
     tree.write(out/'world.sdf',encoding='utf-8',xml_declaration=True)
     (out/'LICENSE.txt').write_text('Baylands by Cole Biesemeyer / Open Robotics, Fuel model version 3.\n'
         'Source: '+URL+'\nLicense: Creative Commons Attribution 4.0 International\n'
@@ -134,6 +148,7 @@ def main():
     sha=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
     manifest=dict(scene='baylands',model_name='astra_baylands',source_url=URL,source_sha256=SHA,
         license='CC BY 4.0',native_spawn_xy=a.native_spawn_xy,floor_z=a.floor_z,
+        appearance='Explicit Ogre2 PBR colour atlas and directional daylight; flight retest required',
         translation_m=translation.tolist(),visual_faces=len(visual.faces),collision_faces=len(combined.faces),
         source_kind='public authored outdoor park model; not FAST-LIVO2 reconstruction or a claimed real scan',
         patch_width_m=70.,test_props=[dict(name='orange test barrier',centre=[3.5,0,1.1],size=[.8,3,2.2])],
