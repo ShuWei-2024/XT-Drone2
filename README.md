@@ -1,12 +1,18 @@
 # Astra · ROS 2 自主飞行仿真
 
-基于 [ShuWei-2024/XT-Drone2](https://github.com/ShuWei-2024/XT-Drone2)，集成等效 Mid-360 / RGB / IMU、FAST-LIVO2、局部地图、EGO-Planner 和受保护的 PX4 Offboard 执行链。当前开发分支：`astra/px4-1.17`。
+基于 ShuWei-2024/XT-Drone2，面向无人机定位、建图、规划与闭环飞行验证。开发分支：`astra/px4-1.17`。
 
-**[文档索引](docs/README.md) · [安装与快速启动](docs/QUICKSTART.md) · [操作指南](docs/OPERATIONS.md) · [AI 接手上下文](docs/PROJECT_CONTEXT.md)**
+环境：Ubuntu 24.04 · ROS 2 Jazzy · Gazebo Harmonic · PX4 v1.17.0。
 
-## 完整启动：RViz2 航点飞行 + Gazebo 窗口
+```text
+Mid-360 / RGB / IMU → FAST-LIVO2 → 局部地图 → EGO-Planner → PX4 Offboard
+```
 
-首次使用先完成 [依赖安装、构建和地图准备](docs/QUICKSTART.md)。已部署的电脑在新终端执行：
+FAST-LIVO2 可通过 External Vision 向 PX4 提供 XY/Z 位置观测。
+
+## 启动使用
+
+已完成依赖安装、构建和地图准备后，在新终端执行：
 
 ```bash
 cd ~/dev/XT-Drone2-astra
@@ -14,75 +20,50 @@ bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
   --external-vision
 ```
 
-这条命令启动 PX4、传感器、FAST-LIVO2、局部地图、EGO-Planner 和执行保护，**自动打开 RViz2 与中文航点窗口**，不用逐个启动模块。运行名称自动带时间戳，避免重复。
+自动启动完整链路，打开 **RViz2 和中文航点窗口**。本机已复测的彩色地图目录为 `astra/runtime/maps/baylands_park_coloured`，使用时在命令末尾追加 `--scan-dir astra/runtime/maps/baylands_park_coloured`。新生成的默认地图已含颜色修复。
 
-**本机保留了旧灰色默认地图，使用下面这条替代上面的启动命令，选择已复测的彩色地图：**
-
-```bash
-cd ~/dev/XT-Drone2-astra
-bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
-  --scan-dir astra/runtime/maps/baylands_park_coloured \
-  --external-vision
-```
-
-`baylands_park_coloured` 是本机另行生成的目录，不随 Git 下载；新电脑按教程准备的默认 `baylands_park` 已含颜色修复，使用第一条即可。旧生成资源不会因 `git pull` 自动更新。
-
-**另开终端，打开 Gazebo 场景窗口：**
+另开终端，打开 **Gazebo 窗口**：
 
 ```bash
 GZ_PARTITION=astra_px4_117 gz sim -g
 ```
 
-等待任务窗口显示 **READY**，在 RViz2 按 **G / 2D Goal Pose** 点选 XY 航点，选择末点动作，再点击 **开始任务**。启动后不会自动起飞。RViz2 显示三维地图与规划轨迹，Gazebo 显示仿真飞机与场景。
+等任务窗口显示 **READY**，在 RViz2 按 **G** 点选航点，选择末点降落或悬停，再点击 **开始任务**。支持多个航点、空中追加和暂停/继续；启动后不会自动起飞。结束时点击降落，等待落地上锁和进程清理。一次只运行一套仿真。
 
-支持多航点、暂停/继续、空中追加、末点降落或有时限悬停；结束时点降落，等落地上锁和运行器清理。一次只运行一套仿真。操作细节见 [地图航点指南](docs/OPERATIONS.md#rviz2-交互任务)。
+室内 Replica office4 已准备好时，可改用 `bash astra/rviz_flight_117.bash`。
 
-室内 Replica office4 地图准备完成后，也可使用 `bash astra/rviz_flight_117.bash`。
+## 构建与测试
 
-## 环境
-
-| 组件 | 版本 |
-| --- | --- |
-| 操作系统 | Ubuntu 24.04 |
-| ROS / 仿真器 | ROS 2 Jazzy / Gazebo Harmonic |
-| 飞控 / ROS 消息 | PX4 v1.17.0 / 固定版本 px4_msgs |
-| 定位 / 规划 | FAST-LIVO2 ROS 2 移植 / EGO-Planner Jazzy 核心 |
-
-准确提交与补丁见 [依赖锁](astra/dependencies.lock.json)。地图、大型日志和构建缓存在本机生成，不随 Git 下载。
-
-## 工作流程
-
-```mermaid
-flowchart LR
-    S[Gazebo LiDAR / RGB / IMU] --> L[FAST-LIVO2]
-    L --> M[保护局部地图]
-    M --> P[EGO-Planner]
-    P --> B[轨迹预览与执行保护]
-    B --> F[PX4 Offboard]
-    F --> S
-    L -. 可选 External Vision XY/Z .-> F
-```
-
-RViz2 提供三维显示和多航点任务界面；Gazebo 显示实际仿真运动。定位、传感器障碍图与已知几何安全边界的职责见 [架构说明](docs/ARCHITECTURE.md)。
-
-## 快速入口
-
-首次使用先完成 [依赖安装、PX4/Agent 构建和地图准备](docs/QUICKSTART.md)，再在仓库根目录运行：
+首次部署须先安装依赖、准备 PX4/DDS Agent 和地图，步骤见下方文档索引中的安装教程。构建命令在仓库根目录执行：
 
 ```bash
 bash astra/build_px4_117.bash
 bash astra/build_117.bash
-bash astra/run_117.bash static static_check_01 --seconds 60
 ```
 
-## 验证状态
+在新终端加载环境，运行回归与 60 秒静止检查：
 
-截至 2026-10-14，已完成室内扫描场景、室外箱体/圆柱绕障及部分长路线闭环验证。最新东侧八航点实际飞行 **64.91 m**，通过完整精度和安全审计；FAST-LIVO2 真值 XY/Z p95 为 **0.0433 / 0.0216 m**。
+```bash
+cd ~/dev/XT-Drone2-astra
+source astra/env_117.bash
+python3 -m pytest -q astra/validation \
+  astra/packages/astra_px4_offboard/test astra/packages/astra_fast_livo2/test
+ctest --test-dir build_117/astra_fast_livo2_core --output-on-failure
+bash astra/run_117.bash static static_$(date +%Y%m%d_%H%M%S) --seconds 60
+```
 
-**重复稳定性尚未通过**：同配置东侧复测首段被拒绝；西侧八航点完成，但一处终点误差超过门槛；树旁路线出现高度漂移与长绕行超时。宽范围长期内存、跨地图通用性和真实硬件尚未认证。结果与失败证据统一见 [验证索引](astra/validation/README.md)。
+静止检查不解锁；回归测试不能替代闭环飞行验收。地图、日志和构建产物在本机生成，不随 Git 下载。
 
-## 开发与许可
+## 当前状态
 
-代码位于 `astra/packages/`，运行/审计工具位于 `astra/tools/`。构建、回归、提交规则见 [开发指南](docs/DEVELOPMENT.md)。给其他 AI 接手时，先提供 [项目上下文](docs/PROJECT_CONTEXT.md)，再按索引读取相关模块。
+室内指定路线、室外箱体/圆柱绕障及部分长路线已完成闭环验证。彩色场景复测通过，暂不需要因颜色修复重调 FAST-LIVO2。
 
-保留 XT-Drone2 的 [MIT 许可](LICENSE) 和 [上游介绍](docs/README.upstream.md)；EGO-Planner 保留 GPL-3.0，各依赖及地图遵循各自许可，详见开发指南。
+重复稳定性仍未通过：扩大区域有偶发规划失败，树旁存在高度漂移和长绕行问题。跨地图、宽范围长期运行和真实硬件尚未认证。具体指标及失败记录保留在验证报告中。
+
+## 文档索引
+
+**[进入文档索引](docs/README.md)**：安装教程、操作说明、模块架构、开发规范、验证报告与人员/AI 接手上下文。
+
+## 许可
+
+框架保留 MIT 许可；EGO-Planner 使用 GPL-3.0，其余依赖与地图遵循各自许可。来源和许可明细见开发文档，不能将整个集成统一视为 MIT。
