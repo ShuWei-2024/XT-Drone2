@@ -88,15 +88,28 @@ astra/runtime/map_tools_venv/bin/python -m pip install \
 astra/runtime/map_tools_venv/bin/python astra/tools/prepare_baylands.py
 ```
 
-下载包约 150.7 MB，转换另需内存和磁盘空间。程序拒绝覆盖已有输出；已有完整场景无需重建。下载中断可重用缓存，转换失败则先检查输出并保留诊断，再选择新输出目录。
+下载包约 150.7 MB，转换另需内存和磁盘空间。程序拒绝覆盖已有输出。新生成场景包含彩色纹理和灯光；旧生成目录不会随代码更新自动改变外观。下载中断可重用缓存，转换失败则先检查输出并保留诊断，再选择新输出目录。
 
 启动三维交互任务：
 
 ```bash
-bash astra/rviz_outdoor_117.bash outdoor_demo_01 --external-vision
+bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
+  --external-vision
 ```
 
-默认开放起飞点 10 m 内满足下降净空的区域，不代表整张地图已验证。EV 是可选 XY/Z 位置融合；不加该参数时关闭。操作见 [操作指南](OPERATIONS.md)。
+命令自动启动完整飞行链、RViz2 和中文航点窗口；等待 READY、添加目标并点击开始后才起飞。
+Gazebo 场景窗口另开终端执行 `GZ_PARTITION=astra_px4_117 gz sim -g`，详见第 8 节。
+默认开放起飞点 10 m 内满足下降净空的区域，不代表整张地图已验证。EV 是可选 XY/Z 位置融合；不加该参数时关闭。
+
+本机已准备独立彩色目录时，用以下命令替代上面的启动命令：
+
+```bash
+bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
+  --scan-dir astra/runtime/maps/baylands_park_coloured \
+  --external-vision
+```
+
+该目录不随 Git 下载；新电脑使用本节刚生成的默认地图即可。操作见 [操作指南](OPERATIONS.md)。
 
 ## 7. 可选：真实室内扫描场景
 

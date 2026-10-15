@@ -6,10 +6,30 @@
 
 ```bash
 # 使用已准备的地图；运行名称每次不同。
-bash astra/rviz_outdoor_117.bash outdoor_demo_01 --external-vision
+cd ~/dev/XT-Drone2-astra
+bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
+  --external-vision
 # 或室内 office4
-bash astra/rviz_flight_117.bash indoor_demo_01
+bash astra/rviz_flight_117.bash
 ```
+
+启动器自动打开 RViz2 和中文航点窗口，同时启动完整定位、建图、规划和 PX4 链路。
+另开终端显示 Gazebo：
+
+```bash
+GZ_PARTITION=astra_px4_117 gz sim -g
+```
+
+本机保留旧灰色默认地图时，用下面这条替代室外启动命令，使用已复测的独立彩色目录：
+
+```bash
+cd ~/dev/XT-Drone2-astra
+bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
+  --scan-dir astra/runtime/maps/baylands_park_coloured \
+  --external-vision
+```
+
+新电脑按快速启动生成的默认地图已含颜色修复，无需这个额外目录。每次只启动一套仿真。
 
 1. 等待起飞前检查通过，任务窗口显示 READY；此时飞机仍未解锁。
 2. 在可旋转的三维视图中用 **2D Goal Pose / G** 选 XY，或在中文窗口输入坐标；检查航点队列。

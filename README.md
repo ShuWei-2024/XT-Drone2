@@ -4,6 +4,41 @@
 
 **[文档索引](docs/README.md) · [安装与快速启动](docs/QUICKSTART.md) · [操作指南](docs/OPERATIONS.md) · [AI 接手上下文](docs/PROJECT_CONTEXT.md)**
 
+## 完整启动：RViz2 航点飞行 + Gazebo 窗口
+
+首次使用先完成 [依赖安装、构建和地图准备](docs/QUICKSTART.md)。已部署的电脑在新终端执行：
+
+```bash
+cd ~/dev/XT-Drone2-astra
+bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
+  --external-vision
+```
+
+这条命令启动 PX4、传感器、FAST-LIVO2、局部地图、EGO-Planner 和执行保护，**自动打开 RViz2 与中文航点窗口**，不用逐个启动模块。运行名称自动带时间戳，避免重复。
+
+**本机保留了旧灰色默认地图，使用下面这条替代上面的启动命令，选择已复测的彩色地图：**
+
+```bash
+cd ~/dev/XT-Drone2-astra
+bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
+  --scan-dir astra/runtime/maps/baylands_park_coloured \
+  --external-vision
+```
+
+`baylands_park_coloured` 是本机另行生成的目录，不随 Git 下载；新电脑按教程准备的默认 `baylands_park` 已含颜色修复，使用第一条即可。旧生成资源不会因 `git pull` 自动更新。
+
+**另开终端，打开 Gazebo 场景窗口：**
+
+```bash
+GZ_PARTITION=astra_px4_117 gz sim -g
+```
+
+等待任务窗口显示 **READY**，在 RViz2 按 **G / 2D Goal Pose** 点选 XY 航点，选择末点动作，再点击 **开始任务**。启动后不会自动起飞。RViz2 显示三维地图与规划轨迹，Gazebo 显示仿真飞机与场景。
+
+支持多航点、暂停/继续、空中追加、末点降落或有时限悬停；结束时点降落，等落地上锁和运行器清理。一次只运行一套仿真。操作细节见 [地图航点指南](docs/OPERATIONS.md#rviz2-交互任务)。
+
+室内 Replica office4 地图准备完成后，也可使用 `bash astra/rviz_flight_117.bash`。
+
 ## 环境
 
 | 组件 | 版本 |
@@ -39,27 +74,6 @@ bash astra/build_px4_117.bash
 bash astra/build_117.bash
 bash astra/run_117.bash static static_check_01 --seconds 60
 ```
-
-## RViz2 三维地图与航点
-
-地图准备完成后，在仓库根目录运行以下任一入口。省略运行名称时会自动生成时间戳，适合日常打开界面：
-
-```bash
-# 室外公园：三维地图、机载图像、多航点任务
-bash astra/rviz_outdoor_117.bash
-# 室内真实扫描场景：Replica office4
-bash astra/rviz_flight_117.bash
-```
-
-室外任务可显式启用 External Vision 位置融合，运行名称每次不同：
-
-```bash
-bash astra/rviz_outdoor_117.bash outdoor_demo_01 --external-vision
-```
-
-等待 READY，用 **2D Goal Pose / G** 点选 XY 或在中文窗口输入坐标，点击“开始任务”后才起飞。支持连续航点、暂停/继续、末点降落或悬停等待追加目标。显示是可旋转的三维视图；按钮名称中的 2D 表示选取 XY。详见 [地图航点操作指南](docs/OPERATIONS.md#rviz2-交互任务)。
-
-脚本、配置与任务控制代码随仓库上传；大型地图资源不上传，新电脑需按 [快速启动](docs/QUICKSTART.md) 准备地图。
 
 ## 验证状态
 
