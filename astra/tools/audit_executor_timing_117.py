@@ -19,6 +19,8 @@ def audit(root):
         scope='Flight execution only; batch metrics cover the retained tail, not the entire flight. '
               'CPU fraction is receive-batch thread CPU / elapsed tail wall time, not total host CPU. '
               'Independent callback time differences are scheduling/transport proxies, not DDS queue latency.')
+    report['gc_statistics']=trace.get('gc_statistics',{})
+    report['gc_tail']=trace.get('gc_tail',[])
     if not start or not stop:return report
     lo,hi=start['wall_ns'],stop['wall_ns']
     batches=[b for b in trace['batch_tail'] if lo<=b['wall_start_ns'] and b['wall_end_ns']<=hi]

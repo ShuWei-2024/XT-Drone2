@@ -83,8 +83,8 @@ def main():
                    help='Reserve two physical CPU cores for FAST-LIVO2, pin owned simulation processes separately')
     p.add_argument('--endpoint-hold-seconds',type=float,default=3.,
                    help='Obstacle mode: guarded final hover for SITL recording, 3..300 seconds')
-    p.add_argument('--execution-executor',choices=['ready-batch','events'],default='ready-batch',
-                   help='Optional experimental Jazzy event executor; isolated obstacle SITL only')
+    p.add_argument('--execution-executor',choices=['ready-batch','events'],
+                   help='Whole-map obstacle SITL defaults to events; other scenes use ready-batch. Explicit choice overrides the default')
     p.add_argument('--route-json',type=Path,
                    help='Obstacle test goal offsets; up to 8 goals, each bounded to 7 m')
     p.add_argument('--rviz-goal',action='store_true',
@@ -167,6 +167,20 @@ def main():
                 hashlib.sha256((replica_dir/'mesh_guard.npz').read_bytes()).hexdigest()!=flight_precheck['guard_sha256']):
                 p.error('Prepared route or guard differs from the flight precheck')
         except (OSError,ValueError) as exc:p.error('Prepare scan flight first: '+str(exc))
+    if a.execution_executor is None:
+        a.execution_executor=('events' if is_outdoor and a.mode=='obstacle' and
+                              flight_precheck.get('whole_map_selection',False) else 'ready-batch')
+    if a.execution_executor=='events':
+        # Check the optional installed ROS capability before any simulator or
+        # arming. Do not discover a missing executor after takeoff, or silently
+        # fall back to the receiver that timed out on this prepared scene.
+        try:
+            from rclpy.experimental.events_executor import EventsExecutor
+            from rclpy.impl.implementation_singleton import rclpy_implementation
+            if not hasattr(rclpy_implementation,'EventsExecutor'):
+                raise ImportError('rclpy C++ EventsExecutor unavailable')
+        except ImportError as exc:
+            p.error('Event executor unavailable; update ROS 2 Jazzy or explicitly select --execution-executor ready-batch: '+str(exc))
     takeoff_height_m=flight_precheck.get('takeoff_height_m',1.7) if is_scan and a.mode=='obstacle' else 1.7
     if not isinstance(takeoff_height_m,(int,float)) or isinstance(takeoff_height_m,bool) or not math.isfinite(takeoff_height_m) or not .8<=takeoff_height_m<=1.7:
         p.error('Prepared takeoff height must be finite and in [0.8,1.7] metres')
@@ -335,6 +349,7 @@ def main():
     planner_speed=.10 if is_scan and not is_outdoor else .20
     planner_acceleration=.10 if is_scan and not is_outdoor else .25
     runtime={'mode':a.mode,'world':str(world),'px4':str(PX4),'namespace':'x500_0',
+             'execution_executor':a.execution_executor,
              'external_vision_enabled':a.external_vision,
              'disarmed_gnss_origin_initialization':bool(a.external_vision and outdoor_config and
                                                        outdoor_config.get('transit_enabled')),

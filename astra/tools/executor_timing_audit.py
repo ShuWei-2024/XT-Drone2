@@ -1,5 +1,6 @@
 """Bounded diagnostic tracing; timestamps are evidence, never flight inputs."""
 from collections import defaultdict, deque
+import gc
 import json
 from pathlib import Path
 import time
@@ -26,6 +27,27 @@ class ExecutorTimingAudit:
         self.slow=deque(maxlen=1024)
         self.stats=defaultdict(lambda:dict(count=0,total_wall_ns=0,total_cpu_ns=0,max_wall_ns=0))
         self.installed=[]
+        self.gc_events=deque(maxlen=256)
+        self.gc_stats=defaultdict(lambda:dict(count=0,total_wall_ns=0,max_wall_ns=0))
+        self.gc_starts={}
+        self._gc_callback=self._record_gc
+
+    def _record_gc(self,phase,info):
+        generation=info['generation']
+        if phase=='start':
+            self.gc_starts[generation]=(time.monotonic_ns(),time.thread_time_ns())
+        elif phase=='stop':
+            start=self.gc_starts.pop(generation,None)
+            if start is None:return
+            cpu_end=time.thread_time_ns()
+            end=time.monotonic_ns()
+            row=dict(generation=generation,wall_start_ns=start[0],wall_end_ns=end,
+                     wall_duration_ns=end-start[0],cpu_duration_ns=cpu_end-start[1],
+                     collected=info['collected'],uncollectable=info['uncollectable'])
+            self.gc_events.append(row)
+            stats=self.gc_stats[generation]
+            stats['count']+=1;stats['total_wall_ns']+=row['wall_duration_ns']
+            stats['max_wall_ns']=max(stats['max_wall_ns'],row['wall_duration_ns'])
 
     def record(self,row):
         self.tail.append(row)
@@ -36,6 +58,7 @@ class ExecutorTimingAudit:
         if row.get('topic')=='/fast_livo2/odom':self.odom_callbacks.append(row)
 
     def install(self,node,with_metadata=True):
+        if self._gc_callback not in gc.callbacks:gc.callbacks.append(self._gc_callback)
         for sub in node.subscriptions:
             original=sub.callback;topic=sub.topic_name
             label=node.get_name()+':'+topic
@@ -94,10 +117,12 @@ class ExecutorTimingAudit:
         return Span()
 
     def restore(self):
+        if self._gc_callback in gc.callbacks:gc.callbacks.remove(self._gc_callback)
         for entity,callback in self.installed:entity.callback=callback
         self.installed.clear()
 
     def save(self,path):
         Path(path).write_text(json.dumps(dict(scope='Diagnostic only; original queue depths and flight gates retained',
             callback_statistics=dict(self.stats),tail=list(self.tail),batch_tail=list(self.batch_tail),
-            slow_callbacks=list(self.slow),odom_callbacks=self.odom_callbacks),indent=2)+'\n')
+            slow_callbacks=list(self.slow),odom_callbacks=self.odom_callbacks,
+            gc_statistics=dict(self.gc_stats),gc_tail=list(self.gc_events)),indent=2)+'\n')

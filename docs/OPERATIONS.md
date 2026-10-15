@@ -66,6 +66,8 @@ bash astra/run_117.bash obstacle outdoor_route_01 \
 
 `small` 使用原生 NED 小范围测试，`obstacle` 才执行 EGO 轨迹。EV 默认关闭，加入 `--external-vision` 启用 XY/Z 融合，yaw/速度不融合。`--executor-audit` 记录回调调度；CPU 隔离是仿真调度测试配置，不代表实物优化已完成。
 
+全图准备场景的 `obstacle` 模式默认使用 Jazzy 事件执行器，减少接收积压；其他场景默认不变。可用 `--execution-executor ready-batch` 显式回退。依赖能力在仿真启动前检查，实际选择写入运行记录。验证及限制见[接收积压复测](../astra/validation/WHOLE_MAP_RECEIVER_117.md)。
+
 小范围入口允许到位后观察，不宣称已通过“连续 4 秒严格稳定悬停”认证。不要把普通 hold 段与严格稳定 hold 混写。
 
 ## 扩大场景
