@@ -70,6 +70,8 @@ def validate_goal(frame, stamp_ns, now_ns, xyz, origin, height_m, guard,
         raise ValueError('Goal lacks 0.10 m descent-region reserve')
     if planning_envelope is not None and not planning_envelope.contains(xyz[:2]):
         raise ValueError('Goal is outside the shared planning/execution envelope')
+    if planning_envelope is not None and not planning_envelope.guide_contains(xyz[:2]):
+        raise ValueError('Goal lacks planner detour reserve; select farther inside the safe region')
     # Published maps run at 2 Hz and use the map node's 1 s validity limit.
     # The flight supervisor still checks odom/readiness within 250 ms.
     if not math.isfinite(obstacle_age_s) or not 0 <= obstacle_age_s <= 1.:

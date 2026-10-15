@@ -36,6 +36,7 @@
 | 室外地图来源、准备与范围 | [Baylands 公园](../astra/validation/OUTDOOR_PARK_117.md) |
 | 室内真实扫描地图与绕障 | [Replica office4](../astra/validation/REAL_SCAN_AVOIDANCE_117.md) |
 | RViz2 三维多航点交互 | [交互飞行验收](../astra/validation/RVIZ_GOAL_FLIGHT_117.md) |
+| 点选后起飞但没有横向轨迹 | [边缘航点诊断与准入修复](../astra/validation/RVIZ_EDGE_GOAL_117.md) |
 | 彩色场景复测 | [定位、延迟与箱体绕障](../astra/validation/APPEARANCE_RETEST_117.md) |
 | odom 延迟分解 | [处理、传输与接收审计](../astra/validation/ODOM_DELAY_117.md) |
 | 共享路线边界与 EV | [边界与融合验证](../astra/validation/SHARED_ENVELOPE_EV_117.md) |

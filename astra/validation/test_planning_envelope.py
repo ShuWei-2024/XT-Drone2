@@ -37,6 +37,22 @@ def test_curve_bulge_is_checked_between_endpoints():
     with pytest.raises(ValueError): e.validate_spline(spline)
 
 
+def test_guide_endpoint_mask_matches_planner_square_neighbourhood():
+    e=PlanningEnvelope([[[0,0],[5,5]]],[[0,0],[5,5]],[10,-10])
+    padding=2  # guarded planner 0.20 m grid / 0.10 m envelope cells
+    original=e.free.copy()
+    for y in range(e.free.shape[0]):
+        for x in range(e.free.shape[1]):
+            expected=(x>=padding and y>=padding and
+                      x+padding<e.free.shape[1] and y+padding<e.free.shape[0] and
+                      e.free[y-padding:y+padding+1,x-padding:x+padding+1].all())
+            xy=e.origin+(np.array([x,y])+.5)*e.resolution
+            assert e.guide_contains(xy)==bool(expected)
+    assert np.array_equal(e.free,original)  # published/curve-check mask unchanged
+    for xy in [[float('nan'),0],[10],[-100,100]]:
+        assert not e.guide_contains(xy)
+
+
 @pytest.mark.parametrize('origin', [[np.nan, 0], [0]])
 def test_invalid_reference(origin):
     with pytest.raises(ValueError): PlanningEnvelope([[[0, 0], [4, 4]]], [[0, 0], [4, 4]], origin)

@@ -5,7 +5,7 @@ reference is frozen from ground odometry at the known zero-yaw SITL spawn.
 """
 import math
 import numpy as np
-from scipy.ndimage import distance_transform_edt
+from scipy.ndimage import distance_transform_edt, minimum_filter
 
 
 class PlanningEnvelope:
@@ -34,12 +34,27 @@ class PlanningEnvelope:
         # bound before reserving tracking/forecast space.
         distance = distance_transform_edt(np.pad(free, 1))[1:-1, 1:-1]*resolution
         self.free = free & (distance >= reserve+math.sqrt(2)*resolution)
+        # Match GridMap::executionEnvelopeGuide's square erosion. The guarded
+        # launch fixes planner grid resolution at 0.20 m. Keep the published
+        # envelope unchanged; this additional mask is for destination admission.
+        self.guide_padding_m = .2
+        padding = math.ceil(self.guide_padding_m/resolution)
+        self.guide_free = minimum_filter(self.free, size=2*padding+1,
+                                         mode='constant', cval=0)
 
     def contains(self, xy):
         xy = np.asarray(xy, float)
         if xy.shape != (2,) or not np.isfinite(xy).all(): return False
         x, y = np.floor((xy-self.origin)/self.resolution).astype(int)
         return bool(0 <= y < self.free.shape[0] and 0 <= x < self.free.shape[1] and self.free[y, x])
+
+    def guide_contains(self, xy):
+        """Require the same endpoint padding as the planner's detour search."""
+        xy = np.asarray(xy, float)
+        if xy.shape != (2,) or not np.isfinite(xy).all(): return False
+        x, y = np.floor((xy-self.origin)/self.resolution).astype(int)
+        return bool(0 <= y < self.guide_free.shape[0] and
+                    0 <= x < self.guide_free.shape[1] and self.guide_free[y, x])
 
     def rectangle_free(self, lo, hi):
         lo, hi = np.asarray(lo), np.asarray(hi)

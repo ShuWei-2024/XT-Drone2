@@ -103,6 +103,8 @@ class Controls(QtWidgets.QWidget):
                   'cruise_settle':'巡航准备', 'initial_yaw_agreement':'检查航向对齐',
                   'endpoint_hold':'到点保持', 'fault_hold':'中止并保持'}
         messages={'READY: add waypoints, then press Start':'已就绪：添加航点后点击开始任务',
+                  'REJECTED: Goal lacks planner detour reserve; select farther inside the safe region':
+                  '航点太靠近安全区域边缘，规划器无法接收；请向区域内部重新选点',
                   'Starting mission':'任务已开始，准备起飞',
                   'Flying: additional waypoints join the queue':'正在飞行，可追加后续航点',
                   'Waiting for another waypoint':'已到点：追加航点后继续飞行',

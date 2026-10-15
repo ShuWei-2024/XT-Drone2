@@ -38,6 +38,21 @@ def test_click_rejected_before_takeoff_if_only_old_descent_reserve_passes():
     assert select(guard=g,planning_envelope=envelope)==pytest.approx([1.2,-.5])
 
 
+def test_click_rejected_before_takeoff_when_planner_endpoint_padding_blocks_it():
+    g=guard()
+    envelope=PlanningEnvelope(g.recovery_boxes,[[0,-2],[3,1]],[.2,-.1])
+    # A point can pass the published envelope while its planner search square
+    # overlaps a blocked cell. Reject at click time, before arming or queuing.
+    candidates=np.argwhere(envelope.free & ~envelope.guide_free)
+    assert len(candidates)
+    y,x=candidates[len(candidates)//2]
+    xy=envelope.origin+(np.array([x,y])+.5)*envelope.resolution
+    assert envelope.contains(xy) and not envelope.guide_contains(xy)
+    with pytest.raises(ValueError,match='planner detour reserve'):
+        select(xyz=[*xy,0.],guard=g,planning_envelope=envelope)
+    assert select(guard=g,planning_envelope=envelope)==pytest.approx([1.2,-.5])
+
+
 @pytest.mark.parametrize('overrides',[
     {'frame':'map'}, {'stamp_ns':0}, {'stamp_ns':7_000_000_000},
     {'stamp_ns':10_010_000_000},{'xyz':[float('nan'),0,0]},
