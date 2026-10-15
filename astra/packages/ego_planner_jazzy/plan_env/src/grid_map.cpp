@@ -101,9 +101,17 @@ void GridMap::initMap(rclcpp::Node::SharedPtr node)
         if (envelope_fault_ || !valid || (envelope_ && (envelope_->data != msg->data ||
             envelope_->info != g))) {
           envelope_.reset();
+          envelope_search_cells_.clear();
           envelope_fault_ = true;
           RCLCPP_ERROR(node_->get_logger(), "Invalid or changed frozen execution envelope; blocking planning");
           return;
+        }
+        if (!envelope_) {
+          const auto begin=std::chrono::steady_clock::now();
+          envelope_search_cells_=astra::envelopeSearchCells(msg->data,g.width,g.height,
+              std::ceil(mp_.resolution_/g.resolution));
+          RCLCPP_INFO(node_->get_logger(), "Frozen shared-envelope search mask prepared: %.3f ms",
+              std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count());
         }
         envelope_ = msg;
         RCLCPP_INFO(node_->get_logger(), "Shared execution envelope accepted: %u x %u", g.width, g.height);
@@ -851,20 +859,15 @@ bool GridMap::executionEnvelopeGuide(const Eigen::Vector3d &start, const Eigen::
            static_cast<uint32_t>(std::floor((p.x()-g.origin.position.x)/g.resolution));
   };
   const auto deadline=std::chrono::steady_clock::now()+std::chrono::milliseconds(20);
-  auto search_cells=envelope_->data;
-  const int padding=std::ceil(mp_.resolution_/g.resolution);
-  for (int y=0; y<int(g.height); ++y)
-    for (int x=0; x<int(g.width); ++x) {
-      if ((y*g.width+x)%1024 == 0 && std::chrono::steady_clock::now()>=deadline) return false;
-      if (search_cells[y*g.width+x] != 0) continue;
-      for (int dy=-padding; dy<=padding; ++dy)
-        for (int dx=-padding; dx<=padding; ++dx)
-          if (x+dx<0 || y+dy<0 || x+dx>=int(g.width) || y+dy>=int(g.height) ||
-              envelope_->data[(y+dy)*g.width+x+dx] != 0) search_cells[y*g.width+x]=100;
-    }
-  const auto cells = astra::envelopePath(search_cells, g.width, g.height,
+  const auto cells = astra::envelopePath(envelope_search_cells_, g.width, g.height,
     address(start), address(goal), deadline);
-  if (cells.empty()) return false;
+  if (cells.empty()) {
+    RCLCPP_WARN(node_->get_logger(), "Shared-envelope search failed: budget_expired=%d; start_clear=%d; goal_clear=%d",
+        std::chrono::steady_clock::now()>=deadline,
+        !envelope_search_cells_.empty() && envelope_search_cells_[address(start)]==0,
+        !envelope_search_cells_.empty() && envelope_search_cells_[address(goal)]==0);
+    return false;
+  }
   path.push_back(start);
   for (size_t i=0; i<cells.size(); ++i) {
     // Keep only direction changes; each retained line covers the same free cells.

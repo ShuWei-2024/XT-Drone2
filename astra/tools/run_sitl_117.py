@@ -189,7 +189,7 @@ def main():
             or not 100.<=planner_leg_timeout_s<=500.):p.error('Prepared planner leg timeout must be in [100,500] seconds')
     flight_timeout=(max(330.,150.+planner_leg_timeout_s*(len(route_offsets)+(a.end_action=='return_home')))+a.endpoint_hold_seconds-3.
                     if a.mode=='obstacle' else 330.)
-    if a.rviz_goal:flight_timeout=150.+8.*(100.+120.)
+    if a.rviz_goal:flight_timeout=150.+9.*(planner_leg_timeout_s+120.)
     if a.stop_map_after_handoff_s is not None and (a.mode!='obstacle' or
             not 1. <= a.stop_map_after_handoff_s <= 10.):
         p.error('Map-stop regression requires obstacle mode and a delay of 1..10 seconds')
@@ -204,7 +204,8 @@ def main():
     if os.environ.get('ASTRA_117_ENV_LOADED')!='1':p.error('Use astra/run_117.bash to load the isolated ROS environment')
     if subprocess.check_output(['git','rev-parse','HEAD'],cwd=PX4,text=True).strip() != json.loads((REPO/'astra/dependencies.lock.json').read_text())['px4']['commit']:
         p.error('PX4 commit differs from the lock file')
-    for patch in ('astra/baseline/px4_1_15_3_hrt.patch','astra/config/px4_117_gz_magnetometer.patch'):
+    for patch in ('astra/baseline/px4_1_15_3_hrt.patch','astra/config/px4_117_gz_magnetometer.patch',
+                  'astra/config/px4_117_dds_local_position.patch'):
         if subprocess.run(['git','apply','--reverse','--check',str(REPO/patch)],cwd=PX4,
                           stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode:
             p.error('Required isolated SITL patch absent or changed: '+patch)
@@ -323,18 +324,20 @@ def main():
         # altitude. PX4 defaults (60/30 m) are inappropriate for this volume.
         overrides.update(RTL_RETURN_ALT=takeoff_height_m, RTL_DESCEND_ALT=takeoff_height_m,
                          RTL_CONE_ANG=0, RTL_MIN_DIST=.5, RTL_LAND_DELAY=0,
-                         RTL_TYPE=0, RTL_PLD_MD=0, NAV_ACC_RAD=.2, MPC_XY_CRUISE=.3,
-                         EKF2_HGT_REF=1)
-        # PX4 1.17's GNSS reference initializes the absolute altitude origin
-        # even with GPS altitude fusion disabled (GPS_CTRL=5). Vision still
-        # fuses local height. Without an absolute origin gpos.alt_valid=false,
-        # and Commander correctly refuses RTL (confirmed in first trial).
+                         RTL_TYPE=0, RTL_PLD_MD=0, NAV_ACC_RAD=.2, MPC_XY_CRUISE=.3)
+        # Preserve EV as height reference. Selecting GNSS just to initialize
+        # altitude made EV height bias adapt to the barometer (GPS height off).
+        # Establish the missing absolute origin separately, disarmed and only
+        # after EV fusion starts, before the flight supervisor freezes home.
+        if not a.external_vision:overrides['EKF2_HGT_REF']=1
     env.update({f'PX4_PARAM_{key}':str(value) for key,value in overrides.items()})
     startup.write_text('. "${R}etc/init.d-posix/rcS"\n')
     planner_speed=.10 if is_scan and not is_outdoor else .20
     planner_acceleration=.10 if is_scan and not is_outdoor else .25
     runtime={'mode':a.mode,'world':str(world),'px4':str(PX4),'namespace':'x500_0',
              'external_vision_enabled':a.external_vision,
+             'disarmed_gnss_origin_initialization':bool(a.external_vision and outdoor_config and
+                                                       outdoor_config.get('transit_enabled')),
              'world_preset':a.world_preset,'static_only_scan':is_scan and a.mode=='static',
              'prepared_outdoor_envelope':outdoor_config,
             'mesh_guard_enabled':is_scan and a.mode=='obstacle',
@@ -371,6 +374,8 @@ def main():
              'diagnostic_reduced_pressure_noise':a.pressure_noise_pa!=3.,
              'sensors_depth_removed':True,'parameter_overrides':overrides,'isolated_rootfs':str(out),'ros_domain':94,'gz_partition':env['GZ_PARTITION']}
     runtime['odom_reference'] = 'base_link; internal LIVO state remains at imu_link'
+    runtime['px4_local_position_dds_limit_hz'] = 100
+    runtime['px4_binary_sha256'] = hashlib.sha256((PX4/'build/px4_sitl_default/bin/px4').read_bytes()).hexdigest()
     runtime['cpu_affinity']=affinity_plan
     runtime['dds_shared_memory_free_at_start_bytes']=shm_free
     runtime['planner_horizon_m']=10. if is_outdoor else 6.
@@ -379,6 +384,11 @@ def main():
     # of clipping it to the indoor 5 m sphere. Health/capacity gates stay intact.
     runtime['local_map_radius_m']=12. if is_outdoor else 5.
     runtime['local_map_max_voxels']=20000 if is_outdoor else 5000
+    if is_outdoor and flight_precheck.get('whole_map_selection',False):
+        # Far-side park scans exceeded the old 20k budget at 20,039 cells.
+        # Keep radius/TTL, obstacle resolution, freshness and build deadline;
+        # allocate a fixed larger budget, never discard arbitrary obstacles.
+        runtime['local_map_max_voxels']=50000
     runtime['audit_truth_reference_offset_model_m'] = [0., 0., .24]
     runtime['truth_guard_reference'] = ('base_link with rotated model offset; scan mesh clearance and '
         '0.6 s measured-motion boundary forecast' if runtime['mesh_guard_enabled'] else
@@ -445,6 +455,13 @@ def main():
                  f'optimization_clearance_m:={optimization_clearance_m}',
                  'min_goal_distance_m:=0.04' if is_scan else 'min_goal_distance_m:=0.20'])
             pause(12.)
+            if runtime['disarmed_gnss_origin_initialization']:
+                origin=start('global_origin',[sys.executable,str(tools/'initialize_ev_global_origin.py'),
+                                              '--output',str(out/'global_origin.json')])
+                deadline=time.monotonic()+65.
+                while origin.poll() is None and time.monotonic()<deadline:pause(.2)
+                if origin.poll()!=0:
+                    raise RuntimeError('Disarmed EV/global-origin initialization failed; no arming commands sent')
             if a.rviz_goal:
                 if not env.get('DISPLAY'):raise RuntimeError('RViz2 requires a desktop DISPLAY')
                 start('rviz_scene',[sys.executable,str(tools/'rviz_scene_display.py'),

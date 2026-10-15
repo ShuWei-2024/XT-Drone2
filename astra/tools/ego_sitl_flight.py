@@ -74,20 +74,25 @@ def hold_endpoint(node, bridge, executor, endpoint, seconds, max_tracking_error_
     node.event('segment_end', name='endpoint_hold')
 
 
-def takeoff(node, height_m=1.7, alignment_height_m=None):
-    alignment_height_m=height_m if alignment_height_m is None else alignment_height_m
+def await_ground_health(node, required_sec=5.):
+    """Drain preparation backlog and require continuous health before arming."""
     deadline = time.monotonic() + 25.
     good_since = None
     while time.monotonic() < deadline:
         rclpy.spin_once(node, timeout_sec=.01)
         if not (node.fault() or node.initial_alignment_fault()):
             good_since = good_since or time.monotonic()
-            if time.monotonic() - good_since >= 5.:
+            if time.monotonic() - good_since >= required_sec:
                 break
         else:
             good_since = None
     else:
         raise RuntimeError('preflight not healthy: ' + (node.fault() or node.initial_alignment_fault()))
+
+
+def takeoff(node, height_m=1.7, alignment_height_m=None):
+    alignment_height_m=height_m if alignment_height_m is None else alignment_height_m
+    await_ground_health(node)
     p = node.local
     origin = (p.x, p.y, p.z, p.heading)
     node.takeoff_origin_ned = origin
@@ -103,7 +108,8 @@ def takeoff(node, height_m=1.7, alignment_height_m=None):
         from rclpy.qos import QoSProfile, DurabilityPolicy
         node.planning_envelope = PlanningEnvelope(node.mesh_guard.flight_boxes,
             node.mesh_guard.bounds, node.ground_route_origin_livo,
-            z_bounds=spline_height_band(node.mesh_guard,node.odom.pose.pose.position.z))
+            z_bounds=spline_height_band(node.mesh_guard,node.odom.pose.pose.position.z),
+            connected_to_origin=node.mesh_guard.metadata.get('whole_map_selection',False))
         if not node.planning_envelope.contains(node.ground_route_origin_livo):
             raise RuntimeError('Takeoff origin lacks shared-envelope reserve')
         node.envelope_pub = node.create_publisher(OccupancyGrid, '/planning/execution_envelope',
@@ -117,6 +123,14 @@ def takeoff(node, height_m=1.7, alignment_height_m=None):
                    region_source=('descent_plus_transit' if node.mesh_guard.metadata.get('transit_includes_descent_region')
                                   else 'transit' if node.mesh_guard.transit_boxes is not None else 'descent'),
                    reference='known zero-yaw SITL spawn; ground odometry only')
+        # A full-map mask and its DDS serialization can exceed one sensor
+        # period. This work is done disarmed; never carry that callback backlog
+        # into the first guarded send or relax the airborne freshness limit.
+        node.event('post_envelope_health_wait', required_sec=1.)
+        await_ground_health(node, required_sec=1.)
+        if np.linalg.norm(np.array([node.odom.pose.pose.position.x,node.odom.pose.pose.position.y])-
+                          node.ground_route_origin_livo) > .02:
+            raise RuntimeError('Frozen ground reference moved during envelope preparation')
     node.vertical_reference = p.z + node.truth[2]
     if node.initial_alignment_fault():
         raise RuntimeError('invalid initial world position')
@@ -303,10 +317,11 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
             selection.open_airborne()
         target = None
         goal_sent_ns = None
+        goal_sent_wall = None
         terminal_spline = None
 
         def publish_goal(offset_x, offset_y):
-            nonlocal target, goal_sent_ns, terminal_spline
+            nonlocal target, goal_sent_ns, goal_sent_wall, terminal_spline
             terminal_spline = None
             gx, gy, gz = origin_livo[0] + offset_x, origin_livo[1] + offset_y, origin_livo[2]
             goal = PoseStamped()
@@ -327,6 +342,7 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
             result['goal_livo'] = [gx, gy, gz]
             result['goal_ned'] = target.tolist()
             goal_pub.publish(goal)
+            goal_sent_wall = time.monotonic()
             node.event('ego_goal_sent', goal=result['goal_livo'], target_ned=target.tolist(),
                        goal_index=goal_index)
 
@@ -420,6 +436,10 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                     result.setdefault('truth_start', list(node.truth))
                     node.event('ego_control_handoff' if goal_index == 0 else 'ego_leg_control_handoff', goal_index=goal_index)
                     next_tick = now
+                elif now-goal_sent_wall > 10.:
+                    # A long travel budget must never become a long hover
+                    # waiting for a rejected or missing initial trajectory.
+                    raise RuntimeError('No fresh EGO trajectory within 10 s of goal request')
                 continue
             if (preview.span is not None and preview.trajectory_start_ns is not None
                     and preview.trajectory_start_ns >= goal_sent_ns and preview.spline is not None
@@ -631,7 +651,7 @@ def main():
     parser.add_argument('--max-initial-yaw-disagreement-deg', type=float, default=5.)
     parser.add_argument('--route-json', type=Path)
     parser.add_argument('--maximum-route-radius-m',type=float,default=7.,
-                        help='Prepared outdoor guard sets the radius; maximum 25 m')
+                        help='Prepared outdoor guard sets the radius; maximum 45 m')
     parser.add_argument('--rviz-goal-timeout-sec',type=float,default=0.,
                         help='Inspected scan SITL: edit an RViz mission and explicitly start it')
     parser.add_argument('--rviz-mission',action='store_true',
@@ -643,8 +663,8 @@ def main():
     args = parser.parse_args()
     if not math.isfinite(args.planner_leg_timeout_s) or not 100.<=args.planner_leg_timeout_s<=500.:
         parser.error('Planner leg timeout must be in [100,500] seconds')
-    if not math.isfinite(args.maximum_route_radius_m) or not 3.<=args.maximum_route_radius_m<=25.:
-        parser.error('Prepared route radius must be finite and in [3,25] metres')
+    if not math.isfinite(args.maximum_route_radius_m) or not 3.<=args.maximum_route_radius_m<=45.:
+        parser.error('Prepared route radius must be finite and in [3,45] metres')
     if (not math.isfinite(args.rviz_goal_timeout_sec) or
             (args.rviz_goal_timeout_sec!=0. and not 30.<=args.rviz_goal_timeout_sec<=600.)):
         parser.error('RViz goal timeout must be zero or 30..600 seconds')

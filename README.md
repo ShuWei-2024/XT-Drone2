@@ -46,6 +46,8 @@ bash astra/build_px4_117.bash
 bash astra/build_117.bash
 ```
 
+已有环境更新后也需重跑 PX4 构建，以应用本地位置 DDS 100 Hz 输出补丁；Offboard setpoint 仍为 20 Hz。
+
 **在新终端加载环境，运行回归：**
 
 ```bash
@@ -78,15 +80,15 @@ bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
 
 自动启动 PX4、传感器、FAST-LIVO2、地图、规划与执行保护，并打开 **RViz2 和中文航点窗口**。运行名称带时间戳，避免重复；启动后不会自动起飞。
 
-本机已复测的彩色场景保存在独立目录，用以下命令替代上面的启动命令：
+需要全图范围选点时，先生成独立空域配置（只需一次，不覆盖原地图）：
 
 ```bash
-bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
-  --scan-dir astra/runtime/maps/baylands_park_coloured \
-  --external-vision
+astra/runtime/map_tools_venv/bin/python astra/tools/prepare_return_airspace.py \
+  --source astra/runtime/maps/baylands_park \
+  --output astra/runtime/maps/baylands_whole_map --whole-map
 ```
 
-新电脑按安装教程生成的默认 `baylands_park` 已含颜色修复，使用第一条即可。旧生成目录不会随代码更新自动改变外观。
+之后第一条启动命令会优先使用 `baylands_whole_map`。本机已从彩色场景生成；新电脑按安装教程生成的 `baylands_park` 也已含颜色。仍可用 `--scan-dir` 显式选择其他场景。
 
 ### 2. 打开 Gazebo 窗口
 
@@ -106,7 +108,7 @@ GZ_PARTITION=astra_px4_117 gz sim -g
 | 飞行中 | 可追加航点、暂停与继续；末点悬停有等待时限 |
 | 结束 | 可点击“避障返航并降落”；原地降落要求当前位置有下降净空，落地上锁后再启动下一轮 |
 
-一次只运行一套仿真。RViz2 是可旋转的三维视图，按钮中的“2D”表示选取 XY；绿色地面格表示已检查的下降区域，独立通行试验场景另有蓝色巡航区域。默认室外目标限制在起飞点 10 m 内，并须通过区域与障碍检查。新策略的准备、启动和证据见文档索引的“通行／降落与返航”。
+一次只运行一套仿真。RViz2 是可旋转的三维视图，按钮中的“2D”表示选取 XY；绿色地面格表示下降净空，蓝色表示独立巡航空域。全图配置检查 XY ±30 m，目标距离上限 43 m，可选面积约 1265 m²；障碍、净空不足、不连通区域和地图边缘 5 m 不开放。保留的旧配置仍有 10 m 限制。空域开放与实际路线验证结果见文档索引的“全图范围选点”。
 
 室内 Replica office4 已准备好时，可使用 `bash astra/rviz_flight_117.bash`，同样自动打开 RViz2 和任务窗口。
 
@@ -121,8 +123,9 @@ GZ_PARTITION=astra_px4_117 gz sim -g
 | 彩色场景复测 | 短路线与 26.93 m 箱体绕障通过 | 各一轮；暂不需要因颜色修复重调定位 |
 | 部分长距离路线 | 东侧 64.91 m、8 航点完整审计通过 | 同配置复测曾首段规划失败，重复稳定性未通过 |
 | External Vision | ULog 确认实际融合 XY/Z | 不融合视觉航向/速度；当前转换限定已审计 SITL 条件 |
+| 全图范围选点 | 连通可选面积扩至约 1265 m²，已实际到达 `(27,10)` | 远端返航仍有消息延迟中止，完整往返和跨区重复尚未通过 |
 | 通行区与返航 | 独立通行／下降检查、EGO 返航、地图中断后官方 RTL 已实测 | 指定低速静态走廊；新配置 PX4 高度精度仍未完全达到 10 cm 门槛 |
-| 未解决项 | 树旁高度漂移、长绕行及扩大区域偶发规划失败 | 跨地图、长期运行和真实硬件尚未认证 |
+| 未解决项 | 视觉高度主参考修正已有改善；仍有消息积压、长绕行和重复稳定性问题 | 跨地图、长期运行和真实硬件尚未认证 |
 
 ## 文档索引
 

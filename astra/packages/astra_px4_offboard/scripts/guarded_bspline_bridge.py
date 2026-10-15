@@ -236,7 +236,9 @@ class GuardedBsplineBridge(Node):
         if not math.isfinite(self.source_yaw()):
             return 'non-finite estimator heading'
         compatible = [row for row in self.px4_history if
-            (row.xy_reset_counter,row.z_reset_counter,row.heading_reset_counter)==reset]
+            (row.xy_reset_counter,row.z_reset_counter,row.heading_reset_counter)==reset and
+            row.xy_valid and row.z_valid and row.heading_good_for_control and
+            0<=now_ns-row.timestamp_sample*1000<=self.limits['max_px4_age_sec']*1e9]
         pair = None
         for source, received in reversed(self.odom_history):
             epoch=stamp_ns(source.header.stamp)
@@ -245,9 +247,9 @@ class GuardedBsplineBridge(Node):
                     not 0<=now_ns-epoch<=self.limits['max_odom_age_sec']*1e9 or not compatible):
                 continue
             candidate=min(compatible,key=lambda row:abs(epoch-row.timestamp_sample*1000))
-            if (candidate.xy_valid and candidate.z_valid and candidate.heading_good_for_control and
-                    0<=now_ns-candidate.timestamp_sample*1000<=self.limits['max_px4_age_sec']*1e9 and
-                    abs(epoch-candidate.timestamp_sample*1000)<=self.limits['max_time_pair_sec']*1e9):
+            # Choose among eligible samples: a slightly nearer expired sample
+            # must not mask another real sample inside both existing limits.
+            if abs(epoch-candidate.timestamp_sample*1000)<=self.limits['max_time_pair_sec']*1e9:
                 pair=(source,candidate);break
         if pair is None:
             return 'estimator measurement times differ'

@@ -5,11 +5,12 @@ reference is frozen from ground odometry at the known zero-yaw SITL spawn.
 """
 import math
 import numpy as np
-from scipy.ndimage import distance_transform_edt, minimum_filter
+from scipy.ndimage import distance_transform_edt, minimum_filter, label
 
 
 class PlanningEnvelope:
-    def __init__(self, boxes, bounds, origin_xy, resolution=.1, reserve=.4, z_bounds=None):
+    def __init__(self, boxes, bounds, origin_xy, resolution=.1, reserve=.4, z_bounds=None,
+                 connected_to_origin=False):
         boxes, bounds, origin_xy = map(lambda v: np.asarray(v, float), (boxes, bounds, origin_xy))
         if (boxes.ndim != 3 or boxes.shape[1:] != (2, 2) or not len(boxes)
                 or bounds.shape != (2, 2) or origin_xy.shape != (2,)
@@ -38,6 +39,15 @@ class PlanningEnvelope:
         # bound before reserving tracking/forecast space.
         distance = distance_transform_edt(np.pad(free, 1))[1:-1, 1:-1]*resolution
         self.free = free & (distance >= reserve+math.sqrt(2)*resolution)
+        start = np.floor(-bounds[0]/resolution).astype(int)
+        def spawn_component(mask):
+            components, _ = label(mask)  # four neighbours, matching the grid guide
+            x,y = start
+            if not (0 <= y < mask.shape[0] and 0 <= x < mask.shape[1]) or components[y,x] == 0:
+                raise ValueError('No shared planning region connected to takeoff')
+            return components == components[y,x]
+        if connected_to_origin:
+            self.free = spawn_component(self.free)
         # Match GridMap::executionEnvelopeGuide's square erosion. The guarded
         # launch fixes planner grid resolution at 0.20 m. Keep the published
         # envelope unchanged; this additional mask is for destination admission.
@@ -45,6 +55,8 @@ class PlanningEnvelope:
         padding = math.ceil(self.guide_padding_m/resolution)
         self.guide_free = minimum_filter(self.free, size=2*padding+1,
                                          mode='constant', cval=0)
+        if connected_to_origin:
+            self.guide_free = spawn_component(self.guide_free)
 
     def contains(self, xy):
         xy = np.asarray(xy, float)

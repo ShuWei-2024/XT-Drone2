@@ -22,6 +22,24 @@ def test_grid_covers_expanded_local_window():
     assert result['planner_map_size_xy_m']/2>=26.+5.
 
 
+def test_whole_map_covers_square_corners_with_matching_certificate():
+    pre,meta=certificate()
+    for d in (pre,meta):
+        d.update(interactive_goal_radius_m=43.,allowed_xy_bounds_m=[[-30.,-30.],[30.,30.]],
+                 whole_map_selection=True,scene_edge_reserve_m=5.)
+        d['recovery_certificate']['sampled_bounds_m']=d['allowed_xy_bounds_m']
+    pre['planner_map_size_xy_m']=70.
+    assert outdoor_envelope(pre,meta)['goal_radius_m']==43.
+    pre['interactive_goal_radius_m']=meta['interactive_goal_radius_m']=35.
+    with pytest.raises(ValueError,match='Whole-map'):outdoor_envelope(pre,meta)
+
+
+def test_large_radius_cannot_be_enabled_without_whole_map_certificate():
+    pre,meta=certificate()
+    pre['interactive_goal_radius_m']=meta['interactive_goal_radius_m']=43.
+    with pytest.raises(ValueError,match='explicit whole-map'):outdoor_envelope(pre,meta)
+
+
 @pytest.mark.parametrize('key,value',[
     ('planner_map_size_xy_m',32.),('planner_map_size_xy_m',float('nan')),
     ('interactive_goal_radius_m',10.),('allowed_xy_bounds_m',[[-11,-11],[11,11]]),

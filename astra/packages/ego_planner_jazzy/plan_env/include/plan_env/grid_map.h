@@ -252,6 +252,7 @@ private:
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr extrinsic_sub_;
   rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr envelope_sub_;
   nav_msgs::msg::OccupancyGrid::ConstSharedPtr envelope_;
+  std::vector<int8_t> envelope_search_cells_;
   bool require_envelope_ = false;
   bool envelope_fault_ = false;
   bool envelopeAllows(const Eigen::Vector3d &pos) const;

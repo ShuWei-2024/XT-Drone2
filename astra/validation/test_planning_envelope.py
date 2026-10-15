@@ -53,6 +53,19 @@ def test_guide_endpoint_mask_matches_planner_square_neighbourhood():
         assert not e.guide_contains(xy)
 
 
+def test_whole_map_rejects_islands_created_by_tracking_reserve():
+    # A narrow certificate connector disappears after erosion. A distant
+    # destination must not be offered merely because its own cell is free.
+    boxes=[[[-3,-3],[3,3]],[[3,-.3],[5,.3]],[[5,-3],[10,3]]]
+    bounds=[[-4,-4],[11,4]]
+    old=PlanningEnvelope(boxes,bounds,[10,20])
+    assert old.guide_contains([17,20])
+    whole=PlanningEnvelope(boxes,bounds,[10,20],connected_to_origin=True)
+    assert whole.guide_contains([10,20])
+    assert not whole.guide_contains([17,20])
+    assert not whole.contains([17,20])
+
+
 @pytest.mark.parametrize('origin', [[np.nan, 0], [0]])
 def test_invalid_reference(origin):
     with pytest.raises(ValueError): PlanningEnvelope([[[0, 0], [4, 4]]], [[0, 0], [4, 4]], origin)

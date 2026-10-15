@@ -12,6 +12,8 @@
     "local_hrt_patch_applied": true,
     "patch_file": "astra/baseline/px4_1_15_3_hrt.patch",
     "local_gz_magnetometer_patch": "astra/config/px4_117_gz_magnetometer.patch",
+    "local_position_dds_patch": "astra/config/px4_117_dds_local_position.patch",
+    "local_position_dds_rate_limit_hz": 100,
     "magnetometer_patch_enable_env": "ASTRA_GZ_MAG_ENU_TESLA=1"
   },
   "px4_msgs": {

@@ -43,7 +43,7 @@ def validate_goal(frame, stamp_ns, now_ns, xyz, origin, height_m, guard,
     delta = xyz[:2]-origin[:2]
     distance = np.linalg.norm(delta)
     radius=float(getattr(guard,'metadata',{}).get('interactive_goal_radius_m',3.))
-    if not math.isfinite(radius) or not 3. <= radius <= 25.:
+    if not math.isfinite(radius) or not 3. <= radius <= 45.:
         raise ValueError('Invalid inspected goal radius')
     if not (.25 <= distance <= radius or (allow_origin and distance <= .10)):
         raise ValueError(f'Select a goal between 0.25 and {radius:g} m from takeoff')
@@ -312,7 +312,8 @@ class RvizSelection:
                 self.origin=np.median(positions,axis=0)
                 self.planning_envelope=PlanningEnvelope(node.mesh_guard.flight_boxes,
                     node.mesh_guard.bounds,self.origin[:2],
-                    z_bounds=spline_height_band(node.mesh_guard,self.origin[2]))
+                    z_bounds=spline_height_band(node.mesh_guard,self.origin[2]),
+                    connected_to_origin=node.mesh_guard.metadata.get('whole_map_selection',False))
                 # Truth is used ONLY to position the optional background illustration.
                 self.visual_offset=(self.origin-np.asarray(node.truth_body)).tolist()
                 node.event('rviz_ground_reference_frozen',origin_livo=self.origin.tolist(),

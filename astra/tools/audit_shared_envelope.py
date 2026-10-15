@@ -14,7 +14,8 @@ def audit(directory):
     frozen=next(e for e in motion['events'] if e['event']=='shared_execution_envelope_frozen')
     guard=MeshGuard(directory/'mesh_guard.npz')
     envelope=PlanningEnvelope(guard.flight_boxes,guard.bounds,frozen['ground_origin_livo'],reserve=frozen['reserve_m'],
-                              z_bounds=frozen.get('z_bounds_livo_m'))
+                              z_bounds=frozen.get('z_bounds_livo_m'),
+                              connected_to_origin=guard.metadata.get('whole_map_selection',False))
     failures=[]
     for msg in motion.get('bsplines',[]):
         try: envelope.validate_spline(BSpline(msg['knots'],msg['controls'],msg['order'],extrapolate=False))

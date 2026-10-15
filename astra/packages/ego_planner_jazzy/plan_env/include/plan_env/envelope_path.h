@@ -5,6 +5,26 @@
 #include <vector>
 
 namespace astra {
+// Frozen safety-mask erosion is prepared once, before mission search. Keep the
+// same square margin as the per-goal version, closing unknown and map edges.
+inline std::vector<int8_t> envelopeSearchCells(const std::vector<int8_t> &cells,
+    uint32_t width, uint32_t height, int padding) {
+  const size_t n=static_cast<size_t>(width)*height;
+  if (!width || !height || n!=cells.size() || n>1440000 || padding<0) return {};
+  auto search=cells;
+  for (int y=0;y<int(height);++y)
+    for (int x=0;x<int(width);++x) {
+      if (cells[y*width+x]!=0) continue;
+      bool blocked=false;
+      for (int dy=-padding;dy<=padding && !blocked;++dy)
+        for (int dx=-padding;dx<=padding;++dx)
+          if (x+dx<0 || y+dy<0 || x+dx>=int(width) || y+dy>=int(height) ||
+              cells[(y+dy)*width+x+dx]!=0) {blocked=true;break;}
+      if (blocked) search[y*width+x]=100;
+    }
+  return search;
+}
+
 // Bounded global topology search on the independent safety mask. Four-connected
 // edges stay inside adjacent certified squares; unknown/blocked cells are closed.
 inline std::vector<uint32_t> envelopePath(const std::vector<int8_t> &cells,

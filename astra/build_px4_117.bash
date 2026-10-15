@@ -25,6 +25,15 @@ else
     echo 'Gazebo bridge sources differ; inspect before building.' >&2
     exit 1
 fi
+astra_dds_patch="$astra_repo_dir/astra/config/px4_117_dds_local_position.patch"
+if git -C "$astra_px4_dir" apply --reverse --check "$astra_dds_patch" 2>/dev/null; then
+    echo 'Astra 100 Hz local-position DDS output already applied.'
+elif git -C "$astra_px4_dir" apply --check "$astra_dds_patch"; then
+    git -C "$astra_px4_dir" apply "$astra_dds_patch"
+else
+    echo 'DDS topic configuration differs; inspect before building.' >&2
+    exit 1
+fi
 source "$astra_python_env/bin/activate"
 cd "$astra_px4_dir"
 export CMAKE_BUILD_PARALLEL_LEVEL=2

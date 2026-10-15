@@ -70,3 +70,13 @@ def test_height_pair_ignores_yaw_epoch_but_never_uses_previous_height_epoch():
     pair=recent_measurement_pair(values,[old,yaw_reset],1_120_000_000,z_reset_counter=2)
     assert pair[2] is old
     assert recent_measurement_pair(values,[old,yaw_reset],1_120_000_000,z_reset_counter=3) is None
+
+
+def test_nearer_expired_or_future_sample_cannot_mask_eligible_real_sample():
+    values=[(1_006_000_000,1.)]
+    history=[local(998_000_000),local(1_022_000_000)]
+    assert recent_measurement_pair(values,history,1_250_000_000)[2] is history[1]
+    assert recent_measurement_pair(values,history[:1],1_250_000_000) is None
+    values=[(1_248_000_000,1.)]
+    history=[local(1_251_000_000),local(1_236_000_000)]
+    assert recent_measurement_pair(values,history,1_250_000_000)[2] is history[1]

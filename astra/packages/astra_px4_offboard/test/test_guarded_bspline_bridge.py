@@ -6,6 +6,7 @@ import time
 import unittest
 from copy import deepcopy
 from pathlib import Path
+from unittest.mock import patch
 
 import rclpy
 from geometry_msgs.msg import PoseStamped, TwistStamped
@@ -170,6 +171,24 @@ class BridgeTest(unittest.TestCase):
         source=deepcopy(self.node.odom);source.pose.pose.position.x=math.nan
         self.node.on_odom(source)
         self.assertEqual('non-finite estimator position',self.node.health())
+
+    def test_expired_nearest_sample_does_not_hide_valid_measurement_pair(self):
+        now=self.node.get_clock().now().nanoseconds
+        source=deepcopy(self.node.odom)
+        source.header.stamp.sec,source.header.stamp.nanosec=divmod(now-244_000_000,10**9)
+        expired,eligible=deepcopy(self.node.px4),deepcopy(self.node.px4)
+        expired.timestamp_sample=(now-252_000_000)//1000  # nearer, but expired
+        eligible.timestamp_sample=(now-232_000_000)//1000  # 12 ms apart, both fresh
+        self.node.odom_history.clear();self.node.px4_history.clear()
+        self.node.on_odom(source);self.node.on_px4(expired);self.node.on_px4(eligible)
+        with patch.object(self.node,'get_clock') as clock:
+            clock.return_value.now.return_value.nanoseconds=now
+            self.assertEqual('',self.node.state_health())
+            self.assertLessEqual(self.node.estimator_pair_dt_sec,.02)
+            self.assertLessEqual(self.node.estimator_pair_age_sec,.25)
+            # An ineligible nearest sample remains unusable when no good pair exists.
+            self.node.px4_history.pop()
+            self.assertEqual('estimator measurement times differ',self.node.state_health())
 
     def test_separate_preview_callbacks_commit_only_matching_pairs(self):
         preceding = self.node.pose

@@ -90,7 +90,23 @@ def audit(directory):
                 xy_m=stats(np.linalg.norm(errors[view,:2],axis=1)),
                 z_m=stats(np.abs(errors[view,2])),
                 yaw_disagreement_deg=stats(np.array(yaw_errors)[view]))
+    height_bias = {}
+    bias_data = data.get('estimator_ev_pos_bias')
+    if bias_data is not None and 'bias[2]' in bias_data:
+        mask = in_flight(bias_data['timestamp'])
+        view = mask if mask.any() else np.ones(len(mask),bool)
+        values = bias_data['bias[2]'][view].astype(float)
+        stamps = bias_data['timestamp'][view]
+        if len(values):
+            height_bias = dict(scope='armed' if mask.any() else 'ground',count=len(values),
+                first_m=float(values[0]),last_m=float(values[-1]),
+                minimum_m=float(values.min()),maximum_m=float(values.max()),
+                range_m=float(np.ptp(values)),
+                absolute_change_from_first_m=stats(np.abs(values-values[0])),
+                first_sim_s=float(stamps[0])/1e6,last_sim_s=float(stamps[-1])/1e6,
+                note='Absolute datum offset can be nonzero; evolution matters, not magnitude alone')
     result = dict(checks=checks, fusion_confirmed=all(checks.values()), aid_sources=aid,
+        ev_height_bias=height_bias,
         ground_frozen_livo_px4_agreement=agreement,
         published_measurements=len(sent), received_measurements=len(recorded),
         sent_stamps_present_in_rate_limited_ulog=stamp_match,

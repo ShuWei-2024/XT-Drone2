@@ -44,7 +44,7 @@ python3 -m venv ~/dev/px4/venv
 bash astra/build_px4_117.bash
 ```
 
-脚本核对固定提交、应用工程记录的 HRT/磁力计补丁并以两个编译任务构建。构建按 PX4 规则拉取所需子模块，网络失败先恢复下载再重跑。
+脚本核对固定提交、应用工程记录的 HRT／磁力计／本地位置 DDS 输出补丁并以两个编译任务构建。DDS 补丁将 `vehicle_local_position` 输出上限从 50 Hz 提高到 100 Hz，用于测量时间配对；不改变消息格式或 20 Hz Offboard setpoint 频率。已有环境更新代码后也须重跑此构建。构建按 PX4 规则拉取所需子模块，网络失败先恢复下载再重跑。
 
 `ASTRA_PX4_DIR` 可指定其他 PX4 路径；`ASTRA_PX4_PYTHON_ENV` 可改变**构建**环境。但运行器的 GCS 心跳当前固定使用 `~/dev/px4/venv/bin/python`，首次部署应保留上述环境，不能仅设置构建变量后假定运行路径也改变。
 
@@ -86,6 +86,10 @@ astra/runtime/map_tools_venv/bin/python -m pip install \
   -r astra/config/map_tools_requirements.txt \
   numpy scipy Pillow pycollada==0.9.3 shapely==2.2.0
 astra/runtime/map_tools_venv/bin/python astra/tools/prepare_baylands.py
+# 独立全图空域配置；已有目录不覆盖。
+astra/runtime/map_tools_venv/bin/python astra/tools/prepare_return_airspace.py \
+  --source astra/runtime/maps/baylands_park \
+  --output astra/runtime/maps/baylands_whole_map --whole-map
 ```
 
 下载包约 150.7 MB，转换另需内存和磁盘空间。程序拒绝覆盖已有输出。新生成场景包含彩色纹理和灯光；旧生成目录不会随代码更新自动改变外观。下载中断可重用缓存，转换失败则先检查输出并保留诊断，再选择新输出目录。
@@ -99,7 +103,7 @@ bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
 
 命令自动启动完整飞行链、RViz2 和中文航点窗口；等待 READY、添加目标并点击开始后才起飞。
 Gazebo 场景窗口另开终端执行 `GZ_PARTITION=astra_px4_117 gz sim -g`，详见第 8 节。
-默认开放起飞点 10 m 内满足下降净空的区域，不代表整张地图已验证。EV 是可选 XY/Z 位置融合；不加该参数时关闭。
+存在 `baylands_whole_map` 时优先使用它：在地图 XY ±30 m 内检查连通可飞空域，保留边缘 5 m，按 1.5 m 相对高度巡航；不是每个 XY 都允许飞行或降落。不生成该配置则仍使用旧的 10 m 场景。EV 是可选 XY/Z 位置融合；不加该参数时关闭。
 
 本机已准备独立彩色目录时，用以下命令替代上面的启动命令：
 

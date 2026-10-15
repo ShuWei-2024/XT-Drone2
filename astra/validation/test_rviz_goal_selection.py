@@ -92,6 +92,16 @@ def test_invalid_scene_radius_cannot_expand_goals():
         with pytest.raises(ValueError,match='Invalid inspected'):select(guard=g)
 
 
+def test_whole_map_corner_accepted_but_radius_does_not_override_geometry():
+    g=guard([[[-30,-30],[30,30]]]);g.metadata={'interactive_goal_radius_m':43.}
+    envelope=PlanningEnvelope(g.recovery_boxes,[[-30,-30],[30,30]],[.2,-.1],
+                              connected_to_origin=True)
+    assert select(xyz=[29.2,28.9,0.],guard=g,planning_envelope=envelope)==pytest.approx([29.,29.])
+    # Still within 43 m of home, but beyond the inspected square.
+    with pytest.raises(ValueError,match='descent region'):
+        select(xyz=[31.2,28.9,0.],guard=g,planning_envelope=envelope)
+
+
 def test_goal_tools_do_not_publish_directly_to_planner_or_fmu():
     import yaml
     config=Path(__file__).resolve().parents[1]/'config/rviz_goal_flight.rviz'

@@ -8,17 +8,16 @@ def recent_measurement_pair(measurements, local_history, now_ns, z_reset_counter
     A missed PX4 sample need not invalidate a still-fresh earlier pair. Never
     interpolate, restamp, or use arbitrarily old pairs to cover a source outage.
     """
-    if z_reset_counter is not None:
-        local_history=[p for p in local_history if p.z_reset_counter==z_reset_counter]
+    local_history=[p for p in local_history if p.z_valid and math.isfinite(p.z) and
+        0 <= now_ns-p.timestamp_sample*1000 <= 250_000_000 and
+        (z_reset_counter is None or p.z_reset_counter==z_reset_counter)]
     if not local_history:
         return None
     for stamp, z in reversed(measurements):
         if not math.isfinite(z) or not 0 <= now_ns - stamp <= 250_000_000:
             continue
         matched = min(local_history, key=lambda p: abs(p.timestamp_sample*1000-stamp))
-        if (matched.z_valid and math.isfinite(matched.z) and
-                0 <= now_ns-matched.timestamp_sample*1000 <= 250_000_000
-                and abs(matched.timestamp_sample*1000-stamp) <= 20_000_000):
+        if abs(matched.timestamp_sample*1000-stamp) <= 20_000_000:
             return stamp, z, matched
     return None
 

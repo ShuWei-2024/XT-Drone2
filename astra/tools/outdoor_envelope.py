@@ -5,7 +5,7 @@ import math
 def outdoor_envelope(precheck, metadata):
     radius=metadata.get('interactive_goal_radius_m',10.)
     side=precheck.get('planner_map_size_xy_m',32.)
-    for value,lo,hi in ((radius,3.,25.),(side,32.,64.)):
+    for value,lo,hi in ((radius,3.,45.),(side,32.,80.)):
         if type(value) not in (int,float) or not math.isfinite(value) or not lo<=value<=hi:
             raise ValueError('Invalid prepared outdoor radius or planner map size')
     if precheck.get('interactive_goal_radius_m')!=radius:
@@ -21,6 +21,14 @@ def outdoor_envelope(precheck, metadata):
         raise ValueError('Outdoor planner grid must cover the envelope plus 5 m local reserve')
     if bounds!=precheck.get('allowed_xy_bounds_m'):
         raise ValueError('Outdoor bounds differ between precheck and guard')
+    if metadata.get('whole_map_selection', False):
+        if (precheck.get('whole_map_selection') is not True or
+                metadata.get('scene_edge_reserve_m') != 5. or
+                precheck.get('scene_edge_reserve_m') != 5. or extent > 30. or
+                radius < math.hypot(*[max(abs(bounds[0][i]),abs(bounds[1][i])) for i in range(2)])):
+            raise ValueError('Whole-map selection requires matching geometry bounds and edge reserve')
+    elif radius > 25. or side > 64.:
+        raise ValueError('Expanded limits require explicit whole-map preparation')
     certificate=metadata.get('recovery_certificate',{})
     if (certificate.get('sampled_bounds_m')!=bounds or
             certificate.get('certified_z_bounds_m')!=metadata.get('allowed_body_z_bounds_m') or

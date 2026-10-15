@@ -29,6 +29,20 @@ int main() {
     }
   }
   assert(beyond);
+  const auto padded=astra::envelopeSearchCells(cells,w,h,2);
+  assert(padded.size()==cells.size());
+  assert(padded[10*w+28]==100 && padded[10*w+27]==0);
+  assert(padded[1*w+20]==100 && padded[2*w+20]==0);
+  const auto safe_path=astra::envelopePath(padded,w,h,10*w+20,10*w+60,deadline);
+  assert(!safe_path.empty());
+  for(auto v:safe_path) {
+    const int x=v%w,y=v/w;
+    for(int dy=-2;dy<=2;++dy) for(int dx=-2;dx<=2;++dx)
+      assert(x+dx>=0 && y+dy>=0 && x+dx<int(w) && y+dy<int(h) && cells[(y+dy)*w+x+dx]==0);
+  }
+  auto unknown=cells;unknown[10*w+20]=-1;
+  assert(astra::envelopeSearchCells(unknown,w,h,2)[10*w+21]==100);
+  assert(astra::envelopeSearchCells(cells,w,h,-1).empty());
   assert(astra::envelopePath(cells,w,h,10*w+20,10*w+60,
       std::chrono::steady_clock::now()-std::chrono::seconds(1)).empty());
   for(uint32_t y=0;y<h;++y) cells[y*w+40]=100;

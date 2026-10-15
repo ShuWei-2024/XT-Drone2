@@ -28,6 +28,10 @@ def main():
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--validation-low-box',action='store_true',
                    help='Add a 0.35 m test box at (-1.5,0); fly over it at cruise altitude')
+    p.add_argument('--whole-map',action='store_true',
+                   help='Inspect the complete 70 m patch interior, retaining 5 m edge reserve')
+    p.add_argument('--route-kind',choices=('short','east','west','cross-map'),
+                   help='Whole-map test destinations, not intermediate detour waypoints')
     a=p.parse_args(); source=a.source.resolve(); out=a.output.resolve()
     pre=json.loads((source/'flight_precheck.json').read_text())
     manifest=json.loads((source/'manifest.json').read_text())
@@ -43,6 +47,12 @@ def main():
     shutil.copytree(source/'astra_baylands',out/'astra_baylands')
     for name in ('world.sdf','manifest.json','LICENSE.txt'):shutil.copy2(source/name,out/name)
     tri=guard.triangles.copy(); meta=guard.metadata.copy()
+    if a.whole_map:
+        if manifest.get('patch_width_m') != 70.:
+            raise ValueError('Whole-map preparation requires the pinned 70 m patch')
+        meta.update(allowed_xy_bounds_m=[[-30.,-30.],[30.,30.]],
+                    interactive_goal_radius_m=43.,whole_map_selection=True,
+                    scene_edge_reserve_m=5.)
     if a.validation_low_box:
         import trimesh
         box=trimesh.creation.box(extents=[.5,.7,.35]);box.apply_translation([-1.5,0,.175])
@@ -54,6 +64,7 @@ def main():
 <visual name="box"><geometry><box><size>.5 .7 .35</size></box></geometry>
 <material><ambient>.8 .3 .1 1</ambient><diffuse>.8 .3 .1 1</diffuse></material></visual></link></model>'''))
         tree.write(out/'world.sdf',encoding='utf-8',xml_declaration=True)
+    if a.whole_map or a.validation_low_box:
         meta.update(recovery_rectangles(tri,meta['allowed_xy_bounds_m'],meta['allowed_body_z_bounds_m']))
     band=[1.2,2.0]
     certificate=recovery_rectangles(tri,meta['allowed_xy_bounds_m'],band)
@@ -69,20 +80,29 @@ def main():
                 transit_continuous_clearance_lower_bound_m=.65,transit_certificate=cert,
                 recovery_policy='planned_return_with_certified_rtl',
                 transit_includes_descent_region=True,retained_triangles=len(tri),
-                scene_label='Baylands 独立通行／降落区试验')
+                scene_label=('Baylands 全图可达空域' if a.whole_map else 'Baylands 独立通行／降落区试验'))
     np.savez_compressed(out/'mesh_guard.npz',triangles=tri,metadata=json.dumps(meta))
     prepared=MeshGuard(out/'mesh_guard.npz')
-    envelope=PlanningEnvelope(prepared.flight_boxes,prepared.bounds,[0,0])
-    route=[[-3.,0.]]
+    envelope=PlanningEnvelope(prepared.flight_boxes,prepared.bounds,[0,0],
+                              connected_to_origin=a.whole_map)
+    kind=a.route_kind or ('east' if a.whole_map else 'short')
+    route={'short':[[-3.,0.]],'east':[[27.,10.]],'west':[[-27.,0.]],
+           'cross-map':[[27.,10.],[-27.,10.],[-25.,-10.]]}[kind]
     for xy in [[0,0],*route]:
         if not envelope.guide_contains(xy):raise ValueError('Route lacks shared endpoint reserve: '+str(xy))
     pre.update(meta,route_offsets_m=route,takeoff_height_m=1.5,alignment_height_m=1.6,
                planner_virtual_ceiling_m=2.1,column_obstacle_max_z_m=2.1,
-               static_descent_columns=False,route_kind='independent transit/landing and planned return',
-               direct_path=line_audit(prepared,[0,0,1.74],[-3,0,1.74]),
+               static_descent_columns=False,route_kind='independent transit/landing and planned return: '+kind,
+               direct_path=line_audit(prepared,[0,0,1.74],[*route[0],1.74]),
                guard_sha256=sha(out/'mesh_guard.npz'),world_sha256=sha(out/'world.sdf'),
                flight_validated=False,validation_low_box=a.validation_low_box,
                known_geometry_only=True,terrain_following_implemented=False)
+    if a.whole_map:
+        pre.update(planner_map_size_xy_m=70.,column_obstacle_max_z_m=3.,
+                   planner_leg_timeout_s=500.,
+                   whole_map_scope='All spawn-connected certified fixed-height airspace inside the 70 m patch, excluding 5 m edge reserve; not every XY or terrain following',
+                   selectable_area_m2=float(envelope.guide_free.sum()*envelope.resolution**2),
+                   flight_area_m2=float(envelope.free.sum()*envelope.resolution**2))
     outdoor_envelope(pre,meta)
     (out/'flight_precheck.json').write_text(json.dumps(pre,indent=2)+'\n')
     (out/'route.json').write_text(json.dumps(route)+'\n')

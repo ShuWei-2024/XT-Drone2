@@ -143,23 +143,23 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Name: 3D outdoor view
+      Name: 3D whole-map view
       Target Frame: camera_init
-      Distance: 26.0
+      Distance: 80.0
       Pitch: 0.9
       Yaw: 0.8
       Focal Point:
-        X: 2.0
-        Y: -1.0
+        X: 0.0
+        Y: 0.0
         Z: 0.8
     Saved:
     - Class: rviz_default_plugins/TopDownOrtho
       Name: Top down selection
       Target Frame: camera_init
       Angle: 0
-      Scale: 35.0
-      X: 2.0
-      Y: -1.0
+      Scale: 14.0
+      X: 0.0
+      Y: 0.0
     - Class: rviz_default_plugins/Orbit
       Name: 3D outdoor view
       Target Frame: camera_init
