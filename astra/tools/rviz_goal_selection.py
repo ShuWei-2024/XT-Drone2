@@ -22,23 +22,7 @@ from sensor_msgs_py import point_cloud2
 from visualization_msgs.msg import Marker, MarkerArray
 
 
-def rectangle_covered(boxes, lower, upper):
-    """Exact closed rectangle coverage by a finite rectangle union, including holes."""
-    boxes=np.asarray(boxes,dtype=float)
-    xs=np.unique(np.r_[lower[0],upper[0],
-        np.clip(boxes[:,:,0].ravel(),lower[0],upper[0])])
-    for a,b in zip(xs[:-1],xs[1:]):
-        if b-a<=1e-12:continue
-        x=(a+b)/2
-        active=boxes[(boxes[:,0,0]<=x)&(boxes[:,1,0]>=x)]
-        intervals=sorted((max(lo[1],lower[1]),min(hi[1],upper[1]))
-                         for lo,hi in active if hi[1]>=lower[1] and lo[1]<=upper[1])
-        end=lower[1]
-        for lo,hi in intervals:
-            if lo>end+1e-10:break
-            end=max(end,hi)
-        if end<upper[1]-1e-10:return False
-    return True
+from flight_recovery import rectangle_covered, spline_height_band
 
 
 def validate_goal(frame, stamp_ns, now_ns, xyz, origin, height_m, guard,
@@ -63,10 +47,14 @@ def validate_goal(frame, stamp_ns, now_ns, xyz, origin, height_m, guard,
         raise ValueError('Invalid inspected goal radius')
     if not (.25 <= distance <= radius or (allow_origin and distance <= .10)):
         raise ValueError(f'Select a goal between 0.25 and {radius:g} m from takeoff')
-    if guard.recovery_boxes is None or not guard.inside_recovery_region(delta):
-        raise ValueError('Goal is outside the certified descent region')
+    boxes = getattr(guard, 'flight_boxes', guard.recovery_boxes)
+    inside = getattr(guard, 'inside_flight_region', guard.inside_recovery_region)
+    if boxes is None or not inside(delta):
+        raise ValueError('Goal is outside the certified transit region' if
+                         getattr(guard, 'transit_boxes', None) is not None else
+                         'Goal is outside the certified descent region')
     # A neighbourhood reserve covers ground-reference noise and tracking error.
-    if not rectangle_covered(guard.recovery_boxes,delta-.1,delta+.1):
+    if not rectangle_covered(boxes,delta-.1,delta+.1):
         raise ValueError('Goal lacks 0.10 m descent-region reserve')
     if planning_envelope is not None and not planning_envelope.contains(xyz[:2]):
         raise ValueError('Goal is outside the shared planning/execution envelope')
@@ -189,10 +177,7 @@ class RvizSelection:
                 self.ui_wall = time.monotonic()
                 return
             if command == 'land':
-                self.stop = True
-                self.node.operator_stop_requested = True
-                self.mission.close()
-                self.node.event('rviz_land_requested')
+                self.request_land()
             else:
                 if command == 'start':
                     if time.monotonic()-self.ui_wall>2. or self.node.fault() or self.node.initial_alignment_fault() or self.battery_fault():
@@ -204,6 +189,10 @@ class RvizSelection:
                         q.pose.position.x = float(self.origin[0]+delta[0])
                         q.pose.position.y = float(self.origin[1]+delta[1])
                         self.check_click(q, i>0)
+                    if data.get('end_action', 'land') == 'land':
+                        from flight_recovery import landing_allowed
+                        if not landing_allowed(self.node.mesh_guard, self.mission.goals[-1]):
+                            raise ValueError('Last waypoint is transit only; choose return home or hold')
                 self.mission.command(command, data)
                 self.node.event('rviz_command_accepted', command=command)
                 self.state = 'Command: '+command
@@ -215,6 +204,17 @@ class RvizSelection:
     def land(self, msg):
         stamp = msg.header.stamp.sec*10**9+msg.header.stamp.nanosec
         if msg.header.frame_id == 'camera_init' and stamp>0 and 0 <= self.node.get_clock().now().nanoseconds-stamp <= 2_000_000_000:
+            self.request_land()
+
+    def request_land(self):
+        from flight_recovery import landing_allowed
+        body = getattr(self.node, 'truth_body', None)
+        if (self.mission.started and body is not None and
+                not landing_allowed(self.node.mesh_guard, body[:2])):
+            self.mission.command('return_home', {})
+            self.state = 'Returning home through planner'
+            self.node.event('rviz_land_redirected_to_return', reason='transit only position')
+        else:
             self.stop = True
             self.node.operator_stop_requested = True
             self.mission.close()
@@ -242,6 +242,15 @@ class RvizSelection:
     def display(self):
         if self.origin is None:return
         markers=[]
+        if self.node.mesh_guard.transit_boxes is not None:
+            for i,(lo,hi) in enumerate(self.node.mesh_guard.transit_boxes):
+                region=self.marker(100000+i,Marker.CUBE)
+                region.pose.position.x=float((lo[0]+hi[0])/2+self.origin[0])
+                region.pose.position.y=float((lo[1]+hi[1])/2+self.origin[1])
+                region.pose.position.z=float(self.origin[2]+self.height_m)
+                region.scale.x=float(hi[0]-lo[0]);region.scale.y=float(hi[1]-lo[1]);region.scale.z=.008
+                region.color.b=1.;region.color.g=.55;region.color.a=.12
+                markers.append(region)
         certificate=self.node.mesh_guard.metadata.get('recovery_certificate',{})
         if certificate.get('compacted'):
             for i,(lo,hi) in enumerate(self.node.mesh_guard.recovery_boxes):
@@ -301,8 +310,9 @@ class RvizSelection:
                 positions=np.array([x[1] for x in samples])
                 if np.ptp(positions,axis=0).max()>.02:continue
                 self.origin=np.median(positions,axis=0)
-                self.planning_envelope=PlanningEnvelope(node.mesh_guard.recovery_boxes,
-                    node.mesh_guard.bounds,self.origin[:2])
+                self.planning_envelope=PlanningEnvelope(node.mesh_guard.flight_boxes,
+                    node.mesh_guard.bounds,self.origin[:2],
+                    z_bounds=spline_height_band(node.mesh_guard,self.origin[2]))
                 # Truth is used ONLY to position the optional background illustration.
                 self.visual_offset=(self.origin-np.asarray(node.truth_body)).tolist()
                 node.event('rviz_ground_reference_frozen',origin_livo=self.origin.tolist(),

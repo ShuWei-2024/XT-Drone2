@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import sys
 import time
+from flight_recovery import landing_allowed, spline_height_band
 
 sys.path.insert(0, str(Path(__file__).parent))
 from obstacle_world_geometry_20261010 import clearances, load as load_obstacles
@@ -89,6 +90,7 @@ def takeoff(node, height_m=1.7, alignment_height_m=None):
         raise RuntimeError('preflight not healthy: ' + (node.fault() or node.initial_alignment_fault()))
     p = node.local
     origin = (p.x, p.y, p.z, p.heading)
+    node.takeoff_origin_ned = origin
     node.ground_route_origin_livo = (node.odom.pose.pose.position.x, node.odom.pose.pose.position.y)
     if getattr(node,'rviz_selection',None) is not None:
         frozen=node.rviz_selection.origin
@@ -99,8 +101,9 @@ def takeoff(node, height_m=1.7, alignment_height_m=None):
         from planning_envelope import PlanningEnvelope
         from nav_msgs.msg import OccupancyGrid
         from rclpy.qos import QoSProfile, DurabilityPolicy
-        node.planning_envelope = PlanningEnvelope(node.mesh_guard.recovery_boxes,
-            node.mesh_guard.bounds, node.ground_route_origin_livo)
+        node.planning_envelope = PlanningEnvelope(node.mesh_guard.flight_boxes,
+            node.mesh_guard.bounds, node.ground_route_origin_livo,
+            z_bounds=spline_height_band(node.mesh_guard,node.odom.pose.pose.position.z))
         if not node.planning_envelope.contains(node.ground_route_origin_livo):
             raise RuntimeError('Takeoff origin lacks shared-envelope reserve')
         node.envelope_pub = node.create_publisher(OccupancyGrid, '/planning/execution_envelope',
@@ -109,6 +112,10 @@ def takeoff(node, height_m=1.7, alignment_height_m=None):
         node.event('shared_execution_envelope_frozen', reserve_m=node.planning_envelope.reserve,
                    ground_origin_livo=list(node.ground_route_origin_livo),
                    accepted_cell_count=int(node.planning_envelope.free.sum()),
+                   z_bounds_livo_m=(None if node.planning_envelope.z_bounds is None else
+                                    node.planning_envelope.z_bounds.tolist()),
+                   region_source=('descent_plus_transit' if node.mesh_guard.metadata.get('transit_includes_descent_region')
+                                  else 'transit' if node.mesh_guard.transit_boxes is not None else 'descent'),
                    reference='known zero-yaw SITL spawn; ground odometry only')
     node.vertical_reference = p.z + node.truth[2]
     if node.initial_alignment_fault():
@@ -258,6 +265,12 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                                       [math.cos(angle), -math.sin(angle)]])
         bridge.translation = np.median([np.array(p[1][:2]) - bridge.matrix @ p[0][:2]
                                         for p in pairs], axis=0)
+        node.recovery_transform = (bridge.matrix.copy(), bridge.translation.copy())
+        if node.transit_active:
+            fault = node.native_rtl_fault()
+            if fault:
+                raise RuntimeError('Transit departure requires eligible native RTL: '+fault)
+            node.event('native_rtl_departure_gate_passed')
         airborne_height_values=[p[1][2]+p[0][2] for p in pairs]
         bridge.z_translation,height_reference_source=execution_height_reference(
             node.ground_alignment,airborne_height_values)
@@ -283,6 +296,9 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
         result['origin_livo'] = list(origin_livo)
         goal_index = 0
         selection = getattr(node, 'rviz_selection', None)
+        returning = False
+        end_action = (selection.mission.end_action if selection is not None else
+                      result['test_configuration'].get('end_action', 'land'))
         if selection is not None:
             selection.open_airborne()
         target = None
@@ -336,13 +352,16 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                 if now >= next_hold_send:
                     node.send(hold_target)
                     next_hold_send = now+.05
+                if selection.mission.return_requested:
+                    return False
                 if not selection.mission.paused and (not waiting or goal_index+1 < len(goal_queue)):
                     node.event('rviz_hold_released', goal_index=goal_index, waiting=waiting)
                     return True
             if waiting:
                 node.event('rviz_wait_timeout', goal_index=goal_index)
                 return False
-            raise RuntimeError('pause timeout: requesting guarded landing')
+            selection.mission.return_requested = True
+            return False
 
         publish_goal(*goal_queue[goal_index])
         leg_timeout = result['test_configuration'].get('planner_leg_timeout_s',100.) if obstacle_audit else 25.
@@ -353,6 +372,24 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
             receive_batch(executor)
             node.check_safe()
             now = time.monotonic()
+            if selection is not None and selection.mission.return_requested and not returning:
+                # Freeze current position while requesting a NEW home spline.
+                # Never send home directly as an Offboard position target.
+                returning = True
+                selection.mission.accepting = False
+                selection.mission.paused = False
+                selection.state = 'Returning home through planner'
+                goal_queue = [*goal_queue[:goal_index], [0., 0.]]
+                high = (node.local.x, node.local.y, node.local.z, node.local.heading)
+                node.event('planned_return_started', trigger='operator_or_pause_timeout')
+                result['return_home_requested'] = True
+                publish_goal(0., 0.)
+                final_sim_ns = None
+                handed = False
+                bridge.preview_gap_since = None
+                bridge.replan_hold = None
+                deadline = now+leg_timeout
+                continue
             if selection is not None and selection.mission.paused:
                 hold_yaw = bridge.tracking_yaw if bridge.tracking_yaw is not None else node.local.heading
                 high = (node.local.x,node.local.y,node.local.z,hold_yaw)
@@ -434,7 +471,10 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                 else:
                     raise RuntimeError('endpoint did not settle within 8 seconds')
                 node.event('ego_waypoint_reached', goal_index=goal_index)
-                if selection is not None:
+                if returning:
+                    result['return_home_complete'] = True
+                    node.event('planned_return_arrived', target_error_m=error)
+                if selection is not None and not returning:
                     selection.mission.completed = goal_index+1
                     selection.state = 'Waypoint %d reached' % (goal_index+1)
                     selection.status()
@@ -442,6 +482,20 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                     high = (*target, yaw)
                     if goal_index+1 == len(goal_queue) and selection.mission.end_action == 'hold':
                         mission_hold(high, waiting=True)
+                at_landing_site = (node.mesh_guard is None or landing_allowed(
+                    node.mesh_guard, np.asarray(goal_queue[goal_index])))
+                needs_return = (end_action == 'return_home' or not at_landing_site or
+                                (selection is not None and selection.mission.return_requested))
+                if goal_index+1 == len(goal_queue) and not returning and needs_return:
+                    returning = True
+                    if selection is not None:
+                        selection.mission.accepting = False
+                        selection.mission.paused = False
+                        selection.state = 'Returning home through planner'
+                        selection.status()
+                    goal_queue = [*goal_queue, [0., 0.]]
+                    result['return_home_requested'] = True
+                    node.event('planned_return_started', trigger='mission_end')
                 if goal_index + 1 < len(goal_queue):
                     # publish_goal replaces target with the NEXT destination.
                     # While waiting for its fresh spline, keep the completed
@@ -459,7 +513,7 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                     continue
                 if selection is not None:
                     selection.mission.close()
-                    selection.state = 'Mission completed: landing here'
+                    selection.state = 'Returned home: landing' if returning else 'Mission completed: landing here'
                     selection.status()
                 node.event('ego_trajectory_sampled_to_end')
                 result['trajectory_sampled_to_end'] = True
@@ -544,6 +598,8 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
         node.destroy_subscription(subscription)
         result['bridge_samples'] = bridge_rows
         result['bsplines'] = raw_splines
+        if 'goal_queue' in locals():
+            result['execution_route_offsets_m'] = [list(xy) for xy in goal_queue]
     path = np.asarray([row['truth'] for row in bridge_rows], dtype=float)
     result['actual_sampled_path_length_m'] = float(np.linalg.norm(np.diff(path[:, :2], axis=0), axis=1).sum())
     if result['actual_sampled_path_length_m'] < .25:
@@ -557,6 +613,7 @@ def main():
     parser.add_argument('--execution-executor', choices=('ready-batch', 'events'), default='ready-batch',
                         help='Optional experimental Jazzy event executor for isolated SITL')
     parser.add_argument('--output-prefix', required=True)
+    parser.add_argument('--end-action', choices=('land', 'return_home'), default='land')
     parser.add_argument('--goal-distance-m', type=float, default=.5)
     parser.add_argument('--goal-y-offset-m', type=float, default=0.0)
     parser.add_argument('--obstacle-audit', action='store_true')
@@ -621,6 +678,7 @@ def main():
     result['test_configuration']['planner_leg_timeout_s'] = args.planner_leg_timeout_s
     result['test_configuration']['execution_executor'] = args.execution_executor
     result['test_configuration']['endpoint_hold_seconds'] = args.endpoint_hold_seconds
+    result['test_configuration']['end_action'] = args.end_action
     result['test_configuration']['takeoff_height_m'] = args.takeoff_height_m
     result['test_configuration']['alignment_height_m'] = args.alignment_height_m
     result['test_configuration']['freeze_tracking_yaw'] = args.freeze_tracking_yaw
@@ -658,6 +716,7 @@ def main():
                 'cruise_height_m':args.takeoff_height_m,'return_to_takeoff':False,
                 'end_action':node.rviz_selection.mission.end_action}
         high = takeoff(node, args.takeoff_height_m, args.alignment_height_m)
+        node.transit_active = bool(node.mesh_guard is not None and node.mesh_guard.transit_boxes is not None)
         execute(node, high, result, args.goal_distance_m, args.goal_y_offset_m,
                 args.obstacle_audit, args.max_tracking_error_m, (preview, bridge), args.single_goal,
                 args.fixed_enu_ned_transform, obstacles, route_offsets, args.max_initial_yaw_disagreement_deg,
@@ -679,7 +738,7 @@ def main():
             mission = selection.mission
             result['rviz_mission'] = dict(goals=mission.goals, completed=mission.completed,
                 end_action=mission.end_action, wait_seconds=mission.wait_seconds,
-                closed=mission.closed, auto_return=False)
+                closed=mission.closed, auto_return=bool(result.get('return_home_complete')))
             Path(args.output_prefix).with_name('route.json').write_text(json.dumps(mission.goals)+'\n')
         result['events'] = node.events
         result['ground_height_alignment'] = node.ground_alignment.summary() if node.ground_alignment else None

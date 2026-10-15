@@ -117,7 +117,9 @@ def main():
             report['ground_frozen_errors'][label]=out
     truth=sorted([x for x in rows if x['source']=='gazebo'],key=lambda x:int(x['measurement_time_ns']))
     report['actual_route_legs']=[]
-    route=motion.get('route_offsets_m',[])
+    route=motion.get('execution_route_offsets_m',motion.get('route_offsets_m',[]))
+    if len(goals)>len(route) and 'origin_livo' in motion:
+        route=[(np.asarray(g['goal'][:2])-np.asarray(motion['origin_livo'][:2])).tolist() for g in goals]
     origin=motion.get('origin_livo')
     if truth and origin is not None:
         truth_times=np.array([int(x['measurement_time_ns']) for x in truth])
@@ -195,7 +197,19 @@ def main():
         full_xyz=positions(full)
         report['whole_flight_mesh_clearance_m']=stats([guard.clearance(x) for x in full_xyz])
         outside=(full_xyz[:,:2]<guard.bounds[0]).any(axis=1)|(full_xyz[:,:2]>guard.bounds[1]).any(axis=1)
-        outside |= np.array([not guard.inside_recovery_region(p[:2]) for p in full_xyz])
+        # Evaluate transit only between cruise readiness and final recovery.
+        # Takeoff/landing continue to require the full descent certificate.
+        cruise=next((e for e in events if e['event']=='segment_end' and e.get('name')=='cruise_settle'),None)
+        land=next((e for e in events if e['event']=='land_requested'),None)
+        def flight_region_ok(row,p):
+            stamp=int(row['measurement_time_ns'])
+            transit=(guard.transit_boxes is not None and cruise is not None and stamp>=cruise['sim_ns']
+                     and (land is None or stamp<land['sim_ns']))
+            # Native RTL descends only after entering the landing region.
+            if guard.inside_recovery_region(p[:2]):return True
+            return (transit and guard.inside_flight_region(p[:2]) and
+                    guard.transit_z_bounds[0]<=p[2]<=guard.transit_z_bounds[1])
+        outside |= np.array([not flight_region_ok(row,p) for row,p in zip(full,full_xyz)])
         if guard.z_bounds is not None:
             outside |= (full_xyz[:,2]<guard.z_bounds[0]) | (full_xyz[:,2]>guard.z_bounds[1])
         report['whole_flight_envelope_breach_samples']=int(outside.sum())

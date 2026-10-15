@@ -1,4 +1,4 @@
-"""A conservative planning mask derived from the supervisor's descent certificate.
+"""A conservative planning mask derived from the supervisor's flight certificate.
 
 This is a prior safety constraint, not sensor-observed obstacle geometry. The
 reference is frozen from ground odometry at the known zero-yaw SITL spawn.
@@ -9,7 +9,7 @@ from scipy.ndimage import distance_transform_edt, minimum_filter
 
 
 class PlanningEnvelope:
-    def __init__(self, boxes, bounds, origin_xy, resolution=.1, reserve=.4):
+    def __init__(self, boxes, bounds, origin_xy, resolution=.1, reserve=.4, z_bounds=None):
         boxes, bounds, origin_xy = map(lambda v: np.asarray(v, float), (boxes, bounds, origin_xy))
         if (boxes.ndim != 3 or boxes.shape[1:] != (2, 2) or not len(boxes)
                 or bounds.shape != (2, 2) or origin_xy.shape != (2,)
@@ -18,6 +18,10 @@ class PlanningEnvelope:
                 or not .05 <= resolution <= .2 or not .3 <= reserve <= .8):
             raise ValueError('Invalid planning envelope')
         self.resolution, self.reserve = resolution, reserve
+        self.z_bounds = None if z_bounds is None else np.asarray(z_bounds, float)
+        if (self.z_bounds is not None and (self.z_bounds.shape != (2,) or
+                not np.isfinite(self.z_bounds).all() or self.z_bounds[1] <= self.z_bounds[0])):
+            raise ValueError('Invalid planning height band')
         size = np.ceil((bounds[1]-bounds[0])/resolution).astype(int)
         self.origin = bounds[0]+origin_xy
         free = np.zeros(tuple(size[::-1]), bool)
@@ -67,7 +71,9 @@ class PlanningEnvelope:
         """Certify the entire cubic curve by subdivided Bezier convex hulls."""
         derivative = spline.derivative()
         def covered(c, depth=0):
-            if self.rectangle_free(c[:, :2].min(0), c[:, :2].max(0)): return True
+            height_ok = (self.z_bounds is None or
+                         (c[:,2].min() >= self.z_bounds[0] and c[:,2].max() <= self.z_bounds[1]))
+            if height_ok and self.rectangle_free(c[:, :2].min(0), c[:, :2].max(0)): return True
             if depth >= 10: return False
             a = (c[:-1]+c[1:])/2; b = (a[:-1]+a[1:])/2; mid = (b[0]+b[1])/2
             return (covered(np.array([c[0], a[0], b[0], mid]), depth+1)

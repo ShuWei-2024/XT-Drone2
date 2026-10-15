@@ -48,6 +48,9 @@ class GuardedPositionTest(SettledFlight):
         self.phase = 'preflight'
         self.resets = None
         self.airborne = False
+        self.transit_active = False
+        self.home = self.failsafe_flags = None
+        self.flags_wall = 0.
         self.vertical_reference = None
         self.vertical_disagreement_since = None
         self.settle_timeout_s = 60.
@@ -68,6 +71,15 @@ class GuardedPositionTest(SettledFlight):
         if os.environ.get('ASTRA_TEST_MESH_GUARD'):
             from scan_mesh_guard import MeshGuard
             self.mesh_guard = MeshGuard(os.environ['ASTRA_TEST_MESH_GUARD'])
+        if self.mesh_guard is not None and self.mesh_guard.transit_boxes is not None:
+            from px4_msgs.msg import HomePosition, FailsafeFlags
+            from px4_topics import px4_topic
+            from rclpy.qos import qos_profile_sensor_data
+            ns = os.environ.get('ASTRA_PX4_NAMESPACE', 'x500_0')
+            self.create_subscription(HomePosition, px4_topic('out','home_position',HomePosition,ns),
+                                     self.on_home, qos_profile_sensor_data)
+            self.create_subscription(FailsafeFlags, px4_topic('out','failsafe_flags',FailsafeFlags,ns),
+                                     self.on_flags, qos_profile_sensor_data)
         self.create_subscription(Odometry, '/fast_livo2/odom', self.on_odom, 10)
         self.create_subscription(Bool, '/local_mapping/ready', self.on_ready,
                                  QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
@@ -127,7 +139,92 @@ class GuardedPositionTest(SettledFlight):
             self.mesh_guard_xyz=list(self.truth_body)
             self.mesh_clearance_m=self.mesh_guard.clearance(self.truth_body)
             self.mesh_guard_truth_wall=self.truth_wall
-        return self.mesh_guard.fault(self.truth_body,self.mesh_clearance_m)
+        transit = self.transit_active
+        if self.phase in ('land', 'native_rtl') and self.mesh_guard.inside_recovery_region(self.truth_body[:2]):
+            transit = False
+        return self.mesh_guard.fault(self.truth_body,self.mesh_clearance_m, transit=transit)
+
+    def on_home(self, msg):
+        self.home = msg
+
+    def on_flags(self, msg):
+        self.failsafe_flags, self.flags_wall = msg, time.monotonic()
+
+    def native_rtl_fault(self):
+        """Independent PX4 health + known open corridor, never stale map planning."""
+        if self.mesh_guard is None or self.mesh_guard.transit_boxes is None:
+            return 'native RTL corridor not configured'
+        if not self.fresh() or time.monotonic()-self.local_wall > .25:
+            return 'PX4/Gazebo state unavailable for RTL'
+        if not self.local.heading_good_for_control:
+            return 'PX4 heading invalid for RTL'
+        flags = self.failsafe_flags
+        if flags is None or time.monotonic()-self.flags_wall > .5:
+            return 'PX4 failsafe flags stale'
+        invalid = [key for key in ('global_position_invalid', 'home_position_invalid',
+                   'local_position_invalid','local_altitude_invalid','attitude_invalid','navigator_failure')
+                   if getattr(flags,key)]
+        if invalid:
+            return 'PX4 invalid for RTL: '+', '.join(invalid)
+        home = self.home
+        if home is None or not (home.valid_hpos and home.valid_lpos and home.valid_alt):
+            return 'PX4 home invalid'
+        if not all(math.isfinite(v) for v in (home.x,home.y,home.z,
+                                               self.local.x,self.local.y,self.local.z)):
+            return 'non-finite PX4 home or position'
+        if not hasattr(self, 'takeoff_origin_ned') or math.dist(
+                [home.x,home.y,home.z],self.takeoff_origin_ned[:3]) > .3:
+            return 'PX4 home differs from inspected takeoff origin'
+        if (self.local.xy_reset_counter,self.local.z_reset_counter,self.local.heading_reset_counter) != self.resets:
+            return 'PX4 estimator reset invalidated RTL alignment'
+        if not hasattr(self, 'recovery_transform'):
+            return 'execution alignment unavailable for RTL'
+        matrix, translation = self.recovery_transform
+        import numpy as np
+        xy = matrix.T @ (np.array([self.local.x,self.local.y])-translation)
+        home_xy = np.asarray(self.ground_route_origin_livo)
+        if not self.planning_envelope.rectangle_free(np.minimum(xy,home_xy)-.1,
+                                                      np.maximum(xy,home_xy)+.1):
+            return 'no certified straight RTL corridor to home'
+        if self.mesh_fault():
+            return 'outside inspected geometry before RTL'
+        return ''
+
+    def native_rtl(self):
+        fault = self.native_rtl_fault()
+        if fault:
+            self.event('native_rtl_refused', reason=fault)
+            return False
+        self.phase = 'native_rtl'
+        self.event('native_rtl_requested', command='VEHICLE_CMD_NAV_RETURN_TO_LAUNCH',
+                   home_ned=[self.home.x,self.home.y,self.home.z])
+        deadline = time.monotonic()+120.
+        acceptance_deadline = time.monotonic()+3.
+        next_request = 0.
+        entered = False
+        while rclpy.ok() and time.monotonic() < deadline:
+            rclpy.spin_once(self,timeout_sec=.005)
+            if self.status.arming_state != VehicleStatus.ARMING_STATE_ARMED:
+                self.event('native_rtl_disarmed', truth_body=self.truth_body)
+                return True
+            if self.status.nav_state == VehicleStatus.NAVIGATION_STATE_AUTO_RTL:
+                if not entered:
+                    self.event('native_rtl_entered')
+                entered = True
+            elif entered and self.status.nav_state != VehicleStatus.NAVIGATION_STATE_AUTO_LAND:
+                self.event('native_rtl_failed',reason='PX4 left RTL unexpectedly')
+                return False
+            if not entered and time.monotonic() > acceptance_deadline:
+                self.event('native_rtl_failed',reason='PX4 did not accept RTL within 3 s')
+                return False
+            if not entered and time.monotonic() >= next_request:
+                self.command(VehicleCommand.VEHICLE_CMD_NAV_RETURN_TO_LAUNCH)
+                next_request = time.monotonic()+.5
+            if not self.fresh() or self.mesh_fault():
+                self.event('native_rtl_failed',reason='state or inspected mesh guard failed')
+                return False
+        self.event('native_rtl_failed',reason='RTL disarm timeout')
+        return False
 
     def static_obstacle_fault(self):
         if not self.static_obstacles:return ''
@@ -221,7 +318,8 @@ class GuardedPositionTest(SettledFlight):
         scan_fault=self.mesh_fault()
         if scan_fault:return scan_fault
         if self.mesh_guard is not None:
-            scan_fault=self.mesh_guard.approaching_boundary(self.truth_body,self.truth_body_velocity)
+            scan_fault=self.mesh_guard.approaching_boundary(self.truth_body,self.truth_body_velocity,
+                                                          transit=self.transit_active)
             if scan_fault:return scan_fault
         if self.pending_odom is not None:
             s = self.pending_odom.header.stamp
@@ -432,6 +530,25 @@ class GuardedPositionTest(SettledFlight):
         raise RuntimeError('PX4 in-flight heading alignment did not complete')
 
     def land(self):
+        from flight_recovery import landing_allowed
+        if self.mesh_guard is not None:
+            def safe_descent():
+                return (self.truth_body is not None and time.monotonic()-self.truth_wall <= .25
+                        and landing_allowed(self.mesh_guard,self.truth_body[:2]))
+            attempted_rtl = False
+            # In a prepared transit scene prefer official RTL after any execution
+            # fault, even when currently above a landable patch.
+            if (self.mesh_guard.transit_boxes is not None and self.airborne and self.sample_reason
+                    and self.sample_reason != 'operator requested guarded landing'):
+                attempted_rtl = True
+                if self.native_rtl():
+                    return True
+            if not safe_descent():
+                if not attempted_rtl and self.mesh_guard.transit_boxes is not None and self.native_rtl():
+                    return True
+                self.event('landing_refused',reason='no certified descent or eligible RTL; SITL run must stop')
+                return False
+        self.transit_active = False
         self.phase = 'land'
         self.event('land_requested')
         deadline = time.monotonic() + 30.

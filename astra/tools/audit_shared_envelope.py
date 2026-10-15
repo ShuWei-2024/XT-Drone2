@@ -13,7 +13,8 @@ def audit(directory):
     motion=json.loads((directory/'motion_events.json').read_text())
     frozen=next(e for e in motion['events'] if e['event']=='shared_execution_envelope_frozen')
     guard=MeshGuard(directory/'mesh_guard.npz')
-    envelope=PlanningEnvelope(guard.recovery_boxes,guard.bounds,frozen['ground_origin_livo'],reserve=frozen['reserve_m'])
+    envelope=PlanningEnvelope(guard.flight_boxes,guard.bounds,frozen['ground_origin_livo'],reserve=frozen['reserve_m'],
+                              z_bounds=frozen.get('z_bounds_livo_m'))
     failures=[]
     for msg in motion.get('bsplines',[]):
         try: envelope.validate_spline(BSpline(msg['knots'],msg['controls'],msg['order'],extrapolate=False))
@@ -34,8 +35,9 @@ def audit(directory):
         all_executed_curves_inside_shared_envelope=bool(tracked_ids) and not executed_failures,
         all_complete_curves_inside_shared_envelope=bool(motion.get('bsplines') and not failures),
         reserve_m=frozen['reserve_m'],ground_reference=frozen['ground_origin_livo'],
+        recorded_z_bounds_livo_m=frozen.get('z_bounds_livo_m'),
         method='Cubic Bezier convex-hull subdivision over each knot span; blocked/unknown cells rejected',
-        scope='Frozen descent certificate is a prior safety constraint; obstacle observations remain separate; planner candidates rejected by preview are reported separately')
+        scope='Frozen flight-volume certificate (transit when configured, otherwise descent); obstacle observations remain separate; rejected candidates reported separately')
     (directory/'shared_envelope_audit.json').write_text(json.dumps(result,indent=2)+'\n')
     return result
 

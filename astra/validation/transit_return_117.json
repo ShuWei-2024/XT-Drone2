@@ -1,0 +1,971 @@
+{
+  "schema": 1,
+  "date": "2026-10-15",
+  "branch": "astra/px4-1.17",
+  "runs": [
+    {
+      "run": "return_airspace_20261015_01",
+      "kind": "normal_return",
+      "runtime_directory": "astra/runtime/return_airspace_20261015_01",
+      "run_summary": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "ground-aligned height has no measurement pair within 20 ms",
+      "return_home_complete": false,
+      "configuration": {
+        "fixed_enu_ned_transform": true,
+        "max_estimator_xy_disagreement_m": 0.3,
+        "max_tracking_error_m": 0.6,
+        "velocity_feedforward": true,
+        "planner_leg_timeout_s": 100.0,
+        "execution_executor": "ready-batch",
+        "endpoint_hold_seconds": 3.0,
+        "end_action": "return_home",
+        "takeoff_height_m": 1.5,
+        "alignment_height_m": 1.6,
+        "freeze_tracking_yaw": true,
+        "max_initial_yaw_disagreement_deg": 5.0
+      },
+      "parameter_overrides": {
+        "UXRCE_DDS_SYNCT": 0,
+        "EKF2_EV_CTRL": 3,
+        "EKF2_HGT_REF": 3,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_MAG_TYPE": 1,
+        "EKF2_BARO_NOISE": 0.3,
+        "EKF2_GPS_DELAY": 110.0,
+        "EKF2_GND_EFF_DZ": 0,
+        "MPC_XY_P": 1.2,
+        "EKF2_EV_DELAY": 0,
+        "EKF2_EV_POS_X": 0,
+        "EKF2_EV_POS_Y": 0,
+        "EKF2_EV_POS_Z": 0,
+        "EKF2_EV_NOISE_MD": 0,
+        "EKF2_EVP_NOISE": 0.1,
+        "SDLOG_PROFILE": 129,
+        "RTL_RETURN_ALT": 1.5,
+        "RTL_DESCEND_ALT": 1.5,
+        "RTL_CONE_ANG": 0,
+        "RTL_MIN_DIST": 0.5,
+        "RTL_LAND_DELAY": 0,
+        "RTL_TYPE": 0,
+        "RTL_PLD_MD": 0,
+        "NAV_ACC_RAD": 0.2,
+        "MPC_XY_CRUISE": 0.3
+      },
+      "source_manifest_sha256": "1604cf71a768a3459442ba94102e51c21b88b8ec897287f27ea47fbeaa9a8054"
+    },
+    {
+      "run": "return_airspace_20261015_02",
+      "kind": "normal_return",
+      "runtime_directory": "astra/runtime/return_airspace_20261015_02",
+      "run_summary": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "return_home_complete": true,
+      "configuration": {
+        "fixed_enu_ned_transform": true,
+        "max_estimator_xy_disagreement_m": 0.3,
+        "max_tracking_error_m": 0.6,
+        "velocity_feedforward": true,
+        "planner_leg_timeout_s": 100.0,
+        "execution_executor": "ready-batch",
+        "endpoint_hold_seconds": 3.0,
+        "end_action": "return_home",
+        "takeoff_height_m": 1.5,
+        "alignment_height_m": 1.6,
+        "freeze_tracking_yaw": true,
+        "max_initial_yaw_disagreement_deg": 5.0
+      },
+      "parameter_overrides": {
+        "UXRCE_DDS_SYNCT": 0,
+        "EKF2_EV_CTRL": 3,
+        "EKF2_HGT_REF": 1,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_MAG_TYPE": 1,
+        "EKF2_BARO_NOISE": 0.3,
+        "EKF2_GPS_DELAY": 110.0,
+        "EKF2_GND_EFF_DZ": 0,
+        "MPC_XY_P": 1.2,
+        "EKF2_EV_DELAY": 0,
+        "EKF2_EV_POS_X": 0,
+        "EKF2_EV_POS_Y": 0,
+        "EKF2_EV_POS_Z": 0,
+        "EKF2_EV_NOISE_MD": 0,
+        "EKF2_EVP_NOISE": 0.1,
+        "SDLOG_PROFILE": 129,
+        "RTL_RETURN_ALT": 1.5,
+        "RTL_DESCEND_ALT": 1.5,
+        "RTL_CONE_ANG": 0,
+        "RTL_MIN_DIST": 0.5,
+        "RTL_LAND_DELAY": 0,
+        "RTL_TYPE": 0,
+        "RTL_PLD_MD": 0,
+        "NAV_ACC_RAD": 0.2,
+        "MPC_XY_CRUISE": 0.3
+      },
+      "source_manifest_sha256": "634e3f79639625e97ce359d8f4a12869d61900b3bca5a5a8915b82c6a17dab56",
+      "scan": {
+        "complete_route_verified": true,
+        "actual_horizontal_path_m": 6.356360248817148,
+        "actual_route_legs": [
+          {
+            "goal_index": 0,
+            "reached": true,
+            "requested_delta_xy_m": [
+              -3.0,
+              0.0
+            ],
+            "actual_delta_xy_m": [
+              -3.0342734068092225,
+              0.04683347949095472
+            ],
+            "actual_progress_along_requested_direction_m": 3.034273406809222,
+            "endpoint_truth_xy_error_m": 0.03891677076704756,
+            "measurement_pair_dt_ms": [
+              4.0,
+              8.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.01907533085643316,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 1.298134053883909
+          },
+          {
+            "goal_index": 1,
+            "reached": true,
+            "requested_delta_xy_m": [
+              3.0,
+              0.0
+            ],
+            "actual_delta_xy_m": [
+              2.960163766711136,
+              6.419030830645545e-05
+            ],
+            "actual_progress_along_requested_direction_m": 2.9601637667111356,
+            "endpoint_truth_xy_error_m": 0.05878516368554563,
+            "measurement_pair_dt_ms": [
+              8.0,
+              4.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.050345022382516154,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 1.314630804568583
+          }
+        ],
+        "ground_frozen_errors": {
+          "climb": {
+            "fast_livo2_xy_m": {
+              "count": 160,
+              "p50": 0.007916234653749608,
+              "p95": 0.03576379667566917,
+              "maximum": 0.05072589112808453
+            },
+            "fast_livo2_z_m": {
+              "count": 160,
+              "p50": 0.0021637290459886604,
+              "p95": 0.006088010989508238,
+              "maximum": 0.007648173661447544
+            },
+            "fast_livo2_signed_z_median": -0.0021637290459886604,
+            "px4_xy_m": {
+              "count": 799,
+              "p50": 0.015102769866124657,
+              "p95": 0.024863765110752386,
+              "maximum": 0.027296088307712
+            },
+            "px4_z_m": {
+              "count": 799,
+              "p50": 0.020094101699676736,
+              "p95": 0.04538091467291262,
+              "maximum": 0.08161028577242635
+            },
+            "px4_signed_z_median": 2.364814281463623e-05
+          },
+          "ego_execution": {
+            "fast_livo2_xy_m": {
+              "count": 396,
+              "p50": 0.02273345840115438,
+              "p95": 0.03340222076127397,
+              "maximum": 0.04221784019860791
+            },
+            "fast_livo2_z_m": {
+              "count": 396,
+              "p50": 0.004982190396622621,
+              "p95": 0.007105754530820352,
+              "maximum": 0.009024678282567145
+            },
+            "fast_livo2_signed_z_median": -0.004982190396622621,
+            "px4_xy_m": {
+              "count": 1983,
+              "p50": 0.02006190465670669,
+              "p95": 0.04184180643256534,
+              "maximum": 0.05066419068281944
+            },
+            "px4_z_m": {
+              "count": 1983,
+              "p50": 0.04629720148251648,
+              "p95": 0.0832679948818834,
+              "maximum": 0.09490452049458553
+            },
+            "px4_signed_z_median": 0.04629720148251648
+          }
+        },
+        "whole_flight_mesh_clearance_m": {
+          "count": 4761,
+          "minimum": 1.2017602764605413,
+          "p95": 1.8960613386056149,
+          "maximum": 1.9128983956892176
+        },
+        "whole_flight_envelope_passed": true,
+        "planned_dynamics_passed": true,
+        "planned_continuous_clearance_passed": true,
+        "armed_failsafe_samples": 0
+      },
+      "ev_fusion_confirmed": true,
+      "shared_envelope": {
+        "all_executed_curves_inside_shared_envelope": true,
+        "executed_curve_failures": [],
+        "recorded_z_bounds_livo_m": null
+      }
+    },
+    {
+      "run": "return_airspace_20261015_03",
+      "kind": "injected_map_failure",
+      "runtime_directory": "astra/runtime/return_airspace_20261015_03",
+      "run_summary": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "local map not ready or heartbeat stale",
+      "return_home_complete": false,
+      "configuration": {
+        "fixed_enu_ned_transform": true,
+        "max_estimator_xy_disagreement_m": 0.3,
+        "max_tracking_error_m": 0.6,
+        "velocity_feedforward": true,
+        "planner_leg_timeout_s": 100.0,
+        "execution_executor": "ready-batch",
+        "endpoint_hold_seconds": 3.0,
+        "end_action": "return_home",
+        "takeoff_height_m": 1.5,
+        "alignment_height_m": 1.6,
+        "freeze_tracking_yaw": true,
+        "max_initial_yaw_disagreement_deg": 5.0
+      },
+      "parameter_overrides": {
+        "UXRCE_DDS_SYNCT": 0,
+        "EKF2_EV_CTRL": 3,
+        "EKF2_HGT_REF": 1,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_MAG_TYPE": 1,
+        "EKF2_BARO_NOISE": 0.3,
+        "EKF2_GPS_DELAY": 110.0,
+        "EKF2_GND_EFF_DZ": 0,
+        "MPC_XY_P": 1.2,
+        "EKF2_EV_DELAY": 0,
+        "EKF2_EV_POS_X": 0,
+        "EKF2_EV_POS_Y": 0,
+        "EKF2_EV_POS_Z": 0,
+        "EKF2_EV_NOISE_MD": 0,
+        "EKF2_EVP_NOISE": 0.1,
+        "SDLOG_PROFILE": 129,
+        "RTL_RETURN_ALT": 1.5,
+        "RTL_DESCEND_ALT": 1.5,
+        "RTL_CONE_ANG": 0,
+        "RTL_MIN_DIST": 0.5,
+        "RTL_LAND_DELAY": 0,
+        "RTL_TYPE": 0,
+        "RTL_PLD_MD": 0,
+        "NAV_ACC_RAD": 0.2,
+        "MPC_XY_CRUISE": 0.3
+      },
+      "source_manifest_sha256": "c31ec690098a9b3a250c2f19425fe291c7b89ef4c377c1dcd1c04f9dfec627b3",
+      "scan": {
+        "complete_route_verified": false,
+        "actual_horizontal_path_m": 1.6342243104295235,
+        "actual_route_legs": [
+          {
+            "goal_index": 0,
+            "reached": false,
+            "requested_delta_xy_m": [
+              -3.0,
+              0.0
+            ],
+            "actual_delta_xy_m": [
+              -1.632770557947273,
+              0.04572598669557341
+            ],
+            "actual_progress_along_requested_direction_m": 1.632770557947273,
+            "endpoint_truth_xy_error_m": 1.405653563929727,
+            "measurement_pair_dt_ms": [
+              8.0,
+              4.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 1.407749352364337,
+            "actual_motion_verified": false,
+            "actual_minimum_known_surface_clearance_m": 1.3237423194235096
+          }
+        ],
+        "ground_frozen_errors": {
+          "climb": {
+            "fast_livo2_xy_m": {
+              "count": 160,
+              "p50": 0.011782476272323116,
+              "p95": 0.05191212353632944,
+              "maximum": 0.057236911660658474
+            },
+            "fast_livo2_z_m": {
+              "count": 160,
+              "p50": 0.002010142099649448,
+              "p95": 0.007275323520548049,
+              "maximum": 0.010324174228927396
+            },
+            "fast_livo2_signed_z_median": -0.0017393384176953575,
+            "px4_xy_m": {
+              "count": 798,
+              "p50": 0.014937791934440003,
+              "p95": 0.02322764236021232,
+              "maximum": 0.03226197652860185
+            },
+            "px4_z_m": {
+              "count": 798,
+              "p50": 0.03332451123319487,
+              "p95": 0.0960971377789974,
+              "maximum": 0.10761409997940061
+            },
+            "px4_signed_z_median": -0.011289057929720903
+          },
+          "ego_execution": {
+            "fast_livo2_xy_m": {
+              "count": 102,
+              "p50": 0.0396377364161522,
+              "p95": 0.050868994978453624,
+              "maximum": 0.057100719371753324
+            },
+            "fast_livo2_z_m": {
+              "count": 102,
+              "p50": 0.004253653098704846,
+              "p95": 0.005680910734628419,
+              "maximum": 0.006954284487068696
+            },
+            "fast_livo2_signed_z_median": -0.004253653098704846,
+            "px4_xy_m": {
+              "count": 510,
+              "p50": 0.030617657519995338,
+              "p95": 0.04404218278757177,
+              "maximum": 0.045234039329371416
+            },
+            "px4_z_m": {
+              "count": 510,
+              "p50": 0.021506492180799475,
+              "p95": 0.06267358590176149,
+              "maximum": 0.07299823207920464
+            },
+            "px4_signed_z_median": -0.012526534735767814
+          }
+        },
+        "whole_flight_mesh_clearance_m": {
+          "count": 3393,
+          "minimum": 1.208077524840261,
+          "p95": 1.960702390452111,
+          "maximum": 1.9660895037740465
+        },
+        "whole_flight_envelope_passed": true,
+        "planned_dynamics_passed": true,
+        "planned_continuous_clearance_passed": true,
+        "armed_failsafe_samples": 0
+      },
+      "ev_fusion_confirmed": true,
+      "shared_envelope": {
+        "all_executed_curves_inside_shared_envelope": true,
+        "executed_curve_failures": [],
+        "recorded_z_bounds_livo_m": null
+      },
+      "transit": {
+        "flight_complete": false,
+        "fault": "local map not ready or heartbeat stale",
+        "disarmed": true,
+        "return_home_complete": false,
+        "ground_frozen_offsets_m": {
+          "fast_livo2": [
+            0.0012343851339112737,
+            0.01627040334949884,
+            0.3469342201260968
+          ],
+          "px4": [
+            -0.017537971317178425,
+            0.015932572029800383,
+            0.33557855491644895
+          ]
+        },
+        "measurement_truth_samples": 3424,
+        "nonlandable_ground_sample_count": 668,
+        "low_box_overflight_samples": 262,
+        "low_box_overflight_body_z_m": {
+          "count": 262,
+          "p50": 1.6767920166469847,
+          "p95": 1.6831665909011773,
+          "maximum": 1.6838831666992011
+        },
+        "low_box_overflight_clearance_m": {
+          "count": 262,
+          "p50": 1.3267920166469847,
+          "p95": 1.3331665909011774,
+          "maximum": 1.3338831666992013
+        },
+        "native_rtl_requested": true,
+        "native_rtl_entered": true,
+        "native_rtl_disarmed": true,
+        "native_recovery_verified": true,
+        "scope": "Known static SITL cruise corridor only; body-centre surface clearance, no hardware or dynamic-obstacle certification",
+        "native_rtl_duration_sim_s": 11.228,
+        "native_rtl_acceptance_wall_ms": 31.106067,
+        "native_rtl_start_landing_allowed": false,
+        "native_rtl_path_xy_m": 1.6716164645557314,
+        "native_rtl_minimum_mesh_clearance_m": 1.208077524840261,
+        "native_rtl_final_home_xy_error_m": 0.045542515307441196,
+        "native_rtl_body_z_bounds_m": [
+          0.2253435934462437,
+          1.6838831666992011
+        ],
+        "native_rtl_envelope_breach_samples": 0,
+        "native_rtl_measurement_errors": {
+          "fast_livo2": {
+            "paired": 113,
+            "total": 113,
+            "xy_m": {
+              "count": 113,
+              "p50": 0.036610415294872876,
+              "p95": 0.051081428677190746,
+              "maximum": 0.06081423962222588
+            },
+            "z_m": {
+              "count": 113,
+              "p50": 0.003439829431442387,
+              "p95": 0.00967611427639385,
+              "maximum": 0.019206756033939898
+            },
+            "measurement_pair_dt_ms": {
+              "count": 113,
+              "p50": 4.0,
+              "p95": 8.0,
+              "maximum": 12.0
+            }
+          },
+          "px4": {
+            "paired": 562,
+            "total": 562,
+            "xy_m": {
+              "count": 562,
+              "p50": 0.022052204954830124,
+              "p95": 0.040001428740363165,
+              "maximum": 0.04685792074463355
+            },
+            "z_m": {
+              "count": 562,
+              "p50": 0.04970932667837691,
+              "p95": 0.09205589150142314,
+              "maximum": 0.09972938404267095
+            },
+            "measurement_pair_dt_ms": {
+              "count": 562,
+              "p50": 4.0,
+              "p95": 8.0,
+              "maximum": 12.0
+            }
+          }
+        },
+        "supervisor_setpoints_after_rtl_request": 0,
+        "native_rtl_invalid_position_flag_counts": {
+          "global_position_invalid": 0,
+          "home_position_invalid": 0,
+          "local_position_invalid": 0,
+          "local_altitude_invalid": 0
+        },
+        "ulog_offboard_messages_after_rtl_request": 0
+      },
+      "fault_regression": {
+        "expected_fault_observed": true,
+        "driver_exit_code": 1,
+        "map_exit_code": 0,
+        "fault": "local map not ready or heartbeat stale",
+        "stopped_process": "map",
+        "stopped_process_exit_code": 0,
+        "hold_after_injection_ms": 319.406686,
+        "disarmed": true
+      },
+      "fault_detection_wall_ms": 225.49867,
+      "rtl_request_after_injection_wall_ms": 1320.068439
+    },
+    {
+      "run": "return_airspace_20261015_04",
+      "kind": "normal_return",
+      "runtime_directory": "astra/runtime/return_airspace_20261015_04",
+      "run_summary": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "return_home_complete": true,
+      "configuration": {
+        "fixed_enu_ned_transform": true,
+        "max_estimator_xy_disagreement_m": 0.3,
+        "max_tracking_error_m": 0.6,
+        "velocity_feedforward": true,
+        "planner_leg_timeout_s": 100.0,
+        "execution_executor": "ready-batch",
+        "endpoint_hold_seconds": 3.0,
+        "end_action": "return_home",
+        "takeoff_height_m": 1.5,
+        "alignment_height_m": 1.6,
+        "freeze_tracking_yaw": true,
+        "max_initial_yaw_disagreement_deg": 5.0
+      },
+      "parameter_overrides": {
+        "UXRCE_DDS_SYNCT": 0,
+        "EKF2_EV_CTRL": 3,
+        "EKF2_HGT_REF": 1,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_MAG_TYPE": 1,
+        "EKF2_BARO_NOISE": 0.3,
+        "EKF2_GPS_DELAY": 110.0,
+        "EKF2_GND_EFF_DZ": 0,
+        "MPC_XY_P": 1.2,
+        "EKF2_EV_DELAY": 0,
+        "EKF2_EV_POS_X": 0,
+        "EKF2_EV_POS_Y": 0,
+        "EKF2_EV_POS_Z": 0,
+        "EKF2_EV_NOISE_MD": 0,
+        "EKF2_EVP_NOISE": 0.1,
+        "SDLOG_PROFILE": 129,
+        "RTL_RETURN_ALT": 1.5,
+        "RTL_DESCEND_ALT": 1.5,
+        "RTL_CONE_ANG": 0,
+        "RTL_MIN_DIST": 0.5,
+        "RTL_LAND_DELAY": 0,
+        "RTL_TYPE": 0,
+        "RTL_PLD_MD": 0,
+        "NAV_ACC_RAD": 0.2,
+        "MPC_XY_CRUISE": 0.3
+      },
+      "source_manifest_sha256": "bd55964658dd2cfecfd2fd11e890dca7d5b6992681cfbfc09ede8078064cd95a",
+      "scan": {
+        "complete_route_verified": true,
+        "actual_horizontal_path_m": 6.243034070926223,
+        "actual_route_legs": [
+          {
+            "goal_index": 0,
+            "reached": true,
+            "requested_delta_xy_m": [
+              -3.0,
+              0.0
+            ],
+            "actual_delta_xy_m": [
+              -3.007529855390091,
+              0.017089737559259355
+            ],
+            "actual_progress_along_requested_direction_m": 3.007529855390091,
+            "endpoint_truth_xy_error_m": 0.020743454490143122,
+            "measurement_pair_dt_ms": [
+              8.0,
+              0.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.018461261447535883,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 1.1419934109927967
+          },
+          {
+            "goal_index": 1,
+            "reached": true,
+            "requested_delta_xy_m": [
+              3.0,
+              0.0
+            ],
+            "actual_delta_xy_m": [
+              3.0127789071909152,
+              0.009540722357930135
+            ],
+            "actual_progress_along_requested_direction_m": 3.0127789071909152,
+            "endpoint_truth_xy_error_m": 0.028733016796572988,
+            "measurement_pair_dt_ms": [
+              0.0,
+              8.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.008616814441309698,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 1.1386723949528095
+          }
+        ],
+        "ground_frozen_errors": {
+          "climb": {
+            "fast_livo2_xy_m": {
+              "count": 160,
+              "p50": 0.004765799993461531,
+              "p95": 0.02363558987163614,
+              "maximum": 0.03689775441881915
+            },
+            "fast_livo2_z_m": {
+              "count": 160,
+              "p50": 0.0014541775919803268,
+              "p95": 0.0048826709091342665,
+              "maximum": 0.006429862035439715
+            },
+            "fast_livo2_signed_z_median": -0.0008191998386744975,
+            "px4_xy_m": {
+              "count": 800,
+              "p50": 0.03017024143544418,
+              "p95": 0.04245658507848099,
+              "maximum": 0.0464724064763116
+            },
+            "px4_z_m": {
+              "count": 800,
+              "p50": 0.012916860732305357,
+              "p95": 0.028148983219786785,
+              "maximum": 0.03333496140238035
+            },
+            "px4_signed_z_median": 0.012916860732305357
+          },
+          "ego_execution": {
+            "fast_livo2_xy_m": {
+              "count": 390,
+              "p50": 0.01055408169879744,
+              "p95": 0.020944365045404215,
+              "maximum": 0.03440050987758263
+            },
+            "fast_livo2_z_m": {
+              "count": 390,
+              "p50": 0.0034370723567345163,
+              "p95": 0.007417528825067597,
+              "maximum": 0.00833081021589055
+            },
+            "fast_livo2_signed_z_median": 0.0019275630106642128,
+            "px4_xy_m": {
+              "count": 1950,
+              "p50": 0.026321347705012564,
+              "p95": 0.05125374239585578,
+              "maximum": 0.06190886028732707
+            },
+            "px4_z_m": {
+              "count": 1950,
+              "p50": 0.0552813744227606,
+              "p95": 0.09558096511029386,
+              "maximum": 0.1336749174601477
+            },
+            "px4_signed_z_median": 0.0552813744227606
+          }
+        },
+        "whole_flight_mesh_clearance_m": {
+          "count": 4743,
+          "minimum": 1.1386723949528095,
+          "p95": 1.8851923069216785,
+          "maximum": 1.898382309517239
+        },
+        "whole_flight_envelope_passed": true,
+        "planned_dynamics_passed": true,
+        "planned_continuous_clearance_passed": true,
+        "armed_failsafe_samples": 0
+      },
+      "ev_fusion_confirmed": true,
+      "shared_envelope": {
+        "all_executed_curves_inside_shared_envelope": true,
+        "executed_curve_failures": [],
+        "recorded_z_bounds_livo_m": null
+      },
+      "transit": {
+        "flight_complete": true,
+        "fault": "",
+        "disarmed": true,
+        "return_home_complete": true,
+        "ground_frozen_offsets_m": {
+          "fast_livo2": [
+            0.0009228357040343194,
+            0.020589092285618293,
+            0.3483799540283815
+          ],
+          "px4": [
+            0.03176090651064473,
+            -0.025537949099867376,
+            0.2912402689934448
+          ]
+        },
+        "measurement_truth_samples": 4794,
+        "nonlandable_ground_sample_count": 1243,
+        "low_box_overflight_samples": 279,
+        "low_box_overflight_body_z_m": {
+          "count": 279,
+          "p50": 1.4994850361650311,
+          "p95": 1.5575224291587944,
+          "maximum": 1.557826858043849
+        },
+        "low_box_overflight_clearance_m": {
+          "count": 279,
+          "p50": 1.1494850361650313,
+          "p95": 1.2075224291587945,
+          "maximum": 1.2078268580438491
+        },
+        "native_rtl_requested": false,
+        "native_rtl_entered": false,
+        "native_rtl_disarmed": false,
+        "native_recovery_verified": false,
+        "scope": "Known static SITL cruise corridor only; body-centre surface clearance, no hardware or dynamic-obstacle certification"
+      }
+    },
+    {
+      "run": "return_airspace_20261015_05",
+      "kind": "normal_return",
+      "runtime_directory": "astra/runtime/return_airspace_20261015_05",
+      "run_summary": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "return_home_complete": true,
+      "configuration": {
+        "fixed_enu_ned_transform": true,
+        "max_estimator_xy_disagreement_m": 0.3,
+        "max_tracking_error_m": 0.6,
+        "velocity_feedforward": true,
+        "planner_leg_timeout_s": 100.0,
+        "execution_executor": "ready-batch",
+        "endpoint_hold_seconds": 3.0,
+        "end_action": "return_home",
+        "takeoff_height_m": 1.5,
+        "alignment_height_m": 1.6,
+        "freeze_tracking_yaw": true,
+        "max_initial_yaw_disagreement_deg": 5.0
+      },
+      "parameter_overrides": {
+        "UXRCE_DDS_SYNCT": 0,
+        "EKF2_EV_CTRL": 3,
+        "EKF2_HGT_REF": 1,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_MAG_TYPE": 1,
+        "EKF2_BARO_NOISE": 0.3,
+        "EKF2_GPS_DELAY": 110.0,
+        "EKF2_GND_EFF_DZ": 0,
+        "MPC_XY_P": 1.2,
+        "EKF2_EV_DELAY": 0,
+        "EKF2_EV_POS_X": 0,
+        "EKF2_EV_POS_Y": 0,
+        "EKF2_EV_POS_Z": 0,
+        "EKF2_EV_NOISE_MD": 0,
+        "EKF2_EVP_NOISE": 0.1,
+        "SDLOG_PROFILE": 129,
+        "RTL_RETURN_ALT": 1.5,
+        "RTL_DESCEND_ALT": 1.5,
+        "RTL_CONE_ANG": 0,
+        "RTL_MIN_DIST": 0.5,
+        "RTL_LAND_DELAY": 0,
+        "RTL_TYPE": 0,
+        "RTL_PLD_MD": 0,
+        "NAV_ACC_RAD": 0.2,
+        "MPC_XY_CRUISE": 0.3
+      },
+      "source_manifest_sha256": "6e8f5ec098d4253df5949173af8df16b41caa0961d6d6c46659b7bb7cb3e0cfc",
+      "scan": {
+        "complete_route_verified": true,
+        "actual_horizontal_path_m": 6.285863330008544,
+        "actual_route_legs": [
+          {
+            "goal_index": 0,
+            "reached": true,
+            "requested_delta_xy_m": [
+              -3.0,
+              0.0
+            ],
+            "actual_delta_xy_m": [
+              -2.9920777133033676,
+              0.0635806359223138
+            ],
+            "actual_progress_along_requested_direction_m": 2.992077713303368,
+            "endpoint_truth_xy_error_m": 0.04236125865877079,
+            "measurement_pair_dt_ms": [
+              4.0,
+              4.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.01917821285020609,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 1.2803121309766674
+          },
+          {
+            "goal_index": 1,
+            "reached": true,
+            "requested_delta_xy_m": [
+              3.0,
+              0.0
+            ],
+            "actual_delta_xy_m": [
+              3.0389250013726636,
+              -0.03398221567370809
+            ],
+            "actual_progress_along_requested_direction_m": 3.038925001372663,
+            "endpoint_truth_xy_error_m": 0.02925273008670728,
+            "measurement_pair_dt_ms": [
+              4.0,
+              8.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.03292432039919914,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 1.1791102054192495
+          }
+        ],
+        "ground_frozen_errors": {
+          "climb": {
+            "fast_livo2_xy_m": {
+              "count": 160,
+              "p50": 0.008527704365072039,
+              "p95": 0.03372564939933742,
+              "maximum": 0.04306042051620545
+            },
+            "fast_livo2_z_m": {
+              "count": 160,
+              "p50": 0.005413796408580807,
+              "p95": 0.010725770363264464,
+              "maximum": 0.01579256628296255
+            },
+            "fast_livo2_signed_z_median": -0.005413796408580807,
+            "px4_xy_m": {
+              "count": 798,
+              "p50": 0.01319783590256769,
+              "p95": 0.029363562438439877,
+              "maximum": 0.03558657726708871
+            },
+            "px4_z_m": {
+              "count": 798,
+              "p50": 0.047267188896273446,
+              "p95": 0.12247458249330517,
+              "maximum": 0.12456868588924405
+            },
+            "px4_signed_z_median": 0.047267188896273446
+          },
+          "ego_execution": {
+            "fast_livo2_xy_m": {
+              "count": 392,
+              "p50": 0.021751187098333513,
+              "p95": 0.033845380710014264,
+              "maximum": 0.04511483681914933
+            },
+            "fast_livo2_z_m": {
+              "count": 392,
+              "p50": 0.01291016344124607,
+              "p95": 0.017911058580180893,
+              "maximum": 0.01905418085233812
+            },
+            "fast_livo2_signed_z_median": -0.01291016344124607,
+            "px4_xy_m": {
+              "count": 1959,
+              "p50": 0.020181172735485607,
+              "p95": 0.040753750954558084,
+              "maximum": 0.04665187292306456
+            },
+            "px4_z_m": {
+              "count": 1959,
+              "p50": 0.05715504204423549,
+              "p95": 0.11172802204169685,
+              "maximum": 0.12405062699032032
+            },
+            "px4_signed_z_median": 0.05715504204423549
+          }
+        },
+        "whole_flight_mesh_clearance_m": {
+          "count": 4757,
+          "minimum": 1.1791102054192495,
+          "p95": 1.9055456000660809,
+          "maximum": 1.9356920411537188
+        },
+        "whole_flight_envelope_passed": true,
+        "planned_dynamics_passed": true,
+        "planned_continuous_clearance_passed": true,
+        "armed_failsafe_samples": 0
+      },
+      "ev_fusion_confirmed": true,
+      "shared_envelope": {
+        "all_executed_curves_inside_shared_envelope": true,
+        "executed_curve_failures": [],
+        "recorded_z_bounds_livo_m": [
+          0.9400343781090003,
+          1.5400343781090002
+        ]
+      },
+      "transit": {
+        "flight_complete": true,
+        "fault": "",
+        "disarmed": true,
+        "return_home_complete": true,
+        "ground_frozen_offsets_m": {
+          "fast_livo2": [
+            0.0009659666819059874,
+            0.02461876930147771,
+            0.3469882338514855
+          ],
+          "px4": [
+            0.009491476871662918,
+            0.008724789090723961,
+            0.208409348177977
+          ]
+        },
+        "measurement_truth_samples": 4800,
+        "nonlandable_ground_sample_count": 1245,
+        "low_box_overflight_samples": 268,
+        "low_box_overflight_body_z_m": {
+          "count": 268,
+          "p50": 1.652322249713866,
+          "p95": 1.6928779917227859,
+          "maximum": 1.6950123860051192
+        },
+        "low_box_overflight_clearance_m": {
+          "count": 268,
+          "p50": 1.3023222497138662,
+          "p95": 1.3428779917227858,
+          "maximum": 1.345012386005119
+        },
+        "native_rtl_requested": false,
+        "native_rtl_entered": false,
+        "native_rtl_disarmed": false,
+        "native_recovery_verified": false,
+        "scope": "Known static SITL cruise corridor only; body-centre surface clearance, no hardware or dynamic-obstacle certification"
+      }
+    }
+  ],
+  "regression": {
+    "passed": 240,
+    "command": "python3 -m pytest -q astra/validation astra/packages/astra_px4_offboard/test astra/packages/astra_fast_livo2/test"
+  },
+  "scope": "Known static low-box cruise corridor and recovery; no whole-map, precision-height, dynamic-obstacle or hardware certification",
+  "limitation": "Final normal run PX4 Z p95 0.111728 m exceeds the earlier 0.10 m precision-alignment target; route/recovery acceptance is separate."
+}

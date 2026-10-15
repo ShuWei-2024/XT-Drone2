@@ -67,6 +67,43 @@ class MeshGuard:
                     or np.any(self.recovery_boxes[:,0]<self.bounds[0])
                     or np.any(self.recovery_boxes[:,1]>self.bounds[1])):
                 raise ValueError('Invalid certified descent region')
+        self.transit_boxes = None
+        self.transit_z_bounds = None
+        if 'transit_xy_boxes_m' in self.metadata:
+            self.transit_boxes = np.asarray(self.metadata['transit_xy_boxes_m'], float)
+            self.transit_z_bounds = np.asarray(self.metadata.get('transit_body_z_bounds_m'), float)
+            certificate = self.metadata.get('transit_certificate', {})
+            if (self.transit_boxes.ndim != 3 or self.transit_boxes.shape[1:] != (2,2)
+                    or not len(self.transit_boxes) or not np.isfinite(self.transit_boxes).all()
+                    or np.any(self.transit_boxes[:,1] <= self.transit_boxes[:,0])
+                    or np.any(self.transit_boxes[:,0] < self.bounds[0])
+                    or np.any(self.transit_boxes[:,1] > self.bounds[1])
+                    or self.transit_z_bounds.shape != (2,) or not np.isfinite(self.transit_z_bounds).all()
+                    or self.recovery_boxes is None
+                    or self.z_bounds is None or self.transit_z_bounds[0] < self.z_bounds[0]
+                    or self.transit_z_bounds[1] > self.z_bounds[1]
+                    or self.transit_z_bounds[1] <= self.transit_z_bounds[0]
+                    or certificate.get('certified_z_bounds_m') != self.transit_z_bounds.tolist()
+                    or certificate.get('sampled_bounds_m') != self.bounds.tolist()
+                    or not np.isfinite(self.metadata.get('transit_continuous_clearance_lower_bound_m', 0))
+                    or self.metadata.get('transit_continuous_clearance_lower_bound_m', 0) < .65
+                    or self.metadata.get('recovery_policy') != 'planned_return_with_certified_rtl'):
+                raise ValueError('Invalid certified transit region or recovery policy')
+
+    @property
+    def flight_boxes(self):
+        if self.transit_boxes is None:
+            return self.recovery_boxes
+        if self.metadata.get('transit_includes_descent_region', False):
+            # A full descent prism also certifies its cruise-height subset.
+            # Retain existing landable airspace when adding transit-only cells.
+            return np.concatenate([self.recovery_boxes, self.transit_boxes])
+        return self.transit_boxes
+
+    def inside_flight_region(self, xy):
+        boxes = self.flight_boxes
+        return boxes is None or bool(np.any(np.all((np.asarray(xy)>=boxes[:,0]) &
+                                                    (np.asarray(xy)<=boxes[:,1]),axis=1)))
 
     def inside_recovery_region(self, xy):
         if self.recovery_boxes is None:return True
@@ -74,19 +111,20 @@ class MeshGuard:
         return bool(np.any(np.all((xy>=self.recovery_boxes[:,0]) &
                                   (xy<=self.recovery_boxes[:,1]),axis=1)))
 
-    def recovery_segment_covered(self, start, end):
+    def recovery_segment_covered(self, start, end, boxes=None):
         """Exact union-of-rectangles coverage; endpoints alone can miss a hole."""
-        if self.recovery_boxes is None:return True
+        boxes = self.recovery_boxes if boxes is None else boxes
+        if boxes is None:return True
         start,end=np.asarray(start),np.asarray(end)
         delta=end-start
-        lower=np.zeros(len(self.recovery_boxes));upper=np.ones(len(lower))
+        lower=np.zeros(len(boxes));upper=np.ones(len(lower))
         for axis in range(2):
             if abs(delta[axis])<1e-12:
-                outside=(start[axis]<self.recovery_boxes[:,0,axis]) | (start[axis]>self.recovery_boxes[:,1,axis])
+                outside=(start[axis]<boxes[:,0,axis]) | (start[axis]>boxes[:,1,axis])
                 upper[outside]=-1.
             else:
-                a=(self.recovery_boxes[:,0,axis]-start[axis])/delta[axis]
-                b=(self.recovery_boxes[:,1,axis]-start[axis])/delta[axis]
+                a=(boxes[:,0,axis]-start[axis])/delta[axis]
+                b=(boxes[:,1,axis]-start[axis])/delta[axis]
                 lower=np.maximum(lower,np.minimum(a,b));upper=np.minimum(upper,np.maximum(a,b))
         intervals=sorted(zip(lower[upper>=lower],upper[upper>=lower]))
         covered=0.
@@ -117,26 +155,32 @@ class MeshGuard:
         indices = self.clearance_candidates(point)
         return float(triangle_distances(point,self.triangles[indices]).min())
 
-    def fault(self, point, clearance=None):
+    def fault(self, point, clearance=None, transit=False):
         if np.any(np.asarray(point)[:2]<self.bounds[0]) or np.any(np.asarray(point)[:2]>self.bounds[1]):
             return 'outside inspected scan flight envelope'
         if self.z_bounds is not None and not self.z_bounds[0] <= point[2] <= self.z_bounds[1]:
             return 'outside inspected scan height envelope'
-        if not self.inside_recovery_region(np.asarray(point)[:2]):
+        if transit and self.transit_boxes is not None:
+            if not self.transit_z_bounds[0] <= point[2] <= self.transit_z_bounds[1]:
+                return 'outside certified transit height band'
+            if not self.inside_flight_region(np.asarray(point)[:2]):
+                return 'outside certified scan transit region'
+        elif not self.inside_recovery_region(np.asarray(point)[:2]):
             return 'outside certified scan descent region'
         clearance = self.clearance(point) if clearance is None else clearance
         if clearance < self.minimum_m:
             return f'scan mesh clearance below {self.minimum_m:.2f} m: {clearance:.3f} m'
         return ''
 
-    def approaching_boundary(self, point, velocity, horizon_s=.6):
+    def approaching_boundary(self, point, velocity, horizon_s=.6, transit=False):
         """Early abort reserve based on measured motion; not a stopping guarantee."""
         predicted=np.asarray(point)[:2]+horizon_s*np.asarray(velocity)[:2]
         if not np.isfinite(predicted).all():return 'invalid scan guard velocity'
         if np.any(predicted<self.bounds[0]) or np.any(predicted>self.bounds[1]):
             return 'approaching inspected scan flight boundary'
-        if not self.recovery_segment_covered(np.asarray(point)[:2],predicted):
-            return 'approaching uncertified scan descent region'
+        boxes = self.flight_boxes if transit else self.recovery_boxes
+        if not self.recovery_segment_covered(np.asarray(point)[:2],predicted,boxes):
+            return 'approaching uncertified scan transit region' if transit else 'approaching uncertified scan descent region'
         return ''
 
 

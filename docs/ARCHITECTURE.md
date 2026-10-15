@@ -13,7 +13,7 @@ flowchart TD
     MAP --> EGO[EGO-Planner]
     UI[RViz2 航点队列] --> SUP[飞行监督器]
     SUP --> EGO
-    GEOM[已知场景几何检查] --> ENV[共享下降安全边界]
+    GEOM[已知场景几何检查] --> ENV[共享通行边界／独立下降区域]
     ENV --> EGO
     ENV --> PREVIEW[全曲线检查与轨迹采样]
     EGO --> PREVIEW
@@ -53,7 +53,7 @@ flowchart TD
 | `/local_mapping/occupied`、`/local_mapping/obstacles` | 占据体素与膨胀障碍点云 |
 | `/local_mapping/ready` | 地图可用性心跳，撤销即禁止继续有效规划 |
 | `/move_base_simple/goal` | 监督器审核并发送的规划目标 |
-| `/planning/execution_envelope` | 已冻结的共享下降安全区域 |
+| `/planning/execution_envelope` | 已冻结的共享通行边界；旧场景仍使用下降区域 |
 | `/planning/bspline` | EGO B-spline |
 | `/planning/trajectory_valid`、`/planning/heartbeat` | 轨迹有效性、规划器存活 |
 | `/planning/position_preview`、`/planning/velocity_preview` | `camera_init` 轨迹采样 |
@@ -89,4 +89,8 @@ XT-Drone2 默认通信控制节点在 Astra 执行时关闭。同一飞机每时
 
 地图 readiness、规划心跳、轨迹有效性、测量配对、位姿年龄、航向/重置、冻结高度差、跟踪误差与几何边界共同门控。室外规划曲线限速 0.20 m/s、加速度 0.25 m/s²；实际飞机可能因跟踪修正短时超过曲线速度。
 
-异常时冻结新鲜的 PX4 保持位姿，故障锁存；持续异常进入受控降落。界面丢失、低电量、场景边界和真值审计保护也可结束任务。具体阈值以本轮 `runtime.json`、launch 与源码为准，禁止靠放宽门槛把失败改写为成功。
+任务可选择末点降落、悬停等下一点、EGO 返航后降落。健康返航重新请求一条经过相同检查的 B-spline，不把起飞点直接当作 PX4 位置 setpoint。到家后使用官方 `VEHICLE_CMD_NAV_LAND`。
+
+独立通行场景用巡航高度带检查空中通行，用全下降柱体检查落地区域；旧地图保持原有下降区域策略。第一版通行试验还保留到家的已知静态直线走廊，才能在地图失效时退出 Offboard、交给官方 `VEHICLE_CMD_NAV_RETURN_TO_LAUNCH`。RTL 不消费 EGO 地图，不保证绕过未知／动态障碍。交接检查 PX4 全局／局部定位、Home、reset、走廊和高度；RTL 的高度、速度与落点半径只在隔离配置里设置。
+
+异常先冻结新鲜的 PX4 保持位姿并锁存。已认证下降区域可使用官方 Land；通行区不能无条件原地降落。若下降和 RTL 条件都不满足，本次 SITL 明确失败并由运行器停止，不宣称已有实物可用的兜底。界面丢失、低电量、场景边界和真值审计保护也可结束任务。具体阈值以本轮 `runtime.json`、launch 与源码为准。

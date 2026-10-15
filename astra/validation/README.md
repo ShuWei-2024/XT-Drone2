@@ -13,6 +13,7 @@
 | 室外箱体/圆柱绕障 | 多条指定路线通过，重复性仍有失败 | [重复验证](OUTDOOR_REPEAT_EV_117.md) |
 | 彩色 Baylands 外观 | 同参数短路线与 26.93 m 箱体绕障通过；各仅一轮 | [彩色复测](APPEARANCE_RETEST_117.md) |
 | RViz 边缘目标准入 | 已修复界面允许而规划端点拒绝的检查差异；44 项回归通过，修复后未飞行复测 | [边缘航点诊断](RVIZ_EDGE_GOAL_117.md) |
+| 通行／降落分离与返航 | 合并区域往返、地图中断后官方 RTL 各通过；高度精度仍有限制，240 项回归通过 | [通行与返航](TRANSIT_RETURN_117.md) |
 | EV XY/Z 与共享边界 | 实际融合、部分长路线通过；yaw/速度不融合 | [共享边界与 EV](SHARED_ENVELOPE_EV_117.md) |
 | 最新复杂/长距离路线 | 东侧 64.91 m 一轮完整通过；西侧精度失败；树旁超时；东侧重复拒绝 | [长距离漂移](OUTDOOR_LONG_DRIFT_117.md) |
 | 长期/跨地图/实物 | 尚未通过 | [项目上下文](../../docs/PROJECT_CONTEXT.md) |
@@ -29,6 +30,7 @@
 
 | 范围 | 报告 |
 | --- | --- |
+| 独立巡航／降落区、规划返航与官方 RTL | [TRANSIT_RETURN_117.md](TRANSIT_RETURN_117.md) |
 | RViz 起飞后无横向轨迹与边缘目标检查修复 | [RVIZ_EDGE_GOAL_117.md](RVIZ_EDGE_GOAL_117.md) |
 | 彩色场景的定位、延迟与闭环绕障复测 | [APPEARANCE_RETEST_117.md](APPEARANCE_RETEST_117.md)、[汇总 JSON](appearance_retest_117.json) |
 | 最新室外复测与失败清单 | [OUTDOOR_REPEAT_EV_117.md](OUTDOOR_REPEAT_EV_117.md)、[汇总 JSON](outdoor_repeat_ev_117.json) |

@@ -89,6 +89,8 @@ def main():
                    help='Obstacle test goal offsets; up to 8 goals, each bounded to 7 m')
     p.add_argument('--rviz-goal',action='store_true',
                    help='Prepared scan: open RViz and mission controls, edit waypoints and explicitly start')
+    p.add_argument('--end-action', choices=('land','return_home'), default='land',
+                   help='Noninteractive mission completion; EGO return then official PX4 land')
     p.add_argument('--rviz-goal-timeout-sec',type=float,default=0.,
                    help='Ground editing timeout; 0 waits until explicit Start or close')
     p.add_argument('--stop-map-after-handoff-s',type=float,
@@ -185,7 +187,7 @@ def main():
     planner_leg_timeout_s=flight_precheck.get('planner_leg_timeout_s',100.) if is_scan and a.mode=='obstacle' else 100.
     if (type(planner_leg_timeout_s) not in (int,float) or not math.isfinite(planner_leg_timeout_s)
             or not 100.<=planner_leg_timeout_s<=500.):p.error('Prepared planner leg timeout must be in [100,500] seconds')
-    flight_timeout=(max(330.,150.+planner_leg_timeout_s*len(route_offsets))+a.endpoint_hold_seconds-3.
+    flight_timeout=(max(330.,150.+planner_leg_timeout_s*(len(route_offsets)+(a.end_action=='return_home')))+a.endpoint_hold_seconds-3.
                     if a.mode=='obstacle' else 330.)
     if a.rviz_goal:flight_timeout=150.+8.*(100.+120.)
     if a.stop_map_after_handoff_s is not None and (a.mode!='obstacle' or
@@ -316,6 +318,17 @@ def main():
         env['ASTRA_REQUIRE_EXTERNAL_VISION']='1'
     else:
         env.pop('ASTRA_REQUIRE_EXTERNAL_VISION', None)
+    if outdoor_config and outdoor_config.get('transit_enabled'):
+        # Only this copied SITL instance: direct RTL at the certified cruise
+        # altitude. PX4 defaults (60/30 m) are inappropriate for this volume.
+        overrides.update(RTL_RETURN_ALT=takeoff_height_m, RTL_DESCEND_ALT=takeoff_height_m,
+                         RTL_CONE_ANG=0, RTL_MIN_DIST=.5, RTL_LAND_DELAY=0,
+                         RTL_TYPE=0, RTL_PLD_MD=0, NAV_ACC_RAD=.2, MPC_XY_CRUISE=.3,
+                         EKF2_HGT_REF=1)
+        # PX4 1.17's GNSS reference initializes the absolute altitude origin
+        # even with GPS altitude fusion disabled (GPS_CTRL=5). Vision still
+        # fuses local height. Without an absolute origin gpos.alt_valid=false,
+        # and Commander correctly refuses RTL (confirmed in first trial).
     env.update({f'PX4_PARAM_{key}':str(value) for key,value in overrides.items()})
     startup.write_text('. "${R}etc/init.d-posix/rcS"\n')
     planner_speed=.10 if is_scan and not is_outdoor else .20
@@ -493,7 +506,8 @@ def main():
                 if a.executor_audit and a.mode=='obstacle':cmd.append('--executor-audit')
                 if a.mode=='obstacle':cmd.extend(['--execution-executor',a.execution_executor,
                                                '--planner-leg-timeout-s',str(planner_leg_timeout_s),
-                                               '--endpoint-hold-seconds',str(a.endpoint_hold_seconds)])
+                                               '--endpoint-hold-seconds',str(a.endpoint_hold_seconds),
+                                               '--end-action',a.end_action])
                 if a.rviz_goal:cmd.extend(['--rviz-mission','--rviz-goal-timeout-sec',str(a.rviz_goal_timeout_sec)])
                 if is_outdoor:cmd.extend(['--maximum-route-radius-m',str(outdoor_config['goal_radius_m'])])
                 driver=start('motion',cmd)

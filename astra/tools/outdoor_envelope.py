@@ -31,6 +31,26 @@ def outdoor_envelope(precheck, metadata):
     if (type(ceiling) not in (int,float) or not math.isfinite(ceiling) or
             type(maximum) not in (int,float) or not math.isfinite(maximum) or not ceiling<=maximum<=3.):
         raise ValueError('Invalid observed branch height range')
+    transit = 'transit_xy_boxes_m' in metadata
+    if transit:
+        # Full box schema is also checked when loading the immutable guard NPZ.
+        certificate = metadata.get('transit_certificate', {})
+        band = metadata.get('transit_body_z_bounds_m', [])
+        if (certificate.get('sampled_bounds_m') != bounds or
+                certificate.get('certified_z_bounds_m') != band or len(band) != 2 or
+                any(type(v) not in (int,float) or not math.isfinite(v) for v in band) or
+                not metadata['allowed_body_z_bounds_m'][0] <= band[0] < band[1] <= metadata['allowed_body_z_bounds_m'][1] or
+                metadata.get('recovery_policy') != 'planned_return_with_certified_rtl' or
+                metadata.get('transit_continuous_clearance_lower_bound_m',0) < .65 or
+                certificate.get('direct_home_rectangle_reserve_m',0) < .2 or
+                precheck.get('static_descent_columns') is not False or
+                not band[0]+.2 <= precheck.get('takeoff_height_m',0)+.24 <= band[1]-.1):
+            raise ValueError('Transit requires a cruise certificate and bounded native RTL policy')
+        for key in ('transit_xy_boxes_m','transit_body_z_bounds_m','transit_certificate','recovery_policy',
+                    'transit_includes_descent_region'):
+            if precheck.get(key) != metadata.get(key):
+                raise ValueError('Transit preparation differs between precheck and guard')
     return dict(goal_radius_m=float(radius),planner_map_size_xy_m=float(side),
                 column_obstacle_max_z_m=float(maximum),
+                transit_enabled=transit,
                 supervisor_radius_m=math.sqrt(2)*extent+2.)

@@ -12,6 +12,7 @@ class Mission:
         self.completed = 0
         self.end_action = 'land'
         self.wait_seconds = 60.
+        self.return_requested = False
 
     def append(self, delta):
         if not self.accepting or self.closed:
@@ -33,11 +34,16 @@ class Mission:
                 raise ValueError('Wait for READY and add at least one waypoint')
             action = payload.get('end_action', 'land')
             seconds = payload.get('wait_seconds', 60.)
-            if action not in ('land', 'hold') or isinstance(seconds, bool) or not isinstance(seconds, (int, float)) or not math.isfinite(seconds) or not 30. <= seconds <= 120.:
-                raise ValueError('Choose land/hold and a 30..120 s waiting timeout')
+            if action not in ('land', 'hold', 'return_home') or isinstance(seconds, bool) or not isinstance(seconds, (int, float)) or not math.isfinite(seconds) or not 30. <= seconds <= 120.:
+                raise ValueError('Choose land/hold/return_home and a 30..120 s waiting timeout')
             self.end_action, self.wait_seconds = action, float(seconds)
             self.started = True
             self.accepting = False  # locked during takeoff/alignment
+        elif command == 'return_home':
+            if not self.started or not self.accepting:
+                raise ValueError('Return requires active mission execution')
+            self.return_requested = True
+            self.accepting = self.paused = False
         elif command in ('clear', 'remove_last'):
             if self.started:
                 raise ValueError('Active waypoints cannot be removed')
