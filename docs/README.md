@@ -37,6 +37,7 @@
 | RViz 网格、青色航点边界与几何精化扩区 | [航点范围与扩区](../astra/validation/GOAL_REGION_REFINEMENT_117.md) |
 | 全图范围选点、连通空域与远端飞行 | [全图空域与验证](../astra/validation/WHOLE_MAP_AIRSPACE_117.md) |
 | 全图远端往返与消息接收积压 | [事件执行器复测](../astra/validation/WHOLE_MAP_RECEIVER_117.md) |
+| 解锁前 EV／全局原点初始化退出 | [原点启动检查与有界等待](../astra/validation/EV_ORIGIN_STARTUP_117.md) |
 | RViz 按开始后起飞前消息超时 | [交互起飞接收修复](../astra/validation/RVIZ_PREFLIGHT_RECEIVER_117.md) |
 | RViz 转弯时重规划失败、预览撤销 | [重规划衔接修复](../astra/validation/REPLAN_BOUNDARY_117.md) |
 | 室内真实扫描地图与绕障 | [Replica office4](../astra/validation/REAL_SCAN_AVOIDANCE_117.md) |

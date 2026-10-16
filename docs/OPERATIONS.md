@@ -127,6 +127,7 @@ astra/runtime/audit_venv/bin/python astra/tools/audit_long_route_drift.py astra/
 | `Passive health gate failed` | 看 `preflight_health.json` 和各节点日志；确认传感器、odom、地图有效；此阶段未发解锁命令 |
 | 进入任务后立即退出 | 查 `motion_events.json`、任务窗口/进程日志，区分取消、UI 失联、目标拒绝、门控失败 |
 | 起飞后没有横向飞向航点 | 检查 `planner.log` 的目标拒绝原因。边缘点曾通过界面但不满足规划器额外邻域，现已在入队前拒绝；详见 [边缘航点诊断](../astra/validation/RVIZ_EDGE_GOAL_117.md) |
+| `Disarmed EV/global-origin initialization failed` | 查当轮 `global_origin.json`：ACK、连续健康确认和输入年龄；未解锁。临时数据问题在原期限内重新等待，持续异常仍拒绝，见原点启动报告 |
 | 色块内航点仍被拒绝 | 青色才是扣除规划余量后的静态范围；绿／蓝色是原始降落／通行区域。青色内仍可能因实时障碍或健康状态被拒绝 |
 | `No bounded route...` | 查共享边界和起终点；当前日志尚不能区分预算耗尽/拓扑不可达/端点被侵蚀，不能断言电脑慢 |
 | odom 偶发延迟 | 比较测量时间、输入回调、LIO/VIO CPU 与墙钟耗时、接收排队；检查 GPU 渲染和 `/dev/shm` |

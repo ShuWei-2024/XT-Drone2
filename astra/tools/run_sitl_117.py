@@ -476,7 +476,11 @@ def main():
                 deadline=time.monotonic()+65.
                 while origin.poll() is None and time.monotonic()<deadline:pause(.2)
                 if origin.poll()!=0:
-                    raise RuntimeError('Disarmed EV/global-origin initialization failed; no arming commands sent')
+                    diagnostic = out/'global_origin.json'
+                    detail = (json.loads(diagnostic.read_text()).get('failure','no confirmation')
+                              if diagnostic.exists() else 'initializer did not finish')
+                    raise RuntimeError('Disarmed EV/global-origin initialization failed: '+
+                                       detail+'; no arming commands sent')
             if a.rviz_goal:
                 if not env.get('DISPLAY'):raise RuntimeError('RViz2 requires a desktop DISPLAY')
                 start('rviz_scene',[sys.executable,str(tools/'rviz_scene_display.py'),

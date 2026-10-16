@@ -25,6 +25,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'packages/astra_px4_o
 from px4_topics import px4_topic
 
 
+class TelemetryPending(ValueError):
+    """No valid decision yet; wait disarmed without relaxing any age gate."""
+
+
 def absolute_origin_valid(local, global_position):
     # PX4 1.17 sets lpos.z_global with the horizontal origin and returns zero
     # for an uninitialized ref_alt. Only gpos.alt_valid checks actual validity.
@@ -49,7 +53,8 @@ def origin_candidate(local, gps, status, flags, now_us):
         raise ValueError('invalid horizontal origin')
     if not (0 <= now_us-local.timestamp_sample <= 250_000 and
             0 <= now_us-gps.timestamp_sample <= 500_000):
-        raise ValueError('stale or future measured position')
+        raise TelemetryPending('stale or future measured position: '
+            f'local_age_us={now_us-local.timestamp_sample}, gps_age_us={now_us-gps.timestamp_sample}')
     if (gps.fix_type < 3 or gps.satellites_used < 6 or not gps.vel_ned_valid or
             not 0 <= gps.eph <= 3 or not 0 <= gps.epv <= 5):
         raise ValueError('GNSS quality insufficient')
@@ -93,7 +98,7 @@ class Initializer(Node):
     def candidate(self):
         for key, timeout in (('local', .25), ('global', .25), ('gps', .5), ('status', 1.), ('flags', 1.5)):
             if time.monotonic()-self.receipts.get(key, 0.) > timeout:
-                raise ValueError(key+' telemetry stale or missing')
+                raise TelemetryPending(key+' telemetry stale or missing')
         return origin_candidate(*(self.data[k] for k in ('local', 'gps', 'status', 'flags')),
                                 self.get_clock().now().nanoseconds//1000)
 
@@ -107,6 +112,14 @@ class Initializer(Node):
         msg.target_component = 1; msg.source_component = 197
         msg.from_external = True
         self.pub.publish(msg)
+
+    def input_snapshot(self):
+        now_us = self.get_clock().now().nanoseconds//1000
+        wall = time.monotonic()
+        return dict(sim_us=now_us,
+            measurement_age_us={key:now_us-int(self.data[key].timestamp_sample)
+                for key in ('local','gps') if key in self.data},
+            receipt_age_sec={key:wall-value for key,value in self.receipts.items()})
 
     def run(self, report):
         deadline = time.monotonic()+60.; stable = None; reason = ''
@@ -132,9 +145,25 @@ class Initializer(Node):
             origin = [local.ref_lat,local.ref_lon,local.ref_alt]
             report['existing_origin_preserved'] = True
         stable = None
+        report['post_command_pending_count'] = 0
+        report['post_command_pending_samples'] = []
         while time.monotonic() < deadline:
             rclpy.spin_once(self, timeout_sec=.02)
-            self.candidate()  # Loss of disarmed/fusion/freshness conditions fails closed.
+            try:
+                self.candidate()
+            except TelemetryPending as exc:
+                # /clock and PX4 messages are separate callbacks. An accepted
+                # command must not turn one temporarily old/future sample into
+                # a fatal initialization error. Remain disarmed, reset the full
+                # continuous-health window and wait within the original deadline.
+                stable = None; reason = str(exc)
+                report['post_command_pending_count'] += 1
+                sample = dict(reason=reason, **self.input_snapshot())
+                if len(report['post_command_pending_samples']) < 16:
+                    report['post_command_pending_samples'].append(sample)
+                report['last_pending_sample'] = sample
+                continue
+            # Armed, unfused, invalid or moving data still fails immediately.
             local = self.data['local']; global_pos = self.data.get('global')
             if math.dist(before,[local.x,local.y,local.z]) > .03:
                 raise RuntimeError('origin initialization moved local position by more than 0.03 m')
@@ -154,7 +183,7 @@ class Initializer(Node):
                     origin_lla=[local.ref_lat,local.ref_lon,local.ref_alt],
                     confirmed_sim_us=self.get_clock().now().nanoseconds//1000)
                 return
-        raise RuntimeError('origin ACK/local/global verification timed out')
+        raise RuntimeError('origin ACK/local/global verification timed out; last pending: '+reason)
 
 
 def main():
@@ -167,7 +196,9 @@ def main():
                 reference='GNSS absolute origin only; EV remains local height reference',acks=[])
     rclpy.init();node=Initializer();code=1
     try:node.run(report);code=0
-    except Exception as exc:report['failure']=str(exc)
+    except Exception as exc:
+        report['failure']=str(exc)
+        report['failure_input_snapshot']=node.input_snapshot()
     finally:
         report['acks']=node.acks
         args.output.write_text(json.dumps(report,indent=2)+'\n')
