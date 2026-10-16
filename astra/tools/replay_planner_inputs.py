@@ -88,7 +88,9 @@ def main():
         from nav_msgs.msg import OccupancyGrid
         frozen = next(e for e in events['events'] if e['event']=='shared_execution_envelope_frozen')
         guard = MeshGuard(args.run/'mesh_guard.npz')
-        envelope = PlanningEnvelope(guard.recovery_boxes, guard.bounds, frozen['ground_origin_livo'])
+        envelope = PlanningEnvelope(guard.flight_boxes, guard.bounds, frozen['ground_origin_livo'],
+            reserve=frozen['reserve_m'], z_bounds=frozen.get('z_bounds_livo_m'),
+            connected_to_origin=guard.metadata.get('whole_map_selection', False))
         envelope_pub = node.create_publisher(OccupancyGrid, '/planning/execution_envelope',
             QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
     heartbeats, splines, validity = [], [], []
@@ -110,7 +112,8 @@ def main():
         'max_vel:=0.20','max_acc:=0.25',
         f'map_size_xy_m:={(runtime.get("prepared_outdoor_envelope") or {}).get("planner_map_size_xy_m",32.)}',
         f'require_execution_envelope:={str(envelope is not None).lower()}',
-        f"planning_horizon:={runtime.get('planner_horizon_m',10. if 'planning_horizon:=10.0' in (args.run/'runner.py').read_text() else 6.)}",'max_tracking_error_m:=0.60', 'virtual_ceiling_m:=1.5',
+        f"planning_horizon:={runtime.get('planner_horizon_m',10. if 'planning_horizon:=10.0' in (args.run/'runner.py').read_text() else 6.)}",'max_tracking_error_m:=0.60',
+        f"virtual_ceiling_m:={runtime['planner_virtual_ceiling_m']}",
         f"optimization_clearance_m:={runtime['optimization_clearance_m']}"],
         stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
     begin = time.monotonic()

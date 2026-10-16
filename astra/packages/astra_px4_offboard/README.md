@@ -11,6 +11,8 @@ EGO /planning/bspline
 → /x500_0/fmu/in/trajectory_setpoint
 ```
 
+组合 SITL 由监督器先采样、再检查和发送，使用同一控制时钟，并直接传递预览样本。独立启动时保留 ROS 预览话题连接；两种方式均检查输入新鲜度、轨迹有效性和动态约束。
+
 预览检查地图 readiness、规划心跳、轨迹有效性/时间、速度与加速度；本身不输出 `/fmu/in/*`。桥独立启动默认 `enable_px4_output=false`，只发诊断预览。启用输出后也不自行解锁或进入 Offboard；隔离 SITL 任务监督器通过健康检查后管理起飞和控制权交接。
 
 ## 使用

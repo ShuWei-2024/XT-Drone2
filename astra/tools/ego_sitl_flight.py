@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import sys
 import time
+from contextlib import nullcontext
 from flight_recovery import landing_allowed, spline_height_band
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -250,6 +251,11 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
     preview.trajectory_validator = getattr(node, 'planning_envelope', None)
     # Supervisor calls tick only after a clean handoff; no bridge preflight output.
     bridge.output_timer.cancel()
+    preview.output_timer.cancel()
+    preview.sample_callback = bridge.on_preview_sample
+    # Three independently queued /clock callbacks can differ by a few ticks.
+    # Serial producer/consumer checks must use one actual ROS clock instance.
+    preview.control_clock = bridge.control_clock = node.get_clock()
     receiver = node.mission_receiver
     executor = receiver.executor
     for n in (preview, bridge):
@@ -446,6 +452,10 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                 node.event('rviz_resume_replanned', goal_index=goal_index)
                 continue
             if not handed:
+                if now >= next_tick:
+                    with receiver.audit.span('supervisor:preview_sample') if receiver.audit else nullcontext():
+                        preview.tick()
+                    next_tick = time.monotonic()+.05
                 if now >= next_diagnostic:
                     node.event('waiting_for_ego', bridge_health=bridge.health(),
                                accepted_spline=preview.spline is not None,
@@ -566,7 +576,9 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                 result['trajectory_sampled_to_end'] = True
                 break
             if now >= next_tick:
-                bridge.tick()
+                with receiver.audit.span('supervisor:sample_and_bridge') if receiver.audit else nullcontext():
+                    preview.tick()
+                    bridge.tick()
                 sample_wall=time.monotonic_ns()
                 odom_stamp=None if node.odom is None else stamp_ns(node.odom.header.stamp)
                 bridge_rows.append(dict(sim_ns=node.get_clock().now().nanoseconds,
@@ -580,6 +592,9 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                         sample_wall/1e9-bridge.odom_wall,
                     deferred_supervisor_odom_count=node.deferred_odom_count,
                     preview_trajectory_id=preview.trajectory_id,
+                    preview_reason=preview.reason,
+                    preview_mode_receipt_age_sec=None if bridge.mode_wall is None else
+                        sample_wall/1e9-bridge.mode_wall,
                     preview_trajectory_start_ns=preview.trajectory_start_ns,
                     preview_pose_stamp_ns=None if bridge.pose is None else stamp_ns(bridge.pose.header.stamp),
                     tracking_yaw_ned_rad=bridge.tracking_yaw,
@@ -609,7 +624,9 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                     if clearance < .55:
                         raise RuntimeError(f'obstacle clearance below 0.55 m: {clearance:.3f} m')
                 if bridge.fault_since is not None:
-                    raise RuntimeError('bridge fault: '+bridge.fault_reason)
+                    detail = (' (' + preview.reason + ')' if bridge.fault_reason ==
+                              'preview not tracking' else '')
+                    raise RuntimeError('bridge fault: '+bridge.fault_reason+detail)
                 next_tick = now+.05
         else:
             raise RuntimeError('EGO trajectory did not finish before its bounded deadline; '+bridge.health())
@@ -717,6 +734,7 @@ def main():
     result['test_configuration']['velocity_feedforward'] = args.velocity_feedforward
     result['test_configuration']['planner_leg_timeout_s'] = args.planner_leg_timeout_s
     result['test_configuration']['execution_executor'] = args.execution_executor
+    result['test_configuration']['preview_transport'] = 'serial same-process sample before bridge'
     result['test_configuration']['endpoint_hold_seconds'] = args.endpoint_hold_seconds
     result['test_configuration']['end_action'] = args.end_action
     result['test_configuration']['takeoff_height_m'] = args.takeoff_height_m
@@ -737,7 +755,8 @@ def main():
                                    Parameter('max_speed_mps', value=.30),
                                    Parameter('max_tracking_error_m', value=max_tracking_error_m),
                                    Parameter('max_estimator_xy_disagreement_m',
-                                             value=args.max_estimator_xy_disagreement_m)])
+                                             value=args.max_estimator_xy_disagreement_m)],
+                                   subscribe_preview=False)
     bridge.output_timer.cancel()
     receiver = None
     try:

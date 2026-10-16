@@ -1,6 +1,7 @@
 #include <plan_env/callback_timing.h>
 
 #include <ego_planner/ego_replan_fsm.h>
+#include <bspline_opt/checked_replan.h>
 #include <stdexcept>
 
 namespace ego_planner
@@ -226,6 +227,7 @@ namespace ego_planner
   void EGOReplanFSM::planNextWaypoint(const Eigen::Vector3d next_wp)
   {
     bool success = false;
+    replan_not_before_sec_ = 0.;
     envelope_guide_.clear();
     envelope_progress_ = 0.;
     auto grid = planner_manager_->grid_map_;
@@ -643,13 +645,38 @@ namespace ego_planner
       if (planFromCurrentTraj(1))
       {
         planning_failures_ = 0;
+        replan_not_before_sec_ = 0.;
         changeFSMExecState(EXEC_TRAJ, "FSM");
         publishSwarmTrajs(false);
       }
       else
       {
-        if (++planning_failures_ >= 3)
+        ++planning_failures_;
+        auto &info = planner_manager_->local_data_;
+        auto map = planner_manager_->grid_map_;
+        const double now = node_->now().seconds();
+        const double elapsed = now - info.start_time_.seconds();
+        const double retry_delay = std::max(0.1, replan_thresh_);
+        const double dt = std::min(0.05, map->getResolution() /
+            (4.0 * std::max(planner_manager_->pp_.max_vel_, 0.01)));
+        const bool tracking_ok = have_odom_ && elapsed >= 0. && elapsed < info.duration_ &&
+            (max_tracking_error_m_ <= 0. ||
+             (info.position_traj_.evaluateDeBoorT(elapsed) - odom_pos_).norm() <= max_tracking_error_m_);
+        if (planning_failures_ < 3 && tracking_ok && checkedReplanSuffix(
+              info.position_traj_, elapsed, retry_delay + emergency_time_, dt,
+              [&](const Eigen::Vector3d &p) {
+                return map->isInMap(p) && map->getInflateOccupancy(p) == 0;
+              }, std::chrono::steady_clock::now() + std::chrono::milliseconds(5)))
         {
+          replan_not_before_sec_ = now + retry_delay;
+          RCLCPP_WARN(node_->get_logger(),
+              "Replacement failed; retaining checked trajectory %d, retry %d/3 after %.2f s",
+              info.traj_id_, planning_failures_, retry_delay);
+          changeFSMExecState(EXEC_TRAJ, "CHECKED_SUFFIX");
+        }
+        else if (planning_failures_ >= 3)
+        {
+          RCLCPP_ERROR(node_->get_logger(), "Replanning exhausted; revoking trajectory");
           trajectory_valid_pub_->publish(std_msgs::msg::Bool().set__data(false));
           have_target_ = false;
           changeFSMExecState(WAIT_TARGET, "FSM");
@@ -705,12 +732,13 @@ namespace ego_planner
           changeFSMExecState(WAIT_TARGET, "FSM");
           goto force_return;
         }
-        else if ((end_pt_ - pos).norm() > no_replan_thresh_ && t_cur > replan_thresh_)
+        else if ((end_pt_ - pos).norm() > no_replan_thresh_ && t_cur > replan_thresh_ &&
+                 time_now.seconds() >= replan_not_before_sec_)
         {
           changeFSMExecState(REPLAN_TRAJ, "FSM");
         }
       }
-      else if (t_cur > replan_thresh_)
+      else if (t_cur > replan_thresh_ && time_now.seconds() >= replan_not_before_sec_)
       {
         changeFSMExecState(REPLAN_TRAJ, "FSM");
       }

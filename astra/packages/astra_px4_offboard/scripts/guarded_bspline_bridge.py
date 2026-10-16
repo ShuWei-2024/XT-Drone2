@@ -28,8 +28,9 @@ def wrap(angle):
 
 
 class GuardedBsplineBridge(Node):
-    def __init__(self, parameter_overrides=None):
+    def __init__(self, parameter_overrides=None, *, subscribe_preview=True):
         super().__init__('guarded_bspline_bridge', parameter_overrides=parameter_overrides)
+        self.control_clock = self.get_clock()
         defaults = {
             'enable_px4_output': False,
             'px4_namespace': '',
@@ -108,11 +109,12 @@ class GuardedBsplineBridge(Node):
         self.pose_frame_valid = self.velocity_frame_valid = True
 
         sensor_qos = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
-        self.create_subscription(PoseStamped, '/planning/position_preview',
-                                 self.on_pose, 10)
-        self.create_subscription(TwistStamped, '/planning/velocity_preview',
-                                 self.on_velocity, 10)
-        self.create_subscription(String, '/planning/preview_mode', self.on_mode, 10)
+        if subscribe_preview:
+            self.create_subscription(PoseStamped, '/planning/position_preview',
+                                     self.on_pose, 10)
+            self.create_subscription(TwistStamped, '/planning/velocity_preview',
+                                     self.on_velocity, 10)
+            self.create_subscription(String, '/planning/preview_mode', self.on_mode, 10)
         self.create_subscription(Empty, '/planning/heartbeat', self.on_planner_heartbeat, 10)
         self.create_subscription(Bool, '/local_mapping/ready', self.on_ready,
                                  QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
@@ -166,6 +168,13 @@ class GuardedBsplineBridge(Node):
     def on_mode(self, msg):
         self.preview_mode, self.mode_wall = msg.data, time.monotonic()
 
+    def on_preview_sample(self, pose, velocity, mode):
+        """Same-thread sample delivery; use the original frame/stamp/age gates."""
+        if mode == 'TRACK_PREVIEW':
+            self.on_pose(pose)
+            self.on_velocity(velocity)
+        self.on_mode(String(data=mode))
+
     def on_planner_heartbeat(self, _msg):
         self.planner_heartbeat_wall = time.monotonic()
 
@@ -218,7 +227,7 @@ class GuardedBsplineBridge(Node):
             return 'PX4 left Offboard'
         if self.odom.header.frame_id != self.frame_id:
             return 'odometry frame mismatch'
-        now_ns = self.get_clock().now().nanoseconds
+        now_ns = self.control_clock.now().nanoseconds
         if not 0 <= now_ns - stamp_ns(self.odom.header.stamp) <= self.limits['max_odom_age_sec'] * 1e9:
             return 'stale measurement timestamp'
         if not self.px4.xy_valid or not self.px4.z_valid or not self.px4.heading_good_for_control:
@@ -291,7 +300,7 @@ class GuardedBsplineBridge(Node):
                 self.velocity.header.frame_id != self.frame_id or
                 stamp_ns(self.pose.header.stamp) != stamp_ns(self.velocity.header.stamp)):
             return 'preview frame or stamp mismatch'
-        if not 0 <= self.get_clock().now().nanoseconds - stamp_ns(self.pose.header.stamp) <= self.limits['max_odom_age_sec'] * 1e9:
+        if not 0 <= self.control_clock.now().nanoseconds - stamp_ns(self.pose.header.stamp) <= self.limits['max_odom_age_sec'] * 1e9:
             return 'stale measurement timestamp'
         px4_ned = np.array((self.px4.x, self.px4.y, self.px4.z))
         q = self.pose.pose.position
@@ -307,7 +316,7 @@ class GuardedBsplineBridge(Node):
 
     def make_setpoint(self, position, yaw):
         msg = TrajectorySetpoint()
-        msg.timestamp = self.get_clock().now().nanoseconds // 1000
+        msg.timestamp = self.control_clock.now().nanoseconds // 1000
         msg.position = list(map(float, position))
         msg.velocity = [math.nan] * 3
         msg.acceleration = [math.nan] * 3
@@ -322,7 +331,7 @@ class GuardedBsplineBridge(Node):
                 (self.last_land_request is not None and now - self.last_land_request < 0.5)):
             return
         command = VehicleCommand()
-        command.timestamp = self.get_clock().now().nanoseconds // 1000
+        command.timestamp = self.control_clock.now().nanoseconds // 1000
         command.command = VehicleCommand.VEHICLE_CMD_NAV_LAND
         command.target_system = command.source_system = 1
         command.target_component = command.source_component = 1
@@ -402,7 +411,7 @@ class GuardedBsplineBridge(Node):
                  (self.status is not None and
                   self.status.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD))):
             mode = OffboardControlMode()
-            mode.timestamp = self.get_clock().now().nanoseconds // 1000
+            mode.timestamp = self.control_clock.now().nanoseconds // 1000
             mode.position = True
             self.mode_pub.publish(mode)
         self.state_pub.publish(String(data=self.mode))

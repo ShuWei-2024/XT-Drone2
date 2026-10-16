@@ -40,6 +40,8 @@ flowchart TD
 | External Vision | LIVO 位姿、地面配对 → 冻结变换、有效性与测量时间 → PX4 视觉里程计 | [external_vision_sitl.py](../astra/tools/external_vision_sitl.py)、[external_vision_geometry.py](../astra/tools/external_vision_geometry.py) |
 | 审计 | Gazebo/LIVO/PX4 测量、曲线、事件、ULog → 时间配对与冻结原点误差 → JSON/图表 | [audit_scan_flight.py](../astra/tools/audit_scan_flight.py)、[audit_long_route_drift.py](../astra/tools/audit_long_route_drift.py) |
 
+SITL 组合执行中，监督器按顺序调用预览采样与桥检查，直接传递同一份位置、速度和模式，并共用一个 ROS 仿真时钟。预览话题继续供显示与诊断使用；独立启动 preview / bridge 时仍通过 ROS 话题连接。这样避免同进程定时器和回环消息的排队错序，输入新鲜度与轨迹保护仍照常检查。
+
 ## 主要接口
 
 | 接口 | 内容 / 坐标 |

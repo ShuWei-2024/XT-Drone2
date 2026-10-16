@@ -74,6 +74,7 @@ namespace ego_planner
     std::chrono::steady_clock::time_point last_ready_wall_;
     std::chrono::steady_clock::duration ready_timeout_ = std::chrono::milliseconds(300);
     int planning_failures_{0};
+    double replan_not_before_sec_{0.};
     std::string odom_frame_id_;
     FSM_EXEC_STATE exec_state_;
     int continously_called_times_{0};
