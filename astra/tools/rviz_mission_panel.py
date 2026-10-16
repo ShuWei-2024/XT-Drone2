@@ -69,7 +69,7 @@ class Controls(QtWidgets.QWidget):
         self.land.clicked.connect(lambda: self.send('land')); layout.addWidget(self.land)
         self.return_home = QtWidgets.QPushButton('结束任务：避障返航并降落')
         self.return_home.clicked.connect(lambda: self.send('return_home')); layout.addWidget(self.return_home)
-        note = QtWidgets.QLabel('地面选点后点开始任务才起飞。空中可追加航点。\n绿色：已检查降落区；蓝色：巡航通行区（若场景支持）。\n通行区不能直接降落，需返航；背景模型仅供观察。\n失联时按场景保护策略结束；官方 RTL 不自动避障。')
+        note = QtWidgets.QLabel('地面选点后点开始任务才起飞。空中可追加航点。\n青色边线／填色：静态可选航点，点击仍检查实时障碍。\n绿色：已检查降落区；蓝色：巡航通行区（若场景支持）。\n通行区不能直接降落，需返航；背景模型仅供观察。\n失联时按场景保护策略结束；官方 RTL 不自动避障。')
         note.setWordWrap(True); layout.addWidget(note)
         self.timer = QtCore.QTimer(self); self.timer.timeout.connect(self.spin); self.timer.start(20)
         self.heartbeat = QtCore.QTimer(self); self.heartbeat.timeout.connect(lambda: self.send('heartbeat')); self.heartbeat.start(500)

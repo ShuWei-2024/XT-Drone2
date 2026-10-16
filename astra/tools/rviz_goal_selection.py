@@ -10,6 +10,7 @@ import json
 import uuid
 from rviz_mission import Mission
 from planning_envelope import PlanningEnvelope
+from rviz_goal_region import goal_region_geometry
 
 import numpy as np
 import rclpy
@@ -94,8 +95,10 @@ class RvizSelection:
         self.selected = None
         self.region_markers = None
         self.display_signature = None
+        self.goal_region_published = False
         qos = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.pub = node.create_publisher(MarkerArray, '/astra/ui/markers', qos)
+        self.goal_region_pub = node.create_publisher(MarkerArray, '/astra/ui/goal_region', qos)
         self.status_pub = node.create_publisher(String, '/astra/ui/status', qos)
         self.goal_sub = node.create_subscription(PoseStamped, '/astra/ui/goal', self.goal, 10)
         self.stop_sub = node.create_subscription(PointStamped, '/astra/ui/land', self.land, 1)
@@ -243,6 +246,8 @@ class RvizSelection:
 
     def display(self):
         if self.origin is None:return
+        if self.planning_envelope is not None and not self.goal_region_published:
+            self.display_goal_region()
         signature=(tuple(tuple(g) for g in self.mission.goals),self.mission.completed)
         if signature==self.display_signature:return
         markers=[]
@@ -296,6 +301,32 @@ class RvizSelection:
         # is transient-local. Rebuilding hundreds of unchanged region markers
         # every second blocks the sole flight receiver and causes GC churn.
         self.display_signature=signature
+
+    def display_goal_region(self):
+        boxes, segments, area = goal_region_geometry(self.planning_envelope,
+            self.origin[:2], self.node.mesh_guard.metadata.get('interactive_goal_radius_m', 3.))
+        fill = self.marker(1, Marker.TRIANGLE_LIST)
+        edge = self.marker(2, Marker.LINE_LIST)
+        for m in (fill, edge):
+            m.ns = 'static_waypoint_admission'
+            m.color.g = .95; m.color.b = 1.
+        fill.scale.x = fill.scale.y = fill.scale.z = 1.
+        fill.color.a = .16
+        edge.scale.x = .06; edge.color.a = .95
+        for lo, hi in boxes:
+            corners = ((lo[0], lo[1]), (hi[0], lo[1]), (hi[0], hi[1]), (lo[0], hi[1]))
+            for i in (0, 1, 2, 0, 2, 3):
+                x, y = corners[i]
+                fill.points.append(Point(x=float(x), y=float(y), z=.025))
+        for a, b in segments:
+            for x, y in (a, b):
+                edge.points.append(Point(x=float(x), y=float(y), z=.035))
+        self.goal_region_pub.publish(MarkerArray(markers=[fill, edge]))
+        self.goal_region_published = True
+        self.node.event('rviz_static_goal_region_displayed', area_m2=area,
+            source='frozen planner endpoint mask with radial cell reserve',
+            rectangle_count=len(boxes), boundary_segments=len(segments),
+            live_obstacles_checked_on_click=True)
 
     def wait(self, timeout_s):
         node=self.node;deadline=time.monotonic()+timeout_s if timeout_s else float('inf')

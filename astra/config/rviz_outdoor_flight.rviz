@@ -13,10 +13,10 @@ Visualization Manager:
     Frame Rate: 15
   Displays:
   - Class: rviz_default_plugins/Grid
-    Name: Metre grid
+    Name: Reference grid (0.5 m; not flight boundary)
     Enabled: true
     Cell Size: 0.5
-    Plane Cell Count: 40
+    Plane Cell Count: 140
     Color: 75; 80; 85
     Alpha: 0.5
   - Class: rviz_default_plugins/PointCloud2
@@ -101,6 +101,14 @@ Visualization Manager:
       Value: /optimal_list
       Reliability Policy: Reliable
       Durability Policy: Volatile
+      Depth: 1
+  - Class: rviz_default_plugins/MarkerArray
+    Name: Selectable waypoint area (cyan; live checks still apply)
+    Enabled: true
+    Topic:
+      Value: /astra/ui/goal_region
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
       Depth: 1
   - Class: rviz_default_plugins/MarkerArray
     Name: Goal region and flight status

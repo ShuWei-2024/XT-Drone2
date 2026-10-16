@@ -8,6 +8,9 @@ astra_map_dir="$astra_repo_dir/astra/runtime/maps/baylands_park"
 if [[ -f "$astra_repo_dir/astra/runtime/maps/baylands_whole_map/flight_precheck.json" ]]; then
     astra_map_dir="$astra_repo_dir/astra/runtime/maps/baylands_whole_map"
 fi
+if [[ -f "$astra_repo_dir/astra/runtime/maps/baylands_whole_map_refined/flight_precheck.json" ]]; then
+    astra_map_dir="$astra_repo_dir/astra/runtime/maps/baylands_whole_map_refined"
+fi
 # Resolve an explicit override before checking or describing the scene.
 astra_extra_args=("$@")
 for ((astra_arg_i=0; astra_arg_i<${#astra_extra_args[@]}; astra_arg_i++)); do
@@ -25,7 +28,9 @@ fi
 cat <<'INFO'
 Baylands 室外公园 · PX4 1.17 仿真
 地面默认不限时。G 添加航点，然后在中文窗口点击“开始任务”。
-绿色格为已检查的下降区域；独立通行场景另有蓝色巡航区域。
+灰色网格每格 0.5 m，仅为距离参考；青色轮廓／填色为静态可选航点范围。
+绿色格为已检查的下降区域；蓝色为原始巡航区域，均不等于最终航点边界。
+青色范围包含规划余量；点击时仍须通过实时障碍、定位和任务状态检查。
 模型背景只用于显示；EGO 使用实时障碍物点云，并遵守场景的共享通行边界。
 任务可选择返航降落、末点降落或限时悬停；通行区不能直接下降。
 可追加 --external-vision 启用已验证的 SITL 位置融合；不融合视觉航向或速度。

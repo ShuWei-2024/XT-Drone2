@@ -30,9 +30,13 @@ def main():
                    help='Add a 0.35 m test box at (-1.5,0); fly over it at cruise altitude')
     p.add_argument('--whole-map',action='store_true',
                    help='Inspect the complete 70 m patch interior, retaining 5 m edge reserve')
+    p.add_argument('--refine-descent-prisms',action='store_true',
+                   help='Recover conservative box exclusions using exact mesh-distance bounds; same margins')
     p.add_argument('--route-kind',choices=('short','east','west','cross-map'),
                    help='Whole-map test destinations, not intermediate detour waypoints')
     a=p.parse_args(); source=a.source.resolve(); out=a.output.resolve()
+    if a.refine_descent_prisms and a.validation_low_box:
+        raise ValueError('Refinement requires unchanged source collision geometry')
     pre=json.loads((source/'flight_precheck.json').read_text())
     manifest=json.loads((source/'manifest.json').read_text())
     sha=lambda path:hashlib.sha256(path.read_bytes()).hexdigest()
@@ -64,8 +68,13 @@ def main():
 <visual name="box"><geometry><box><size>.5 .7 .35</size></box></geometry>
 <material><ambient>.8 .3 .1 1</ambient><diffuse>.8 .3 .1 1</diffuse></material></visual></link></model>'''))
         tree.write(out/'world.sdf',encoding='utf-8',xml_declaration=True)
-    if a.whole_map or a.validation_low_box:
-        meta.update(recovery_rectangles(tri,meta['allowed_xy_bounds_m'],meta['allowed_body_z_bounds_m']))
+    if a.whole_map or a.validation_low_box or a.refine_descent_prisms:
+        # A test box is absent from the source distance oracle. Never refine
+        # against that incomplete oracle if geometry was added in this run.
+        print('Preparing continuous descent prisms; exact refinement=' +
+              str(a.refine_descent_prisms), flush=True)
+        meta.update(recovery_rectangles(tri,meta['allowed_xy_bounds_m'],meta['allowed_body_z_bounds_m'],
+                    refine_guard=guard if a.refine_descent_prisms else None))
     band=[1.2,2.0]
     certificate=recovery_rectangles(tri,meta['allowed_xy_bounds_m'],band)
     cruise=PlanningEnvelope(certificate['recovery_xy_boxes_m'],meta['allowed_xy_bounds_m'],[0,0])
