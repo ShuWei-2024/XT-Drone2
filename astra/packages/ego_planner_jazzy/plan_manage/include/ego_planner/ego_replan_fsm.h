@@ -74,6 +74,7 @@ namespace ego_planner
     std::chrono::steady_clock::time_point last_ready_wall_;
     std::chrono::steady_clock::duration ready_timeout_ = std::chrono::milliseconds(300);
     int planning_failures_{0};
+    double replan_not_before_sec_{0.};
     std::string odom_frame_id_;
     FSM_EXEC_STATE exec_state_;
     int continously_called_times_{0};
@@ -85,6 +86,8 @@ namespace ego_planner
     Eigen::Vector3d end_pt_, end_vel_;                                       // goal state
     Eigen::Vector3d local_target_pt_, local_target_vel_;                     // local target state
     std::vector<Eigen::Vector3d> wps_;
+    std::vector<Eigen::Vector3d> envelope_guide_;
+    double envelope_progress_ = 0.;
     int current_wp_;
 
     bool flag_escape_emergency_;

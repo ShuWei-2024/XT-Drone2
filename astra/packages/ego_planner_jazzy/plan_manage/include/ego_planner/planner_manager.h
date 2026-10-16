@@ -44,6 +44,10 @@ namespace ego_planner
 
     double getSwarmClearance(void) { return bspline_optimizer_->getSwarmClearance(); }
 
+    void beginPlanningBudget() {
+      bspline_optimizer_->setPlanningDeadline(std::chrono::steady_clock::now() + std::chrono::milliseconds(80));
+    }
+    bool planningBudgetExpired() const { return bspline_optimizer_->planningBudgetExpired(); }
     bool checkCollision(int drone_id);
     
 
@@ -56,6 +60,10 @@ namespace ego_planner
 
   private:
     /* main planning algorithms & modules */
+    bool grid_seed_fallback_{false};
+    bool gridFallbackReplan(const Eigen::Vector3d &start, const Eigen::Vector3d &velocity,
+                            const Eigen::Vector3d &acceleration, const Eigen::Vector3d &goal,
+                            const Eigen::Vector3d &goal_velocity);
     double min_goal_distance_m_{0.2};
     rclcpp::Node::SharedPtr node_;
     PlanningVisualization::Ptr visualization_;

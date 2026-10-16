@@ -28,8 +28,9 @@ def wrap(angle):
 
 
 class GuardedBsplineBridge(Node):
-    def __init__(self, parameter_overrides=None):
+    def __init__(self, parameter_overrides=None, *, subscribe_preview=True):
         super().__init__('guarded_bspline_bridge', parameter_overrides=parameter_overrides)
+        self.control_clock = self.get_clock()
         defaults = {
             'enable_px4_output': False,
             'px4_namespace': '',
@@ -101,16 +102,19 @@ class GuardedBsplineBridge(Node):
         self.ready_wall = None
         self.reset_counters = None
         self.px4_history = deque(maxlen=100)
+        self.odom_history = deque(maxlen=10)
+        self.estimator_pair_age_sec = self.estimator_pair_dt_sec = None
         self.pending_poses = {}
         self.pending_velocities = {}
         self.pose_frame_valid = self.velocity_frame_valid = True
 
         sensor_qos = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
-        self.create_subscription(PoseStamped, '/planning/position_preview',
-                                 self.on_pose, 10)
-        self.create_subscription(TwistStamped, '/planning/velocity_preview',
-                                 self.on_velocity, 10)
-        self.create_subscription(String, '/planning/preview_mode', self.on_mode, 10)
+        if subscribe_preview:
+            self.create_subscription(PoseStamped, '/planning/position_preview',
+                                     self.on_pose, 10)
+            self.create_subscription(TwistStamped, '/planning/velocity_preview',
+                                     self.on_velocity, 10)
+            self.create_subscription(String, '/planning/preview_mode', self.on_mode, 10)
         self.create_subscription(Empty, '/planning/heartbeat', self.on_planner_heartbeat, 10)
         self.create_subscription(Bool, '/local_mapping/ready', self.on_ready,
                                  QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
@@ -164,6 +168,13 @@ class GuardedBsplineBridge(Node):
     def on_mode(self, msg):
         self.preview_mode, self.mode_wall = msg.data, time.monotonic()
 
+    def on_preview_sample(self, pose, velocity, mode):
+        """Same-thread sample delivery; use the original frame/stamp/age gates."""
+        if mode == 'TRACK_PREVIEW':
+            self.on_pose(pose)
+            self.on_velocity(velocity)
+        self.on_mode(String(data=mode))
+
     def on_planner_heartbeat(self, _msg):
         self.planner_heartbeat_wall = time.monotonic()
 
@@ -172,6 +183,7 @@ class GuardedBsplineBridge(Node):
 
     def on_odom(self, msg):
         self.odom, self.odom_wall = msg, time.monotonic()
+        self.odom_history.append((msg,self.odom_wall))
 
     def on_status(self, msg):
         self.status, self.status_wall = msg, time.monotonic()
@@ -189,8 +201,8 @@ class GuardedBsplineBridge(Node):
         xy = self.matrix @ np.asarray(position[:2], dtype=float) + self.translation
         return np.array((xy[0], xy[1], -position[2] + self.z_translation))
 
-    def source_yaw(self):
-        q = self.odom.pose.pose.orientation
+    def source_yaw(self, odom=None):
+        q = (self.odom if odom is None else odom).pose.pose.orientation
         yaw = math.atan2(2 * (q.w * q.z + q.x * q.y),
                          1 - 2 * (q.y * q.y + q.z * q.z))
         forward = self.matrix @ np.array((math.cos(yaw), math.sin(yaw)))
@@ -215,25 +227,45 @@ class GuardedBsplineBridge(Node):
             return 'PX4 left Offboard'
         if self.odom.header.frame_id != self.frame_id:
             return 'odometry frame mismatch'
-        now_ns = self.get_clock().now().nanoseconds
+        now_ns = self.control_clock.now().nanoseconds
         if not 0 <= now_ns - stamp_ns(self.odom.header.stamp) <= self.limits['max_odom_age_sec'] * 1e9:
             return 'stale measurement timestamp'
         if not self.px4.xy_valid or not self.px4.z_valid or not self.px4.heading_good_for_control:
             return 'invalid PX4 estimate'
         if not self.px4_history:
             return 'missing PX4 measurement history'
-        matched = min(self.px4_history,
-                      key=lambda row: abs(stamp_ns(self.odom.header.stamp) -
-                                          row.timestamp_sample * 1000))
-        if abs(stamp_ns(self.odom.header.stamp) - matched.timestamp_sample * 1000) > \
-                self.limits['max_time_pair_sec'] * 1e9:
-            return 'estimator measurement times differ'
         reset = (self.px4.xy_reset_counter, self.px4.z_reset_counter,
                  self.px4.heading_reset_counter)
         if self.reset_counters is not None and reset != self.reset_counters:
             return 'PX4 estimator reset'
         self.reset_counters = reset
-        p = self.odom.pose.pose.position
+        latest = self.odom.pose.pose.position
+        if not np.isfinite((latest.x,latest.y,latest.z)).all():
+            return 'non-finite estimator position'
+        if not math.isfinite(self.source_yaw()):
+            return 'non-finite estimator heading'
+        compatible = [row for row in self.px4_history if
+            (row.xy_reset_counter,row.z_reset_counter,row.heading_reset_counter)==reset and
+            row.xy_valid and row.z_valid and row.heading_good_for_control and
+            0<=now_ns-row.timestamp_sample*1000<=self.limits['max_px4_age_sec']*1e9]
+        pair = None
+        for source, received in reversed(self.odom_history):
+            epoch=stamp_ns(source.header.stamp)
+            if (source.header.frame_id!=self.frame_id or
+                    not self.fresh(received,self.limits['max_odom_age_sec']) or
+                    not 0<=now_ns-epoch<=self.limits['max_odom_age_sec']*1e9 or not compatible):
+                continue
+            candidate=min(compatible,key=lambda row:abs(epoch-row.timestamp_sample*1000))
+            # Choose among eligible samples: a slightly nearer expired sample
+            # must not mask another real sample inside both existing limits.
+            if abs(epoch-candidate.timestamp_sample*1000)<=self.limits['max_time_pair_sec']*1e9:
+                pair=(source,candidate);break
+        if pair is None:
+            return 'estimator measurement times differ'
+        source, matched=pair
+        self.estimator_pair_age_sec=(now_ns-stamp_ns(source.header.stamp))/1e9
+        self.estimator_pair_dt_sec=abs(stamp_ns(source.header.stamp)-matched.timestamp_sample*1000)/1e9
+        p = source.pose.pose.position
         odom_ned = self.transform((p.x, p.y, p.z))
         matched_ned = np.array((matched.x, matched.y, matched.z))
         px4_ned = np.array((self.px4.x, self.px4.y, self.px4.z))
@@ -243,7 +275,7 @@ class GuardedBsplineBridge(Node):
         delta = matched_ned - odom_ned
         xy_disagreement = float(np.linalg.norm(delta[:2]))
         z_disagreement = float(abs(delta[2]))
-        yaw_disagreement = float(abs(wrap(matched.heading - self.source_yaw())))
+        yaw_disagreement = float(abs(wrap(matched.heading - self.source_yaw(source))))
         if not math.isfinite(yaw_disagreement):
             return 'non-finite estimator heading'
         if (xy_disagreement > self.limits['max_estimator_xy_disagreement_m'] or
@@ -268,7 +300,7 @@ class GuardedBsplineBridge(Node):
                 self.velocity.header.frame_id != self.frame_id or
                 stamp_ns(self.pose.header.stamp) != stamp_ns(self.velocity.header.stamp)):
             return 'preview frame or stamp mismatch'
-        if not 0 <= self.get_clock().now().nanoseconds - stamp_ns(self.pose.header.stamp) <= self.limits['max_odom_age_sec'] * 1e9:
+        if not 0 <= self.control_clock.now().nanoseconds - stamp_ns(self.pose.header.stamp) <= self.limits['max_odom_age_sec'] * 1e9:
             return 'stale measurement timestamp'
         px4_ned = np.array((self.px4.x, self.px4.y, self.px4.z))
         q = self.pose.pose.position
@@ -284,7 +316,7 @@ class GuardedBsplineBridge(Node):
 
     def make_setpoint(self, position, yaw):
         msg = TrajectorySetpoint()
-        msg.timestamp = self.get_clock().now().nanoseconds // 1000
+        msg.timestamp = self.control_clock.now().nanoseconds // 1000
         msg.position = list(map(float, position))
         msg.velocity = [math.nan] * 3
         msg.acceleration = [math.nan] * 3
@@ -299,7 +331,7 @@ class GuardedBsplineBridge(Node):
                 (self.last_land_request is not None and now - self.last_land_request < 0.5)):
             return
         command = VehicleCommand()
-        command.timestamp = self.get_clock().now().nanoseconds // 1000
+        command.timestamp = self.control_clock.now().nanoseconds // 1000
         command.command = VehicleCommand.VEHICLE_CMD_NAV_LAND
         command.target_system = command.source_system = 1
         command.target_component = command.source_component = 1
@@ -379,7 +411,7 @@ class GuardedBsplineBridge(Node):
                  (self.status is not None and
                   self.status.nav_state == VehicleStatus.NAVIGATION_STATE_OFFBOARD))):
             mode = OffboardControlMode()
-            mode.timestamp = self.get_clock().now().nanoseconds // 1000
+            mode.timestamp = self.control_clock.now().nanoseconds // 1000
             mode.position = True
             self.mode_pub.publish(mode)
         self.state_pub.publish(String(data=self.mode))

@@ -3,6 +3,7 @@
 import argparse
 import csv
 import json
+import math
 from pathlib import Path
 import sys
 
@@ -11,11 +12,37 @@ from scipy.interpolate import BSpline
 from audit_height_dynamics_117 import active_isolated_simulators
 from audit_obstacle_reliability_20261010 import audit as audit_errors, pair, positions, describe
 from scan_mesh_guard import MeshGuard
+from scan_trajectory_audit import line_audit, spline_audit, lateral_deviation
+from audit_indoor_hall import transition_hold_audit
 
 
 def stats(x):
     x=np.asarray(x,dtype=float)
     return dict(count=len(x),minimum=float(x.min()),p95=float(np.percentile(x,95)),maximum=float(x.max())) if len(x) else {}
+
+
+def recorded_motion_limits(directory):
+    """Audit the run's limits, preserving stricter indoor limits on old records."""
+    runtime=json.loads((directory/'runtime.json').read_text())
+    limits=runtime.get('planner_motion_limits')
+    if limits is not None:
+        source='recorded runtime planner_motion_limits'
+    elif runtime.get('world_preset')=='baylands':
+        snapshot=(directory/'execution_sources/astra/tools/run_sitl_117.py').read_text()
+        for command in ("'max_vel:=0.10' if is_scan and not is_outdoor else 'max_vel:=0.20'",
+                        "'max_acc:=0.10' if is_scan and not is_outdoor else 'max_acc:=0.25'"):
+            if command not in snapshot:
+                raise ValueError('Cannot verify legacy outdoor motion limits from saved runner')
+        limits=dict(maximum_speed_mps=.20,maximum_acceleration_mps2=.25)
+        source='legacy Baylands limits verified from saved runner snapshot'
+    else:
+        limits=dict(maximum_speed_mps=.10,maximum_acceleration_mps2=.10)
+        source='legacy indoor audit limits'
+    for key in ('maximum_speed_mps','maximum_acceleration_mps2'):
+        value=limits.get(key)
+        if type(value) not in (int,float) or not math.isfinite(value) or value<=0:
+            raise ValueError('Invalid recorded planner motion limit: '+key)
+    return dict(limits,numeric_tolerance=.001,source=source)
 
 
 def main():
@@ -31,10 +58,19 @@ def main():
     start=next((e for e in events if e['event']=='ego_control_handoff'),None)
     end=next((e for e in events if e['event']=='ego_trajectory_sampled_to_end'),None)
     abort=next((e for e in events if e['event']=='test_aborted'),None)
-    goals=[e for e in events if e['event']=='ego_goal_sent']
+    requests=[e for e in events if e['event']=='ego_goal_sent']
+    first={}
+    consistent=True
+    for goal in requests:
+        index=goal['goal_index']
+        if index in first:
+            consistent=consistent and bool(np.allclose(first[index]['goal'],goal['goal'],atol=1e-8,rtol=0.))
+        else:first[index]=goal
+    goals=list(first.values())
     reached=[e for e in events if e['event']=='ego_waypoint_reached']
     report=dict(flight_complete=motion['flight_complete'],disarmed=motion['disarmed'],
                 fault=motion['fault'],requested_goals=len(goals),reached_goals=len(reached),
+                goal_request_count=len(requests), repeated_goal_targets_consistent=consistent,
                 phases=errors.get('phases',{}),guard=guard.metadata,
                 missing_geometry_certified=False,near_obstacle_avoidance_certified=False,
                 scope='Short indoor motion in a clear corridor; not a blocked-path avoidance trial')
@@ -48,17 +84,8 @@ def main():
         report['actual_body_span_xyz_m']=np.ptp(p,axis=0).tolist()
         report['bridge_sample_max_gap_ms']=float(np.diff([s['wall_ns'] for s in samples]).max()/1e6) if len(samples)>1 else None
         report['supervisor_measurement_age_ms']=stats([1000*s['supervisor_odom_measurement_age_sec'] for s in samples])
-    peaks=[];planned_distances=[]
     offset=np.asarray(errors.get('initial_truth_offset_m',{}).get('fast_livo2',[0,0,0]))
-    for spline in motion.get('bsplines',[]):
-        t=np.asarray(spline['knots']);k=spline['order'];b=BSpline(t,spline['controls'],k)
-        grid=np.linspace(t[k],t[-k-1],max(2,int((t[-k-1]-t[k])/.02)+1))
-        peaks.append([np.linalg.norm(b.derivative(i)(grid),axis=1).max() for i in (1,2)])
-        planned_distances.extend(guard.clearance(x) for x in b(grid)+offset)
-    report['bspline_count']=len(peaks)
-    if peaks:
-        report['planned_peak_speed_mps'],report['planned_peak_acceleration_mps2']=np.max(peaks,axis=0).tolist()
-        report['planned_mesh_clearance_m']=stats(planned_distances)
+    report['bspline_count']=len(motion.get('bsplines',[]))
     rows=list(csv.DictReader((d/'frame_samples.csv').open()))
     streams={kind:sorted([x for x in rows if x['source']==kind],key=lambda x:int(x['measurement_time_ns']))
              for kind in ['gazebo','fast_livo2','px4']}
@@ -90,7 +117,9 @@ def main():
             report['ground_frozen_errors'][label]=out
     truth=sorted([x for x in rows if x['source']=='gazebo'],key=lambda x:int(x['measurement_time_ns']))
     report['actual_route_legs']=[]
-    route=motion.get('route_offsets_m',[])
+    route=motion.get('execution_route_offsets_m',motion.get('route_offsets_m',[]))
+    if len(goals)>len(route) and 'origin_livo' in motion:
+        route=[(np.asarray(g['goal'][:2])-np.asarray(motion['origin_livo'][:2])).tolist() for g in goals]
     origin=motion.get('origin_livo')
     if truth and origin is not None:
         truth_times=np.array([int(x['measurement_time_ns']) for x in truth])
@@ -114,13 +143,52 @@ def main():
                             if ground_offset is not None else None)
             measured=begin_dt<=20. and finish_dt<=20.
             passed=bool(finish and measured and endpoint_error is not None and endpoint_error<=.10 and progress>=.5*length)
+            leg_rows=[r for r in truth if goal['sim_ns']<=int(r['measurement_time_ns'])<=(finish or abort or events[-1])['sim_ns']]
+            leg_xyz=positions(leg_rows)
+            leg_min=min((guard.clearance(p) for p in leg_xyz),default=0.)
             report['actual_route_legs'].append(dict(goal_index=index,reached=finish is not None,
                 requested_delta_xy_m=requested.tolist(),actual_delta_xy_m=delta.tolist(),
                 actual_progress_along_requested_direction_m=progress,
                 endpoint_truth_xy_error_m=endpoint_error,measurement_pair_dt_ms=[begin_dt,finish_dt],
                 endpoint_error_reference='ground-frozen LIVO-to-truth translation',
                 post_climb_fitted_endpoint_truth_xy_error_m=post_climb_error,
-                actual_motion_verified=passed))
+                actual_motion_verified=passed,actual_minimum_known_surface_clearance_m=leg_min))
+    # Freeze the reference before flight. A fit after climb must not hide drift.
+    planned=[]
+    if 'fast_livo2' in ground_bias:
+        planned=[spline_audit(guard, msg, ground_bias['fast_livo2'])
+                 for msg in motion.get('bsplines',[])]
+    report['planned_trajectories']=planned
+    if planned:
+        report['planned_peak_speed_mps']=max(p['peak_sampled_speed_mps'] for p in planned)
+        report['planned_peak_acceleration_mps2']=max(p['peak_sampled_acceleration_mps2'] for p in planned)
+        report['planned_mesh_clearance_minima_m']=stats([p['sampled_minimum_clearance_m'] for p in planned])
+    report['planned_continuous_clearance_passed']=bool(planned and all(
+        p['continuous_clearance_lower_bound_m']>=guard.minimum_m for p in planned))
+    limits=recorded_motion_limits(d)
+    report['planned_dynamics_limits']=limits
+    report['planned_dynamics_passed']=bool(planned and all(
+        p['speed_bound_mps']<=limits['maximum_speed_mps']+limits['numeric_tolerance'] and
+        p['acceleration_bound_mps2']<=limits['maximum_acceleration_mps2']+limits['numeric_tolerance'] for p in planned))
+    native_sends=list(csv.DictReader((d/'motion_sent.csv').open())) if (d/'motion_sent.csv').is_file() else []
+    report['goal_transition_holds']=transition_hold_audit(goals,events,native_sends,abort)
+    report['goal_transition_holds_passed']=bool(native_sends and all(
+        h['passed'] for h in report['goal_transition_holds']))
+    report['blocked_path_trials']=[]
+    if 'fast_livo2' in ground_bias and truth:
+        for goal in goals:
+            index=goal['goal_index']
+            finish=next((e for e in reached if e.get('goal_index')==index),None)
+            begin_xyz,begin_dt=at_event(goal)
+            target=np.array(goal['goal'])+ground_bias['fast_livo2']
+            direct=line_audit(guard,begin_xyz,target)
+            leg_points=positions([x for x in truth if goal['sim_ns']<=int(x['measurement_time_ns'])<=(finish or abort or events[-1])['sim_ns']])
+            deviation=lateral_deviation(leg_points,begin_xyz,target)
+            report['blocked_path_trials'].append(dict(goal_index=index,
+                direct_path=direct,actual_maximum_lateral_deviation_m=deviation,
+                reached=finish is not None,begin_measurement_pair_dt_ms=begin_dt,
+                measured_detour=bool(finish and begin_dt<=20. and
+                    direct['violates_clearance_margin'] and deviation>=.10)))
     # Recovery is part of the test: an execution-only distance hides overshoot
     # during fault hold and descent.
     if prestream and truth:
@@ -129,6 +197,21 @@ def main():
         full_xyz=positions(full)
         report['whole_flight_mesh_clearance_m']=stats([guard.clearance(x) for x in full_xyz])
         outside=(full_xyz[:,:2]<guard.bounds[0]).any(axis=1)|(full_xyz[:,:2]>guard.bounds[1]).any(axis=1)
+        # Evaluate transit only between cruise readiness and final recovery.
+        # Takeoff/landing continue to require the full descent certificate.
+        cruise=next((e for e in events if e['event']=='segment_end' and e.get('name')=='cruise_settle'),None)
+        land=next((e for e in events if e['event']=='land_requested'),None)
+        def flight_region_ok(row,p):
+            stamp=int(row['measurement_time_ns'])
+            transit=(guard.transit_boxes is not None and cruise is not None and stamp>=cruise['sim_ns']
+                     and (land is None or stamp<land['sim_ns']))
+            # Native RTL descends only after entering the landing region.
+            if guard.inside_recovery_region(p[:2]):return True
+            return (transit and guard.inside_flight_region(p[:2]) and
+                    guard.transit_z_bounds[0]<=p[2]<=guard.transit_z_bounds[1])
+        outside |= np.array([not flight_region_ok(row,p) for row,p in zip(full,full_xyz)])
+        if guard.z_bounds is not None:
+            outside |= (full_xyz[:,2]<guard.z_bounds[0]) | (full_xyz[:,2]>guard.z_bounds[1])
         report['whole_flight_envelope_breach_samples']=int(outside.sum())
         report['whole_flight_envelope_passed']=not bool(outside.any())
         if outside.any():
@@ -169,10 +252,11 @@ def main():
             ax.scatter(*xyz[0,:2],c='green',label='Planner handoff')
             ax.set(xlabel='World X (m)',ylabel='World Y (m)')
             ax.set_aspect('equal');ax.grid()
-        axes[0].set_title('Replica office0: room context')
+        outdoor=json.loads((d/'runtime.json').read_text()).get('world_preset')=='baylands'
+        axes[0].set_title('Authored park model: scene context' if outdoor else 'Real scan: room context')
         axes[1].set(xlim=(guard.bounds[0,0]-.05,guard.bounds[1,0]+.05),
                     ylim=(guard.bounds[0,1]-.05,guard.bounds[1,1]+.05),
-                    title='Four short legs: measured flight')
+                    title='Measured closed-loop flight')
         axes[1].legend(fontsize=8,loc='lower right');fig.tight_layout()
         fig.savefig(d/'scan_actual_path.png',dpi=160);plt.close(fig)
     sys.path.append('/home/cyf/dev/px4/venv/lib/python3.12/site-packages')
@@ -183,12 +267,22 @@ def main():
     flags=datasets.get('estimator_status_flags',{})
     report['external_vision_active_samples']={k:int(np.count_nonzero(flags[k])) for k in ['cs_ev_pos','cs_ev_vel','cs_ev_hgt','cs_ev_yaw'] if k in flags}
     report['baseline_preserved']=json.loads((d/'run_summary.json').read_text())['original_baseline_preserved']
-    report['complete_route_verified']=bool(motion['flight_complete'] and route and
+    report['complete_route_verified']=bool(motion['flight_complete'] and consistent and route and
         len(report['actual_route_legs'])==len(route) and
         all(x['actual_motion_verified'] for x in report['actual_route_legs']) and
         report.get('whole_flight_envelope_passed',False) and
         report.get('whole_flight_mesh_clearance_m',{}).get('minimum',0.)>=.55 and
+        report['planned_continuous_clearance_passed'] and report['planned_dynamics_passed'] and
+        report['goal_transition_holds_passed'] and
+        report.get('combined_setpoint_send_max_gap_ms',float('inf'))<=250. and
         not report['armed_failsafe_samples'] and motion['disarmed'])
+    report['known_surface_blocked_path_avoidance_verified']=bool(
+        report['complete_route_verified'] and any(
+            trial['measured_detour'] for trial in report['blocked_path_trials']))
+    report['scope']=('Known-surface blocked-path detour verified; missing geometry and hardware uncertified'
+        if report['known_surface_blocked_path_avoidance_verified'] else
+        ('Open-area route verified; blocked-path avoidance and hardware not verified'
+         if report['complete_route_verified'] else 'Route not verified; see per-leg checks'))
     (d/'scan_flight_audit.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(report,indent=2))
 

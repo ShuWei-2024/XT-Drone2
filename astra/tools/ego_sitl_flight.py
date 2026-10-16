@@ -7,6 +7,8 @@ import os
 from pathlib import Path
 import sys
 import time
+from contextlib import nullcontext
+from flight_recovery import landing_allowed, spline_height_band
 
 sys.path.insert(0, str(Path(__file__).parent))
 from obstacle_world_geometry_20261010 import clearances, load as load_obstacles
@@ -20,11 +22,12 @@ from ready_batch_executor import ReadyBatchExecutor, BoundedEventsExecutor, rece
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'packages/astra_px4_offboard/scripts'))
 from guarded_position_sitl import GuardedPositionTest
+from ground_height_alignment import execution_height_reference
 from guarded_bspline_bridge import GuardedBsplineBridge
 from preview_bspline import PreviewBspline, stamp_ns
 
 
-def receive_batch(executor):
+def receive_batch(executor, wait_sec=.002):
     # A /clock callback can precede already queued odometry after a scheduling
     # pause. Process a bounded batch before checking freshness, so the guard
     # sees received measurements rather than only the first ready callback.
@@ -33,7 +36,7 @@ def receive_batch(executor):
         from executor_timing_audit import scheduler_wait_ns
         wall=time.monotonic_ns();cpu=time.thread_time_ns()
         wait=scheduler_wait_ns()
-    batch=receive_ready_batch(executor)
+    batch=receive_ready_batch(executor,wait_sec=wait_sec)
     if audit:
         finish_wait=scheduler_wait_ns()
         audit.batch_tail.append(dict(wall_start_ns=wall,wall_end_ns=time.monotonic_ns(),
@@ -42,22 +45,125 @@ def receive_batch(executor):
             **batch))
 
 
-def takeoff(node):
+class MissionReceiver:
+    """Own one serial receiver from ground preparation through recovery."""
+    def __init__(self, node, kind, audit=False):
+        self.node = node
+        self.executor = BoundedEventsExecutor() if kind == 'events' else ReadyBatchExecutor()
+        self.audit = None
+        if audit:
+            from executor_timing_audit import ExecutorTimingAudit
+            self.audit = self.executor.timing_audit = ExecutorTimingAudit()
+            node.safety_timing_audit = self.audit
+        self.attach(node)
+
+    def attach(self, node):
+        self.executor.add_node(node)
+        if self.audit:
+            self.audit.install(node, with_metadata=not isinstance(self.executor, BoundedEventsExecutor))
+
+    def receive(self):
+        receive_batch(self.executor)
+
+    def reconcile(self):
+        # One nonblocking bounded drain; this never publishes a setpoint or
+        # changes any freshness limit. The caller rechecks all safety gates.
+        receive_batch(self.executor, wait_sec=0.)
+
+    def close(self):
+        if self.audit:
+            self.audit.restore()
+            self.node.completed_executor_audit = self.audit
+        self.executor.shutdown()
+
+
+def hold_endpoint(node, bridge, executor, endpoint, seconds, max_tracking_error_m):
+    """Keep the active receive executor until the supervised hold has ended.
+
+    The bridge timer stays cancelled. Only this supervisor publishes the fixed
+    target; destroying DDS entities first can stall reception at this handoff.
+    """
+    if not math.isfinite(seconds) or not 3. <= seconds <= 300.:
+        raise ValueError('Final guarded hold must be finite and in [3,300] seconds')
+    node.phase = 'endpoint_hold'
+    node.event('segment_start', name='endpoint_hold', target=endpoint)
+    begin, next_send = time.monotonic(), 0.
+    while time.monotonic() - begin < seconds:
+        if not rclpy.ok():
+            raise RuntimeError('ROS stopped during endpoint hold')
+        receive_batch(executor)
+        node.check_safe()
+        fault = bridge.state_health()
+        if fault or bridge.fault_since is not None:
+            raise RuntimeError('endpoint hold state fault: '+(fault or bridge.fault_reason))
+        error = float(np.linalg.norm(np.array(endpoint[:3])-
+                                    [node.local.x, node.local.y, node.local.z]))
+        if not math.isfinite(error) or error > max_tracking_error_m:
+            raise RuntimeError('endpoint hold tracking error exceeded')
+        now = time.monotonic()
+        if now >= next_send:
+            node.send(endpoint)
+            next_send = now+.05
+    node.event('segment_end', name='endpoint_hold')
+
+
+def await_ground_health(node, required_sec=5.):
+    """Drain preparation backlog and require continuous health before arming."""
     deadline = time.monotonic() + 25.
     good_since = None
     while time.monotonic() < deadline:
-        rclpy.spin_once(node, timeout_sec=.01)
+        node.receive_callbacks(timeout_sec=.01)
         if not (node.fault() or node.initial_alignment_fault()):
             good_since = good_since or time.monotonic()
-            if time.monotonic() - good_since >= 5.:
+            if time.monotonic() - good_since >= required_sec:
                 break
         else:
             good_since = None
     else:
         raise RuntimeError('preflight not healthy: ' + (node.fault() or node.initial_alignment_fault()))
+
+
+def takeoff(node, height_m=1.7, alignment_height_m=None):
+    alignment_height_m=height_m if alignment_height_m is None else alignment_height_m
+    await_ground_health(node)
     p = node.local
     origin = (p.x, p.y, p.z, p.heading)
+    node.takeoff_origin_ned = origin
     node.ground_route_origin_livo = (node.odom.pose.pose.position.x, node.odom.pose.pose.position.y)
+    if getattr(node,'rviz_selection',None) is not None:
+        frozen=node.rviz_selection.origin
+        if np.linalg.norm(np.array(node.ground_route_origin_livo)-frozen[:2])>.02:
+            raise RuntimeError('RViz ground reference moved before takeoff')
+        node.ground_route_origin_livo=tuple(frozen[:2])
+    if node.mesh_guard is not None and node.mesh_guard.recovery_boxes is not None:
+        from planning_envelope import PlanningEnvelope
+        from nav_msgs.msg import OccupancyGrid
+        from rclpy.qos import QoSProfile, DurabilityPolicy
+        node.planning_envelope = PlanningEnvelope(node.mesh_guard.flight_boxes,
+            node.mesh_guard.bounds, node.ground_route_origin_livo,
+            z_bounds=spline_height_band(node.mesh_guard,node.odom.pose.pose.position.z),
+            connected_to_origin=node.mesh_guard.metadata.get('whole_map_selection',False))
+        if not node.planning_envelope.contains(node.ground_route_origin_livo):
+            raise RuntimeError('Takeoff origin lacks shared-envelope reserve')
+        node.envelope_pub = node.create_publisher(OccupancyGrid, '/planning/execution_envelope',
+            QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
+        node.envelope_pub.publish(node.planning_envelope.message(node.get_clock().now().to_msg()))
+        node.event('shared_execution_envelope_frozen', reserve_m=node.planning_envelope.reserve,
+                   ground_origin_livo=list(node.ground_route_origin_livo),
+                   accepted_cell_count=int(node.planning_envelope.free.sum()),
+                   z_bounds_livo_m=(None if node.planning_envelope.z_bounds is None else
+                                    node.planning_envelope.z_bounds.tolist()),
+                   region_source=('descent_plus_transit' if node.mesh_guard.metadata.get('transit_includes_descent_region')
+                                  else 'transit' if node.mesh_guard.transit_boxes is not None else 'descent'),
+                   reference='known zero-yaw SITL spawn; ground odometry only')
+        # A full-map mask and its DDS serialization can exceed one sensor
+        # period. This work is done disarmed; never carry that callback backlog
+        # into the first guarded send or relax the airborne freshness limit.
+        node.event('post_envelope_health_wait', required_sec=1.)
+        await_ground_health(node, required_sec=1.)
+        if np.linalg.norm(np.array([node.odom.pose.pose.position.x,node.odom.pose.pose.position.y])-
+                          node.ground_route_origin_livo) > .02:
+            raise RuntimeError('Frozen ground reference moved during envelope preparation')
     node.vertical_reference = p.z + node.truth[2]
     if node.initial_alignment_fault():
         raise RuntimeError('invalid initial world position')
@@ -66,7 +172,7 @@ def takeoff(node):
     node.command(VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM, 1)
     deadline = time.monotonic() + 5.
     while time.monotonic() < deadline:
-        rclpy.spin_once(node, timeout_sec=.01)
+        node.receive_callbacks(timeout_sec=.01)
         node.check_safe()
         node.send(origin)
         if (node.status.arming_state == VehicleStatus.ARMING_STATE_ARMED and
@@ -76,10 +182,15 @@ def takeoff(node):
         raise RuntimeError('Offboard/arming rejected')
     node.resets = (node.local.xy_reset_counter, node.local.z_reset_counter,
                    node.local.heading_reset_counter)
-    high = (*origin[:2], origin[2] - 1.7, origin[3])
+    high = (*origin[:2], origin[2] - alignment_height_m, origin[3])
     node.guarded_segment('climb', 16., origin, high)
-    node.wait_heading_alignment(high)
+    node.wait_heading_alignment(high, minimum_truth_z_m=alignment_height_m-.2)
     node.guarded_segment('settle', 3., high, high)
+    if alignment_height_m>height_m:
+        cruise=(*origin[:2],origin[2]-height_m,origin[3])
+        node.guarded_segment('cruise_descent',12.,high,cruise)
+        node.guarded_segment('cruise_settle',3.,cruise,cruise)
+        high=cruise
     return high
 
 
@@ -135,14 +246,20 @@ def await_initial_yaw_agreement(node, bridge, executor, high, maximum_deg):
 def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
             obstacle_audit=False, max_tracking_error_m=0.30, prepared_nodes=None, single_goal=False,
             fixed_enu_ned_transform=False, obstacles=None, route_offsets=None,
-            max_initial_yaw_disagreement_deg=5.):
+            max_initial_yaw_disagreement_deg=5., endpoint_hold_seconds=3.):
     preview, bridge = prepared_nodes
+    preview.trajectory_validator = getattr(node, 'planning_envelope', None)
     # Supervisor calls tick only after a clean handoff; no bridge preflight output.
     bridge.output_timer.cancel()
-    executor = (BoundedEventsExecutor() if result['test_configuration'].get('execution_executor') == 'events'
-                else ReadyBatchExecutor())
-    for n in (node, preview, bridge):
-        executor.add_node(n)
+    preview.output_timer.cancel()
+    preview.sample_callback = bridge.on_preview_sample
+    # Three independently queued /clock callbacks can differ by a few ticks.
+    # Serial producer/consumer checks must use one actual ROS clock instance.
+    preview.control_clock = bridge.control_clock = node.get_clock()
+    receiver = node.mission_receiver
+    executor = receiver.executor
+    for n in (preview, bridge):
+        receiver.attach(n)
     goal_pub = node.create_publisher(PoseStamped, '/move_base_simple/goal', 10)
     bridge_rows = []
     raw_splines = []
@@ -152,12 +269,8 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                                 knots=list(msg.knots),
                                 controls=[[p.x, p.y, p.z] for p in msg.pos_pts]))
     subscription = node.create_subscription(Bspline, '/planning/bspline', record_spline, 10)
-    audit_path=result.get('executor_audit_path')
-    if audit_path:
-        from executor_timing_audit import ExecutorTimingAudit
-        executor.timing_audit=ExecutorTimingAudit()
-        for n in (node,preview,bridge):
-            executor.timing_audit.install(n,with_metadata=not isinstance(executor,BoundedEventsExecutor))
+    if receiver.audit:
+        receiver.audit.install(node, with_metadata=not isinstance(executor, BoundedEventsExecutor))
     handed = False
     try:
         if fixed_enu_ned_transform:
@@ -199,10 +312,20 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                                       [math.cos(angle), -math.sin(angle)]])
         bridge.translation = np.median([np.array(p[1][:2]) - bridge.matrix @ p[0][:2]
                                         for p in pairs], axis=0)
-        bridge.z_translation = float(np.median([p[1][2]+p[0][2] for p in pairs]))
+        node.recovery_transform = (bridge.matrix.copy(), bridge.translation.copy())
+        if node.transit_active:
+            fault = node.native_rtl_fault()
+            if fault:
+                raise RuntimeError('Transit departure requires eligible native RTL: '+fault)
+            node.event('native_rtl_departure_gate_passed')
+        airborne_height_values=[p[1][2]+p[0][2] for p in pairs]
+        bridge.z_translation,height_reference_source=execution_height_reference(
+            node.ground_alignment,airborne_height_values)
         result['alignment'] = dict(xy_matrix=bridge.matrix.tolist(),
                                    xy_translation=bridge.translation.tolist(),
                                    z_translation=bridge.z_translation, paired_samples=len(pairs),
+                                   height_reference_source=height_reference_source,
+                                   airborne_height_offset_diagnostic_m=float(np.median(airborne_height_values)),
                                    rotation_source=('fixed ENU/NED for zero-yaw SITL spawn'
                                                     if fixed_enu_ned_transform else 'paired estimator headings'),
                                    certified=False)
@@ -219,12 +342,19 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
         result['route_offsets_m'] = goal_queue
         result['origin_livo'] = list(origin_livo)
         goal_index = 0
+        selection = getattr(node, 'rviz_selection', None)
+        returning = False
+        end_action = (selection.mission.end_action if selection is not None else
+                      result['test_configuration'].get('end_action', 'land'))
+        if selection is not None:
+            selection.open_airborne()
         target = None
         goal_sent_ns = None
+        goal_sent_wall = None
         terminal_spline = None
 
         def publish_goal(offset_x, offset_y):
-            nonlocal target, goal_sent_ns, terminal_spline
+            nonlocal target, goal_sent_ns, goal_sent_wall, terminal_spline
             terminal_spline = None
             gx, gy, gz = origin_livo[0] + offset_x, origin_livo[1] + offset_y, origin_livo[2]
             goal = PoseStamped()
@@ -233,15 +363,57 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
             goal_sent_ns = stamp_ns(goal.header.stamp)
             goal.pose.position.x, goal.pose.position.y, goal.pose.position.z = gx, gy, gz
             goal.pose.orientation.w = 1.
+            if (preview.trajectory_validator is not None and
+                    not preview.trajectory_validator.contains([gx, gy])):
+                raise RuntimeError('Goal lacks shared planning/execution envelope reserve')
+            if selection is not None:
+                check = PoseStamped()
+                check.header = goal.header
+                check.pose.position.x, check.pose.position.y = gx, gy
+                selection.check_click(check, True, target_z=gz)
             target = bridge.transform((gx, gy, gz))
             result['goal_livo'] = [gx, gy, gz]
             result['goal_ned'] = target.tolist()
             goal_pub.publish(goal)
+            goal_sent_wall = time.monotonic()
             node.event('ego_goal_sent', goal=result['goal_livo'], target_ned=target.tolist(),
                        goal_index=goal_index)
 
+        def mission_hold(hold_target, waiting=False):
+            """Supervisor remains sole publisher; resume always requests a new spline."""
+            timeout = selection.mission.wait_seconds
+            begin = time.monotonic()
+            next_hold_send = 0.
+            node.phase = 'waiting_waypoint' if waiting else 'mission_paused'
+            selection.state = 'Waiting for another waypoint' if waiting else 'PAUSED'
+            selection.status()
+            node.event('rviz_waiting_waypoint' if waiting else 'rviz_pause_started',
+                       goal_index=goal_index, target=list(hold_target), timeout_s=timeout)
+            while time.monotonic()-begin < timeout:
+                receive_batch(executor)
+                node.check_safe()
+                fault = bridge.state_health() or selection.battery_fault()
+                if fault:
+                    raise RuntimeError('mission hold state fault: '+fault)
+                now = time.monotonic()
+                if np.linalg.norm(np.array(hold_target[:3])-[node.local.x,node.local.y,node.local.z]) > max_tracking_error_m:
+                    raise RuntimeError('mission hold tracking error exceeded')
+                if now >= next_hold_send:
+                    node.send(hold_target)
+                    next_hold_send = now+.05
+                if selection.mission.return_requested:
+                    return False
+                if not selection.mission.paused and (not waiting or goal_index+1 < len(goal_queue)):
+                    node.event('rviz_hold_released', goal_index=goal_index, waiting=waiting)
+                    return True
+            if waiting:
+                node.event('rviz_wait_timeout', goal_index=goal_index)
+                return False
+            selection.mission.return_requested = True
+            return False
+
         publish_goal(*goal_queue[goal_index])
-        leg_timeout = 100. if obstacle_audit else 25.
+        leg_timeout = result['test_configuration'].get('planner_leg_timeout_s',100.) if obstacle_audit else 25.
         deadline, next_send, next_tick = time.monotonic() + leg_timeout, 0., 0.
         final_sim_ns = None
         next_diagnostic = 0.
@@ -249,7 +421,41 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
             receive_batch(executor)
             node.check_safe()
             now = time.monotonic()
+            if selection is not None and selection.mission.return_requested and not returning:
+                # Freeze current position while requesting a NEW home spline.
+                # Never send home directly as an Offboard position target.
+                returning = True
+                selection.mission.accepting = False
+                selection.mission.paused = False
+                selection.state = 'Returning home through planner'
+                goal_queue = [*goal_queue[:goal_index], [0., 0.]]
+                high = (node.local.x, node.local.y, node.local.z, node.local.heading)
+                node.event('planned_return_started', trigger='operator_or_pause_timeout')
+                result['return_home_requested'] = True
+                publish_goal(0., 0.)
+                final_sim_ns = None
+                handed = False
+                bridge.preview_gap_since = None
+                bridge.replan_hold = None
+                deadline = now+leg_timeout
+                continue
+            if selection is not None and selection.mission.paused:
+                hold_yaw = bridge.tracking_yaw if bridge.tracking_yaw is not None else node.local.heading
+                high = (node.local.x,node.local.y,node.local.z,hold_yaw)
+                mission_hold(high)
+                publish_goal(*goal_queue[goal_index])
+                final_sim_ns = None
+                handed = False
+                bridge.preview_gap_since = None
+                bridge.replan_hold = None
+                deadline = time.monotonic()+leg_timeout
+                node.event('rviz_resume_replanned', goal_index=goal_index)
+                continue
             if not handed:
+                if now >= next_tick:
+                    with receiver.audit.span('supervisor:preview_sample') if receiver.audit else nullcontext():
+                        preview.tick()
+                    next_tick = time.monotonic()+.05
                 if now >= next_diagnostic:
                     node.event('waiting_for_ego', bridge_health=bridge.health(),
                                accepted_spline=preview.spline is not None,
@@ -267,6 +473,10 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                     result.setdefault('truth_start', list(node.truth))
                     node.event('ego_control_handoff' if goal_index == 0 else 'ego_leg_control_handoff', goal_index=goal_index)
                     next_tick = now
+                elif now-goal_sent_wall > 10.:
+                    # A long travel budget must never become a long hover
+                    # waiting for a rejected or missing initial trajectory.
+                    raise RuntimeError('No fresh EGO trajectory within 10 s of goal request')
                 continue
             if (preview.span is not None and preview.trajectory_start_ns is not None
                     and preview.trajectory_start_ns >= goal_sent_ns and preview.spline is not None
@@ -317,8 +527,33 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                         break
                 else:
                     raise RuntimeError('endpoint did not settle within 8 seconds')
+                node.event('ego_waypoint_reached', goal_index=goal_index)
+                if returning:
+                    result['return_home_complete'] = True
+                    node.event('planned_return_arrived', target_error_m=error)
+                if selection is not None and not returning:
+                    selection.mission.completed = goal_index+1
+                    selection.state = 'Waypoint %d reached' % (goal_index+1)
+                    selection.status()
+                    # Endpoint sends keep holding even if no more goals are queued.
+                    high = (*target, yaw)
+                    if goal_index+1 == len(goal_queue) and selection.mission.end_action == 'hold':
+                        mission_hold(high, waiting=True)
+                at_landing_site = (node.mesh_guard is None or landing_allowed(
+                    node.mesh_guard, np.asarray(goal_queue[goal_index])))
+                needs_return = (end_action == 'return_home' or not at_landing_site or
+                                (selection is not None and selection.mission.return_requested))
+                if goal_index+1 == len(goal_queue) and not returning and needs_return:
+                    returning = True
+                    if selection is not None:
+                        selection.mission.accepting = False
+                        selection.mission.paused = False
+                        selection.state = 'Returning home through planner'
+                        selection.status()
+                    goal_queue = [*goal_queue, [0., 0.]]
+                    result['return_home_requested'] = True
+                    node.event('planned_return_started', trigger='mission_end')
                 if goal_index + 1 < len(goal_queue):
-                    node.event('ego_waypoint_reached', goal_index=goal_index)
                     # publish_goal replaces target with the NEXT destination.
                     # While waiting for its fresh spline, keep the completed
                     # endpoint; sending the next destination here bypasses EGO.
@@ -333,12 +568,17 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                     bridge.replan_hold = None
                     deadline = now + leg_timeout
                     continue
-                node.event('ego_waypoint_reached', goal_index=goal_index)
+                if selection is not None:
+                    selection.mission.close()
+                    selection.state = 'Returned home: landing' if returning else 'Mission completed: landing here'
+                    selection.status()
                 node.event('ego_trajectory_sampled_to_end')
                 result['trajectory_sampled_to_end'] = True
                 break
             if now >= next_tick:
-                bridge.tick()
+                with receiver.audit.span('supervisor:sample_and_bridge') if receiver.audit else nullcontext():
+                    preview.tick()
+                    bridge.tick()
                 sample_wall=time.monotonic_ns()
                 odom_stamp=None if node.odom is None else stamp_ns(node.odom.header.stamp)
                 bridge_rows.append(dict(sim_ns=node.get_clock().now().nanoseconds,
@@ -352,9 +592,14 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                         sample_wall/1e9-bridge.odom_wall,
                     deferred_supervisor_odom_count=node.deferred_odom_count,
                     preview_trajectory_id=preview.trajectory_id,
+                    preview_reason=preview.reason,
+                    preview_mode_receipt_age_sec=None if bridge.mode_wall is None else
+                        sample_wall/1e9-bridge.mode_wall,
                     preview_trajectory_start_ns=preview.trajectory_start_ns,
                     preview_pose_stamp_ns=None if bridge.pose is None else stamp_ns(bridge.pose.header.stamp),
                     tracking_yaw_ned_rad=bridge.tracking_yaw,
+                    estimator_pair_age_sec=bridge.estimator_pair_age_sec,
+                    estimator_pair_dt_sec=bridge.estimator_pair_dt_sec,
                     mesh_guard_xyz=node.mesh_guard_xyz,
                     mesh_clearance_m=node.mesh_clearance_m,
                     px4=[node.local.x,node.local.y,node.local.z],
@@ -379,10 +624,21 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                     if clearance < .55:
                         raise RuntimeError(f'obstacle clearance below 0.55 m: {clearance:.3f} m')
                 if bridge.fault_since is not None:
-                    raise RuntimeError('bridge fault: '+bridge.fault_reason)
+                    detail = (' (' + preview.reason + ')' if bridge.fault_reason ==
+                              'preview not tracking' else '')
+                    raise RuntimeError('bridge fault: '+bridge.fault_reason+detail)
                 next_tick = now+.05
         else:
             raise RuntimeError('EGO trajectory did not finish before its bounded deadline; '+bridge.health())
+        endpoint_yaw = (bridge.tracking_yaw if bridge.freeze_tracking_yaw and
+                        bridge.tracking_yaw is not None else node.local.heading)
+        endpoint = (*result['goal_ned'], endpoint_yaw)
+        hold_endpoint(node, bridge, executor, endpoint, endpoint_hold_seconds, max_tracking_error_m)
+        # Capture the completed hold before teardown can stall subscription work.
+        result['truth_end'] = list(node.truth)
+        result['actual_displacement_enu'] = (np.array(node.truth)-result['truth_start']).tolist()
+        result['endpoint_px4_error_m'] = float(np.linalg.norm(
+            np.array(result['goal_ned'])-[node.local.x,node.local.y,node.local.z]))
     except Exception as exc:
         # Preserve the detection instant before ROS entity teardown. DDS
         # destruction can take >100 ms; the later main-level abort event alone
@@ -393,28 +649,14 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
             odom_receipt_age_sec=time.monotonic()-node.odom_wall)
         raise
     finally:
-        if audit_path:
-            executor.timing_audit.restore()
-            # Serializing the trace can take hundreds of milliseconds. Keep it
-            # in memory until after disarm; never block active flight for I/O.
-            node.completed_executor_audit=executor.timing_audit
-        for n in (node, preview, bridge):
+        # Keep supervisor reception alive for hold/RTL/landing. Defer entity
+        # destruction and audit serialization until after recovery/disarm.
+        for n in (preview, bridge):
             executor.remove_node(n)
-        executor.shutdown()
-        preview.destroy_node()
-        bridge.destroy_node()
-        node.destroy_subscription(subscription)
         result['bridge_samples'] = bridge_rows
         result['bsplines'] = raw_splines
-    # Bridge has stopped. Only the supervisor now owns setpoints for endpoint settling.
-    endpoint_yaw = (bridge.tracking_yaw if bridge.freeze_tracking_yaw and
-                    bridge.tracking_yaw is not None else node.local.heading)
-    endpoint = (*result['goal_ned'], endpoint_yaw)
-    node.guarded_segment('endpoint_hold', 3., endpoint, endpoint)
-    result['truth_end'] = list(node.truth)
-    result['actual_displacement_enu'] = (np.array(node.truth)-result['truth_start']).tolist()
-    result['endpoint_px4_error_m'] = float(np.linalg.norm(
-        np.array(result['goal_ned'])-[node.local.x,node.local.y,node.local.z]))
+        if 'goal_queue' in locals():
+            result['execution_route_offsets_m'] = [list(xy) for xy in goal_queue]
     path = np.asarray([row['truth'] for row in bridge_rows], dtype=float)
     result['actual_sampled_path_length_m'] = float(np.linalg.norm(np.diff(path[:, :2], axis=0), axis=1).sum())
     if result['actual_sampled_path_length_m'] < .25:
@@ -428,11 +670,16 @@ def main():
     parser.add_argument('--execution-executor', choices=('ready-batch', 'events'), default='ready-batch',
                         help='Optional experimental Jazzy event executor for isolated SITL')
     parser.add_argument('--output-prefix', required=True)
+    parser.add_argument('--end-action', choices=('land', 'return_home'), default='land')
     parser.add_argument('--goal-distance-m', type=float, default=.5)
     parser.add_argument('--goal-y-offset-m', type=float, default=0.0)
     parser.add_argument('--obstacle-audit', action='store_true')
     parser.add_argument('--single-goal', action='store_true')
     parser.add_argument('--calibrate-ground-height',action='store_true')
+    parser.add_argument('--takeoff-height-m',type=float,default=1.7,
+                        help='Inspected indoor cruise height above takeoff, 0.8..1.7 m')
+    parser.add_argument('--alignment-height-m',type=float,
+                        help='Optional inspected initial climb for PX4 magnetic alignment, at most 1.7 m')
     parser.add_argument('--max-tracking-error-m', type=float, default=.30)
     parser.add_argument('--max-estimator-xy-disagreement-m', type=float, default=.30)
     parser.add_argument('--fixed-enu-ned-transform', action='store_true')
@@ -440,8 +687,31 @@ def main():
     parser.add_argument('--freeze-tracking-yaw', action='store_true')
     parser.add_argument('--max-initial-yaw-disagreement-deg', type=float, default=5.)
     parser.add_argument('--route-json', type=Path)
+    parser.add_argument('--maximum-route-radius-m',type=float,default=7.,
+                        help='Prepared outdoor guard sets the radius; maximum 45 m')
+    parser.add_argument('--rviz-goal-timeout-sec',type=float,default=0.,
+                        help='Inspected scan SITL: edit an RViz mission and explicitly start it')
+    parser.add_argument('--rviz-mission',action='store_true',
+                        help='Interactive mission; zero ground timeout waits for explicit Start')
     parser.add_argument('--executor-audit',action='store_true')
+    parser.add_argument('--planner-leg-timeout-s',type=float,default=100.)
+    parser.add_argument('--endpoint-hold-seconds', type=float, default=3.,
+                        help='Bounded guarded final hover for SITL recording; default 3 seconds')
     args = parser.parse_args()
+    if not math.isfinite(args.planner_leg_timeout_s) or not 100.<=args.planner_leg_timeout_s<=500.:
+        parser.error('Planner leg timeout must be in [100,500] seconds')
+    if not math.isfinite(args.maximum_route_radius_m) or not 3.<=args.maximum_route_radius_m<=45.:
+        parser.error('Prepared route radius must be finite and in [3,45] metres')
+    if (not math.isfinite(args.rviz_goal_timeout_sec) or
+            (args.rviz_goal_timeout_sec!=0. and not 30.<=args.rviz_goal_timeout_sec<=600.)):
+        parser.error('RViz goal timeout must be zero or 30..600 seconds')
+    if not math.isfinite(args.takeoff_height_m) or not .8<=args.takeoff_height_m<=1.7:
+        parser.error('Takeoff height must be finite and in [0.8,1.7] metres')
+    if args.alignment_height_m is not None and (not math.isfinite(args.alignment_height_m) or
+            not args.takeoff_height_m<=args.alignment_height_m<=1.7):
+        parser.error('Alignment height must be finite and between cruise height and 1.7 m')
+    if not math.isfinite(args.endpoint_hold_seconds) or not 3. <= args.endpoint_hold_seconds <= 300.:
+        parser.error('Final guarded hold must be finite and in [3,300] seconds')
     if not math.isfinite(args.max_initial_yaw_disagreement_deg) or not 0 < args.max_initial_yaw_disagreement_deg <= 20.:
         parser.error('Initial yaw disagreement must be finite and in (0,20] degrees')
     route_offsets = None
@@ -451,8 +721,8 @@ def main():
                 or any(not isinstance(xy, list) or len(xy) != 2
                        or not all(isinstance(v, (int, float)) and not isinstance(v, bool)
                                   and math.isfinite(v) for v in xy)
-                       or math.hypot(*xy) > 7. for xy in route_offsets)):
-            parser.error('Route must contain 1..8 finite XY offsets within 7 m of the frozen origin')
+                       or math.hypot(*xy) > args.maximum_route_radius_m for xy in route_offsets)):
+            parser.error(f'Route must contain 1..8 finite XY offsets within {args.maximum_route_radius_m:g} m of the frozen origin')
     geometry_path = os.environ.get('ASTRA_TEST_OBSTACLE_GEOMETRY')
     obstacles = load_obstacles(geometry_path) if geometry_path else None
     rclpy.init()
@@ -462,7 +732,13 @@ def main():
                     max_estimator_xy_disagreement_m=args.max_estimator_xy_disagreement_m,
                     max_tracking_error_m=args.max_tracking_error_m))
     result['test_configuration']['velocity_feedforward'] = args.velocity_feedforward
+    result['test_configuration']['planner_leg_timeout_s'] = args.planner_leg_timeout_s
     result['test_configuration']['execution_executor'] = args.execution_executor
+    result['test_configuration']['preview_transport'] = 'serial same-process sample before bridge'
+    result['test_configuration']['endpoint_hold_seconds'] = args.endpoint_hold_seconds
+    result['test_configuration']['end_action'] = args.end_action
+    result['test_configuration']['takeoff_height_m'] = args.takeoff_height_m
+    result['test_configuration']['alignment_height_m'] = args.alignment_height_m
     result['test_configuration']['freeze_tracking_yaw'] = args.freeze_tracking_yaw
     result['test_configuration']['max_initial_yaw_disagreement_deg'] = args.max_initial_yaw_disagreement_deg
     if args.executor_audit:result['executor_audit_path']=args.output_prefix+'_executor_audit.json'
@@ -479,26 +755,65 @@ def main():
                                    Parameter('max_speed_mps', value=.30),
                                    Parameter('max_tracking_error_m', value=max_tracking_error_m),
                                    Parameter('max_estimator_xy_disagreement_m',
-                                             value=args.max_estimator_xy_disagreement_m)])
+                                             value=args.max_estimator_xy_disagreement_m)],
+                                   subscribe_preview=False)
     bridge.output_timer.cancel()
+    receiver = None
     try:
+        receiver = MissionReceiver(node, args.execution_executor, args.executor_audit)
+        node.mission_receiver = receiver
+        node.event('mission_receiver_started', executor=args.execution_executor,
+                   scope='ground selection, prestream, takeoff, execution and recovery')
         if args.calibrate_ground_height:
             node.align_ground_height()
-        high = takeoff(node)
+        if args.rviz_mission or args.rviz_goal_timeout_sec:
+            if node.mesh_guard is None or node.mesh_guard.recovery_boxes is None:
+                raise RuntimeError('RViz flight requires an inspected scan descent certificate')
+            from rviz_goal_selection import RvizSelection
+            node.rviz_selection=RvizSelection(node,args.takeoff_height_m)
+            if receiver.audit:
+                receiver.audit.install(node, with_metadata=not isinstance(receiver.executor, BoundedEventsExecutor))
+            route_offsets=node.rviz_selection.wait(args.rviz_goal_timeout_sec)
+            Path(args.output_prefix+'_mission_started').touch()
+            Path(args.output_prefix).with_name('route.json').write_text(json.dumps(route_offsets)+'\n')
+            result['rviz_selected_goal']={
+                'clicked_xy':node.rviz_selection.selected,
+                'ground_reference_livo':node.rviz_selection.origin.tolist(),
+                'cruise_height_m':args.takeoff_height_m,'return_to_takeoff':False,
+                'end_action':node.rviz_selection.mission.end_action}
+        high = takeoff(node, args.takeoff_height_m, args.alignment_height_m)
+        node.transit_active = bool(node.mesh_guard is not None and node.mesh_guard.transit_boxes is not None)
         execute(node, high, result, args.goal_distance_m, args.goal_y_offset_m,
                 args.obstacle_audit, args.max_tracking_error_m, (preview, bridge), args.single_goal,
-                args.fixed_enu_ned_transform, obstacles, route_offsets, args.max_initial_yaw_disagreement_deg)
+                args.fixed_enu_ned_transform, obstacles, route_offsets, args.max_initial_yaw_disagreement_deg,
+                args.endpoint_hold_seconds)
     except Exception as exc:
         result['fault'] = str(exc)
         node.event('test_aborted', reason=str(exc))
         if node.status and node.status.arming_state == VehicleStatus.ARMING_STATE_ARMED:
             node.fault_hold(str(exc))
     finally:
+        if getattr(node,'rviz_selection',None) is not None:
+            node.rviz_selection.enabled=False
+            node.rviz_selection.mission.close()
         result['disarmed'] = (node.land() if node.status and
             node.status.arming_state == VehicleStatus.ARMING_STATE_ARMED else
             bool(node.status and node.status.arming_state != VehicleStatus.ARMING_STATE_ARMED))
+        selection = getattr(node, 'rviz_selection', None)
+        if selection is not None:
+            mission = selection.mission
+            result['rviz_mission'] = dict(goals=mission.goals, completed=mission.completed,
+                end_action=mission.end_action, wait_seconds=mission.wait_seconds,
+                closed=mission.closed, auto_return=bool(result.get('return_home_complete')))
+            Path(args.output_prefix).with_name('route.json').write_text(json.dumps(mission.goals)+'\n')
         result['events'] = node.events
         result['ground_height_alignment'] = node.ground_alignment.summary() if node.ground_alignment else None
+        result['height_pair_callback_order_deferrals'] = node.height_pair_gate.deferred_checks
+        result['queued_state_rechecks'] = getattr(node, 'queued_state_rechecks', 0)
+        result['queued_state_recoveries'] = getattr(node, 'queued_state_recoveries', 0)
+        if receiver is not None:
+            receiver.close()
+            node.mission_receiver = None
         if args.executor_audit and hasattr(node,'completed_executor_audit'):
             node.completed_executor_audit.save(result['executor_audit_path'])
         Path(args.output_prefix+'_events.json').write_text(json.dumps(result, indent=2)+'\n')
@@ -509,6 +824,8 @@ def main():
                 writer.writerows(node.rows)
         print(json.dumps({k:v for k,v in result.items() if k not in
                           ('events','bridge_samples','bsplines')}), flush=True)
+        preview.destroy_node()
+        bridge.destroy_node()
         node.destroy_node()
         rclpy.try_shutdown()
     if not result['flight_complete'] or not result['disarmed']:

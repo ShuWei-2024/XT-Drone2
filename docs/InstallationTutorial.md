@@ -1,25 +1,5 @@
-# 一、概述
+# 安装教程入口
 
-XTDrone2是xxx。
+Astra 分支的安装与运行步骤统一维护在 [安装与快速启动](QUICKSTART.md)。模块说明、任务操作和验证报告从 [文档索引](README.md) 查阅。
 
-XTDrone2在XTDrone的基础上进行了升级，采用了更高性能的仿真器
-
-* Ubuntu24.04.1 LTS
-* ROS2 Jazzy
-* Gazebo Hermonic
-
-进行开发，推荐平台和版本号保持一致。
-
-# 二、ROS2的安装
-
-
-# 三、Gazebo Ignition的安装
-
-
-# 四、PX4配置
-
-
-# 五、XTDrone2安装和配置
-
-
-# 六、测试：用键盘控制无人机飞行
+XT-Drone2 上游背景见 [原始介绍](README.upstream.md)。请使用本分支固定的 ROS 2 Jazzy / Gazebo Harmonic / PX4 v1.17.0 依赖，避免混用不同教程的构建环境。

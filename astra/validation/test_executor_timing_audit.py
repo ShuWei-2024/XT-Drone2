@@ -53,3 +53,42 @@ def test_callback_error_is_preserved_and_recorded(node):
         sub.callback(String(),SimpleNamespace(received_timestamp=0,source_timestamp=0))
     assert audit.stats['executor_audit_test:/failure_test']['count']==1
     audit.restore();assert sub.callback is fail
+
+
+def test_install_after_ui_creation_traces_new_entities_only_once(node):
+    seen=[]
+    sub=node.create_subscription(String,'incremental_test',lambda msg:seen.append(msg.data),10)
+    original=sub.callback
+    audit=ExecutorTimingAudit()
+    audit.install(node,with_metadata=False)
+    wrapped=sub.callback
+    timer=node.create_timer(1.,lambda:seen.append('timer'))
+    original_timer=timer.callback
+    try:
+        audit.install(node,with_metadata=False)
+        assert sub.callback is wrapped
+        sub.callback(String(data='once'))
+        timer.callback()
+        assert seen==['once','timer']
+        assert audit.stats['executor_audit_test:/incremental_test']['count']==1
+    finally:audit.restore()
+    assert sub.callback is original and timer.callback is original_timer
+
+
+def test_gc_pauses_are_recorded_without_changing_collector(node,tmp_path):
+    import gc,json
+    original=list(gc.callbacks);enabled=gc.isenabled();thresholds=gc.get_threshold()
+    audit=ExecutorTimingAudit();audit.install(node)
+    try:
+        cycle=[];cycle.append(cycle);del cycle
+        gc.collect(2)
+        row=next(r for r in reversed(audit.gc_events) if r['generation']==2)
+        assert row['collected']>=1 and row['uncollectable']==0
+        assert row['wall_end_ns']>=row['wall_start_ns']
+        assert row['wall_duration_ns']>=row['cpu_duration_ns']>=0
+        assert gc.isenabled()==enabled and gc.get_threshold()==thresholds
+    finally:audit.restore()
+    assert gc.callbacks==original
+    audit.save(tmp_path/'trace.json')
+    saved=json.loads((tmp_path/'trace.json').read_text())
+    assert saved['gc_statistics']['2']['count']>=1

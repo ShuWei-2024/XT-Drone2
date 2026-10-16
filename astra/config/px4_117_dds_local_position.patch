@@ -1,0 +1,12 @@
+diff --git a/src/modules/uxrce_dds_client/dds_topics.yaml b/src/modules/uxrce_dds_client/dds_topics.yaml
+--- a/src/modules/uxrce_dds_client/dds_topics.yaml
++++ b/src/modules/uxrce_dds_client/dds_topics.yaml
+@@ -80,7 +80,7 @@ publications:
+ 
+   - topic: /fmu/out/vehicle_local_position
+     type: px4_msgs::msg::VehicleLocalPosition
+-    rate_limit: 50.
++    rate_limit: 100.
+ 
+   - topic: /fmu/out/vehicle_odometry
+     type: px4_msgs::msg::VehicleOdometry

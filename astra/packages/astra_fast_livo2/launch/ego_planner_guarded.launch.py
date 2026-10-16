@@ -14,6 +14,7 @@ def generate_launch_description():
     tracking_error = LaunchConfiguration('max_tracking_error_m')
     ready_timeout = LaunchConfiguration('ready_timeout_sec')
     virtual_ceiling = LaunchConfiguration('virtual_ceiling_m')
+    optimization_clearance = LaunchConfiguration('optimization_clearance_m')
     return LaunchDescription([
         DeclareLaunchArgument('max_vel', default_value='0.5'),
         DeclareLaunchArgument('max_acc', default_value='0.5'),
@@ -22,6 +23,9 @@ def generate_launch_description():
         DeclareLaunchArgument('ready_timeout_sec', default_value='0.30'),
         DeclareLaunchArgument('virtual_ceiling_m', default_value='2.9'),
         DeclareLaunchArgument('min_goal_distance_m', default_value='0.20'),
+        DeclareLaunchArgument('optimization_clearance_m', default_value='0.8'),
+        DeclareLaunchArgument('map_size_xy_m', default_value='16.0'),
+        DeclareLaunchArgument('require_execution_envelope', default_value='false'),
         Node(
             package='ego_planner',
             executable='ego_planner_node',
@@ -35,6 +39,7 @@ def generate_launch_description():
             ],
             parameters=[{
                 'use_sim_time': True,
+                'visualization/frame_id': 'camera_init',
                 'fsm/flight_type': 1,
                 'fsm/thresh_replan_time': 1.0,
                 'fsm/thresh_no_replan_meter': 0.25,
@@ -47,8 +52,10 @@ def generate_launch_description():
                 'fsm/fail_safe': True,
                 'fsm/waypoint_num': 0,
                 'grid_map/resolution': 0.2,
-                'grid_map/map_size_x': 16.0,
-                'grid_map/map_size_y': 16.0,
+                'grid_map/require_execution_envelope': ParameterValue(
+                    LaunchConfiguration('require_execution_envelope'), value_type=bool),
+                'grid_map/map_size_x': ParameterValue(LaunchConfiguration('map_size_xy_m'),value_type=float),
+                'grid_map/map_size_y': ParameterValue(LaunchConfiguration('map_size_xy_m'),value_type=float),
                 'grid_map/map_size_z': 4.0,
                 'grid_map/local_update_range_x': 5.0,
                 'grid_map/local_update_range_y': 5.0,
@@ -62,6 +69,7 @@ def generate_launch_description():
                 'grid_map/pose_type': 1,
                 'grid_map/skip_pixel': 2,
                 'manager/max_vel': ParameterValue(max_vel, value_type=float),
+                'manager/grid_seed_fallback': True,
                 'manager/min_goal_distance_m': ParameterValue(LaunchConfiguration('min_goal_distance_m'), value_type=float),
                 'manager/max_acc': ParameterValue(max_acc, value_type=float),
                 'manager/max_jerk': 1.0,
@@ -74,7 +82,7 @@ def generate_launch_description():
                 'optimization/lambda_collision': 0.5,
                 'optimization/lambda_feasibility': 0.1,
                 'optimization/lambda_fitness': 1.0,
-                'optimization/dist0': 0.8,
+                'optimization/dist0': ParameterValue(optimization_clearance, value_type=float),
                 'optimization/swarm_clearance': 0.8,
                 'optimization/max_vel': ParameterValue(max_vel, value_type=float),
                 'optimization/max_acc': ParameterValue(max_acc, value_type=float),

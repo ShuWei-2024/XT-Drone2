@@ -1,0 +1,18 @@
+{
+  "original_run": "astra/runtime/rviz_goal_20261013_140940",
+  "preflight_passed": true,
+  "reason": "RViz mission editing timed out without arming",
+  "wait_seconds": 300.004123129,
+  "accepted_goals": 0,
+  "start_commands": 0,
+  "disarmed": true,
+  "changes": [
+    "Default ground editing timeout is now zero/unlimited",
+    "Explicit interactive mission flag distinguishes zero ground timeout from scripted flight",
+    "Parent flight timeout begins when the child writes the START marker",
+    "Task failure reason is printed in the launcher terminal"
+  ],
+  "tests": "37 related tests passed; simulated ground wait covers 601 s before Start, explicit timeout, and close before Start",
+  "cli_help_checked": true,
+  "live_retest": "No new simulation launched: an existing user-owned Gazebo GUI is open; it was left untouched."
+}

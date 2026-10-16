@@ -112,6 +112,11 @@ namespace ego_planner
     void setStationaryTerminal(bool enabled) { stationary_terminal_ = enabled; }
     bool stationaryTerminal() const { return stationary_terminal_; }
 
+    void setPlanningDeadline(std::chrono::steady_clock::time_point deadline) {
+      planning_deadline_ = deadline;
+      a_star_->setPlanningDeadline(deadline);
+    }
+    bool planningBudgetExpired() const { return std::chrono::steady_clock::now() >= planning_deadline_; }
     void optimize();
 
     ControlPoints getControlPoints() { return cps_; };
@@ -129,6 +134,7 @@ namespace ego_planner
     inline double getSwarmClearance(void) { return swarm_clearance_; }
 
   private:
+    std::chrono::steady_clock::time_point planning_deadline_{std::chrono::steady_clock::time_point::max()};
     bool stationary_terminal_{false};
     GridMap::Ptr grid_map_;
     fast_planner::ObjPredictor::Ptr moving_objs_;

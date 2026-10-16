@@ -54,6 +54,16 @@ class LocalMapLatencyTest(unittest.TestCase):
         np.testing.assert_array_equal(mapping.inflate_cells(cells + 1_000_000, self.node.offsets),
                                       expected + 1_000_000)
 
+    def test_sparse_large_extent_uses_exact_union_without_extent_sized_allocation(self):
+        cells=np.array([[-10000,-10000,-2],[10000,10000,2]])
+        expected=np.unique((cells[:,None,:]+self.node.offsets).reshape(-1,3),axis=0)
+        np.testing.assert_array_equal(mapping.inflate_cells(cells,self.node.offsets),expected)
+
+    def test_dense_floor_inflation_is_exact_across_temporary_array_chunks(self):
+        cells=np.array([(x,y,-2) for x in range(-40,41) for y in range(-40,41)])
+        expected=np.unique((cells[:,None,:]+self.node.offsets).reshape(-1,3),axis=0)
+        np.testing.assert_array_equal(mapping.inflate_cells(cells,self.node.offsets),expected)
+
     def test_worker_does_not_block_odom_or_health_timeout(self):
         build = self.node.build_clouds
         def blocked(*args):
@@ -115,6 +125,36 @@ class LocalMapLatencyTest(unittest.TestCase):
         self.assertFalse(self.node.ready)
         self.assertEqual(self.node.reason, 'stale published obstacle map')
 
+    def completed_snapshot(self, expired=False):
+        self.node.publish_map()
+        self.node.map_future.result(timeout=2)
+        self.node.last_map_ns -= 1_100_000_000
+        self.node.last_map_wall = time.monotonic() - 1.1
+        if expired:
+            self.node.map_snapshot_ns -= 1_100_000_000
+
+    def test_fresh_completed_snapshot_replaces_expired_publication_before_health_check(self):
+        self.completed_snapshot()
+        self.node.check_health()
+        self.assertTrue(self.node.ready)
+        self.assertIsNone(self.node.map_future)
+        self.assertEqual(self.node.map_results_discarded, 0)
+
+    def test_expired_completed_snapshot_cannot_rescue_old_map(self):
+        self.completed_snapshot(expired=True)
+        self.node.check_health()
+        self.assertFalse(self.node.ready)
+        self.assertEqual(self.node.reason, 'stale published obstacle map')
+        self.assertEqual(self.node.map_results_discarded, 1)
+
+    def test_completed_snapshot_cannot_rescue_stale_odometry(self):
+        self.completed_snapshot()
+        self.node.last_odom_wall = time.monotonic() - .6
+        self.node.check_health()
+        self.assertFalse(self.node.ready)
+        self.assertEqual(self.node.reason, 'stale odometry')
+        self.assertEqual(self.node.map_results_discarded, 1)
+
     def test_airframe_filter_keeps_environment_and_original_measurement_time(self):
         self.node.voxels.clear()
         self.node.self_filter_radius = 0.45
@@ -135,6 +175,33 @@ class LocalMapLatencyTest(unittest.TestCase):
         self.node.check_health()
         self.assertFalse(self.node.ready)
         self.assertEqual(self.node.reason, 'insufficient local obstacle points')
+
+    def test_outdoor_scan_retains_distant_observations_without_inventing_close_points(self):
+        self.node.voxels.clear()
+        self.node.radius = 12.
+        header = Header(frame_id='camera_init')
+        header.stamp = rclpy.time.Time(nanoseconds=self.node.last_odom_ns).to_msg()
+        xyz = np.array([[6.1, 0, -.3], [10.1, 0, -.3], [13., 0, -.3]], dtype=np.float32)
+        self.node.on_cloud(point_cloud2.create_cloud_xyz32(header, xyz))
+        self.assertEqual(set(self.node.voxels), {(30, 0, -2), (50, 0, -2)})
+        self.assertEqual(set(self.node.voxels.values()), {self.node.last_odom_ns})
+        # A wider observation window must not bypass an insufficient map.
+        self.node.check_health()
+        self.assertFalse(self.node.ready)
+        self.assertEqual(self.node.reason, 'insufficient local obstacle points')
+
+    def test_larger_window_still_revokes_readiness_at_its_finite_capacity(self):
+        self.node.radius = 12.
+        self.node.max_voxels = 20000
+        now = self.node.get_clock().now().nanoseconds
+        # Many unique measured voxels inside the window, exceeding its budget.
+        self.node.voxels = {(x, y, z): now for x in range(-20, 21)
+                            for y in range(-20, 21) for z in range(13)}
+        self.node.publish_map()
+        self.assertFalse(self.node.ready)
+        self.assertEqual(self.node.reason, 'local map capacity exceeded')
+        self.assertFalse(self.node.voxels)
+        self.assertIsNone(self.node.map_future)
 
 
 if __name__ == '__main__':

@@ -6,8 +6,13 @@ import time
 import unittest
 from copy import deepcopy
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 import rclpy
+import numpy as np
+from scipy.interpolate import BSpline
+from rclpy.time import Time
 from geometry_msgs.msg import PoseStamped, TwistStamped
 from nav_msgs.msg import Odometry
 from px4_msgs.msg import VehicleLocalPosition, VehicleStatus
@@ -15,6 +20,7 @@ from std_msgs.msg import Bool, Empty, String
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from guarded_bspline_bridge import GuardedBsplineBridge  # noqa: E402
+from preview_bspline import PreviewBspline  # noqa: E402
 
 
 class PublisherSpy:
@@ -68,6 +74,60 @@ class BridgeTest(unittest.TestCase):
 
     def tearDown(self):
         self.node.destroy_node()
+
+    def test_serial_preview_refresh_after_delayed_timer_keeps_original_gates(self):
+        preview = PreviewBspline()
+        preview.output_timer.cancel()
+        preview.sample_callback = self.node.on_preview_sample
+        preview.on_ready(Bool(data=True))
+        preview.on_valid(Bool(data=True))
+        preview.on_planner_heartbeat(Empty())
+        preview.on_odom(self.node.odom)
+        preview.spline = BSpline(np.arange(-3., 7.), np.zeros((6, 3)), 3)
+        preview.span = (0., 3.)
+        common_time = Time(nanoseconds=self.node.get_clock().now().nanoseconds+12_000_000)
+        self.node.control_clock = preview.control_clock = SimpleNamespace(now=lambda: common_time)
+        preview.trajectory_start_ns = common_time.nanoseconds-10_000_000
+        try:
+            # The timer hasn't run, but all actual inputs remain healthy.
+            self.node.mode_wall = time.monotonic()-.21
+            self.assertEqual('preview not tracking', self.node.health())
+            preview.tick()
+            self.assertEqual('', self.node.health())
+            self.assertEqual('tracking', preview.reason)
+            self.assertEqual(self.node.pose.header.stamp, self.node.velocity.header.stamp)
+            self.assertEqual(common_time.to_msg(), self.node.pose.header.stamp)
+            # Strict future-stamp rejection remains; do not add tolerance.
+            self.node.pose.header.stamp = Time(nanoseconds=common_time.nanoseconds+1).to_msg()
+            self.assertEqual('stale measurement timestamp', self.node.health())
+            # A source fault must still revoke tracking in the same call.
+            preview.planner_wall = time.monotonic()-.4
+            preview.tick()
+            self.assertIn('planner heartbeat stale', preview.reason)
+            self.assertEqual('preview not tracking', self.node.health())
+            preview.on_planner_heartbeat(Empty())
+            preview.odom_wall = time.monotonic()-.3
+            preview.tick()
+            self.assertIn('odometry stale or invalid', preview.reason)
+            self.assertEqual('NO_VALID_HOLD', self.node.preview_mode)
+            preview.on_odom(self.node.odom)
+            preview.on_valid(Bool(data=False))
+            preview.tick()
+            self.assertIn('trajectory invalid', preview.reason)
+            self.assertNotEqual('TRACK_PREVIEW', self.node.preview_mode)
+        finally:
+            preview.destroy_node()
+
+    def test_composed_bridge_cannot_receive_old_preview_dds_callbacks(self):
+        node = GuardedBsplineBridge(subscribe_preview=False)
+        try:
+            topics = {sub.topic_name for sub in node.subscriptions}
+            self.assertNotIn('/planning/preview_mode', topics)
+            self.assertNotIn('/planning/position_preview', topics)
+            self.assertNotIn('/planning/velocity_preview', topics)
+            self.assertIn('/fast_livo2/odom', topics)
+        finally:
+            node.destroy_node()
 
     def test_dry_run_publishes_no_px4_input_and_transforms_position(self):
         self.assertEqual('', self.node.health())
@@ -148,6 +208,46 @@ class BridgeTest(unittest.TestCase):
         self.node.px4.x -= .31
         self.node.px4.z += .21
         self.assertIn('z=0.210m', self.node.health())
+
+    def test_single_missing_pair_uses_fresh_history_and_expires(self):
+        source=deepcopy(self.node.odom)
+        epoch=self.node.get_clock().now().nanoseconds-30_000_000
+        source.header.stamp.sec,source.header.stamp.nanosec=divmod(epoch,10**9)
+        # Latest source has no PX4 sample within 20 ms, preceding real pair does.
+        self.node.on_odom(source)
+        self.assertEqual('',self.node.health())
+        self.assertLessEqual(self.node.estimator_pair_dt_sec,.02)
+        for msg,_ in self.node.odom_history:
+            t=self.node.get_clock().now().nanoseconds-260_000_000
+            msg.header.stamp.sec,msg.header.stamp.nanosec=divmod(t,10**9)
+        # Keep a current source, with only unmatched PX4 samples in history.
+        fresh=deepcopy(source);fresh.header.stamp=self.node.get_clock().now().to_msg()
+        for msg in self.node.px4_history:msg.timestamp_sample-=100_000
+        self.node.on_odom(fresh)
+        self.assertEqual('estimator measurement times differ',self.node.state_health())
+
+    def test_fresh_history_does_not_hide_latest_invalid_position(self):
+        source=deepcopy(self.node.odom);source.pose.pose.position.x=math.nan
+        self.node.on_odom(source)
+        self.assertEqual('non-finite estimator position',self.node.health())
+
+    def test_expired_nearest_sample_does_not_hide_valid_measurement_pair(self):
+        now=self.node.get_clock().now().nanoseconds
+        source=deepcopy(self.node.odom)
+        source.header.stamp.sec,source.header.stamp.nanosec=divmod(now-244_000_000,10**9)
+        expired,eligible=deepcopy(self.node.px4),deepcopy(self.node.px4)
+        expired.timestamp_sample=(now-252_000_000)//1000  # nearer, but expired
+        eligible.timestamp_sample=(now-232_000_000)//1000  # 12 ms apart, both fresh
+        self.node.odom_history.clear();self.node.px4_history.clear()
+        self.node.on_odom(source);self.node.on_px4(expired);self.node.on_px4(eligible)
+        with patch.object(self.node,'control_clock') as clock:
+            clock.now.return_value.nanoseconds=now
+            self.assertEqual('',self.node.state_health())
+            self.assertLessEqual(self.node.estimator_pair_dt_sec,.02)
+            self.assertLessEqual(self.node.estimator_pair_age_sec,.25)
+            # An ineligible nearest sample remains unusable when no good pair exists.
+            self.node.px4_history.pop()
+            self.assertEqual('estimator measurement times differ',self.node.state_health())
 
     def test_separate_preview_callbacks_commit_only_matching_pairs(self):
         preceding = self.node.pose

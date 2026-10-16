@@ -13,11 +13,13 @@ from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data, QoSProfile, DurabilityPolicy
 from sensor_msgs.msg import Image, PointCloud2, Imu
 from nav_msgs.msg import Odometry
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Empty
+from diagnostic_msgs.msg import DiagnosticArray
+from sensor_msgs_py import point_cloud2
 
 
 class Probe(Node):
-    def __init__(self, output, capture=False):
+    def __init__(self, output, capture=False, capture_map=False):
         super().__init__('scan_scene_probe')
         self.output = output
         self.counts = dict(lidar=0, rgb=0, imu=0, odom=0, registered_cloud=0, ready=0)
@@ -26,6 +28,12 @@ class Probe(Node):
         self.capture=capture
         self.imu_rows=[];self.truth_rows=[];self.cloud_samples=[]
         self.gz=None
+        self.map_samples=[];self.map_diagnostics=[];self.last_map_wall=0.
+        self.planner_heartbeat_rows=[]
+        if capture_map:
+            self.create_subscription(PointCloud2,'/local_mapping/occupied',self.occupied,qos_profile_sensor_data)
+            self.create_subscription(DiagnosticArray,'/local_mapping/diagnostics',self.map_diagnostic,10)
+            self.create_subscription(Empty,'/planning/heartbeat',self.planner_heartbeat,10)
         if capture:
             from gz.msgs10.pose_v_pb2 import Pose_V
             from gz.transport13 import Node as GazeboNode
@@ -98,7 +106,35 @@ class Probe(Node):
     def readiness(self, msg):
         self.bump('ready');self.ready.append(msg.data)
 
+    def occupied(self,msg):
+        now=time.monotonic()
+        if now-self.last_map_wall<1.:return
+        self.last_map_wall=now
+        xyz=point_cloud2.read_points_numpy(msg,field_names=('x','y','z')).copy()
+        self.map_samples.append((msg.header.stamp.sec*10**9+msg.header.stamp.nanosec,xyz))
+
+    def map_diagnostic(self,msg):
+        for status in msg.status:
+            if status.name=='local_mapping_guard':
+                self.map_diagnostics.append(dict(stamp_ns=msg.header.stamp.sec*10**9+msg.header.stamp.nanosec,
+                    reason=status.message,values={x.key:x.value for x in status.values}))
+
+    def planner_heartbeat(self,msg):
+        self.planner_heartbeat_rows.append((time.monotonic_ns(),self.get_clock().now().nanoseconds))
+
     def finish(self, seconds):
+        if self.planner_heartbeat_rows:
+            with (self.output/'planner_heartbeat.csv').open('w') as stream:
+                writer=csv.writer(stream)
+                writer.writerow(['receipt_monotonic_ns','sim_ns'])
+                writer.writerows(self.planner_heartbeat_rows)
+        if self.map_samples:
+            lengths=np.array([len(x[1]) for x in self.map_samples],dtype=np.int64)
+            np.savez_compressed(self.output/'local_map_samples.npz',
+                stamps=np.array([x[0] for x in self.map_samples],dtype=np.int64),
+                offsets=np.r_[0,np.cumsum(lengths)],xyz=np.concatenate([x[1] for x in self.map_samples]))
+        if self.map_diagnostics:
+            (self.output/'local_map_diagnostics.json').write_text(json.dumps(self.map_diagnostics)+'\n')
         if self.capture:
             self.gz.unsubscribe('/world/astra_px4_open/dynamic_pose/info')
             for name,header,rows in [('raw_imu',['stamp_ns','ax','ay','az','gx','gy','gz'],self.imu_rows),
@@ -132,7 +168,8 @@ def main():
     p.add_argument('--seconds',type=float,default=60)
     p.add_argument('--stop-file',type=Path)
     p.add_argument('--capture-inputs',action='store_true')
-    a=p.parse_args();rclpy.init();node=Probe(a.output,a.capture_inputs);start=time.monotonic()
+    p.add_argument('--capture-map',action='store_true',help='Sparse live occupied map and readiness diagnostics')
+    a=p.parse_args();rclpy.init();node=Probe(a.output,a.capture_inputs,a.capture_map);start=time.monotonic()
     try:
         while rclpy.ok() and time.monotonic()-start<a.seconds:
             if a.stop_file and a.stop_file.exists():break

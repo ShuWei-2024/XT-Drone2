@@ -1,0 +1,353 @@
+{
+  "date": "2026-10-16",
+  "scope": "Isolated Baylands RViz receiver debugging; mixed source revisions. One final-configuration flight passed. Not a fixed-configuration success-rate study or arbitrary-goal certification.",
+  "limits_unchanged": {
+    "measurement_age_ms": 250,
+    "measurement_pair_ms": 20,
+    "height_disagreement_m": 0.2,
+    "setpoint_target_hz": 20
+  },
+  "regression_tests_passed": 277,
+  "runs": [
+    {
+      "run": "outdoor_20261016_114621",
+      "summary": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "FAST-LIVO2 receipt age exceeds 250 ms",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "FAST-LIVO2 receipt age exceeds 250 ms",
+      "executor": "events",
+      "queued_state_rechecks": null,
+      "queued_state_recoveries": null,
+      "abort": {
+        "event": "test_aborted",
+        "wall_ns": 574670279675454,
+        "sim_ns": 271140000000,
+        "odom_age_sec": 0.14,
+        "odom_receipt_age_sec": 0.25248455605469644,
+        "map_ready": true,
+        "heading_good": false,
+        "truth": [
+          0.001474741125073717,
+          4.821965958132487e-08,
+          -0.013000127029129227
+        ],
+        "px4": [
+          0.0002996216935571283,
+          0.04298119619488716,
+          0.014234572649002075,
+          1.585848093032837
+        ],
+        "reason": "FAST-LIVO2 receipt age exceeds 250 ms"
+      },
+      "origin_initialization": {
+        "confirmed": true,
+        "command_sent": true,
+        "acks": [
+          {
+            "timestamp_us": 35784000,
+            "result": 0
+          }
+        ],
+        "failure": null
+      }
+    },
+    {
+      "run": "outdoor_receiver_ui_20261016_01",
+      "summary": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "ground-aligned height has no measurement pair within 20 ms",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "ground-aligned height has no measurement pair within 20 ms",
+      "executor": "events",
+      "queued_state_rechecks": null,
+      "queued_state_recoveries": null,
+      "abort": {
+        "event": "test_aborted",
+        "wall_ns": 575160883216823,
+        "sim_ns": 155760000000,
+        "odom_age_sec": 0.132,
+        "odom_receipt_age_sec": 0.006720216944813728,
+        "map_ready": true,
+        "heading_good": false,
+        "truth": [
+          0.001474741125073717,
+          4.821965958132487e-08,
+          -0.013000127029129227
+        ],
+        "px4": [
+          0.007669510785490274,
+          -0.018079303205013275,
+          -0.07028143852949142,
+          1.5843102931976318
+        ],
+        "reason": "ground-aligned height has no measurement pair within 20 ms"
+      },
+      "origin_initialization": {
+        "confirmed": true,
+        "command_sent": true,
+        "acks": [
+          {
+            "timestamp_us": 37768000,
+            "result": 0
+          }
+        ],
+        "failure": null
+      }
+    },
+    {
+      "run": "outdoor_receiver_ui_20261016_02",
+      "summary": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "RuntimeError: Disarmed EV/global-origin initialization failed; no arming commands sent",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "origin_initialization": {
+        "confirmed": false,
+        "command_sent": true,
+        "acks": [
+          {
+            "timestamp_us": 35160000,
+            "result": 0
+          }
+        ],
+        "failure": "origin initialization moved local position by more than 0.03 m"
+      }
+    },
+    {
+      "run": "outdoor_receiver_ui_20261016_03",
+      "summary": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "FAST-LIVO2 measurement age outside 0..250 ms",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "flight_complete": false,
+      "disarmed": true,
+      "fault": "FAST-LIVO2 measurement age outside 0..250 ms",
+      "executor": "events",
+      "queued_state_rechecks": null,
+      "queued_state_recoveries": null,
+      "abort": {
+        "event": "test_aborted",
+        "wall_ns": 575664731174078,
+        "sim_ns": 199688000000,
+        "odom_age_sec": 0.268,
+        "odom_receipt_age_sec": 0.2204633200308308,
+        "map_ready": true,
+        "heading_good": true,
+        "truth": [
+          0.085993693083443,
+          0.012595877109677321,
+          1.426308938881693
+        ],
+        "px4": [
+          -0.06154453009366989,
+          0.08901670575141907,
+          -1.0795159339904785,
+          1.5853431224822998
+        ],
+        "reason": "FAST-LIVO2 measurement age outside 0..250 ms"
+      },
+      "origin_initialization": {
+        "confirmed": true,
+        "command_sent": true,
+        "acks": [
+          {
+            "timestamp_us": 35856000,
+            "result": 0
+          }
+        ],
+        "failure": null
+      }
+    },
+    {
+      "run": "outdoor_receiver_ui_20261016_04",
+      "summary": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "flight_complete": true,
+      "disarmed": true,
+      "fault": "",
+      "executor": "events",
+      "queued_state_rechecks": 0,
+      "queued_state_recoveries": 0,
+      "abort": null,
+      "origin_initialization": {
+        "confirmed": true,
+        "command_sent": true,
+        "acks": [
+          {
+            "timestamp_us": 35708000,
+            "result": 0
+          }
+        ],
+        "failure": null
+      },
+      "audit": {
+        "complete_route_verified": true,
+        "known_surface_blocked_path_avoidance_verified": true,
+        "actual_horizontal_path_m": 22.372691714783258,
+        "actual_route_legs": [
+          {
+            "goal_index": 0,
+            "reached": true,
+            "requested_delta_xy_m": [
+              6.568009408847087,
+              0.28502004234576694
+            ],
+            "actual_delta_xy_m": [
+              6.524535202450681,
+              0.30161958826236096
+            ],
+            "actual_progress_along_requested_direction_m": 6.531477083311959,
+            "endpoint_truth_xy_error_m": 0.015476389210722462,
+            "measurement_pair_dt_ms": [
+              8.0,
+              0.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.006566655997978032,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 1.4379803159712405
+          },
+          {
+            "goal_index": 1,
+            "reached": true,
+            "requested_delta_xy_m": [
+              -6.568009408847087,
+              -0.28502004234576694
+            ],
+            "actual_delta_xy_m": [
+              -6.562142081118568,
+              -0.3245774977136573
+            ],
+            "actual_progress_along_requested_direction_m": 6.570043928553949,
+            "endpoint_truth_xy_error_m": 0.025757156940728644,
+            "measurement_pair_dt_ms": [
+              0.0,
+              4.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.03636367390278307,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 1.4968859891471697
+          }
+        ],
+        "planned_peak_speed_mps": 0.20000000000000004,
+        "planned_peak_acceleration_mps2": 0.2423808913368752,
+        "planned_continuous_clearance_passed": true,
+        "planned_dynamics_passed": true,
+        "supervisor_measurement_age_ms": {
+          "count": 2750,
+          "minimum": 24.0,
+          "p95": 160.0,
+          "maximum": 228.0
+        },
+        "whole_flight_mesh_clearance_m": {
+          "count": 10245,
+          "minimum": 1.4379803159712405,
+          "p95": 3.4352165364923257,
+          "maximum": 3.569151407421371
+        },
+        "combined_setpoint_send_max_gap_ms": 105.701589,
+        "armed_failsafe_samples": 0,
+        "ground_frozen_execution_errors": {
+          "fast_livo2_xy_m": {
+            "count": 1396,
+            "p50": 0.03063606069932426,
+            "p95": 0.045501599389173426,
+            "maximum": 0.05812766166937968
+          },
+          "fast_livo2_z_m": {
+            "count": 1396,
+            "p50": 0.012150833087796964,
+            "p95": 0.02612670808241868,
+            "maximum": 0.02958627137807457
+          },
+          "fast_livo2_signed_z_median": 0.011523421240117182,
+          "px4_xy_m": {
+            "count": 13948,
+            "p50": 0.033064188780128144,
+            "p95": 0.05504963811783987,
+            "maximum": 0.06770488927635265
+          },
+          "px4_z_m": {
+            "count": 13948,
+            "p50": 0.054767171228673917,
+            "p95": 0.08309986490474829,
+            "maximum": 0.09703536504335464
+          },
+          "px4_signed_z_median": -0.054407594567816964
+        },
+        "shared_envelope_passed": true,
+        "external_vision_actually_fused": true,
+        "ev_ground_frozen_agreement": {
+          "reference": "single EV ground-frozen ENU/NED translation; no airborne fit",
+          "scope": "armed",
+          "paired_measurements": 3001,
+          "pairing_fraction": 0.9940377608479629,
+          "matched_measurement_dt_ms": {
+            "count": 3001,
+            "p95": 8.0,
+            "maximum": 20.0
+          },
+          "xy_m": {
+            "count": 1849,
+            "p95": 0.05091819244228198,
+            "maximum": 0.07108058466979121
+          },
+          "z_m": {
+            "count": 1849,
+            "p95": 0.07434520326144635,
+            "maximum": 0.0951469287883655
+          },
+          "yaw_disagreement_deg": {
+            "count": 1849,
+            "p95": 1.4839769731118297,
+            "maximum": 1.6651436530783086
+          }
+        }
+      }
+    }
+  ],
+  "marker_construction_benchmark": {
+    "scope": "Offline Python marker construction only; publisher is a no-op. Not DDS or whole-flight latency.",
+    "regions": 543,
+    "old_rebuild_wall_ms": [
+      14.271952,
+      12.868457,
+      12.783087,
+      12.688384,
+      12.672098
+    ],
+    "new_first_wall_ms": [
+      12.713273
+    ],
+    "new_unchanged_wall_ms": [
+      0.004273,
+      0.001084,
+      0.00063,
+      0.000659,
+      0.000559
+    ]
+  },
+  "raw_artifacts": "astra/runtime/<run>/ (local, gitignored)"
+}

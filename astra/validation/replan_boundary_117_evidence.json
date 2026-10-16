@@ -1,0 +1,324 @@
+{
+  "date": "2026-10-16",
+  "scope": "Isolated PX4 1.17, original two RViz goal offsets and planned return; one final complete flight",
+  "original_run": "outdoor_20261016_153602",
+  "original_failure": {
+    "sim_ns": 175280000000,
+    "wall_ns": 588339723756055,
+    "reason": "bridge fault: preview not tracking",
+    "odom_measurement_age_ms": 80,
+    "odom_receipt_age_ms": 26.68,
+    "last_accepted_trajectory_id": 23,
+    "rejected_grid_point_livo_m": [
+      1.901,
+      1.827,
+      1.377
+    ],
+    "rejected_point_inside_frozen_envelope": false,
+    "previous_curve_inside_frozen_envelope": true
+  },
+  "fixes": [
+    "Keep unchanged old curve only after bounded full remaining suffix recheck; three failures maximum",
+    "Serial preview sample and bridge validation in composed SITL; no preview DDS feedback subscriptions",
+    "One shared ROS control clock in composed SITL",
+    "Persist preview reasons and timing; replay exact frozen flight mask and ceiling"
+  ],
+  "regression": {
+    "passed": 280,
+    "existing_deprecation_warnings": 3,
+    "log": "astra/runtime/replan_corner_regression_20261016_03.log"
+  },
+  "trials": [
+    {
+      "run": "outdoor_replan_corner_20261016_01",
+      "mode": "obstacle",
+      "exit_code": 1,
+      "failure": "bridge fault: preview not tracking (tracking)",
+      "original_baseline_preserved": true,
+      "execution_sources_unchanged": true,
+      "flight_complete": false,
+      "disarmed": true,
+      "completed_user_goals": 1,
+      "fault_detection": {
+        "wall_ns": 589242641434301,
+        "sim_ns": 244988000000,
+        "reason": "bridge fault: preview not tracking (tracking)",
+        "odom_measurement_age_sec": 0.16,
+        "odom_receipt_age_sec": 0.04420719901099801
+      }
+    },
+    {
+      "run": "outdoor_replan_corner_20261016_02",
+      "mode": "obstacle",
+      "exit_code": 1,
+      "failure": "bridge fault: stale measurement timestamp",
+      "original_baseline_preserved": true,
+      "execution_sources_unchanged": true,
+      "flight_complete": false,
+      "disarmed": true,
+      "completed_user_goals": 0,
+      "fault_detection": {
+        "wall_ns": 589696179216731,
+        "sim_ns": 136096000000,
+        "reason": "bridge fault: stale measurement timestamp",
+        "odom_measurement_age_sec": 0.168,
+        "odom_receipt_age_sec": 0.17657046800013632
+      }
+    },
+    {
+      "run": "outdoor_replan_corner_20261016_03",
+      "mode": "obstacle",
+      "exit_code": 0,
+      "failure": "",
+      "original_baseline_preserved": true,
+      "execution_sources_unchanged": true,
+      "flight_complete": true,
+      "disarmed": true,
+      "completed_user_goals": 2,
+      "fault_detection": null
+    }
+  ],
+  "final_run": "outdoor_replan_corner_20261016_03",
+  "metrics": {
+    "preview_mode_receipt_age_ms": {
+      "p95": 8.261654013767835,
+      "maximum": 23.646431975066662
+    },
+    "supervisor_odom_measurement_age_ms": {
+      "p95": 152.0,
+      "maximum": 224.0
+    },
+    "supervisor_odom_receipt_age_ms": {
+      "p95": 118.287550820969,
+      "maximum": 213.4775819722563
+    },
+    "sampled_minimum_surface_distance_m": 1.209326036460872,
+    "actual_body_reference_horizontal_path_m": 70.84054531662521,
+    "measurement_time_truth_horizontal_path_m": 70.84406019744058
+  },
+  "shared_envelope": {
+    "curve_count": 420,
+    "failed_curves": [],
+    "executed_curve_failures": [],
+    "preview_rejected_curve_failures": [],
+    "tracked_trajectory_id_count": 420,
+    "all_executed_curves_inside_shared_envelope": true,
+    "all_complete_curves_inside_shared_envelope": true,
+    "reserve_m": 0.4,
+    "ground_reference": [
+      0.00036508998917326324,
+      -0.02186935406423477
+    ],
+    "recorded_z_bounds_livo_m": [
+      0.9400866164874234,
+      1.5400866164874234
+    ],
+    "method": "Cubic Bezier convex-hull subdivision over each knot span; blocked/unknown cells rejected",
+    "scope": "Frozen flight-volume certificate (transit when configured, otherwise descent); obstacle observations remain separate; rejected candidates reported separately"
+  },
+  "external_vision_checks": {
+    "received_in_px4": true,
+    "both_aid_sources_actually_fused": true,
+    "sent_measurements_not_restamped": true,
+    "source_jump_not_detected": true
+  },
+  "external_vision_fusion_confirmed": true,
+  "frozen_ev_estimator_agreement": {
+    "reference": "single EV ground-frozen ENU/NED translation; no airborne fit",
+    "scope": "armed",
+    "paired_measurements": 5547,
+    "pairing_fraction": 1.0,
+    "matched_measurement_dt_ms": {
+      "count": 5547,
+      "p95": 8.0,
+      "maximum": 16.0
+    },
+    "xy_m": {
+      "count": 4943,
+      "p95": 0.058195947933137517,
+      "maximum": 0.09330650872312199
+    },
+    "z_m": {
+      "count": 4943,
+      "p95": 0.07609618606753404,
+      "maximum": 0.12660443994271664
+    },
+    "yaw_disagreement_deg": {
+      "count": 4943,
+      "p95": 0.9240770871988744,
+      "maximum": 1.4198874499154504
+    }
+  },
+  "queued_state_rechecks": 3,
+  "queued_state_recoveries": 3,
+  "retained_old_trajectory_events": 0,
+  "gc_statistics": {
+    "0": {
+      "count": 872,
+      "total_wall_ns": 1569525592,
+      "max_wall_ns": 11410438
+    },
+    "1": {
+      "count": 79,
+      "total_wall_ns": 285227904,
+      "max_wall_ns": 8653784
+    },
+    "2": {
+      "count": 4,
+      "total_wall_ns": 513161980,
+      "max_wall_ns": 183951734
+    }
+  },
+  "limitations": [
+    "Single final flight, not repeated or cross-map certification",
+    "Old-curve retention branch passed focused regression but was not triggered in final flight",
+    "GC/scheduler pauses remain; no freshness thresholds widened",
+    "Some UI command timestamp rejections remain; valid heartbeat/start and mission completion observed"
+  ],
+  "final_scan_audit": {
+    "complete_route_verified": true,
+    "known_surface_blocked_path_avoidance_verified": true,
+    "near_obstacle_avoidance_certified": false,
+    "missing_geometry_certified": false,
+    "actual_route_legs": [
+      {
+        "goal_index": 0,
+        "reached": true,
+        "requested_delta_xy_m": [
+          8.482017279229256,
+          0.7933422365587179
+        ],
+        "actual_delta_xy_m": [
+          8.50331925954984,
+          0.7963688788684571
+        ],
+        "actual_progress_along_requested_direction_m": 8.540529302140857,
+        "endpoint_truth_xy_error_m": 0.0018696024972284708,
+        "measurement_pair_dt_ms": [
+          4.0,
+          4.0
+        ],
+        "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+        "post_climb_fitted_endpoint_truth_xy_error_m": 0.010112360967426523,
+        "actual_motion_verified": true,
+        "actual_minimum_known_surface_clearance_m": 1.2759603511440485
+      },
+      {
+        "goal_index": 1,
+        "reached": true,
+        "requested_delta_xy_m": [
+          -15.253366947174072,
+          18.423994064331055
+        ],
+        "actual_delta_xy_m": [
+          -15.27949176780046,
+          18.418010530616712
+        ],
+        "actual_progress_along_requested_direction_m": 23.930846360114185,
+        "endpoint_truth_xy_error_m": 0.02756537977408469,
+        "measurement_pair_dt_ms": [
+          4.0,
+          4.0
+        ],
+        "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+        "post_climb_fitted_endpoint_truth_xy_error_m": 0.03669523637952807,
+        "actual_motion_verified": true,
+        "actual_minimum_known_surface_clearance_m": 1.2093137169704966
+      },
+      {
+        "goal_index": 2,
+        "reached": true,
+        "requested_delta_xy_m": [
+          6.771349667944816,
+          -19.217336300889773
+        ],
+        "actual_delta_xy_m": [
+          6.796679899393521,
+          -19.220716549179766
+        ],
+        "actual_progress_along_requested_direction_m": 20.387012629952274,
+        "endpoint_truth_xy_error_m": 0.011262098943688903,
+        "measurement_pair_dt_ms": [
+          4.0,
+          4.0
+        ],
+        "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+        "post_climb_fitted_endpoint_truth_xy_error_m": 0.017045709250522213,
+        "actual_motion_verified": true,
+        "actual_minimum_known_surface_clearance_m": 1.7011362383666562
+      }
+    ],
+    "planned_peak_speed_mps": 0.19999999999999998,
+    "planned_peak_acceleration_mps2": 0.24507401235173026,
+    "planned_continuous_clearance_passed": true,
+    "planned_dynamics_passed": true,
+    "goal_transition_holds_passed": true,
+    "whole_flight_mesh_clearance_m": {
+      "count": 27079,
+      "minimum": 1.2093137169704966,
+      "p95": 6.2700590700679815,
+      "maximum": 7.292356949466937
+    },
+    "whole_flight_envelope_passed": true,
+    "combined_setpoint_send_max_gap_ms": 212.354778,
+    "armed_failsafe_samples": 0,
+    "ground_frozen_errors": {
+      "climb": {
+        "fast_livo2_xy_m": {
+          "count": 148,
+          "p50": 0.006512902624902839,
+          "p95": 0.01969723626343741,
+          "maximum": 0.03664057393951192
+        },
+        "fast_livo2_z_m": {
+          "count": 148,
+          "p50": 0.010469968534539964,
+          "p95": 0.016192232876469898,
+          "maximum": 0.024061722126890173
+        },
+        "fast_livo2_signed_z_median": -0.010469968534539964,
+        "px4_xy_m": {
+          "count": 1482,
+          "p50": 0.01510866687249561,
+          "p95": 0.028955299335571685,
+          "maximum": 0.033067361772335095
+        },
+        "px4_z_m": {
+          "count": 1482,
+          "p50": 0.013199091465535745,
+          "p95": 0.07529661995572304,
+          "maximum": 0.08925902007594844
+        },
+        "px4_signed_z_median": 0.011509063735298974
+      },
+      "ego_execution": {
+        "fast_livo2_xy_m": {
+          "count": 4472,
+          "p50": 0.02693777829019451,
+          "p95": 0.04957477664445912,
+          "maximum": 0.08341123355282333
+        },
+        "fast_livo2_z_m": {
+          "count": 4472,
+          "p50": 0.022392215685835493,
+          "p95": 0.05284695199236739,
+          "maximum": 0.05978037569633354
+        },
+        "fast_livo2_signed_z_median": -0.022392215685835493,
+        "px4_xy_m": {
+          "count": 44684,
+          "p50": 0.02158401079558504,
+          "p95": 0.04470612862089018,
+          "maximum": 0.0678312247690412
+        },
+        "px4_z_m": {
+          "count": 44684,
+          "p50": 0.019210819154254044,
+          "p95": 0.07431767440580432,
+          "maximum": 0.1375603277329549
+        },
+        "px4_signed_z_median": 0.01236604125981966
+      }
+    }
+  }
+}

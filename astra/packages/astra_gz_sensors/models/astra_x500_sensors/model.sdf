@@ -12,6 +12,29 @@
       <gravity>false</gravity>
       <self_collide>false</self_collide>
       <inertial><mass>0.05</mass><inertia><ixx>0.0001</ixx><iyy>0.0001</iyy><izz>0.0001</izz></inertia></inertial>
+      <!-- Stylized Mid-360 exterior, visual only. Keep the original sensor,
+           mass and mount. All surfaces stay below the lowest scan ray:
+           z < 0.04 - radius * tan(15 degrees), including box corners. -->
+      <visual name="mid360_mount">
+        <pose>0 0 -0.044 0 0 0</pose>
+        <geometry><cylinder><radius>0.026</radius><length>0.016</length></cylinder></geometry>
+        <material><ambient>0.10 0.11 0.13 1</ambient><diffuse>0.10 0.11 0.13 1</diffuse></material>
+      </visual>
+      <visual name="mid360_housing">
+        <pose>0 0 -0.008 0 0 0</pose>
+        <geometry><box><size>0.065 0.065 0.056</size></box></geometry>
+        <material><ambient>0.72 0.75 0.79 1</ambient><diffuse>0.72 0.75 0.79 1</diffuse></material>
+      </visual>
+      <visual name="mid360_dark_cap">
+        <pose>0 0 0.023 0 0 0</pose>
+        <geometry><cylinder><radius>0.034</radius><length>0.008</length></cylinder></geometry>
+        <material><ambient>0.06 0.07 0.09 1</ambient><diffuse>0.06 0.07 0.09 1</diffuse></material>
+      </visual>
+      <visual name="mid360_front_badge">
+        <pose>0.0328 0 -0.003 0 0 0</pose>
+        <geometry><box><size>0.001 0.025 0.016</size></box></geometry>
+        <material><ambient>0.85 0.15 0.08 1</ambient><diffuse>0.85 0.15 0.08 1</diffuse></material>
+      </visual>
       <sensor name="mid360_equivalent" type="gpu_lidar">
         <pose>0 0 0.04 0 0 0</pose>
         <topic>/sensors/lidar</topic>

@@ -1,0 +1,160 @@
+{
+  "original_run": "outdoor_20261016_171332",
+  "initializer": {
+    "confirmed": false,
+    "command_sent": true,
+    "ground_truth_used": false,
+    "reference": "GNSS absolute origin only; EV remains local height reference",
+    "acks": [
+      {
+        "timestamp_us": 38340000,
+        "result": 0
+      }
+    ],
+    "before_local_ned_m": [
+      -0.029716987162828445,
+      0.02300613559782505,
+      0.0983010083436966
+    ],
+    "proposed_origin_lla": [
+      47.39797118347155,
+      8.546163622898508,
+      0.3375710481777787
+    ],
+    "before_resets": [
+      4,
+      2,
+      1
+    ],
+    "failure": "stale or future measured position"
+  },
+  "first_valid_global_after_ack": {
+    "timestamp": 38344000.0,
+    "alt": 0.2396276891231537,
+    "alt_valid": 1.0,
+    "lat_lon_valid": 1.0
+  },
+  "local_at_valid_global": {
+    "timestamp": 38344000.0,
+    "timestamp_sample": 38344000.0,
+    "x": -0.02948746830224991,
+    "y": 0.023311899974942207,
+    "z": 0.09794336557388306,
+    "ref_alt": 0.33757105469703674,
+    "xy_reset_counter": 5.0,
+    "z_reset_counter": 3.0,
+    "heading_reset_counter": 1.0
+  },
+  "log_limit": "Original initializer did not record callback clock/receipt ages; cannot distinguish stale input from a future stamp callback-order mismatch",
+  "date": "2026-10-16",
+  "fix": {
+    "fresh_local_limit_ms": 250,
+    "fresh_gps_limit_ms": 500,
+    "total_initializer_deadline_sec": 60,
+    "consecutive_healthy_confirmation_sec": 1,
+    "maximum_local_position_change_m": 0.03,
+    "transient_telemetry_restarts_confirmation": true,
+    "origin_command_not_resent": true,
+    "hard_health_faults_still_abort": true
+  },
+  "regression": {
+    "passed": 289,
+    "existing_deprecation_warnings": 3
+  },
+  "passive_retest": {
+    "run": "outdoor_ev_origin_startup_20261016_01",
+    "status": "initializer and preflight passed; ended by intentional ground timeout; never armed",
+    "arming_requested": false,
+    "initializer": {
+      "confirmed": true,
+      "command_sent": true,
+      "ground_truth_used": false,
+      "reference": "GNSS absolute origin only; EV remains local height reference",
+      "acks": [
+        {
+          "timestamp_us": 34776000,
+          "result": 0
+        }
+      ],
+      "before_local_ned_m": [
+        -0.038734640926122665,
+        -0.032967206090688705,
+        0.09957824647426605
+      ],
+      "proposed_origin_lla": [
+        47.39797135706329,
+        8.546164084838528,
+        0.3828189428895712
+      ],
+      "before_resets": [
+        4,
+        2,
+        1
+      ],
+      "post_command_pending_count": 1,
+      "post_command_pending_samples": [
+        {
+          "reason": "stale or future measured position: local_age_us=8000, gps_age_us=-4000",
+          "sim_us": 34780000,
+          "measurement_age_us": {
+            "local": 8000,
+            "gps": -4000
+          },
+          "receipt_age_sec": {
+            "global": 0.014877349021844566,
+            "local": 0.0033518150448799133,
+            "gps": 6.365706212818623e-05,
+            "flags": 0.2078744521131739,
+            "status": 0.008079809020273387
+          }
+        }
+      ],
+      "last_pending_sample": {
+        "reason": "stale or future measured position: local_age_us=8000, gps_age_us=-4000",
+        "sim_us": 34780000,
+        "measurement_age_us": {
+          "local": 8000,
+          "gps": -4000
+        },
+        "receipt_age_sec": {
+          "global": 0.014877349021844566,
+          "local": 0.0033518150448799133,
+          "gps": 6.365706212818623e-05,
+          "flags": 0.2078744521131739,
+          "status": 0.008079809020273387
+        }
+      },
+      "after_local_ned_m": [
+        -0.03265034779906273,
+        -0.03811991214752197,
+        0.09521099925041199
+      ],
+      "after_resets": [
+        5,
+        3,
+        1
+      ],
+      "origin_lla": [
+        47.39797135706329,
+        8.546164084838528,
+        0.38281893730163574
+      ],
+      "confirmed_sim_us": 35796000
+    },
+    "local_position_change_m": 0.009090756342481965,
+    "original_failure_exact_age_known": false,
+    "real_transient_branch_exercised": true,
+    "run_summary": {
+      "mode": "obstacle",
+      "exit_code": 1,
+      "failure": "RViz mission editing timed out without arming",
+      "original_baseline_preserved": true,
+      "execution_sources_unchanged": true
+    },
+    "px4_logged_arming_states": [
+      1
+    ],
+    "px4_logged_arm_disarm_command_count": 0,
+    "expected_ground_timeout": true
+  }
+}

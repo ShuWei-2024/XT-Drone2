@@ -8,6 +8,7 @@
 #include <iostream>
 #include <random>
 #include <nav_msgs/msg/odometry.hpp>
+#include <nav_msgs/msg/occupancy_grid.hpp>
 #include <queue>
 #include <rclcpp/rclcpp.hpp>
 #include <tuple>
@@ -194,6 +195,10 @@ public:
   Eigen::Vector3d getOrigin();
   int getVoxelNum();
   bool getOdomDepthTimeout() { return md_.flag_depth_odom_timeout_; }
+  bool executionEnvelopeRequired() const { return require_envelope_; }
+  bool executionEnvelopeAllows(const Eigen::Vector3d &pos) const { return envelopeAllows(pos); }
+  bool executionEnvelopeGuide(const Eigen::Vector3d &start, const Eigen::Vector3d &goal,
+                               std::vector<Eigen::Vector3d> &path) const;
 
   typedef std::shared_ptr<GridMap> Ptr;
 
@@ -245,6 +250,12 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr indep_cloud_sub_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr indep_odom_sub_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr extrinsic_sub_;
+  rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr envelope_sub_;
+  nav_msgs::msg::OccupancyGrid::ConstSharedPtr envelope_;
+  std::vector<int8_t> envelope_search_cells_;
+  bool require_envelope_ = false;
+  bool envelope_fault_ = false;
+  bool envelopeAllows(const Eigen::Vector3d &pos) const;
 
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr map_pub_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr map_inf_pub_;
@@ -296,6 +307,9 @@ inline bool GridMap::isUnknown(const Eigen::Vector3d &pos)
 
 inline bool GridMap::isKnownFree(const Eigen::Vector3i &id)
 {
+  Eigen::Vector3d p;
+  indexToPos(id, p);
+  if (!envelopeAllows(p)) return false;
   Eigen::Vector3i id1 = id;
   boundIndex(id1);
   int adr = toAddress(id1);
@@ -307,6 +321,9 @@ inline bool GridMap::isKnownFree(const Eigen::Vector3i &id)
 
 inline bool GridMap::isKnownOccupied(const Eigen::Vector3i &id)
 {
+  Eigen::Vector3d p;
+  indexToPos(id, p);
+  if (!envelopeAllows(p)) return true;
   Eigen::Vector3i id1 = id;
   boundIndex(id1);
   int adr = toAddress(id1);
@@ -356,6 +373,7 @@ inline int GridMap::getOccupancy(Eigen::Vector3d pos)
 
 inline int GridMap::getInflateOccupancy(Eigen::Vector3d pos)
 {
+  if (!envelopeAllows(pos)) return 1;
   if (!isInMap(pos))
     return -1;
 

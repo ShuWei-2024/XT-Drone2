@@ -7,7 +7,9 @@ import os
 from pathlib import Path
 import time
 from collections import deque
+from contextlib import nullcontext
 from ground_height_alignment import GroundHeightAlignment
+from measurement_pair_gate import MeasurementPairGate, recent_measurement_pair
 
 import rclpy
 from nav_msgs.msg import Odometry
@@ -20,6 +22,13 @@ from px4_settled_hold_flight import SettledFlight
 
 
 class GuardedPositionTest(SettledFlight):
+    def receive_callbacks(self, timeout_sec=.005):
+        receiver = getattr(self, 'mission_receiver', None)
+        if receiver is None:
+            rclpy.spin_once(self, timeout_sec=timeout_sec)
+        else:
+            receiver.receive()
+
     def __init__(self):
         # Gazebo transport callbacks can run while the parent constructor is
         # subscribing. Initialize their state before that thread can call us.
@@ -35,17 +44,28 @@ class GuardedPositionTest(SettledFlight):
         self.deferred_odom_count = 0
         self.odom_wall = self.ready_wall = 0.
         self.ready = False
+        self.require_external_vision = os.environ.get('ASTRA_REQUIRE_EXTERNAL_VISION') == '1'
+        self.ev_ready = False
+        self.ev_ready_wall = 0.
+        if self.require_external_vision:
+            self.create_subscription(Bool, '/astra/external_vision/ready', self.on_ev_ready,
+                QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
         self.injecting = False
         self.events, self.rows = [], []
         self.phase = 'preflight'
         self.resets = None
         self.airborne = False
+        self.transit_active = False
+        self.home = self.failsafe_flags = None
+        self.flags_wall = 0.
         self.vertical_reference = None
         self.vertical_disagreement_since = None
         self.settle_timeout_s = 60.
         self.sample_reason = ''
         self.local_history = deque(maxlen=100)
+        self.height_measurements = deque(maxlen=10)
         self.ground_alignment = None
+        self.height_pair_gate = MeasurementPairGate()
         self.mesh_guard = None
         self.mesh_clearance_m = None
         self.mesh_guard_xyz = None
@@ -58,6 +78,15 @@ class GuardedPositionTest(SettledFlight):
         if os.environ.get('ASTRA_TEST_MESH_GUARD'):
             from scan_mesh_guard import MeshGuard
             self.mesh_guard = MeshGuard(os.environ['ASTRA_TEST_MESH_GUARD'])
+        if self.mesh_guard is not None and self.mesh_guard.transit_boxes is not None:
+            from px4_msgs.msg import HomePosition, FailsafeFlags
+            from px4_topics import px4_topic
+            from rclpy.qos import qos_profile_sensor_data
+            ns = os.environ.get('ASTRA_PX4_NAMESPACE', 'x500_0')
+            self.create_subscription(HomePosition, px4_topic('out','home_position',HomePosition,ns),
+                                     self.on_home, qos_profile_sensor_data)
+            self.create_subscription(FailsafeFlags, px4_topic('out','failsafe_flags',FailsafeFlags,ns),
+                                     self.on_flags, qos_profile_sensor_data)
         self.create_subscription(Odometry, '/fast_livo2/odom', self.on_odom, 10)
         self.create_subscription(Bool, '/local_mapping/ready', self.on_ready,
                                  QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
@@ -74,6 +103,15 @@ class GuardedPositionTest(SettledFlight):
                 return
             self.pending_odom = None
             self.odom, self.odom_wall = msg, now
+            self.remember_height(msg)
+
+    def remember_height(self, msg):
+        stamp=msg.header.stamp.sec*10**9+msg.header.stamp.nanosec
+        if not self.height_measurements or stamp>self.height_measurements[-1][0]:
+            self.height_measurements.append((stamp,msg.pose.pose.position.z))
+
+    def on_ev_ready(self, msg):
+        self.ev_ready, self.ev_ready_wall = msg.data, time.monotonic()
 
     def on_local(self, msg):
         super().on_local(msg)
@@ -108,7 +146,92 @@ class GuardedPositionTest(SettledFlight):
             self.mesh_guard_xyz=list(self.truth_body)
             self.mesh_clearance_m=self.mesh_guard.clearance(self.truth_body)
             self.mesh_guard_truth_wall=self.truth_wall
-        return self.mesh_guard.fault(self.truth_body,self.mesh_clearance_m)
+        transit = self.transit_active
+        if self.phase in ('land', 'native_rtl') and self.mesh_guard.inside_recovery_region(self.truth_body[:2]):
+            transit = False
+        return self.mesh_guard.fault(self.truth_body,self.mesh_clearance_m, transit=transit)
+
+    def on_home(self, msg):
+        self.home = msg
+
+    def on_flags(self, msg):
+        self.failsafe_flags, self.flags_wall = msg, time.monotonic()
+
+    def native_rtl_fault(self):
+        """Independent PX4 health + known open corridor, never stale map planning."""
+        if self.mesh_guard is None or self.mesh_guard.transit_boxes is None:
+            return 'native RTL corridor not configured'
+        if not self.fresh() or time.monotonic()-self.local_wall > .25:
+            return 'PX4/Gazebo state unavailable for RTL'
+        if not self.local.heading_good_for_control:
+            return 'PX4 heading invalid for RTL'
+        flags = self.failsafe_flags
+        if flags is None or time.monotonic()-self.flags_wall > .5:
+            return 'PX4 failsafe flags stale'
+        invalid = [key for key in ('global_position_invalid', 'home_position_invalid',
+                   'local_position_invalid','local_altitude_invalid','attitude_invalid','navigator_failure')
+                   if getattr(flags,key)]
+        if invalid:
+            return 'PX4 invalid for RTL: '+', '.join(invalid)
+        home = self.home
+        if home is None or not (home.valid_hpos and home.valid_lpos and home.valid_alt):
+            return 'PX4 home invalid'
+        if not all(math.isfinite(v) for v in (home.x,home.y,home.z,
+                                               self.local.x,self.local.y,self.local.z)):
+            return 'non-finite PX4 home or position'
+        if not hasattr(self, 'takeoff_origin_ned') or math.dist(
+                [home.x,home.y,home.z],self.takeoff_origin_ned[:3]) > .3:
+            return 'PX4 home differs from inspected takeoff origin'
+        if (self.local.xy_reset_counter,self.local.z_reset_counter,self.local.heading_reset_counter) != self.resets:
+            return 'PX4 estimator reset invalidated RTL alignment'
+        if not hasattr(self, 'recovery_transform'):
+            return 'execution alignment unavailable for RTL'
+        matrix, translation = self.recovery_transform
+        import numpy as np
+        xy = matrix.T @ (np.array([self.local.x,self.local.y])-translation)
+        home_xy = np.asarray(self.ground_route_origin_livo)
+        if not self.planning_envelope.rectangle_free(np.minimum(xy,home_xy)-.1,
+                                                      np.maximum(xy,home_xy)+.1):
+            return 'no certified straight RTL corridor to home'
+        if self.mesh_fault():
+            return 'outside inspected geometry before RTL'
+        return ''
+
+    def native_rtl(self):
+        fault = self.native_rtl_fault()
+        if fault:
+            self.event('native_rtl_refused', reason=fault)
+            return False
+        self.phase = 'native_rtl'
+        self.event('native_rtl_requested', command='VEHICLE_CMD_NAV_RETURN_TO_LAUNCH',
+                   home_ned=[self.home.x,self.home.y,self.home.z])
+        deadline = time.monotonic()+120.
+        acceptance_deadline = time.monotonic()+3.
+        next_request = 0.
+        entered = False
+        while rclpy.ok() and time.monotonic() < deadline:
+            self.receive_callbacks(timeout_sec=.005)
+            if self.status.arming_state != VehicleStatus.ARMING_STATE_ARMED:
+                self.event('native_rtl_disarmed', truth_body=self.truth_body)
+                return True
+            if self.status.nav_state == VehicleStatus.NAVIGATION_STATE_AUTO_RTL:
+                if not entered:
+                    self.event('native_rtl_entered')
+                entered = True
+            elif entered and self.status.nav_state != VehicleStatus.NAVIGATION_STATE_AUTO_LAND:
+                self.event('native_rtl_failed',reason='PX4 left RTL unexpectedly')
+                return False
+            if not entered and time.monotonic() > acceptance_deadline:
+                self.event('native_rtl_failed',reason='PX4 did not accept RTL within 3 s')
+                return False
+            if not entered and time.monotonic() >= next_request:
+                self.command(VehicleCommand.VEHICLE_CMD_NAV_RETURN_TO_LAUNCH)
+                next_request = time.monotonic()+.5
+            if not self.fresh() or self.mesh_fault():
+                self.event('native_rtl_failed',reason='state or inspected mesh guard failed')
+                return False
+        self.event('native_rtl_failed',reason='RTL disarm timeout')
+        return False
 
     def static_obstacle_fault(self):
         if not self.static_obstacles:return ''
@@ -122,12 +245,12 @@ class GuardedPositionTest(SettledFlight):
     def paired_height(self):
         if self.odom is None or not self.local_history:
             return None
-        s = self.odom.header.stamp
-        stamp = s.sec*10**9+s.nanosec
-        matched = min(self.local_history, key=lambda p:abs(p.timestamp_sample*1000-stamp))
-        if abs(matched.timestamp_sample*1000-stamp) > 20_000_000:
-            return None
-        return stamp, self.odom.pose.pose.position.z, matched
+        # Select an actual fresh pair from both histories, rather than forcing
+        # every individual LiDAR frame to have a matching PX4 output sample.
+        now_ns=self.get_clock().now().nanoseconds
+        candidate=recent_measurement_pair(self.height_measurements,self.local_history,now_ns,
+            z_reset_counter=self.local.z_reset_counter)
+        return self.height_pair_gate.select(candidate,self.get_clock().now().nanoseconds,time.monotonic())
 
     def align_ground_height(self):
         self.phase = 'ground_height_alignment'
@@ -135,7 +258,7 @@ class GuardedPositionTest(SettledFlight):
         self.event('ground_height_alignment_start', calibration_s=4., validation_s=4., residual_limit_m=.15)
         deadline = time.monotonic()+25.
         while rclpy.ok() and time.monotonic()<deadline:
-            rclpy.spin_once(self,timeout_sec=.005)
+            self.receive_callbacks(timeout_sec=.005)
             if self.fault():
                 if alignment.offset_m is not None:
                     raise RuntimeError('health lost after height offset freeze: '+self.fault())
@@ -161,6 +284,7 @@ class GuardedPositionTest(SettledFlight):
             s = self.pending_odom.header.stamp
             if s.sec * 10**9 + s.nanosec <= self.get_clock().now().nanoseconds:
                 self.odom, self.odom_wall = self.pending_odom, self.pending_odom_wall
+                self.remember_height(self.odom)
                 self.pending_odom = None
 
     def send(self, target):
@@ -178,7 +302,14 @@ class GuardedPositionTest(SettledFlight):
         return (self.get_clock().now().nanoseconds - s.sec * 10**9 - s.nanosec) / 1e9
 
     def fault(self):
+        if getattr(self,'operator_stop_requested',False):
+            return 'operator requested guarded landing'
+        selection = getattr(self, 'rviz_selection', None)
+        if selection is not None and selection.flight_fault():
+            return selection.flight_fault()
         now = time.monotonic()
+        if getattr(self, 'require_external_vision', False) and (not self.ev_ready or now-self.ev_ready_wall > .25):
+            return 'External Vision fusion unavailable or heartbeat stale'
         self.promote_pending_odom()
         if not self.fresh():
             return self.fresh_failure_reason
@@ -194,7 +325,8 @@ class GuardedPositionTest(SettledFlight):
         scan_fault=self.mesh_fault()
         if scan_fault:return scan_fault
         if self.mesh_guard is not None:
-            scan_fault=self.mesh_guard.approaching_boundary(self.truth_body,self.truth_body_velocity)
+            scan_fault=self.mesh_guard.approaching_boundary(self.truth_body,self.truth_body_velocity,
+                                                          transit=self.transit_active)
             if scan_fault:return scan_fault
         if self.pending_odom is not None:
             s = self.pending_odom.header.stamp
@@ -241,7 +373,22 @@ class GuardedPositionTest(SettledFlight):
         return ''
 
     def check_safe(self):
-        reason = self.fault()
+        audit = getattr(self, 'safety_timing_audit', None)
+        with audit.span('supervisor:safety_check') if audit else nullcontext():
+            reason = self.fault()
+        receiver = getattr(self, 'mission_receiver', None)
+        if receiver is not None and reason in (
+                'FAST-LIVO2 receipt age exceeds 250 ms',
+                'FAST-LIVO2 measurement age outside 0..250 ms',
+                'ground-aligned height has no measurement pair within 20 ms'):
+            self.queued_state_rechecks = getattr(self, 'queued_state_rechecks', 0) + 1
+            # Another node can consume its copy of odom before the supervisor
+            # in the bounded batch. Drain once without waiting, then require
+            # every gate to pass on actual received measurements before output.
+            receiver.reconcile()
+            reason = self.fault()
+            if not reason:
+                self.queued_state_recoveries = getattr(self, 'queued_state_recoveries', 0) + 1
         if reason:
             raise RuntimeError(reason)
 
@@ -280,7 +427,7 @@ class GuardedPositionTest(SettledFlight):
         initial_truth = None
         next_send = 0.
         while rclpy.ok() and time.monotonic() < deadline:
-            rclpy.spin_once(self, timeout_sec=.005)
+            self.receive_callbacks(timeout_sec=.005)
             self.check_safe()
             now = time.monotonic()
             metrics = self.gate_metrics(target)
@@ -340,10 +487,8 @@ class GuardedPositionTest(SettledFlight):
         begin = time.monotonic()
         next_send = begin
         while rclpy.ok() and time.monotonic() - begin < seconds:
-            rclpy.spin_once(self, timeout_sec=.005)
-            reason = self.fault()
-            if reason:
-                raise RuntimeError(reason)
+            self.receive_callbacks(timeout_sec=.005)
+            self.check_safe()
             now = time.monotonic()
             if now >= next_send:
                 fraction = min(1., (now - begin) / seconds)
@@ -364,7 +509,7 @@ class GuardedPositionTest(SettledFlight):
         end = time.monotonic() + 1.
         next_send = 0.
         while rclpy.ok() and time.monotonic() < end:
-            rclpy.spin_once(self, timeout_sec=.005)
+            self.receive_callbacks(timeout_sec=.005)
             scan_fault = self.mesh_fault()
             if scan_fault:
                 self.event('recovery_mesh_fault', reason=scan_fault, mesh_clearance_m=self.mesh_clearance_m)
@@ -377,22 +522,20 @@ class GuardedPositionTest(SettledFlight):
                 self.send(hold)
                 next_send = time.monotonic() + .05
 
-    def wait_heading_alignment(self, target):
+    def wait_heading_alignment(self, target, minimum_truth_z_m=1.5):
         self.phase = 'heading_alignment'
         self.event('heading_alignment_wait', target=target)
         deadline = time.monotonic() + 18.
         good_since = None
         next_send = 0.
         while rclpy.ok() and time.monotonic() < deadline:
-            rclpy.spin_once(self, timeout_sec=.005)
-            reason = self.fault()
-            if reason:
-                raise RuntimeError(reason)
+            self.receive_callbacks(timeout_sec=.005)
+            self.check_safe()
             now = time.monotonic()
             if now >= next_send:
                 self.send(target)
                 next_send = now + .05
-            if self.local.heading_good_for_control and self.truth[2] > 1.5:
+            if self.local.heading_good_for_control and self.truth[2] > minimum_truth_z_m:
                 good_since = good_since or now
                 if now-good_since >= 1.:
                     self.airborne = True
@@ -403,6 +546,25 @@ class GuardedPositionTest(SettledFlight):
         raise RuntimeError('PX4 in-flight heading alignment did not complete')
 
     def land(self):
+        from flight_recovery import landing_allowed
+        if self.mesh_guard is not None:
+            def safe_descent():
+                return (self.truth_body is not None and time.monotonic()-self.truth_wall <= .25
+                        and landing_allowed(self.mesh_guard,self.truth_body[:2]))
+            attempted_rtl = False
+            # In a prepared transit scene prefer official RTL after any execution
+            # fault, even when currently above a landable patch.
+            if (self.mesh_guard.transit_boxes is not None and self.airborne and self.sample_reason
+                    and self.sample_reason != 'operator requested guarded landing'):
+                attempted_rtl = True
+                if self.native_rtl():
+                    return True
+            if not safe_descent():
+                if not attempted_rtl and self.mesh_guard.transit_boxes is not None and self.native_rtl():
+                    return True
+                self.event('landing_refused',reason='no certified descent or eligible RTL; SITL run must stop')
+                return False
+        self.transit_active = False
         self.phase = 'land'
         self.event('land_requested')
         deadline = time.monotonic() + 30.
@@ -416,7 +578,7 @@ class GuardedPositionTest(SettledFlight):
             if time.monotonic() >= next_request:
                 self.command(VehicleCommand.VEHICLE_CMD_NAV_LAND)
                 next_request = time.monotonic() + .5
-            rclpy.spin_once(self, timeout_sec=.02)
+            self.receive_callbacks(timeout_sec=.02)
             if (self.mesh_guard is not None or self.static_obstacles) and time.monotonic() >= next_scan_sample:
                 scan_fault = self.mesh_fault() or self.static_obstacle_fault()
                 self.event('landing_mesh_sample', reason=scan_fault,

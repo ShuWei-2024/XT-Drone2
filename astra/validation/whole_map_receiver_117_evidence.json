@@ -1,0 +1,511 @@
+{
+  "date": "2026-10-15",
+  "scope": "Isolated Baylands SITL: three normal flights and one intentionally aborted fault-recovery trial; not a statistical success-rate study",
+  "unchanged_limits": {
+    "measurement_age_ms": 250,
+    "measurement_pair_ms": 20,
+    "estimator_height_disagreement_m": 0.2,
+    "planner_speed_mps": 0.2,
+    "planner_acceleration_mps2": 0.25
+  },
+  "raw_artifacts": "astra/runtime/<run>/, local and gitignored",
+  "timing_limitations": "Receiver CPU covers retained tails. Independent monitor callback differences are scheduling/transport proxies, not certified DDS queue latency. No old-run GC evidence exists.",
+  "runs": [
+    {
+      "run": "whole_map_events_east_20261015_01",
+      "test_configuration": {
+        "fixed_enu_ned_transform": true,
+        "max_estimator_xy_disagreement_m": 0.3,
+        "max_tracking_error_m": 0.6,
+        "velocity_feedforward": true,
+        "planner_leg_timeout_s": 500.0,
+        "execution_executor": "events",
+        "endpoint_hold_seconds": 3.0,
+        "end_action": "return_home",
+        "takeoff_height_m": 1.5,
+        "alignment_height_m": 1.6,
+        "freeze_tracking_yaw": true,
+        "max_initial_yaw_disagreement_deg": 5.0
+      },
+      "run_summary": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "execution_manifest_sha256": "b21d68c78501d5aca96094708f827d576e6f978e47eb15352db832de1463e9fd",
+      "execution_source_differences_from_first_run": [],
+      "complete_route_verified": true,
+      "return_home_complete": true,
+      "fault": "",
+      "actual_horizontal_path_m": 68.97394647109793,
+      "waypoint_truth_xy_errors_m": [
+        0.07310140656853116,
+        0.011341152618829767
+      ],
+      "minimum_actual_surface_distance_m": 1.2588961282346984,
+      "planned_continuous_clearance_passed": true,
+      "planned_dynamics_passed": true,
+      "all_complete_curves_inside_shared_envelope": true,
+      "supervisor_measurement_age_ms": {
+        "count": 7758,
+        "minimum": 24.0,
+        "p95": 136.0,
+        "maximum": 176.0
+      },
+      "frozen_ground_height_disagreement_m": {
+        "count": 4160,
+        "p50": 0.023391897383236104,
+        "p95": 0.06328304614827374,
+        "maximum": 0.10779708450393258
+      },
+      "ground_frozen_truth_errors": {
+        "fast_livo2_xy_m": {
+          "count": 4160,
+          "p50": 0.04603960821768942,
+          "p95": 0.06503569342860353,
+          "maximum": 0.10916913517569102
+        },
+        "fast_livo2_z_m": {
+          "count": 4160,
+          "p50": 0.02647256222049743,
+          "p95": 0.08032769189684574,
+          "maximum": 0.08879022633832068
+        },
+        "fast_livo2_signed_z_median": 0.026434923472134608,
+        "px4_xy_m": {
+          "count": 41598,
+          "p50": 0.061543624328541144,
+          "p95": 0.11353127536226186,
+          "maximum": 0.13203575551607882
+        },
+        "px4_z_m": {
+          "count": 41598,
+          "p50": 0.01075324300449021,
+          "p95": 0.04501317695791204,
+          "maximum": 0.11404450875977523
+        },
+        "px4_signed_z_median": 0.01068475756551679
+      },
+      "external_vision_fusion_confirmed": true,
+      "ev_height_bias": {
+        "scope": "armed",
+        "count": 203,
+        "first_m": 0.0,
+        "last_m": 0.0,
+        "minimum_m": 0.0,
+        "maximum_m": 0.0,
+        "range_m": 0.0,
+        "absolute_change_from_first_m": {
+          "count": 203,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "first_sim_s": 78.072,
+        "last_sim_s": 535.292,
+        "note": "Absolute datum offset can be nonzero; evolution matters, not magnitude alone"
+      },
+      "armed_failsafe_samples": 0,
+      "receiver_tail_thread_cpu_fraction": 0.2583611582807877,
+      "bridge_odom_callback_minus_monitor_ms_proxy": {
+        "samples": 4160,
+        "minimum": -52.787416,
+        "median": 0.1792715,
+        "p95": 5.673058449999998,
+        "maximum": 34.097052
+      },
+      "dds_metadata_limitation": "Installed experimental EventsExecutor does not supply MessageInfo; DDS queue latency cannot be certified from this trace.",
+      "gc_statistics": {}
+    },
+    {
+      "run": "whole_map_events_east_20261015_02",
+      "test_configuration": {
+        "fixed_enu_ned_transform": true,
+        "max_estimator_xy_disagreement_m": 0.3,
+        "max_tracking_error_m": 0.6,
+        "velocity_feedforward": true,
+        "planner_leg_timeout_s": 500.0,
+        "execution_executor": "events",
+        "endpoint_hold_seconds": 3.0,
+        "end_action": "return_home",
+        "takeoff_height_m": 1.5,
+        "alignment_height_m": 1.6,
+        "freeze_tracking_yaw": true,
+        "max_initial_yaw_disagreement_deg": 5.0
+      },
+      "run_summary": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "execution_manifest_sha256": "ddd3f9475e389c068ef07833a014298eab88530cf2d622db2e928ea562eb324c",
+      "execution_source_differences_from_first_run": [
+        "astra/tools/audit_executor_timing_117.py",
+        "astra/tools/executor_timing_audit.py",
+        "astra/tools/run_sitl_117.py"
+      ],
+      "complete_route_verified": true,
+      "return_home_complete": true,
+      "fault": "",
+      "actual_horizontal_path_m": 69.11337143453551,
+      "waypoint_truth_xy_errors_m": [
+        0.08013514014708333,
+        0.03058157662436246
+      ],
+      "minimum_actual_surface_distance_m": 1.4012314070024154,
+      "planned_continuous_clearance_passed": true,
+      "planned_dynamics_passed": true,
+      "all_complete_curves_inside_shared_envelope": true,
+      "supervisor_measurement_age_ms": {
+        "count": 7905,
+        "minimum": 24.0,
+        "p95": 140.0,
+        "maximum": 196.0
+      },
+      "frozen_ground_height_disagreement_m": {
+        "count": 4224,
+        "p50": 0.03058496593091315,
+        "p95": 0.08014377973646412,
+        "maximum": 0.11094758673108346
+      },
+      "ground_frozen_truth_errors": {
+        "fast_livo2_xy_m": {
+          "count": 4224,
+          "p50": 0.03839998719328777,
+          "p95": 0.07178504317924446,
+          "maximum": 0.10494029584285977
+        },
+        "fast_livo2_z_m": {
+          "count": 4224,
+          "p50": 0.04891249404359266,
+          "p95": 0.08524067300824188,
+          "maximum": 0.08824188479644457
+        },
+        "fast_livo2_signed_z_median": -0.04891249404359266,
+        "px4_xy_m": {
+          "count": 42234,
+          "p50": 0.06320191825983837,
+          "p95": 0.11282377725176058,
+          "maximum": 0.12791070834191093
+        },
+        "px4_z_m": {
+          "count": 42234,
+          "p50": 0.01052491900866459,
+          "p95": 0.03504731212172359,
+          "maximum": 0.10069145483319875
+        },
+        "px4_signed_z_median": -0.006294026264479502
+      },
+      "external_vision_fusion_confirmed": true,
+      "ev_height_bias": {
+        "scope": "armed",
+        "count": 197,
+        "first_m": 0.0,
+        "last_m": 0.0,
+        "minimum_m": 0.0,
+        "maximum_m": 0.0,
+        "range_m": 0.0,
+        "absolute_change_from_first_m": {
+          "count": 197,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "first_sim_s": 75.66,
+        "last_sim_s": 544.18,
+        "note": "Absolute datum offset can be nonzero; evolution matters, not magnitude alone"
+      },
+      "armed_failsafe_samples": 0,
+      "receiver_tail_thread_cpu_fraction": 0.2559471340357719,
+      "bridge_odom_callback_minus_monitor_ms_proxy": {
+        "samples": 4224,
+        "minimum": -64.057679,
+        "median": 0.30618,
+        "p95": 5.9597685,
+        "maximum": 72.427299
+      },
+      "dds_metadata_limitation": "Installed experimental EventsExecutor does not supply MessageInfo; DDS queue latency cannot be certified from this trace.",
+      "gc_statistics": {
+        "0": {
+          "count": 977,
+          "total_wall_ns": 895748187,
+          "max_wall_ns": 7514508
+        },
+        "1": {
+          "count": 89,
+          "total_wall_ns": 186536467,
+          "max_wall_ns": 8256295
+        },
+        "2": {
+          "count": 4,
+          "total_wall_ns": 222313007,
+          "max_wall_ns": 70896087
+        }
+      }
+    },
+    {
+      "run": "whole_map_events_mapstop_20261015_01",
+      "test_configuration": {
+        "fixed_enu_ned_transform": true,
+        "max_estimator_xy_disagreement_m": 0.3,
+        "max_tracking_error_m": 0.6,
+        "velocity_feedforward": true,
+        "planner_leg_timeout_s": 500.0,
+        "execution_executor": "events",
+        "endpoint_hold_seconds": 3.0,
+        "end_action": "return_home",
+        "takeoff_height_m": 1.5,
+        "alignment_height_m": 1.6,
+        "freeze_tracking_yaw": true,
+        "max_initial_yaw_disagreement_deg": 5.0
+      },
+      "run_summary": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "execution_manifest_sha256": "ddd3f9475e389c068ef07833a014298eab88530cf2d622db2e928ea562eb324c",
+      "execution_source_differences_from_first_run": [
+        "astra/tools/audit_executor_timing_117.py",
+        "astra/tools/executor_timing_audit.py",
+        "astra/tools/run_sitl_117.py"
+      ],
+      "complete_route_verified": false,
+      "return_home_complete": false,
+      "fault": "local map not ready or heartbeat stale",
+      "actual_horizontal_path_m": 0.14766935775841192,
+      "waypoint_truth_xy_errors_m": [],
+      "minimum_actual_surface_distance_m": 2.8962872757196787,
+      "planned_continuous_clearance_passed": true,
+      "planned_dynamics_passed": true,
+      "all_complete_curves_inside_shared_envelope": true,
+      "supervisor_measurement_age_ms": {
+        "count": 42,
+        "minimum": 28.0,
+        "p95": 128.0,
+        "maximum": 132.0
+      },
+      "frozen_ground_height_disagreement_m": {
+        "count": 23,
+        "p50": 0.00978312002117561,
+        "p95": 0.03832804578814117,
+        "maximum": 0.0408208189264961
+      },
+      "ground_frozen_truth_errors": {
+        "fast_livo2_xy_m": {
+          "count": 23,
+          "p50": 0.02059387045487007,
+          "p95": 0.033930197539537556,
+          "maximum": 0.036653297066969605
+        },
+        "fast_livo2_z_m": {
+          "count": 23,
+          "p50": 0.005292674265478414,
+          "p95": 0.006325129541054686,
+          "maximum": 0.006352818863276655
+        },
+        "fast_livo2_signed_z_median": -0.005292674265478414,
+        "px4_xy_m": {
+          "count": 223,
+          "p50": 0.04328769714586005,
+          "p95": 0.04624294951885406,
+          "maximum": 0.04640387268151244
+        },
+        "px4_z_m": {
+          "count": 223,
+          "p50": 0.06043891288510106,
+          "p95": 0.06621933332015362,
+          "maximum": 0.06681117043086804
+        },
+        "px4_signed_z_median": -0.06043891288510106
+      },
+      "external_vision_fusion_confirmed": true,
+      "ev_height_bias": {
+        "scope": "armed",
+        "count": 20,
+        "first_m": 0.0,
+        "last_m": 0.0,
+        "minimum_m": 0.0,
+        "maximum_m": 0.0,
+        "range_m": 0.0,
+        "absolute_change_from_first_m": {
+          "count": 20,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "first_sim_s": 76.056,
+        "last_sim_s": 114.072,
+        "note": "Absolute datum offset can be nonzero; evolution matters, not magnitude alone"
+      },
+      "armed_failsafe_samples": 0,
+      "fault_regression": {
+        "expected_fault_observed": true,
+        "driver_exit_code": 1,
+        "map_exit_code": 0,
+        "fault": "local map not ready or heartbeat stale",
+        "stopped_process": "map",
+        "stopped_process_exit_code": 0,
+        "hold_after_injection_ms": 328.035023,
+        "disarmed": true
+      },
+      "fault_events_ms_after_injection": [
+        {
+          "event": "test_aborted",
+          "delay_ms": 327.837353,
+          "reason": "local map not ready or heartbeat stale"
+        },
+        {
+          "event": "hold_target_frozen",
+          "delay_ms": 328.035023,
+          "reason": null
+        },
+        {
+          "event": "native_rtl_refused",
+          "delay_ms": 1330.688754,
+          "reason": "PX4 failsafe flags stale"
+        },
+        {
+          "event": "land_requested",
+          "delay_ms": 1332.050778,
+          "reason": null
+        },
+        {
+          "event": "disarmed",
+          "delay_ms": 7291.545627,
+          "reason": null
+        }
+      ]
+    },
+    {
+      "run": "whole_map_events_west_20261015_01",
+      "test_configuration": {
+        "fixed_enu_ned_transform": true,
+        "max_estimator_xy_disagreement_m": 0.3,
+        "max_tracking_error_m": 0.6,
+        "velocity_feedforward": true,
+        "planner_leg_timeout_s": 500.0,
+        "execution_executor": "events",
+        "endpoint_hold_seconds": 3.0,
+        "end_action": "return_home",
+        "takeoff_height_m": 1.5,
+        "alignment_height_m": 1.6,
+        "freeze_tracking_yaw": true,
+        "max_initial_yaw_disagreement_deg": 5.0
+      },
+      "run_summary": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "execution_manifest_sha256": "ddd3f9475e389c068ef07833a014298eab88530cf2d622db2e928ea562eb324c",
+      "execution_source_differences_from_first_run": [
+        "astra/tools/audit_executor_timing_117.py",
+        "astra/tools/executor_timing_audit.py",
+        "astra/tools/run_sitl_117.py"
+      ],
+      "complete_route_verified": true,
+      "return_home_complete": true,
+      "fault": "",
+      "actual_horizontal_path_m": 54.57354522233664,
+      "waypoint_truth_xy_errors_m": [
+        0.05654790534393832,
+        0.03885155209759309
+      ],
+      "minimum_actual_surface_distance_m": 2.5621501597543976,
+      "planned_continuous_clearance_passed": true,
+      "planned_dynamics_passed": true,
+      "all_complete_curves_inside_shared_envelope": true,
+      "supervisor_measurement_age_ms": {
+        "count": 5537,
+        "minimum": 24.0,
+        "p95": 140.0,
+        "maximum": 172.0
+      },
+      "frozen_ground_height_disagreement_m": {
+        "count": 2979,
+        "p50": 0.03868194044769968,
+        "p95": 0.08070113517851701,
+        "maximum": 0.08923276489495757
+      },
+      "ground_frozen_truth_errors": {
+        "fast_livo2_xy_m": {
+          "count": 2979,
+          "p50": 0.015849836630427796,
+          "p95": 0.035720145819407634,
+          "maximum": 0.07200292562417755
+        },
+        "fast_livo2_z_m": {
+          "count": 2979,
+          "p50": 0.03948647326682897,
+          "p95": 0.07518211227559053,
+          "maximum": 0.0783450549011262
+        },
+        "fast_livo2_signed_z_median": 0.03948647326682897,
+        "px4_xy_m": {
+          "count": 29796,
+          "p50": 0.03182071245833856,
+          "p95": 0.0748297080845543,
+          "maximum": 0.10625247008823195
+        },
+        "px4_z_m": {
+          "count": 29796,
+          "p50": 0.03521367467758485,
+          "p95": 0.05480200152457587,
+          "maximum": 0.07980682306876141
+        },
+        "px4_signed_z_median": -0.03499624697459591
+      },
+      "external_vision_fusion_confirmed": true,
+      "ev_height_bias": {
+        "scope": "armed",
+        "count": 153,
+        "first_m": 0.0,
+        "last_m": 0.0,
+        "minimum_m": 0.0,
+        "maximum_m": 0.0,
+        "range_m": 0.0,
+        "absolute_change_from_first_m": {
+          "count": 153,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "first_sim_s": 84.572,
+        "last_sim_s": 420.688,
+        "note": "Absolute datum offset can be nonzero; evolution matters, not magnitude alone"
+      },
+      "armed_failsafe_samples": 0,
+      "receiver_tail_thread_cpu_fraction": 0.254482993127135,
+      "bridge_odom_callback_minus_monitor_ms_proxy": {
+        "samples": 2980,
+        "minimum": -61.443349,
+        "median": 0.511399,
+        "p95": 7.013111399999999,
+        "maximum": 46.173883
+      },
+      "dds_metadata_limitation": "Installed experimental EventsExecutor does not supply MessageInfo; DDS queue latency cannot be certified from this trace.",
+      "gc_statistics": {
+        "0": {
+          "count": 683,
+          "total_wall_ns": 651324103,
+          "max_wall_ns": 5970122
+        },
+        "1": {
+          "count": 62,
+          "total_wall_ns": 121083295,
+          "max_wall_ns": 5038265
+        },
+        "2": {
+          "count": 3,
+          "total_wall_ns": 169859429,
+          "max_wall_ns": 66610500
+        }
+      }
+    }
+  ]
+}

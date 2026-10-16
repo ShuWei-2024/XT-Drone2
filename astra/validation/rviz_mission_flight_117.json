@@ -1,0 +1,289 @@
+{
+  "date": "2026-10-13",
+  "scope": "Isolated PX4 1.17 Replica office4, live FAST-LIVO2/map/EGO; no hardware or External Vision",
+  "features": [
+    "3D Orbit view",
+    "onboard simulated RGB camera",
+    "bounded reconstructed colour cloud",
+    "textured scan background display only",
+    "explicit Start",
+    "multiple preflight waypoints",
+    "airborne append",
+    "arrival hold and additional waypoint",
+    "pause and fresh replan on resume",
+    "land at final point without auto-return",
+    "idle timeout landing",
+    "panel heartbeat watchdog"
+  ],
+  "successful_runs": [
+    {
+      "run": "replica_office4_rviz_mission_117_02",
+      "input": "Native mouse/keyboard interaction with the mission control panel",
+      "end_action": "land",
+      "route": [
+        [
+          2.3994215077934835,
+          -1.1012359621964973
+        ]
+      ],
+      "completed": 1,
+      "audit": {
+        "complete_route_verified": true,
+        "known_surface_blocked_path_avoidance_verified": true,
+        "actual_route_legs": [
+          {
+            "goal_index": 0,
+            "reached": true,
+            "requested_delta_xy_m": [
+              2.3994215077934835,
+              -1.1012359621964973
+            ],
+            "actual_delta_xy_m": [
+              2.4073551035296052,
+              -1.1669385860791857
+            ],
+            "actual_progress_along_requested_direction_m": 2.674681811318315,
+            "endpoint_truth_xy_error_m": 0.04403677711794395,
+            "measurement_pair_dt_ms": [
+              0.0,
+              4.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.045746484644294934,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 0.8107451758042483
+          }
+        ],
+        "whole_flight_mesh_clearance_m": {
+          "count": 6504,
+          "minimum": 0.7905408847860537,
+          "p95": 1.0895204199859723,
+          "maximum": 1.1057523819558028
+        },
+        "planned_peak_speed_mps": 0.09952151563333057,
+        "planned_peak_acceleration_mps2": 0.022239386379005056,
+        "planned_continuous_clearance_passed": true,
+        "planned_dynamics_passed": true,
+        "combined_setpoint_send_max_gap_ms": 64.408125,
+        "armed_failsafe_samples": 0,
+        "baseline_preserved": true
+      },
+      "execution_sources_unchanged": true
+    },
+    {
+      "run": "replica_office4_rviz_mission_117_03",
+      "input": "Native mouse/keyboard interaction with the mission control panel",
+      "end_action": "hold",
+      "route": [
+        [
+          0.5994385226825647,
+          -0.001232205201004494
+        ],
+        [
+          0.9994385226825647,
+          -0.001232205201004494
+        ],
+        [
+          0.3994385226825647,
+          -0.001232205201004494
+        ],
+        [
+          0.7994385226825648,
+          -0.001232205201004494
+        ]
+      ],
+      "completed": 4,
+      "audit": {
+        "complete_route_verified": true,
+        "known_surface_blocked_path_avoidance_verified": false,
+        "actual_route_legs": [
+          {
+            "goal_index": 0,
+            "reached": true,
+            "requested_delta_xy_m": [
+              0.5994385226825647,
+              -0.001232205201004494
+            ],
+            "actual_delta_xy_m": [
+              0.5431962027736814,
+              -0.010696930352257196
+            ],
+            "actual_progress_along_requested_direction_m": 0.5432170436954551,
+            "endpoint_truth_xy_error_m": 0.043817475008917556,
+            "measurement_pair_dt_ms": [
+              8.0,
+              4.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.04396838274306741,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 0.928298536928012
+          },
+          {
+            "goal_index": 1,
+            "reached": true,
+            "requested_delta_xy_m": [
+              0.4,
+              0.0
+            ],
+            "actual_delta_xy_m": [
+              0.43046167349077424,
+              -0.021158943460753494
+            ],
+            "actual_progress_along_requested_direction_m": 0.4304616734907743,
+            "endpoint_truth_xy_error_m": 0.019994004735810048,
+            "measurement_pair_dt_ms": [
+              4.0,
+              8.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.021376392081879993,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 0.8862095275894974
+          },
+          {
+            "goal_index": 2,
+            "reached": true,
+            "requested_delta_xy_m": [
+              -0.6000000000000001,
+              0.0
+            ],
+            "actual_delta_xy_m": [
+              -0.5767537334772239,
+              0.014923279213359326
+            ],
+            "actual_progress_along_requested_direction_m": 0.5767537334772239,
+            "endpoint_truth_xy_error_m": 0.010297910296105928,
+            "measurement_pair_dt_ms": [
+              8.0,
+              4.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.010127042789779757,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 0.8841494020674059
+          },
+          {
+            "goal_index": 3,
+            "reached": true,
+            "requested_delta_xy_m": [
+              0.4000000000000001,
+              0.0
+            ],
+            "actual_delta_xy_m": [
+              0.3518915218959482,
+              -0.08463797010934451
+            ],
+            "actual_progress_along_requested_direction_m": 0.3518915218959482,
+            "endpoint_truth_xy_error_m": 0.05086197972079724,
+            "measurement_pair_dt_ms": [
+              4.0,
+              0.0
+            ],
+            "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+            "post_climb_fitted_endpoint_truth_xy_error_m": 0.05236106009466819,
+            "actual_motion_verified": true,
+            "actual_minimum_known_surface_clearance_m": 0.8793195903976259
+          }
+        ],
+        "whole_flight_mesh_clearance_m": {
+          "count": 11469,
+          "minimum": 0.8570724040487477,
+          "p95": 1.0895204199859723,
+          "maximum": 1.1288981132661782
+        },
+        "planned_peak_speed_mps": 0.08953869862772082,
+        "planned_peak_acceleration_mps2": 0.03103969713601048,
+        "planned_continuous_clearance_passed": true,
+        "planned_dynamics_passed": true,
+        "combined_setpoint_send_max_gap_ms": 71.674406,
+        "armed_failsafe_samples": 0,
+        "baseline_preserved": true
+      },
+      "execution_sources_unchanged": true
+    }
+  ],
+  "display_map": {
+    "colour_frames": 279,
+    "maximum_voxels": 2864,
+    "final_voxels": 1695,
+    "voxel_size_m": 0.1,
+    "capacity": 60000,
+    "ttl_seconds": 180,
+    "background_offset_display_only": [
+      -0.0009150867520497216,
+      0.0012322052010044875,
+      -0.34622558960580563
+    ],
+    "planner_input": false
+  },
+  "validation": {
+    "tests_passed": 123,
+    "existing_deprecation_warnings": 3,
+    "python_syntax": true
+  },
+  "measured_holds": [
+    {
+      "kind": "pause",
+      "seconds": 2.15,
+      "maximum_xy_excursion_m": 0.02035,
+      "z_span_m": 0.0316
+    },
+    {
+      "kind": "arrival_wait_then_append",
+      "seconds": 4.73,
+      "maximum_xy_excursion_m": 0.04234,
+      "z_span_m": 0.05092
+    },
+    {
+      "kind": "idle_timeout",
+      "seconds": 30.01,
+      "maximum_xy_excursion_m": 0.10743,
+      "z_span_m": 0.12274
+    }
+  ],
+  "limitations": [
+    "fixed inspected 0.90m cruise, initial 1.60m yaw calibration",
+    "8 waypoints, 3m radius, inspected region only",
+    "wait/pause 30..120s, no indefinite hover",
+    "scan gaps and rotor envelope uncertified",
+    "30s wait showed 0.107m XY excursion; not precision near-obstacle hover"
+  ],
+  "failures": [
+    {
+      "run": "replica_office4_rviz_mission_117_01",
+      "fault": "2D click validation received 3D execution pose; safely landed before EGO handoff",
+      "fix": "separate planar input validation from actual cruise-height obstacle recheck"
+    }
+  ],
+  "panel_loss_regression": {
+    "run": "replica_office4_rviz_mission_117_04",
+    "injection": {
+      "kind": "kill_owned_mission_panel",
+      "pid": 1705704,
+      "command_wall_ns": 318633312659133
+    },
+    "fault": "mission control panel heartbeat lost",
+    "expected_abort": true,
+    "flight_complete": false,
+    "disarmed": true,
+    "latency_from_kill_ms": {
+      "hold_target_frozen": 1816.944372,
+      "land_requested": 2818.745891,
+      "disarmed": 7684.694787
+    },
+    "audit": {
+      "whole_flight_mesh_clearance_m": {
+        "count": 2793,
+        "minimum": 0.8318251056995709,
+        "p95": 1.1151630147964482,
+        "maximum": 1.118979063880628
+      },
+      "whole_flight_envelope_passed": true,
+      "combined_setpoint_send_max_gap_ms": 62.822077,
+      "armed_failsafe_samples": 0,
+      "baseline_preserved": true
+    },
+    "execution_sources_unchanged": true
+  }
+}

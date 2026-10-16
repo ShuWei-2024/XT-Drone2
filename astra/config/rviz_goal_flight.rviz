@@ -1,0 +1,177 @@
+Panels:
+- Class: rviz_common/Displays
+  Name: Displays
+- Class: rviz_common/Tool Properties
+  Name: Tool Properties
+- Class: rviz_common/Views
+  Name: Views
+Visualization Manager:
+  Class: ''
+  Global Options:
+    Fixed Frame: camera_init
+    Background Color: 32; 36; 42
+    Frame Rate: 15
+  Displays:
+  - Class: rviz_default_plugins/Grid
+    Name: Metre grid
+    Enabled: true
+    Cell Size: 0.5
+    Plane Cell Count: 24
+    Color: 75; 80; 85
+    Alpha: 0.5
+  - Class: rviz_default_plugins/PointCloud2
+    Name: Live RGB LiDAR
+    Enabled: true
+    Topic:
+      Value: /cloud_registered
+      Reliability Policy: Best Effort
+      Durability Policy: Volatile
+      Depth: 1
+    Color Transformer: RGB8
+    Color: 175; 180; 185
+    Position Transformer: XYZ
+    Style: Points
+    Size (Pixels): 2
+    Decay Time: 0.5
+  - Class: rviz_default_plugins/PointCloud2
+    Name: Reconstructed colour map
+    Enabled: true
+    Topic:
+      Value: /astra/ui/color_map
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      Depth: 1
+    Color Transformer: RGB8
+    Position Transformer: XYZ
+    Style: Points
+    Size (Pixels): 2
+    Decay Time: 0
+  - Class: rviz_default_plugins/Marker
+    Name: Scanned room background (display only)
+    Enabled: true
+    Topic:
+      Value: /astra/ui/room_background
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      Depth: 1
+  - Class: rviz_default_plugins/PointCloud2
+    Name: Stored local obstacles
+    Enabled: false
+    Topic:
+      Value: /local_mapping/occupied
+      Reliability Policy: Best Effort
+      Durability Policy: Volatile
+      Depth: 1
+    Color Transformer: FlatColor
+    Color: 245; 135; 65
+    Position Transformer: XYZ
+    Style: Points
+    Size (Pixels): 3
+    Decay Time: 0
+  - Class: rviz_default_plugins/Odometry
+    Name: Aircraft estimate
+    Enabled: true
+    Topic:
+      Value: /fast_livo2/odom
+      Reliability Policy: Best Effort
+      Durability Policy: Volatile
+      Depth: 1
+    Keep: 1
+    Shape:
+      Value: Axes
+      Axes Length: 0.3
+      Axes Radius: 0.03
+    Position Tolerance: 0
+    Angle Tolerance: 0
+  - Class: rviz_default_plugins/Path
+    Name: Actual estimator path
+    Enabled: true
+    Topic:
+      Value: /fast_livo2/path
+      Reliability Policy: Best Effort
+      Durability Policy: Volatile
+      Depth: 1
+    Color: 80; 180; 255
+    Line Style: Lines
+    Line Width: 0.03
+  - Class: rviz_default_plugins/Marker
+    Name: EGO planned trajectory
+    Enabled: true
+    Topic:
+      Value: /optimal_list
+      Reliability Policy: Reliable
+      Durability Policy: Volatile
+      Depth: 1
+  - Class: rviz_default_plugins/MarkerArray
+    Name: Goal region and flight status
+    Enabled: true
+    Topic:
+      Value: /astra/ui/markers
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      Depth: 1
+  - Class: rviz_default_plugins/Image
+    Name: Onboard RGB camera
+    Enabled: true
+    Topic:
+      Value: /sensors/camera/color/image_raw
+      Reliability Policy: Best Effort
+      Durability Policy: Volatile
+      Depth: 1
+    Transport Hint: raw
+    Normalize Range: true
+    Min Value: 0
+    Max Value: 1
+    Median window: 5
+  Tools:
+  - Class: rviz_default_plugins/Interact
+  - Class: rviz_default_plugins/MoveCamera
+  - Class: rviz_default_plugins/Select
+  - Class: rviz_default_plugins/SetGoal
+    Topic:
+      Value: /astra/ui/goal
+      Reliability Policy: Reliable
+      Durability Policy: Volatile
+      Depth: 1
+  - Class: rviz_default_plugins/PublishPoint
+    Single click: true
+    Topic:
+      Value: /astra/ui/land
+      Reliability Policy: Reliable
+      Durability Policy: Volatile
+      Depth: 1
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: 3D room view
+      Target Frame: camera_init
+      Distance: 7.0
+      Pitch: 0.8
+      Yaw: 0.8
+      Focal Point:
+        X: 1.2
+        Y: -0.6
+        Z: 0.5
+    Saved:
+    - Class: rviz_default_plugins/TopDownOrtho
+      Name: Top down selection
+      Target Frame: camera_init
+      Angle: 0
+      Scale: 130
+      X: 1.2
+      Y: -0.6
+    - Class: rviz_default_plugins/Orbit
+      Name: 3D room view
+      Target Frame: camera_init
+      Distance: 7.0
+      Pitch: 0.8
+      Yaw: 0.8
+      Focal Point:
+        X: 1.2
+        Y: -0.6
+        Z: 0.5
+Window Geometry:
+  Width: 1280
+  Height: 800
+  X: 80
+  Y: 40

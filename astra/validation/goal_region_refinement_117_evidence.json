@@ -1,0 +1,149 @@
+{
+  "original": "astra/runtime/maps/baylands_whole_map",
+  "candidate": "astra/runtime/maps/baylands_whole_map_refined",
+  "collision_geometry_unchanged": true,
+  "world_and_model_unchanged": true,
+  "safety_margins_unchanged": true,
+  "removed_selectable_cells": 0,
+  "checked_new_descent_prisms": 3485,
+  "new_descent_area_m2": 34.85000000000001,
+  "new_prisms_continuous_clearance_lower_bound_m": 0.6500496595878542,
+  "original_selectable_area_m2": 1264.8600000000004,
+  "candidate_selectable_area_m2": 1299.5000000000002,
+  "added_selectable_area_m2": 34.64000000000001,
+  "elapsed_sec": 9.260306379990652,
+  "flight_validated": false,
+  "missing_geometry_certified": false,
+  "date": "2026-10-16",
+  "regression": {
+    "passed": 283,
+    "existing_deprecation_warnings": 3
+  },
+  "display": {
+    "grid_cell_m": 0.5,
+    "grid_width_m": 70,
+    "topic": "/astra/ui/goal_region",
+    "reference": "frozen planner guide endpoint mask; radial boundary cells conservatively omitted",
+    "live_obstacle_and_health_checks_still_required": true,
+    "received_fill_triangle_vertices": 3768,
+    "received_boundary_vertices": 3120
+  },
+  "flight": {
+    "run": "outdoor_goal_region_20261016_01",
+    "requested_goal_offset_m": [
+      2.45,
+      -2.95
+    ],
+    "old_static_endpoint_admission": false,
+    "candidate_static_endpoint_admission": true,
+    "status": "complete route audit passed once",
+    "run_summary": {
+      "mode": "obstacle",
+      "exit_code": 0,
+      "failure": "",
+      "original_baseline_preserved": true,
+      "execution_sources_unchanged": true
+    },
+    "scan_audit": {
+      "complete_route_verified": true,
+      "known_surface_blocked_path_avoidance_verified": false,
+      "actual_horizontal_path_m": 7.992600152612683,
+      "measurement_time_actual_horizontal_path_m": 8.036405798825191,
+      "actual_route_legs": [
+        {
+          "goal_index": 0,
+          "reached": true,
+          "requested_delta_xy_m": [
+            2.45,
+            -2.95
+          ],
+          "actual_delta_xy_m": [
+            2.463548270879076,
+            -2.906832915343619
+          ],
+          "actual_progress_along_requested_direction_m": 3.8101579398330734,
+          "endpoint_truth_xy_error_m": 0.04014949796288937,
+          "measurement_pair_dt_ms": [
+            8.0,
+            4.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.030078341254931296,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 1.3963633332302938
+        },
+        {
+          "goal_index": 1,
+          "reached": true,
+          "requested_delta_xy_m": [
+            -2.45,
+            2.95
+          ],
+          "actual_delta_xy_m": [
+            -2.4848261752416607,
+            2.8887839951329033
+          ],
+          "actual_progress_along_requested_direction_m": 3.809867579163566,
+          "endpoint_truth_xy_error_m": 0.030379664603894754,
+          "measurement_pair_dt_ms": [
+            4.0,
+            0.0
+          ],
+          "endpoint_error_reference": "ground-frozen LIVO-to-truth translation",
+          "post_climb_fitted_endpoint_truth_xy_error_m": 0.04048077453559806,
+          "actual_motion_verified": true,
+          "actual_minimum_known_surface_clearance_m": 1.3868640410680915
+        }
+      ],
+      "planned_continuous_clearance_passed": true,
+      "planned_dynamics_passed": true,
+      "planned_peak_speed_mps": 0.2000000000000001,
+      "planned_peak_acceleration_mps2": 0.2000000000000001,
+      "whole_flight_mesh_clearance_m": {
+        "count": 5265,
+        "minimum": 1.3868640410680915,
+        "p95": 3.1184602188238086,
+        "maximum": 3.1521146835280125
+      },
+      "whole_flight_envelope_passed": true,
+      "armed_failsafe_samples": 0,
+      "combined_setpoint_send_max_gap_ms": 126.639531
+    },
+    "shared_envelope": {
+      "curve_count": 40,
+      "failed_curves": [],
+      "executed_curve_failures": [],
+      "preview_rejected_curve_failures": [],
+      "tracked_trajectory_id_count": 40,
+      "all_executed_curves_inside_shared_envelope": true,
+      "all_complete_curves_inside_shared_envelope": true,
+      "reserve_m": 0.4,
+      "ground_reference": [
+        0.0001881834703158576,
+        -0.016800302666142613
+      ],
+      "recorded_z_bounds_livo_m": [
+        0.9401230352730595,
+        1.5401230352730595
+      ],
+      "method": "Cubic Bezier convex-hull subdivision over each knot span; blocked/unknown cells rejected",
+      "scope": "Frozen flight-volume certificate (transit when configured, otherwise descent); obstacle observations remain separate; rejected candidates reported separately"
+    },
+    "external_vision": {
+      "checks": {
+        "received_in_px4": true,
+        "both_aid_sources_actually_fused": true,
+        "sent_measurements_not_restamped": true,
+        "source_jump_not_detected": true
+      },
+      "fusion_confirmed": true
+    }
+  },
+  "limitations": [
+    "Single newly admitted waypoint and planned return; not a full flight survey of added cells",
+    "Known static surfaces only; no terrain following, missing-geometry or hardware certification",
+    "No blocked-path detour in this particular short flight; earlier obstacle-route evidence remains separate",
+    "Some UI command timestamp rejections remain; valid goal and start accepted",
+    "Geometry audit flight_validated=false describes offline preparation only; specific successful flight is recorded separately"
+  ]
+}

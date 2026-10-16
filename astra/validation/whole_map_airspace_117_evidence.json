@@ -1,0 +1,520 @@
+{
+  "date": "2026-10-15",
+  "scope": "Isolated Baylands SITL; individual runs with recorded changes, not a fixed-configuration success-rate study",
+  "metrics": "Height disagreement uses frozen ground offset after absolute-origin initialization; do not substitute earlier EV transform raw Z disagreement",
+  "raw_artifacts": "astra/runtime/<run>/, local and gitignored",
+  "runs": [
+    {
+      "run": "whole_map_east_20261015_04",
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "complete_route_verified": false,
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "reached_goals": 0,
+      "requested_goals": 1,
+      "actual_horizontal_path_m": 29.53095469668203,
+      "height_reference_parameter": 1,
+      "global_origin_initialization": null,
+      "frozen_ground_height_disagreement_m": {
+        "ego_execution": {
+          "count": 1934,
+          "p50": 0.04399215082151722,
+          "p95": 0.12656527059354775,
+          "maximum": 0.20213020419440622
+        },
+        "leg_0": {
+          "count": 1934,
+          "p50": 0.04399215082151722,
+          "p95": 0.12656527059354775,
+          "maximum": 0.20213020419440622
+        }
+      },
+      "external_vision_fusion_checks": {
+        "received_in_px4": true,
+        "both_aid_sources_actually_fused": true,
+        "sent_measurements_not_restamped": true,
+        "source_jump_not_detected": true
+      },
+      "ev_height_bias": {
+        "scope": "armed",
+        "count": 336,
+        "first_m": 0.24373114109039307,
+        "last_m": 0.2532961368560791,
+        "minimum_m": 0.14695584774017334,
+        "maximum_m": 0.4261184334754944,
+        "range_m": 0.27916258573532104,
+        "absolute_change_from_first_m": {
+          "count": 336,
+          "p95": 0.09662117809057236,
+          "maximum": 0.18238729238510132
+        },
+        "first_sim_s": 70.084,
+        "last_sim_s": 309.36,
+        "note": "Absolute datum offset can be nonzero; evolution matters, not magnitude alone"
+      },
+      "planned_dynamics_passed": true,
+      "planned_continuous_clearance_passed": true,
+      "all_complete_curves_inside_shared_envelope": true,
+      "bspline_count": 191,
+      "minimum_actual_surface_distance_m": 1.3930696750679017,
+      "armed_failsafe_samples": 0,
+      "px4_binary_sha256": "c1d65002d6711b832db185e7e5a9210426effcc58cbb8f1fbe5e9eb74a160165",
+      "actual_dds_rate_audit": null
+    },
+    {
+      "run": "whole_map_evref_short_20261015_02",
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "complete_route_verified": true,
+      "fault": "",
+      "reached_goals": 2,
+      "requested_goals": 2,
+      "actual_horizontal_path_m": 6.287921790156291,
+      "height_reference_parameter": 3,
+      "global_origin_initialization": {
+        "confirmed": true,
+        "command_sent": true,
+        "ground_truth_used": false,
+        "reference": "GNSS absolute origin only; EV remains local height reference",
+        "acks": [
+          {
+            "timestamp_us": 35352000,
+            "result": 0
+          }
+        ],
+        "before_local_ned_m": [
+          -0.013643303886055946,
+          -0.018831131979823112,
+          -0.07849510759115219
+        ],
+        "proposed_origin_lla": [
+          47.39797138549344,
+          8.546163866944307,
+          0.14398194337263703
+        ],
+        "before_resets": [
+          4,
+          2,
+          1
+        ],
+        "after_local_ned_m": [
+          -0.02694650925695896,
+          -0.024346821010112762,
+          -0.06643308699131012
+        ],
+        "after_resets": [
+          5,
+          3,
+          1
+        ],
+        "origin_lla": [
+          47.39797138549344,
+          8.546163866944307,
+          0.1439819484949112
+        ],
+        "confirmed_sim_us": 36376000
+      },
+      "frozen_ground_height_disagreement_m": {
+        "ego_execution": {
+          "count": 391,
+          "p50": 0.005859374852419219,
+          "p95": 0.032629652530103026,
+          "maximum": 0.05016940096781214
+        },
+        "leg_0": {
+          "count": 193,
+          "p50": 0.006456290732687775,
+          "p95": 0.03946064091751148,
+          "maximum": 0.05016940096781214
+        },
+        "leg_1": {
+          "count": 198,
+          "p50": 0.005233051865409399,
+          "p95": 0.02894416679204036,
+          "maximum": 0.03465809402194403
+        }
+      },
+      "external_vision_fusion_checks": {
+        "received_in_px4": true,
+        "both_aid_sources_actually_fused": true,
+        "sent_measurements_not_restamped": true,
+        "source_jump_not_detected": true
+      },
+      "ev_height_bias": {
+        "scope": "armed",
+        "count": 38,
+        "first_m": 0.0,
+        "last_m": 0.0,
+        "minimum_m": 0.0,
+        "maximum_m": 0.0,
+        "range_m": 0.0,
+        "absolute_change_from_first_m": {
+          "count": 38,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "first_sim_s": 73.156,
+        "last_sim_s": 160.38,
+        "note": "Absolute datum offset can be nonzero; evolution matters, not magnitude alone"
+      },
+      "planned_dynamics_passed": true,
+      "planned_continuous_clearance_passed": true,
+      "all_complete_curves_inside_shared_envelope": true,
+      "bspline_count": 32,
+      "minimum_actual_surface_distance_m": 3.0212834486599833,
+      "armed_failsafe_samples": 0,
+      "px4_binary_sha256": "c1d65002d6711b832db185e7e5a9210426effcc58cbb8f1fbe5e9eb74a160165",
+      "actual_dds_rate_audit": null
+    },
+    {
+      "run": "whole_map_evref_east_20261015_01",
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "complete_route_verified": false,
+      "fault": "bridge fault: estimator measurement times differ",
+      "reached_goals": 1,
+      "requested_goals": 2,
+      "actual_horizontal_path_m": 52.674507387432065,
+      "height_reference_parameter": 3,
+      "global_origin_initialization": {
+        "confirmed": true,
+        "command_sent": true,
+        "ground_truth_used": false,
+        "reference": "GNSS absolute origin only; EV remains local height reference",
+        "acks": [
+          {
+            "timestamp_us": 35116000,
+            "result": 0
+          }
+        ],
+        "before_local_ned_m": [
+          0.007860382087528706,
+          0.0015716524794697762,
+          -0.026689225807785988
+        ],
+        "proposed_origin_lla": [
+          47.39797100081366,
+          8.546163766401364,
+          0.2529935911297798
+        ],
+        "before_resets": [
+          4,
+          2,
+          1
+        ],
+        "after_local_ned_m": [
+          -0.001255177310667932,
+          -0.004138805903494358,
+          -0.03171992301940918
+        ],
+        "after_resets": [
+          5,
+          3,
+          1
+        ],
+        "origin_lla": [
+          47.39797100081366,
+          8.546163766401364,
+          0.2529935836791992
+        ],
+        "confirmed_sim_us": 36140000
+      },
+      "frozen_ground_height_disagreement_m": {
+        "ego_execution": {
+          "count": 3282,
+          "p50": 0.020697541892795157,
+          "p95": 0.06785893490202155,
+          "maximum": 0.12875695531904244
+        },
+        "leg_0": {
+          "count": 2115,
+          "p50": 0.01882758580078206,
+          "p95": 0.07088676264472482,
+          "maximum": 0.12875695531904244
+        },
+        "leg_1": {
+          "count": 1167,
+          "p50": 0.024756797736875696,
+          "p95": 0.06488792418451968,
+          "maximum": 0.10158223873495456
+        }
+      },
+      "external_vision_fusion_checks": {
+        "received_in_px4": true,
+        "both_aid_sources_actually_fused": true,
+        "sent_measurements_not_restamped": true,
+        "source_jump_not_detected": true
+      },
+      "ev_height_bias": {
+        "scope": "armed",
+        "count": 155,
+        "first_m": 0.0,
+        "last_m": 0.0,
+        "minimum_m": 0.0,
+        "maximum_m": 0.0,
+        "range_m": 0.0,
+        "absolute_change_from_first_m": {
+          "count": 155,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "first_sim_s": 80.284,
+        "last_sim_s": 449.78,
+        "note": "Absolute datum offset can be nonzero; evolution matters, not magnitude alone"
+      },
+      "planned_dynamics_passed": true,
+      "planned_continuous_clearance_passed": true,
+      "all_complete_curves_inside_shared_envelope": true,
+      "bspline_count": 320,
+      "minimum_actual_surface_distance_m": 1.245255353784673,
+      "armed_failsafe_samples": 0,
+      "px4_binary_sha256": "c1d65002d6711b832db185e7e5a9210426effcc58cbb8f1fbe5e9eb74a160165",
+      "actual_dds_rate_audit": null
+    },
+    {
+      "run": "whole_map_evref_east_20261015_04",
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "complete_route_verified": false,
+      "fault": "ground-aligned height has no measurement pair within 20 ms",
+      "reached_goals": 1,
+      "requested_goals": 2,
+      "actual_horizontal_path_m": 51.894323535549134,
+      "height_reference_parameter": 3,
+      "global_origin_initialization": {
+        "confirmed": true,
+        "command_sent": true,
+        "ground_truth_used": false,
+        "reference": "GNSS absolute origin only; EV remains local height reference",
+        "acks": [
+          {
+            "timestamp_us": 37640000,
+            "result": 0
+          }
+        ],
+        "before_local_ned_m": [
+          0.015581982210278511,
+          0.009632959961891174,
+          0.24521692097187042
+        ],
+        "proposed_origin_lla": [
+          47.39797114987963,
+          8.54616365694187,
+          0.46114140190184116
+        ],
+        "before_resets": [
+          4,
+          2,
+          1
+        ],
+        "after_local_ned_m": [
+          0.0013092015869915485,
+          0.011114902794361115,
+          0.2518875002861023
+        ],
+        "after_resets": [
+          5,
+          3,
+          1
+        ],
+        "origin_lla": [
+          47.39797114987963,
+          8.54616365694187,
+          0.4611414074897766
+        ],
+        "confirmed_sim_us": 38664000
+      },
+      "frozen_ground_height_disagreement_m": {
+        "ego_execution": {
+          "count": 3280,
+          "p50": 0.0146360077023662,
+          "p95": 0.05933583401925578,
+          "maximum": 0.09834020100326482
+        },
+        "leg_0": {
+          "count": 2185,
+          "p50": 0.015918348871419213,
+          "p95": 0.06269719342475936,
+          "maximum": 0.09834020100326482
+        },
+        "leg_1": {
+          "count": 1095,
+          "p50": 0.012994440994787942,
+          "p95": 0.040949416617057005,
+          "maximum": 0.09132603967145639
+        }
+      },
+      "external_vision_fusion_checks": {
+        "received_in_px4": true,
+        "both_aid_sources_actually_fused": true,
+        "sent_measurements_not_restamped": true,
+        "source_jump_not_detected": true
+      },
+      "ev_height_bias": {
+        "scope": "armed",
+        "count": 136,
+        "first_m": 0.0,
+        "last_m": 0.0,
+        "minimum_m": 0.0,
+        "maximum_m": 0.0,
+        "range_m": 0.0,
+        "absolute_change_from_first_m": {
+          "count": 136,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "first_sim_s": 75.868,
+        "last_sim_s": 448.076,
+        "note": "Absolute datum offset can be nonzero; evolution matters, not magnitude alone"
+      },
+      "planned_dynamics_passed": true,
+      "planned_continuous_clearance_passed": true,
+      "all_complete_curves_inside_shared_envelope": true,
+      "bspline_count": 316,
+      "minimum_actual_surface_distance_m": 1.2744784711940198,
+      "armed_failsafe_samples": 0,
+      "px4_binary_sha256": "c1d65002d6711b832db185e7e5a9210426effcc58cbb8f1fbe5e9eb74a160165",
+      "actual_dds_rate_audit": null
+    },
+    {
+      "run": "whole_map_dds100_east_20261015_01",
+      "restoration": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "complete_route_verified": false,
+      "fault": "bridge fault: stale measurement timestamp",
+      "reached_goals": 1,
+      "requested_goals": 2,
+      "actual_horizontal_path_m": 54.57131850938572,
+      "height_reference_parameter": 3,
+      "global_origin_initialization": {
+        "confirmed": true,
+        "command_sent": true,
+        "ground_truth_used": false,
+        "reference": "GNSS absolute origin only; EV remains local height reference",
+        "acks": [
+          {
+            "timestamp_us": 37600000,
+            "result": 0
+          }
+        ],
+        "before_local_ned_m": [
+          -0.04473583772778511,
+          -0.016096048057079315,
+          0.06883098185062408
+        ],
+        "proposed_origin_lla": [
+          47.39797159191228,
+          8.546163870750657,
+          0.28209862392395735
+        ],
+        "before_resets": [
+          4,
+          2,
+          1
+        ],
+        "after_local_ned_m": [
+          -0.05814788490533829,
+          -0.024993231520056725,
+          0.0659644603729248
+        ],
+        "after_resets": [
+          5,
+          3,
+          1
+        ],
+        "origin_lla": [
+          47.39797159191228,
+          8.546163870750657,
+          0.2820986211299896
+        ],
+        "confirmed_sim_us": 38612000
+      },
+      "frozen_ground_height_disagreement_m": {
+        "ego_execution": {
+          "count": 3381,
+          "p50": 0.03199617744852727,
+          "p95": 0.08773909680449259,
+          "maximum": 0.14235152931341483
+        },
+        "leg_0": {
+          "count": 2143,
+          "p50": 0.030541048268361612,
+          "p95": 0.08328872899015295,
+          "maximum": 0.14235152931341483
+        },
+        "leg_1": {
+          "count": 1238,
+          "p50": 0.03641648784610685,
+          "p95": 0.08918964878392435,
+          "maximum": 0.11088699468913828
+        }
+      },
+      "external_vision_fusion_checks": {
+        "received_in_px4": true,
+        "both_aid_sources_actually_fused": true,
+        "sent_measurements_not_restamped": true,
+        "source_jump_not_detected": true
+      },
+      "ev_height_bias": {
+        "scope": "armed",
+        "count": 170,
+        "first_m": 0.0,
+        "last_m": 0.0,
+        "minimum_m": 0.0,
+        "maximum_m": 0.0,
+        "range_m": 0.0,
+        "absolute_change_from_first_m": {
+          "count": 170,
+          "p95": 0.0,
+          "maximum": 0.0
+        },
+        "first_sim_s": 74.384,
+        "last_sim_s": 458.456,
+        "note": "Absolute datum offset can be nonzero; evolution matters, not magnitude alone"
+      },
+      "planned_dynamics_passed": true,
+      "planned_continuous_clearance_passed": true,
+      "all_complete_curves_inside_shared_envelope": true,
+      "bspline_count": 324,
+      "minimum_actual_surface_distance_m": 1.4212135505473833,
+      "armed_failsafe_samples": 0,
+      "px4_binary_sha256": "ddc5135adc9e3390244ac8b1b95d7aa111ffd09a2a1ecc7db92c7879d6676227",
+      "actual_dds_rate_audit": {
+        "source": "frame auditor received PX4 measurement timestamps during EGO execution",
+        "samples": 33798,
+        "observed_mean_hz": 99.9816585412032,
+        "sample_gap_ms": {
+          "p50": 8.0,
+          "p95": 16.0,
+          "maximum": 44.0
+        },
+        "note": "Subscriber observations; does not prove every DDS subscriber receives the same samples or that configured rate is delivered continuously"
+      }
+    }
+  ]
+}

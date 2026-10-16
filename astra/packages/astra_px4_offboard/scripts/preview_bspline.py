@@ -49,6 +49,7 @@ def parse_spline(msg, max_speed, max_accel):
 class PreviewBspline(Node):
     def __init__(self, parameter_overrides=None):
         super().__init__('preview_bspline', parameter_overrides=parameter_overrides)
+        self.control_clock = self.get_clock()
         self.declare_parameter('frame_id', 'camera_init')
         self.declare_parameter('px4_namespace', '')
         self.declare_parameter('max_speed_mps', 0.5)
@@ -77,11 +78,14 @@ class PreviewBspline(Node):
         self.hold_px4_position = None
         self.hold_pose = None
         self.spline = None
+        self.trajectory_validator = None
         self.trajectory_start_ns = None
         self.trajectory_id = None
         self.completed_trajectory_id = None
         self.span = None
         self.mode = None
+        self.reason = 'preview not initialized'
+        self.sample_callback = None  # Optional serial handoff in a composed process.
 
         gate_qos = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
                               durability=DurabilityPolicy.TRANSIENT_LOCAL)
@@ -102,7 +106,7 @@ class PreviewBspline(Node):
                                               '/planning/px4_hold_preview', 10)
         self.mode_pub = self.create_publisher(String, '/planning/preview_mode', 10)
         self.reason_pub = self.create_publisher(String, '/planning/preview_reason', 10)
-        self.create_timer(0.05, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
+        self.output_timer = self.create_timer(0.05, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
 
     def on_ready(self, msg):
         self.ready = msg.data
@@ -138,6 +142,8 @@ class PreviewBspline(Node):
     def on_trajectory(self, msg):
         try:
             spline, start, end = parse_spline(msg, self.max_speed, self.max_accel)
+            if self.trajectory_validator is not None:
+                self.trajectory_validator.validate_spline(spline)
         except ValueError as exc:
             self.spline = None
             self.get_logger().warning(str(exc))
@@ -154,7 +160,7 @@ class PreviewBspline(Node):
         return last is not None and time.monotonic() - last <= max_age
 
     def tick(self):
-        now_ns = self.get_clock().now().nanoseconds
+        now_ns = self.control_clock.now().nanoseconds
         odom_age_ns = (now_ns - stamp_ns(self.odom.header.stamp)
                        if self.odom is not None else -1)
         odom_ok = (self.odom is not None and
@@ -178,7 +184,7 @@ class PreviewBspline(Node):
             self.hold_pose = None
             self.hold_px4_position = None
             pose = PoseStamped()
-            pose.header.stamp = self.get_clock().now().to_msg()
+            pose.header.stamp = self.control_clock.now().to_msg()
             pose.header.frame_id = self.frame_id
             pose.pose.position.x, pose.pose.position.y, pose.pose.position.z = map(float, point)
             pose.pose.orientation.w = 1.0
@@ -194,7 +200,7 @@ class PreviewBspline(Node):
                 if self.hold_pose is None:
                     self.hold_pose = deepcopy(self.odom.pose.pose)
                 pose = PoseStamped()
-                pose.header.stamp = self.get_clock().now().to_msg()
+                pose.header.stamp = self.control_clock.now().to_msg()
                 pose.header.frame_id = self.frame_id
                 pose.pose = self.hold_pose
                 self.pose_pub.publish(pose)
@@ -232,7 +238,11 @@ class PreviewBspline(Node):
             reasons.append('outside trajectory time span')
         if not tracking and not reasons:
             reasons.append('non-finite trajectory sample')
-        self.reason_pub.publish(String(data='tracking' if tracking else '; '.join(reasons)))
+        self.reason = 'tracking' if tracking else '; '.join(reasons)
+        self.reason_pub.publish(String(data=self.reason))
+        if self.sample_callback is not None:
+            self.sample_callback(pose if tracking else None,
+                                 twist if tracking else None, mode)
 
 
 def main():
