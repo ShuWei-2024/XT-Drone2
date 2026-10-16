@@ -23,7 +23,9 @@ class ExecutorTimingAudit:
     def __init__(self):
         self.tail=deque(maxlen=8192)
         self.batch_tail=deque(maxlen=2048)
-        self.odom_callbacks=[]
+        # RViz ground editing has no timeout. Keep diagnostic memory bounded
+        # even if an operator leaves the session waiting for hours.
+        self.odom_callbacks=deque(maxlen=65536)
         self.slow=deque(maxlen=1024)
         self.stats=defaultdict(lambda:dict(count=0,total_wall_ns=0,total_cpu_ns=0,max_wall_ns=0))
         self.installed=[]
@@ -59,7 +61,9 @@ class ExecutorTimingAudit:
 
     def install(self,node,with_metadata=True):
         if self._gc_callback not in gc.callbacks:gc.callbacks.append(self._gc_callback)
+        installed={id(entity) for entity,_ in self.installed}
         for sub in node.subscriptions:
+            if id(sub) in installed:continue
             original=sub.callback;topic=sub.topic_name
             label=node.get_name()+':'+topic
             # Existing subscriptions in these nodes are message-only. Request
@@ -94,6 +98,7 @@ class ExecutorTimingAudit:
                 return traced
             self.installed.append((sub,original));sub.callback=make(original,label,topic)
         for timer in node.timers:
+            if id(timer) in installed:continue
             original=timer.callback
             if original is None:continue
             label=node.get_name()+':timer:'+getattr(original,'__name__','unknown')
@@ -124,5 +129,5 @@ class ExecutorTimingAudit:
     def save(self,path):
         Path(path).write_text(json.dumps(dict(scope='Diagnostic only; original queue depths and flight gates retained',
             callback_statistics=dict(self.stats),tail=list(self.tail),batch_tail=list(self.batch_tail),
-            slow_callbacks=list(self.slow),odom_callbacks=self.odom_callbacks,
+            slow_callbacks=list(self.slow),odom_callbacks=list(self.odom_callbacks),
             gc_statistics=dict(self.gc_stats),gc_tail=list(self.gc_events)),indent=2)+'\n')

@@ -36,6 +36,7 @@
 | 室外地图来源、准备与范围 | [Baylands 公园](../astra/validation/OUTDOOR_PARK_117.md) |
 | 全图范围选点、连通空域与远端飞行 | [全图空域与验证](../astra/validation/WHOLE_MAP_AIRSPACE_117.md) |
 | 全图远端往返与消息接收积压 | [事件执行器复测](../astra/validation/WHOLE_MAP_RECEIVER_117.md) |
+| RViz 按开始后起飞前消息超时 | [交互起飞接收修复](../astra/validation/RVIZ_PREFLIGHT_RECEIVER_117.md) |
 | 室内真实扫描地图与绕障 | [Replica office4](../astra/validation/REAL_SCAN_AVOIDANCE_117.md) |
 | RViz2 三维多航点交互 | [交互飞行验收](../astra/validation/RVIZ_GOAL_FLIGHT_117.md) |
 | 独立通行／降落区、EGO 返航与官方 RTL | [返航策略与隔离验证](../astra/validation/TRANSIT_RETURN_117.md) |

@@ -26,7 +26,7 @@ from guarded_bspline_bridge import GuardedBsplineBridge
 from preview_bspline import PreviewBspline, stamp_ns
 
 
-def receive_batch(executor):
+def receive_batch(executor, wait_sec=.002):
     # A /clock callback can precede already queued odometry after a scheduling
     # pause. Process a bounded batch before checking freshness, so the guard
     # sees received measurements rather than only the first ready callback.
@@ -35,13 +35,45 @@ def receive_batch(executor):
         from executor_timing_audit import scheduler_wait_ns
         wall=time.monotonic_ns();cpu=time.thread_time_ns()
         wait=scheduler_wait_ns()
-    batch=receive_ready_batch(executor)
+    batch=receive_ready_batch(executor,wait_sec=wait_sec)
     if audit:
         finish_wait=scheduler_wait_ns()
         audit.batch_tail.append(dict(wall_start_ns=wall,wall_end_ns=time.monotonic_ns(),
             wall_duration_ns=time.monotonic_ns()-wall,cpu_duration_ns=time.thread_time_ns()-cpu,
             scheduler_wait_ns=None if wait is None or finish_wait is None else finish_wait-wait,
             **batch))
+
+
+class MissionReceiver:
+    """Own one serial receiver from ground preparation through recovery."""
+    def __init__(self, node, kind, audit=False):
+        self.node = node
+        self.executor = BoundedEventsExecutor() if kind == 'events' else ReadyBatchExecutor()
+        self.audit = None
+        if audit:
+            from executor_timing_audit import ExecutorTimingAudit
+            self.audit = self.executor.timing_audit = ExecutorTimingAudit()
+            node.safety_timing_audit = self.audit
+        self.attach(node)
+
+    def attach(self, node):
+        self.executor.add_node(node)
+        if self.audit:
+            self.audit.install(node, with_metadata=not isinstance(self.executor, BoundedEventsExecutor))
+
+    def receive(self):
+        receive_batch(self.executor)
+
+    def reconcile(self):
+        # One nonblocking bounded drain; this never publishes a setpoint or
+        # changes any freshness limit. The caller rechecks all safety gates.
+        receive_batch(self.executor, wait_sec=0.)
+
+    def close(self):
+        if self.audit:
+            self.audit.restore()
+            self.node.completed_executor_audit = self.audit
+        self.executor.shutdown()
 
 
 def hold_endpoint(node, bridge, executor, endpoint, seconds, max_tracking_error_m):
@@ -79,7 +111,7 @@ def await_ground_health(node, required_sec=5.):
     deadline = time.monotonic() + 25.
     good_since = None
     while time.monotonic() < deadline:
-        rclpy.spin_once(node, timeout_sec=.01)
+        node.receive_callbacks(timeout_sec=.01)
         if not (node.fault() or node.initial_alignment_fault()):
             good_since = good_since or time.monotonic()
             if time.monotonic() - good_since >= required_sec:
@@ -139,7 +171,7 @@ def takeoff(node, height_m=1.7, alignment_height_m=None):
     node.command(VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM, 1)
     deadline = time.monotonic() + 5.
     while time.monotonic() < deadline:
-        rclpy.spin_once(node, timeout_sec=.01)
+        node.receive_callbacks(timeout_sec=.01)
         node.check_safe()
         node.send(origin)
         if (node.status.arming_state == VehicleStatus.ARMING_STATE_ARMED and
@@ -218,10 +250,10 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
     preview.trajectory_validator = getattr(node, 'planning_envelope', None)
     # Supervisor calls tick only after a clean handoff; no bridge preflight output.
     bridge.output_timer.cancel()
-    executor = (BoundedEventsExecutor() if result['test_configuration'].get('execution_executor') == 'events'
-                else ReadyBatchExecutor())
-    for n in (node, preview, bridge):
-        executor.add_node(n)
+    receiver = node.mission_receiver
+    executor = receiver.executor
+    for n in (preview, bridge):
+        receiver.attach(n)
     goal_pub = node.create_publisher(PoseStamped, '/move_base_simple/goal', 10)
     bridge_rows = []
     raw_splines = []
@@ -231,13 +263,8 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
                                 knots=list(msg.knots),
                                 controls=[[p.x, p.y, p.z] for p in msg.pos_pts]))
     subscription = node.create_subscription(Bspline, '/planning/bspline', record_spline, 10)
-    audit_path=result.get('executor_audit_path')
-    if audit_path:
-        from executor_timing_audit import ExecutorTimingAudit
-        executor.timing_audit=ExecutorTimingAudit()
-        node.safety_timing_audit=executor.timing_audit
-        for n in (node,preview,bridge):
-            executor.timing_audit.install(n,with_metadata=not isinstance(executor,BoundedEventsExecutor))
+    if receiver.audit:
+        receiver.audit.install(node, with_metadata=not isinstance(executor, BoundedEventsExecutor))
     handed = False
     try:
         if fixed_enu_ned_transform:
@@ -605,17 +632,10 @@ def execute(node, high, result, goal_distance_m=0.5, goal_y_offset_m=0.0,
             odom_receipt_age_sec=time.monotonic()-node.odom_wall)
         raise
     finally:
-        if audit_path:
-            executor.timing_audit.restore()
-            # Serializing the trace can take hundreds of milliseconds. Keep it
-            # in memory until after disarm; never block active flight for I/O.
-            node.completed_executor_audit=executor.timing_audit
-        for n in (node, preview, bridge):
+        # Keep supervisor reception alive for hold/RTL/landing. Defer entity
+        # destruction and audit serialization until after recovery/disarm.
+        for n in (preview, bridge):
             executor.remove_node(n)
-        executor.shutdown()
-        preview.destroy_node()
-        bridge.destroy_node()
-        node.destroy_subscription(subscription)
         result['bridge_samples'] = bridge_rows
         result['bsplines'] = raw_splines
         if 'goal_queue' in locals():
@@ -719,7 +739,12 @@ def main():
                                    Parameter('max_estimator_xy_disagreement_m',
                                              value=args.max_estimator_xy_disagreement_m)])
     bridge.output_timer.cancel()
+    receiver = None
     try:
+        receiver = MissionReceiver(node, args.execution_executor, args.executor_audit)
+        node.mission_receiver = receiver
+        node.event('mission_receiver_started', executor=args.execution_executor,
+                   scope='ground selection, prestream, takeoff, execution and recovery')
         if args.calibrate_ground_height:
             node.align_ground_height()
         if args.rviz_mission or args.rviz_goal_timeout_sec:
@@ -727,6 +752,8 @@ def main():
                 raise RuntimeError('RViz flight requires an inspected scan descent certificate')
             from rviz_goal_selection import RvizSelection
             node.rviz_selection=RvizSelection(node,args.takeoff_height_m)
+            if receiver.audit:
+                receiver.audit.install(node, with_metadata=not isinstance(receiver.executor, BoundedEventsExecutor))
             route_offsets=node.rviz_selection.wait(args.rviz_goal_timeout_sec)
             Path(args.output_prefix+'_mission_started').touch()
             Path(args.output_prefix).with_name('route.json').write_text(json.dumps(route_offsets)+'\n')
@@ -763,6 +790,11 @@ def main():
         result['events'] = node.events
         result['ground_height_alignment'] = node.ground_alignment.summary() if node.ground_alignment else None
         result['height_pair_callback_order_deferrals'] = node.height_pair_gate.deferred_checks
+        result['queued_state_rechecks'] = getattr(node, 'queued_state_rechecks', 0)
+        result['queued_state_recoveries'] = getattr(node, 'queued_state_recoveries', 0)
+        if receiver is not None:
+            receiver.close()
+            node.mission_receiver = None
         if args.executor_audit and hasattr(node,'completed_executor_audit'):
             node.completed_executor_audit.save(result['executor_audit_path'])
         Path(args.output_prefix+'_events.json').write_text(json.dumps(result, indent=2)+'\n')
@@ -773,6 +805,8 @@ def main():
                 writer.writerows(node.rows)
         print(json.dumps({k:v for k,v in result.items() if k not in
                           ('events','bridge_samples','bsplines')}), flush=True)
+        preview.destroy_node()
+        bridge.destroy_node()
         node.destroy_node()
         rclpy.try_shutdown()
     if not result['flight_complete'] or not result['disarmed']:

@@ -55,6 +55,26 @@ def test_callback_error_is_preserved_and_recorded(node):
     audit.restore();assert sub.callback is fail
 
 
+def test_install_after_ui_creation_traces_new_entities_only_once(node):
+    seen=[]
+    sub=node.create_subscription(String,'incremental_test',lambda msg:seen.append(msg.data),10)
+    original=sub.callback
+    audit=ExecutorTimingAudit()
+    audit.install(node,with_metadata=False)
+    wrapped=sub.callback
+    timer=node.create_timer(1.,lambda:seen.append('timer'))
+    original_timer=timer.callback
+    try:
+        audit.install(node,with_metadata=False)
+        assert sub.callback is wrapped
+        sub.callback(String(data='once'))
+        timer.callback()
+        assert seen==['once','timer']
+        assert audit.stats['executor_audit_test:/incremental_test']['count']==1
+    finally:audit.restore()
+    assert sub.callback is original and timer.callback is original_timer
+
+
 def test_gc_pauses_are_recorded_without_changing_collector(node,tmp_path):
     import gc,json
     original=list(gc.callbacks);enabled=gc.isenabled();thresholds=gc.get_threshold()

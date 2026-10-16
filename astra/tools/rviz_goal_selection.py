@@ -92,6 +92,8 @@ class RvizSelection:
         self.battery = None
         self.battery_wall = 0.
         self.selected = None
+        self.region_markers = None
+        self.display_signature = None
         qos = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.pub = node.create_publisher(MarkerArray, '/astra/ui/markers', qos)
         self.status_pub = node.create_publisher(String, '/astra/ui/status', qos)
@@ -241,8 +243,10 @@ class RvizSelection:
 
     def display(self):
         if self.origin is None:return
+        signature=(tuple(tuple(g) for g in self.mission.goals),self.mission.completed)
+        if signature==self.display_signature:return
         markers=[]
-        if self.node.mesh_guard.transit_boxes is not None:
+        if self.region_markers is None and self.node.mesh_guard.transit_boxes is not None:
             for i,(lo,hi) in enumerate(self.node.mesh_guard.transit_boxes):
                 region=self.marker(100000+i,Marker.CUBE)
                 region.pose.position.x=float((lo[0]+hi[0])/2+self.origin[0])
@@ -252,7 +256,9 @@ class RvizSelection:
                 region.color.b=1.;region.color.g=.55;region.color.a=.12
                 markers.append(region)
         certificate=self.node.mesh_guard.metadata.get('recovery_certificate',{})
-        if certificate.get('compacted'):
+        if self.region_markers is not None:
+            markers=list(self.region_markers)
+        elif certificate.get('compacted'):
             for i,(lo,hi) in enumerate(self.node.mesh_guard.recovery_boxes):
                 region=self.marker(1000+i,Marker.CUBE)
                 region.pose.position.x=float((lo[0]+hi[0])/2+self.origin[0])
@@ -260,7 +266,7 @@ class RvizSelection:
                 region.scale.x=float(hi[0]-lo[0]);region.scale.y=float(hi[1]-lo[1]);region.scale.z=.008
                 region.color.g=.8;region.color.b=.25;region.color.a=.25
                 markers.append(region)
-        else:
+        elif self.region_markers is None:
             region=self.marker(1,Marker.CUBE_LIST)
             cell=float(certificate.get('grid_step_xy_m',.05))
             region.scale.x=region.scale.y=cell*.9;region.scale.z=.008
@@ -269,6 +275,7 @@ class RvizSelection:
                 p=Point();p.x=float((lo[0]+hi[0])/2+self.origin[0]);p.y=float((lo[1]+hi[1])/2+self.origin[1]);p.z=0.
                 region.points.append(p)
             markers.append(region)
+        if self.region_markers is None:self.region_markers=tuple(markers)
         # DELETEALL only in this marker namespace/topic avoids leftover queue labels.
         clear=self.marker(0,Marker.SPHERE);clear.action=Marker.DELETEALL
         markers.insert(0,clear)
@@ -285,6 +292,10 @@ class RvizSelection:
             label.scale.z=.14;label.color.r=label.color.g=label.color.b=label.color.a=1.
             label.text=str(i+1);markers.append(label)
         self.pub.publish(MarkerArray(markers=markers))
+        # Markers have unlimited lifetime in a fixed frame, and the publisher
+        # is transient-local. Rebuilding hundreds of unchanged region markers
+        # every second blocks the sole flight receiver and causes GC churn.
+        self.display_signature=signature
 
     def wait(self, timeout_s):
         node=self.node;deadline=time.monotonic()+timeout_s if timeout_s else float('inf')
@@ -293,7 +304,7 @@ class RvizSelection:
         node.event('rviz_goal_wait', timeout_s=timeout_s, cruise_height_m=self.height_m,
             goal_topic='/astra/ui/goal', command_topic='/astra/ui/command')
         while rclpy.ok() and time.monotonic()<deadline:
-            rclpy.spin_once(node,timeout_sec=.01)
+            node.receive_callbacks(timeout_sec=.01)
             if self.stop:raise RuntimeError('Operator cancelled RViz mission')
             reason=node.fault() or node.initial_alignment_fault() or self.battery_fault()
             if reason or node.status.arming_state==VehicleStatus.ARMING_STATE_ARMED:

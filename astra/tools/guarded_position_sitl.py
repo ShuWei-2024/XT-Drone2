@@ -22,6 +22,13 @@ from px4_settled_hold_flight import SettledFlight
 
 
 class GuardedPositionTest(SettledFlight):
+    def receive_callbacks(self, timeout_sec=.005):
+        receiver = getattr(self, 'mission_receiver', None)
+        if receiver is None:
+            rclpy.spin_once(self, timeout_sec=timeout_sec)
+        else:
+            receiver.receive()
+
     def __init__(self):
         # Gazebo transport callbacks can run while the parent constructor is
         # subscribing. Initialize their state before that thread can call us.
@@ -203,7 +210,7 @@ class GuardedPositionTest(SettledFlight):
         next_request = 0.
         entered = False
         while rclpy.ok() and time.monotonic() < deadline:
-            rclpy.spin_once(self,timeout_sec=.005)
+            self.receive_callbacks(timeout_sec=.005)
             if self.status.arming_state != VehicleStatus.ARMING_STATE_ARMED:
                 self.event('native_rtl_disarmed', truth_body=self.truth_body)
                 return True
@@ -251,7 +258,7 @@ class GuardedPositionTest(SettledFlight):
         self.event('ground_height_alignment_start', calibration_s=4., validation_s=4., residual_limit_m=.15)
         deadline = time.monotonic()+25.
         while rclpy.ok() and time.monotonic()<deadline:
-            rclpy.spin_once(self,timeout_sec=.005)
+            self.receive_callbacks(timeout_sec=.005)
             if self.fault():
                 if alignment.offset_m is not None:
                     raise RuntimeError('health lost after height offset freeze: '+self.fault())
@@ -369,6 +376,19 @@ class GuardedPositionTest(SettledFlight):
         audit = getattr(self, 'safety_timing_audit', None)
         with audit.span('supervisor:safety_check') if audit else nullcontext():
             reason = self.fault()
+        receiver = getattr(self, 'mission_receiver', None)
+        if receiver is not None and reason in (
+                'FAST-LIVO2 receipt age exceeds 250 ms',
+                'FAST-LIVO2 measurement age outside 0..250 ms',
+                'ground-aligned height has no measurement pair within 20 ms'):
+            self.queued_state_rechecks = getattr(self, 'queued_state_rechecks', 0) + 1
+            # Another node can consume its copy of odom before the supervisor
+            # in the bounded batch. Drain once without waiting, then require
+            # every gate to pass on actual received measurements before output.
+            receiver.reconcile()
+            reason = self.fault()
+            if not reason:
+                self.queued_state_recoveries = getattr(self, 'queued_state_recoveries', 0) + 1
         if reason:
             raise RuntimeError(reason)
 
@@ -407,7 +427,7 @@ class GuardedPositionTest(SettledFlight):
         initial_truth = None
         next_send = 0.
         while rclpy.ok() and time.monotonic() < deadline:
-            rclpy.spin_once(self, timeout_sec=.005)
+            self.receive_callbacks(timeout_sec=.005)
             self.check_safe()
             now = time.monotonic()
             metrics = self.gate_metrics(target)
@@ -467,10 +487,8 @@ class GuardedPositionTest(SettledFlight):
         begin = time.monotonic()
         next_send = begin
         while rclpy.ok() and time.monotonic() - begin < seconds:
-            rclpy.spin_once(self, timeout_sec=.005)
-            reason = self.fault()
-            if reason:
-                raise RuntimeError(reason)
+            self.receive_callbacks(timeout_sec=.005)
+            self.check_safe()
             now = time.monotonic()
             if now >= next_send:
                 fraction = min(1., (now - begin) / seconds)
@@ -491,7 +509,7 @@ class GuardedPositionTest(SettledFlight):
         end = time.monotonic() + 1.
         next_send = 0.
         while rclpy.ok() and time.monotonic() < end:
-            rclpy.spin_once(self, timeout_sec=.005)
+            self.receive_callbacks(timeout_sec=.005)
             scan_fault = self.mesh_fault()
             if scan_fault:
                 self.event('recovery_mesh_fault', reason=scan_fault, mesh_clearance_m=self.mesh_clearance_m)
@@ -511,10 +529,8 @@ class GuardedPositionTest(SettledFlight):
         good_since = None
         next_send = 0.
         while rclpy.ok() and time.monotonic() < deadline:
-            rclpy.spin_once(self, timeout_sec=.005)
-            reason = self.fault()
-            if reason:
-                raise RuntimeError(reason)
+            self.receive_callbacks(timeout_sec=.005)
+            self.check_safe()
             now = time.monotonic()
             if now >= next_send:
                 self.send(target)
@@ -562,7 +578,7 @@ class GuardedPositionTest(SettledFlight):
             if time.monotonic() >= next_request:
                 self.command(VehicleCommand.VEHICLE_CMD_NAV_LAND)
                 next_request = time.monotonic() + .5
-            rclpy.spin_once(self, timeout_sec=.02)
+            self.receive_callbacks(timeout_sec=.02)
             if (self.mesh_guard is not None or self.static_obstacles) and time.monotonic() >= next_scan_sample:
                 scan_fault = self.mesh_fault() or self.static_obstacle_fault()
                 self.event('landing_mesh_sample', reason=scan_fault,

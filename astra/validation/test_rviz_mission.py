@@ -78,7 +78,7 @@ def ground_wait_double(monkeypatch, action_at, cancel=False):
             else:s.mission.command('start',{})
     monkeypatch.setattr(mod.time,'monotonic',lambda:now[0])
     monkeypatch.setattr(mod.rclpy,'ok',lambda:True)
-    monkeypatch.setattr(mod.rclpy,'spin_once',spin)
+    s.node.receive_callbacks=spin
     return s,now
 
 

@@ -130,6 +130,7 @@ def test_native_rtl_hands_off_without_offboard_setpoints(monkeypatch):
         if ticks[0]==2:n.status.nav_state=S.NAVIGATION_STATE_AUTO_RTL
         if ticks[0]==3:n.status.arming_state=S.ARMING_STATE_DISARMED
     monkeypatch.setattr(mod.rclpy,'spin_once',spin);monkeypatch.setattr(mod.rclpy,'ok',lambda:True)
+    n.receive_callbacks=lambda **kw:mod.GuardedPositionTest.receive_callbacks(n,**kw)
     assert mod.GuardedPositionTest.native_rtl(n)
     assert commands==[(C.VEHICLE_CMD_NAV_RETURN_TO_LAUNCH,)]
     assert 'native_rtl_entered' in events and 'native_rtl_disarmed' in events
@@ -160,5 +161,6 @@ def test_operator_land_at_certified_site_does_not_force_return(tmp_path,monkeypa
          mesh_guard_xyz=[0,0,1.7],mesh_clearance_m=2.,obstacle_clearance_m=None)
     monkeypatch.setattr(mod.rclpy,'ok',lambda:True)
     monkeypatch.setattr(mod.rclpy,'spin_once',lambda *a,**k:setattr(n.status,'arming_state',S.ARMING_STATE_DISARMED))
+    n.receive_callbacks=lambda **kw:mod.GuardedPositionTest.receive_callbacks(n,**kw)
     assert mod.GuardedPositionTest.land(n)
     assert commands==[(C.VEHICLE_CMD_NAV_LAND,)]
