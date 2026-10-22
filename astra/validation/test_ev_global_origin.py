@@ -6,7 +6,8 @@ from types import SimpleNamespace as NS
 import pytest
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from initialize_ev_global_origin import origin_candidate, absolute_origin_valid
+from initialize_ev_global_origin import (origin_candidate, absolute_origin_valid,
+    check_origin_displacement, position_stability_window)
 import initialize_ev_global_origin as origin_module
 
 
@@ -29,6 +30,73 @@ def test_local_global_flag_and_zero_altitude_do_not_prove_absolute_origin():
     assert not absolute_origin_valid(local,NS(alt_valid=False))
     assert not absolute_origin_valid(local,None)
     assert absolute_origin_valid(local,NS(alt_valid=True))
+
+
+def test_origin_displacement_failure_retains_exact_three_dimensional_sample():
+    local=NS(x=.02,y=.02,z=.02,timestamp_sample=123_456,
+        xy_reset_counter=6,z_reset_counter=3,heading_reset_counter=1,ref_alt=.2921)
+    report={}
+    with pytest.raises(RuntimeError,match='more than 0.03 m'):
+        check_origin_displacement([0.,0.,0.],local,report)
+    failure=report['local_displacement_failure']
+    assert failure['displacement_m']==pytest.approx(3**.5*.02)
+    assert failure['after_local_ned_m']==[.02,.02,.02]
+    assert failure['timestamp_sample_us']==123_456
+    assert failure['after_resets']==[6,3,1]
+
+
+def test_origin_displacement_at_existing_boundary_still_passes():
+    report={}
+    check_origin_displacement([0.,0.,0.],NS(x=.03,y=0.,z=0.),report)
+    assert not report
+
+
+def test_position_stability_window_accepts_small_reset_free_motion():
+    samples=[(i*100_000, .001*(i%3), -.001*(i%2), .002*(i%2), (1,2,0))
+             for i in range(21)]
+    stable,details=position_stability_window(samples)
+    assert stable
+    assert details['duration_us']==2_000_000
+    assert max(details['axis_excursion_m']) < .01
+
+
+def test_position_stability_window_accepts_sampled_1992ms_coverage_for_2s_window():
+    samples=[(i*8_000,0.,0.,0.,(1,2,0)) for i in range(250)]
+    stable,details=position_stability_window(samples)
+    assert stable
+    assert details['duration_us']==1_992_000
+
+
+def test_position_stability_window_rejects_known_scale_slow_xy_drift():
+    # The failed Baylands origin run drifted 2.8 cm in X during the final
+    # two seconds before the command despite low instantaneous velocity.
+    samples=[(i*100_000, .028*i/20, 0., .001*i/20, (5,2,1))
+             for i in range(21)]
+    stable,details=position_stability_window(samples)
+    assert not stable
+    assert details['axis_excursion_m'][0] == pytest.approx(.028)
+    assert 'excursion' in details['reason']
+
+
+@pytest.mark.parametrize('mutate,reason',[
+    (lambda s: s.__setitem__(15,(s[15][0],*s[15][1:4],(5,3,1))), 'reset'),
+    (lambda s: s.__setitem__(15,(s[14][0],*s[15][1:]),), 'duplicate or backwards'),
+])
+def test_position_stability_window_rejects_reset_bad_timestamps_and_gaps(mutate,reason):
+    samples=[(i*100_000, 0., 0., 0., (1,2,0)) for i in range(33)]
+    mutate(samples)
+    stable,details=position_stability_window(samples)
+    assert not stable
+    assert reason in details['reason']
+
+
+def test_position_stability_window_rejects_large_measurement_gap():
+    times=[i*100_000 for i in range(15)]
+    times += [1_800_000+i*100_000 for i in range(16)]
+    samples=[(t,0.,0.,0.,(1,2,0)) for t in times]
+    stable,details=position_stability_window(samples,min_samples=15)
+    assert not stable
+    assert 'gap exceeds' in details['reason']
 
 
 @pytest.mark.parametrize('index,field,value',[
@@ -64,6 +132,7 @@ def initialization_fixture(monkeypatch, post_error=None, always_pending=False):
         local.z_global=True;local.ref_alt=origin[2];global_position.alt_valid=True
         fake.acks.append({'result':0})
     fake.candidate=candidate;fake.send=send
+    fake.local_position_stable=lambda:(True,dict(reason='',samples=21,duration_us=2_000_000))
     monkeypatch.setattr(origin_module.time,'monotonic',lambda:wall[0])
     def spin(*args,**kwargs):
         wall[0]+=.25

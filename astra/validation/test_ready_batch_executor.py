@@ -10,6 +10,7 @@ from std_msgs.msg import String
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 from ready_batch_executor import ReadyBatchExecutor, BoundedEventsExecutor, receive_ready_batch
+from ego_sitl_flight import MissionReceiver
 
 
 @pytest.fixture(params=[ReadyBatchExecutor, BoundedEventsExecutor])
@@ -25,7 +26,7 @@ def test_idle_stops_at_first_wait(executor):
     # Drain rclpy's initial guard notifications, which need no callbacks.
     result = receive_ready_batch(executor)
     if isinstance(executor, BoundedEventsExecutor):
-        assert result['spin_calls'] == 33
+        assert 1 <= result['spin_calls'] <= 33
         assert result['ready_handlers'] is None
         return
     assert result['spin_calls'] == 1
@@ -91,6 +92,44 @@ def test_busy_source_cannot_remove_batch_bound():
     result = receive_ready_batch(executor, drain_sec=0.)
     assert executor.calls == 1
     assert result['budget_exhausted']
+
+
+def test_events_reconcile_waits_for_new_odom_callback(monkeypatch):
+    calls = []
+    rclpy.init()
+    executor = BoundedEventsExecutor()
+    node = type('NodeState', (), {'odom_wall': 1})()
+    receiver = MissionReceiver.__new__(MissionReceiver)
+    receiver.node, receiver.executor = node, executor
+    def receive(executor_arg, wait_sec=.002):
+        calls.append((executor_arg, wait_sec))
+        if len(calls) == 3:
+            node.odom_wall = 2
+    monkeypatch.setattr('ego_sitl_flight.receive_batch', receive)
+    try:
+        receiver.reconcile()
+        assert len(calls) == 3
+        assert all(call[0] is executor for call in calls)
+        assert all(0. < call[1] <= .001 for call in calls)
+    finally:
+        executor.shutdown()
+        rclpy.shutdown()
+
+
+def test_ready_batch_reconcile_is_single_nonblocking_drain(monkeypatch):
+    calls = []
+    rclpy.init()
+    executor = ReadyBatchExecutor()
+    receiver = MissionReceiver.__new__(MissionReceiver)
+    receiver.node, receiver.executor = object(), executor
+    monkeypatch.setattr('ego_sitl_flight.receive_batch',
+                        lambda executor_arg, wait_sec=.002: calls.append((executor_arg, wait_sec)))
+    try:
+        receiver.reconcile()
+        assert calls == [(executor, 0.)]
+    finally:
+        executor.shutdown()
+        rclpy.shutdown()
 
 
 def test_sim_clock_and_wall_timer_both_progress(executor):

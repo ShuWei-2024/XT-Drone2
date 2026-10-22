@@ -15,6 +15,7 @@ def generate_launch_description():
     ready_timeout = LaunchConfiguration('ready_timeout_sec')
     virtual_ceiling = LaunchConfiguration('virtual_ceiling_m')
     optimization_clearance = LaunchConfiguration('optimization_clearance_m')
+    lock_height = LaunchConfiguration('lock_height')
     return LaunchDescription([
         DeclareLaunchArgument('max_vel', default_value='0.5'),
         DeclareLaunchArgument('max_acc', default_value='0.5'),
@@ -24,6 +25,7 @@ def generate_launch_description():
         DeclareLaunchArgument('virtual_ceiling_m', default_value='2.9'),
         DeclareLaunchArgument('min_goal_distance_m', default_value='0.20'),
         DeclareLaunchArgument('optimization_clearance_m', default_value='0.8'),
+        DeclareLaunchArgument('lock_height', default_value='false'),
         DeclareLaunchArgument('map_size_xy_m', default_value='16.0'),
         DeclareLaunchArgument('require_execution_envelope', default_value='false'),
         Node(
@@ -47,6 +49,7 @@ def generate_launch_description():
                 'fsm/planning_horizen_time': 3.0,
                 'fsm/emergency_time': 1.0,
                 'fsm/max_tracking_error_m': ParameterValue(tracking_error, value_type=float),
+                'fsm/lock_height': ParameterValue(lock_height, value_type=bool),
                 'fsm/ready_timeout_sec': ParameterValue(ready_timeout, value_type=float),
                 'fsm/realworld_experiment': False,
                 'fsm/fail_safe': True,

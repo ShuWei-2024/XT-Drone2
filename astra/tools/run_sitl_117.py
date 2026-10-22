@@ -14,6 +14,7 @@ import time
 import xml.etree.ElementTree as ET
 from sitl_cpu_isolation import cpu_plan, command_for_role
 from outdoor_envelope import outdoor_envelope
+from motion_duration_audit import expand_bounded_route
 
 REPO=Path(__file__).resolve().parents[2]
 PX4=Path(os.environ.get('ASTRA_PX4_DIR', str(Path.home()/'dev/px4/PX4-Autopilot-1.17')))
@@ -27,6 +28,22 @@ def load_route(path, maximum_radius_m=7.):
                     for v in xy) or math.hypot(*xy)>maximum_radius_m for xy in route)):
         raise ValueError(f'Route must contain 1..8 finite XY offsets within {maximum_radius_m:g} m of the frozen origin')
     return route
+
+
+def validate_vio_max_planar_correction(value):
+    """Keep the normal 4 cm guard by default; permit a strict diagnostic gate."""
+    if (not isinstance(value, (int, float)) or isinstance(value, bool) or
+            not math.isfinite(value) or not 0.0 <= value <= 0.5):
+        raise ValueError('VIO planar correction limit must be finite and in [0,0.5] m')
+    return float(value)
+
+
+def validate_img_time_offset(value):
+    """Bound the copied-config image timing experiment to a small diagnostic range."""
+    if (not isinstance(value, (int, float)) or isinstance(value, bool) or
+            not math.isfinite(value) or not -0.05 <= value <= 0.05):
+        raise ValueError('Image time offset must be finite and in [-0.05,0.05] s')
+    return float(value)
 
 
 def is_simulation_command(args):
@@ -72,6 +89,12 @@ def main():
                    help='Isolated position-only FAST-LIVO2 EV experiment; XY/Z fusion, vision height reference')
     p.add_argument('--lio-only-diagnostic',action='store_true',
                    help='Isolated comparison: disable image updates in the copied estimator config')
+    p.add_argument('--vio-max-planar-correction-m',type=float,default=.04,
+                   help='Copied SITL launch only; default retains the 0.04 m VIO guard. '
+                        'For isolation diagnostics, a tiny positive value rejects planar VIO state updates while keeping image processing enabled')
+    p.add_argument('--img-time-offset-s',type=float,default=0.0,
+                   help='Copied SITL diagnostic only; add a bounded image measurement-time offset '
+                        'to the estimator config. Default 0 keeps the normal configuration unchanged')
     p.add_argument('--lio-voxel-size-m',type=float,choices=[.25,.5],default=.5,
                    help='Isolated plane-map resolution comparison; default retains 0.5 m')
     p.add_argument('--plane-quality-diagnostic',action='store_true',
@@ -79,6 +102,8 @@ def main():
     p.add_argument('--capture-scan-inputs',action='store_true',
                    help='Sparse raw cloud and IMU/pose capture for offline sensor geometry audit')
     p.add_argument('--executor-audit',action='store_true',help='Trace flight callbacks and DDS queue timestamps')
+    p.add_argument('--trace-sensor-callbacks',action='store_true',
+                   help='Diagnostic only: capture adapter DDS dispatch, thread and GC timing')
     p.add_argument('--isolate-estimator-cpus',action='store_true',
                    help='Reserve two physical CPU cores for FAST-LIVO2, pin owned simulation processes separately')
     p.add_argument('--endpoint-hold-seconds',type=float,default=3.,
@@ -87,6 +112,10 @@ def main():
                    help='Whole-map obstacle SITL defaults to events; other scenes use ready-batch. Explicit choice overrides the default')
     p.add_argument('--route-json',type=Path,
                    help='Obstacle test goal offsets; up to 8 goals, each bounded to 7 m')
+    p.add_argument('--continuous-motion-seconds',type=float,
+                   help='Test-only measured-movement target, 60..1800 wall seconds; requires certified Baylands return')
+    p.add_argument('--route-repeat-cycles',type=int,default=1,
+                   help='Finite repetition count for a continuous-motion audit; default 1')
     p.add_argument('--rviz-goal',action='store_true',
                    help='Prepared scan: open RViz and mission controls, edit waypoints and explicitly start')
     p.add_argument('--end-action', choices=('land','return_home'), default='land',
@@ -95,8 +124,20 @@ def main():
                    help='Ground editing timeout; 0 waits until explicit Start or close')
     p.add_argument('--stop-map-after-handoff-s',type=float,
                    help='SITL fault regression: stop this run\'s map after planner control handoff')
+    p.add_argument('--stop-map-at-transit-waypoint',action='store_true',
+                   help='Connected-recovery SITL regression: stop owned map after the first transit-only waypoint')
     p.add_argument('--stop-ev-after-handoff-s',type=float,
                    help='SITL fault regression: stop this run\'s EV publisher after planner handoff')
+    for role in ('livo', 'planner', 'px4-position'):
+        p.add_argument(f'--stop-{role}-after-handoff-s',type=float,
+                       help=f'Isolated failure test: stop owned {role} input after EGO handoff, 1..10 s')
+    p.add_argument('--reset-estimator-after-handoff-s',type=float,
+                   help='Isolated SITL: request a real PX4 EKF reset after EGO handoff, 1..10 s')
+    p.add_argument('--reset-estimator-axis',choices=('xy','z','yaw'),default='xy')
+    p.add_argument('--stop-dds-agent-after-handoff-s',type=float,
+                   help='Isolated SITL: sever the complete PX4 DDS transport after handoff, 1..10 s')
+    p.add_argument('--fault-at-waypoint',type=int,
+                   help='Fault tests only: anchor the injection delay to arrival at this zero-based waypoint')
     p.add_argument('--baro-noise-m',type=float,choices=[.1,.3],default=.3,
                    help='Isolated SITL EKF baro sigma: default 0.3 m matches the model\'s '
                         '3 Pa pressure noise (about 0.25 m); 0.1 m retains the old comparison')
@@ -105,7 +146,26 @@ def main():
     p.add_argument('--pressure-noise-pa',type=float,choices=[0.,.05,3.],default=3.,
                    help='Diagnostic noise ablation only; normal simulation retains 3 Pa. '
                         '0 Pa can trigger PX4 stuck-sensor detection; use 0.05 Pa for low-noise diagnosis')
+    p.add_argument('--disable-gps-velocity-fusion', action='store_true',
+                   help='Isolated SITL diagnostic: preserve GNSS horizontal position but disable '
+                        'the EKF 3D GNSS velocity fusion bit; default keeps normal GPS_CTRL=5')
+    p.add_argument('--ekf2-tau-pos', type=float, choices=[.10, .25, .50], default=None,
+                   help='Isolated PX4 output-predictor comparison: override EKF2_TAU_POS in the copied SITL only')
+    p.add_argument('--ekf2-tau-vel', type=float, choices=[.10, .25, .50], default=None,
+                   help='Isolated PX4 output-predictor comparison: override EKF2_TAU_VEL in the copied SITL only')
+    p.add_argument('--vertical-isolation', action='store_true',
+                   help='Small-mode diagnostic: fixed-XY up/down test after climb')
+    p.add_argument('--lock-planner-height', action='store_true',
+                   help='Flat-route diagnostic: keep planner replans at the goal height')
     a=p.parse_args()
+    try:
+        a.vio_max_planar_correction_m=validate_vio_max_planar_correction(
+            a.vio_max_planar_correction_m)
+        a.img_time_offset_s=validate_img_time_offset(a.img_time_offset_s)
+    except ValueError as exc:
+        p.error(str(exc))
+    if a.ekf2_tau_pos is not None and a.ekf2_tau_vel is not None:
+        p.error('Change only one of --ekf2-tau-pos or --ekf2-tau-vel per isolated run')
     if a.external_vision and (a.mode == 'timer' or not a.calibrate_ground_height):
         p.error('EV experiment requires measured ground-height calibration and static/small/obstacle mode')
     shm=os.statvfs('/dev/shm')
@@ -148,6 +208,7 @@ def main():
                 p.error('Converted Replica asset changed: '+asset)
     if a.route_json and a.mode!='obstacle':p.error('Custom routes require obstacle mode')
     outdoor_config=None
+    flight_precheck={}  # Passive static runs do not load flight-route prechecks.
     try:
         if is_outdoor and a.mode=='obstacle':
             import numpy as np
@@ -157,6 +218,23 @@ def main():
         radius=outdoor_config['goal_radius_m'] if outdoor_config else 7.
         route_offsets=load_route(a.route_json,radius) if a.route_json else [[5,3],[0,0]]
     except (OSError,ValueError) as exc:p.error(str(exc))
+    if a.continuous_motion_seconds is None:
+        if a.route_repeat_cycles!=1:
+            p.error('--route-repeat-cycles is restricted to a continuous-motion audit')
+    else:
+        if (not math.isfinite(a.continuous_motion_seconds) or
+                not 60.<=a.continuous_motion_seconds<=1800. or
+                not 2<=a.route_repeat_cycles<=32):
+            p.error('Continuous-motion test requires 60..1800 seconds and 2..32 route cycles')
+        if (a.mode!='obstacle' or not is_outdoor or a.route_json is None or
+                not a.external_vision or not a.calibrate_ground_height or not a.executor_audit or
+                not a.isolate_estimator_cpus or a.rviz_goal or a.end_action!='return_home' or
+                len(route_offsets)<2):
+            p.error('Continuous-motion test requires the prepared Baylands route, EV, ground-height calibration, '
+                    'executor audit, CPU isolation, and planned return; interactive/fault runs are excluded')
+        try:
+            expand_bounded_route(route_offsets,a.route_repeat_cycles,maximum_goals=64)
+        except ValueError as exc:p.error(str(exc))
     if is_scan and a.mode=='obstacle':
         try:
             flight_precheck=json.loads((replica_dir/'flight_precheck.json').read_text())
@@ -201,19 +279,37 @@ def main():
     planner_leg_timeout_s=flight_precheck.get('planner_leg_timeout_s',100.) if is_scan and a.mode=='obstacle' else 100.
     if (type(planner_leg_timeout_s) not in (int,float) or not math.isfinite(planner_leg_timeout_s)
             or not 100.<=planner_leg_timeout_s<=500.):p.error('Prepared planner leg timeout must be in [100,500] seconds')
-    flight_timeout=(max(330.,150.+planner_leg_timeout_s*(len(route_offsets)+(a.end_action=='return_home')))+a.endpoint_hold_seconds-3.
+    flight_timeout=(a.continuous_motion_seconds+2.*planner_leg_timeout_s+330.
+                    if a.continuous_motion_seconds is not None else
+                    max(330.,150.+planner_leg_timeout_s*(len(route_offsets)+(a.end_action=='return_home')))+a.endpoint_hold_seconds-3.
                     if a.mode=='obstacle' else 330.)
     if a.rviz_goal:flight_timeout=150.+9.*(planner_leg_timeout_s+120.)
-    if a.stop_map_after_handoff_s is not None and (a.mode!='obstacle' or
-            not 1. <= a.stop_map_after_handoff_s <= 10.):
-        p.error('Map-stop regression requires obstacle mode and a delay of 1..10 seconds')
-    if a.stop_ev_after_handoff_s is not None and (a.mode!='obstacle' or not a.external_vision or
-            not 1. <= a.stop_ev_after_handoff_s <= 10.):
-        p.error('EV-stop regression requires EV obstacle mode and a delay of 1..10 seconds')
-    if a.stop_ev_after_handoff_s is not None and a.stop_map_after_handoff_s is not None:
+    fault_delays = dict(map=a.stop_map_after_handoff_s,
+                        external_vision=a.stop_ev_after_handoff_s,
+                        livo=a.stop_livo_after_handoff_s,
+                        planner=a.stop_planner_after_handoff_s,
+                        position_relay=a.stop_px4_position_after_handoff_s,
+                        estimator_reset=a.reset_estimator_after_handoff_s,
+                        dds_agent=a.stop_dds_agent_after_handoff_s)
+    requested_faults = [(role,delay) for role,delay in fault_delays.items() if delay is not None]
+    if len(requested_faults)>1:
         p.error('Inject one process failure at a time')
-    injection_delay=(a.stop_ev_after_handoff_s if a.stop_ev_after_handoff_s is not None
-                     else a.stop_map_after_handoff_s)
+    if requested_faults and (a.mode!='obstacle' or any(
+            not math.isfinite(delay) or not 1.<=delay<=10. for _,delay in requested_faults)):
+        p.error('Process-stop regression requires obstacle mode and a finite delay of 1..10 seconds')
+    if a.stop_ev_after_handoff_s is not None and not a.external_vision:
+        p.error('EV-stop regression requires EV enabled')
+    injected_role, injection_delay = requested_faults[0] if requested_faults else (None,None)
+    if a.fault_at_waypoint is not None:
+        if (not requested_faults or a.rviz_goal or a.stop_map_at_transit_waypoint or
+                not 0 <= a.fault_at_waypoint < len(route_offsets)):
+            p.error('Fault waypoint requires one fault, a fixed route and a valid zero-based goal index')
+    if a.stop_map_at_transit_waypoint:
+        if (injection_delay is not None or a.mode != 'obstacle' or not is_outdoor or
+                flight_precheck.get('recovery_policy') != 'connected_route_to_certified_landing'):
+            p.error('Transit-waypoint injection requires connected outdoor obstacle mode and no other injection')
+        injection_delay = 0.
+        injected_role = 'map'
     if not re.fullmatch('[a-zA-Z0-9_-]{1,64}',a.name):p.error('Use a new short run name')
     if os.environ.get('ASTRA_117_ENV_LOADED')!='1':p.error('Use astra/run_117.bash to load the isolated ROS environment')
     if subprocess.check_output(['git','rev-parse','HEAD'],cwd=PX4,text=True).strip() != json.loads((REPO/'astra/dependencies.lock.json').read_text())['px4']['commit']:
@@ -254,10 +350,13 @@ def main():
     (snapshot/'manifest.json').write_text(json.dumps(dict(captured='before simulator start',
         sha256=execution_hashes),indent=2)+'\n')
     shutil.copy2(REPO/'astra/config/estimator_self_filtered.yaml', out/'estimator_config.yaml')
-    if a.lio_only_diagnostic or a.lio_voxel_size_m != .5 or a.plane_quality_diagnostic:
+    if (a.lio_only_diagnostic or a.lio_voxel_size_m != .5 or
+            a.plane_quality_diagnostic or a.img_time_offset_s != 0.0):
         import yaml
         config=yaml.safe_load((out/'estimator_config.yaml').read_text())
         if a.lio_only_diagnostic:config['/**']['ros__parameters']['common']['img_en']=0
+        if a.img_time_offset_s != 0.0:
+            config['/**']['ros__parameters']['time_offset']['img_time_offset'] = a.img_time_offset_s
         config['/**']['ros__parameters']['lio']['voxel_size']=a.lio_voxel_size_m
         if a.plane_quality_diagnostic:
             config['/**']['ros__parameters']['lio']['max_plane_eigen_ratio']=.1
@@ -325,6 +424,14 @@ def main():
     overrides={'UXRCE_DDS_SYNCT':0,'EKF2_EV_CTRL':0,'EKF2_HGT_REF':0,'EKF2_GPS_CTRL':5,
                'EKF2_MAG_TYPE':1,'EKF2_BARO_NOISE':a.baro_noise_m,'EKF2_GPS_DELAY':a.gps_delay_ms,
                'EKF2_GND_EFF_DZ':0,'MPC_XY_P':1.2}
+    if a.ekf2_tau_pos is not None:
+        overrides['EKF2_TAU_POS']=a.ekf2_tau_pos
+    if a.ekf2_tau_vel is not None:
+        overrides['EKF2_TAU_VEL']=a.ekf2_tau_vel
+    if a.disable_gps_velocity_fusion:
+        # EKF2_GPS_CTRL bit 0 keeps GNSS horizontal position; bit 2 enables
+        # all three GNSS velocity axes, so this diagnostic disables that bit.
+        overrides['EKF2_GPS_CTRL']=1
     if a.external_vision:
         # Odom already references base_link. Do not apply the LiDAR/IMU lever arm twice.
         overrides.update(EKF2_EV_CTRL=3, EKF2_HGT_REF=3, EKF2_EV_DELAY=0,
@@ -370,10 +477,13 @@ def main():
              'planner_motion_limits':dict(maximum_speed_mps=planner_speed,
                                           maximum_acceleration_mps2=planner_acceleration),
              'lio_only_diagnostic':a.lio_only_diagnostic,
+             'vio_max_planar_correction_m':a.vio_max_planar_correction_m,
+             'img_time_offset_s':a.img_time_offset_s,
              'lio_voxel_size_m':a.lio_voxel_size_m,
              'plane_quality_diagnostic':a.plane_quality_diagnostic,
              'capture_scan_inputs':a.capture_scan_inputs,
              'executor_audit':a.executor_audit,
+             'trace_sensor_callbacks':a.trace_sensor_callbacks,
              'execution_executor':a.execution_executor,
              'endpoint_hold_seconds':a.endpoint_hold_seconds,
              'rviz_goal_selection':a.rviz_goal,
@@ -381,6 +491,8 @@ def main():
              'magnetometer_convention':'Gazebo world ENU / tesla -> body FLU -> PX4 body FRD / gauss',
              'magnetometer_noise_scale_from_official_gauss_model':1.e-4,
              'route_offsets_m':route_offsets if a.mode=='obstacle' else None,
+             'continuous_motion_seconds':a.continuous_motion_seconds,
+             'route_repeat_cycles':a.route_repeat_cycles,
              'flight_timeout_s':flight_timeout,
              'planner_leg_timeout_s':planner_leg_timeout_s,
              'ground_edit_timeout_s':a.rviz_goal_timeout_sec if a.rviz_goal else None,
@@ -388,6 +500,9 @@ def main():
              'diagnostic_noiseless_pressure':a.pressure_noise_pa==0.,
              'diagnostic_reduced_pressure_noise':a.pressure_noise_pa!=3.,
              'sensors_depth_removed':True,'parameter_overrides':overrides,'isolated_rootfs':str(out),'ros_domain':94,'gz_partition':env['GZ_PARTITION']}
+    runtime['deliberate_failure'] = dict(role=injected_role,delay_s=injection_delay) if injected_role else None
+    if runtime['deliberate_failure'] is not None:
+        runtime['deliberate_failure']['waypoint_index'] = a.fault_at_waypoint
     runtime['odom_reference'] = 'base_link; internal LIVO state remains at imu_link'
     runtime['px4_local_position_dds_limit_hz'] = 100
     runtime['px4_binary_sha256'] = hashlib.sha256((PX4/'build/px4_sitl_default/bin/px4').read_bytes()).hexdigest()
@@ -425,10 +540,11 @@ def main():
                 if name in ('agent','simulator','gcs_heartbeat','livo','map','planner','external_vision') and proc.poll() is not None:
                     raise RuntimeError(f'{name} exited; inspect {out}/{name}.log')
             time.sleep(.2)
+    estimator_pidfd=None
     result=1
     failure=''
     try:
-        start('agent',[str(Path.home()/'dev/third_party/Micro-XRCE-DDS-Agent/build/MicroXRCEAgent'),'udp4','-p','8888'])
+        agent_proc=start('agent',[str(Path.home()/'dev/third_party/Micro-XRCE-DDS-Agent/build/MicroXRCEAgent'),'udp4','-p','8888'])
         start('simulator',['ros2','launch','xtd2_launch','astra_sitl.launch.py',f'px4_dir:={PX4}',
              f'work_dir:={out}',f'startup_script:={startup}',f'world_file:={world}',f'model_resource_path:={models}'])
         start('gcs_heartbeat',[str(Path.home()/'dev/px4/venv/bin/python'),str(tools/'sitl_gcs_heartbeat.py')])
@@ -446,10 +562,12 @@ def main():
             result=0 if 'result=PASS' in simulator_log else 1
             pause(2.)
         else:
-            start('livo',['ros2','launch','astra_fast_livo2','fast_livo2.launch.py',
+            livo_proc=start('livo',['ros2','launch','astra_fast_livo2','fast_livo2.launch.py',
                  f'estimator_config:={out}/estimator_config.yaml',
-                 'point_time_mode:=snapshot','max_retained_images:=512','max_planar_correction_m:=0.04',
-                 f'timing_audit_csv:={out}/livo_timing.csv',f'input_audit_csv:={out}/input_audit.csv'])
+                 'point_time_mode:=snapshot','max_retained_images:=512',
+                 f'max_planar_correction_m:={a.vio_max_planar_correction_m:.9g}',
+                 f'timing_audit_csv:={out}/livo_timing.csv',f'input_audit_csv:={out}/input_audit.csv',
+                 f'trace_sensor_callbacks:={str(a.trace_sensor_callbacks).lower()}'])
             map_proc=start('map',['ros2','run','astra_fast_livo2','local_mapping_guard.py','--ros-args',
                  '-p','use_sim_time:=true','-p','self_filter_radius_m:=0.45',
                  '-p',f'radius_m:={runtime["local_map_radius_m"]}',
@@ -461,12 +579,13 @@ def main():
                  '-p',f'column_ceiling_m:={planner_ceiling_m}'])
             if a.external_vision:
                 ev_proc=start('external_vision',[sys.executable,str(tools/'external_vision_sitl.py'), '--output',str(out)])
-            start('planner',['ros2','launch','astra_fast_livo2','ego_planner_guarded.launch.py',
+            planner_proc=start('planner',['ros2','launch','astra_fast_livo2','ego_planner_guarded.launch.py',
                  f'max_vel:={planner_speed}',
                  f'max_acc:={planner_acceleration}',
                  f'require_execution_envelope:={str(is_scan and a.mode=="obstacle").lower()}',
                  f'map_size_xy_m:={outdoor_config["planner_map_size_xy_m"] if outdoor_config else 32.0}' if is_outdoor else 'map_size_xy_m:=16.0',
                  'planning_horizon:=10.0' if is_outdoor else 'planning_horizon:=6.0','max_tracking_error_m:=0.60',f'virtual_ceiling_m:={planner_ceiling_m}',
+                 f'lock_height:={str(a.lock_planner_height).lower()}',
                  f'optimization_clearance_m:={optimization_clearance_m}',
                  'min_goal_distance_m:=0.04' if is_scan else 'min_goal_distance_m:=0.20'])
             pause(12.)
@@ -527,9 +646,15 @@ def main():
                                        '; no arming commands sent; see '+str(out/'preflight_health.json'))
                 print('Preflight health passed; opening guarded mission selection',flush=True)
                 pause(2.)
+                # The flight driver is a dedicated child process.  This
+                # opt-in permits its GC barrier to manage the process-wide
+                # freeze set without changing the parent or other ROS nodes.
+                env['ASTRA_FLIGHT_PROCESS_ISOLATED'] = '1'
                 if a.mode=='small':
                     cmd=[sys.executable,str(tools/'guarded_position_sitl.py'),'--output-prefix',str(out/'motion'),
                          '--segment-distance-m','.4','--open-motion-audit']
+                    if a.vertical_isolation:
+                        cmd.append('--vertical-only')
                 else:
                     route=out/'route.json';route.write_text(json.dumps(route_offsets)+'\n')
                     env['ASTRA_TEST_BOUNDS_RADIUS_M']=str(outdoor_config['supervisor_radius_m']) if is_outdoor else '9.0'
@@ -544,8 +669,27 @@ def main():
                                                '--planner-leg-timeout-s',str(planner_leg_timeout_s),
                                                '--endpoint-hold-seconds',str(a.endpoint_hold_seconds),
                                                '--end-action',a.end_action])
+                if a.continuous_motion_seconds is not None:
+                    cmd.extend(['--continuous-motion-seconds',str(a.continuous_motion_seconds),
+                                '--route-repeat-cycles',str(a.route_repeat_cycles)])
                 if a.rviz_goal:cmd.extend(['--rviz-mission','--rviz-goal-timeout-sec',str(a.rviz_goal_timeout_sec)])
                 if is_outdoor:cmd.extend(['--maximum-route-radius-m',str(outdoor_config['goal_radius_m'])])
+                position_relay_proc = None
+                if injected_role == 'position_relay':
+                    position_relay_proc=start('position_relay',[sys.executable,
+                        str(tools/'sitl_position_relay.py'),'--output',str(out/'position_relay.json')])
+                    cmd.append('--sitl-position-relay')
+                if injected_role == 'estimator_reset':
+                    reset_proc=start('reset_injector',[sys.executable,
+                        str(tools/'sitl_estimator_reset.py'),'--axis',a.reset_estimator_axis,
+                        '--output',str(out/'fault_injection.json'),
+                        '--trigger-file',str(out/'reset_injector_trigger'),
+                        '--ready-file',str(out/'reset_injector_ready')])
+                    ready_deadline=time.monotonic()+10.
+                    while not (out/'reset_injector_ready').exists():
+                        if reset_proc.poll() is not None or time.monotonic()>ready_deadline:
+                            raise RuntimeError('Reset injector failed to prepare on ground; no arming commands sent')
+                        pause(.1)
                 driver=start('motion',cmd)
                 if a.rviz_goal and injection_delay is None:
                     started_file=out/'motion_mission_started'
@@ -563,42 +707,89 @@ def main():
                     result=driver.returncode
                 elif injection_delay is None:
                     result=driver.wait(timeout=flight_timeout)
+                elif injected_role in ('estimator_reset','dds_agent'):
+                    from sitl_extended_faults import wait_and_inject
+                    wait_and_inject(driver,agent_proc,out,env,tools,injected_role,
+                                    a.reset_estimator_axis,injection_delay,flight_timeout,
+                                    waypoint=a.fault_at_waypoint)
+                    if injected_role == 'dds_agent' and (out/'fault_injection.json').exists():
+                        from sitl_extended_faults import wait_onboard_disarm
+                        wait_onboard_disarm(PX4/'build/px4_sitl_default/bin/px4-listener', out, env)
+                    # Verdict requires the closed onboard ULog after cleanup.
+                    result=1
                 else:
-                    stopped_proc=ev_proc if a.stop_ev_after_handoff_s is not None else map_proc
-                    stopped_name='external_vision' if a.stop_ev_after_handoff_s is not None else 'map'
-                    expected_reason=('External Vision fusion unavailable or heartbeat stale'
-                        if a.stop_ev_after_handoff_s is not None else 'local map not ready or heartbeat stale')
-                    deadline=time.monotonic()+flight_timeout;handoff=None;injection=None
+                    targets=dict(map=map_proc,livo=livo_proc,planner=planner_proc)
+                    if a.external_vision:targets['external_vision']=ev_proc
+                    if position_relay_proc is not None:targets['position_relay']=position_relay_proc
+                    stopped_name=injected_role
+                    stopped_proc=targets[stopped_name]
+                    deadline=time.monotonic()+flight_timeout;handoff=None;injection=None;transit_waypoint=None
                     while driver.poll() is None:
                         if time.monotonic()>deadline:
                             raise RuntimeError(f'Flight regression exceeded {flight_timeout} seconds')
-                        if handoff is None:
+                        if a.fault_at_waypoint is not None and handoff is None:
+                            from sitl_extended_faults import fault_anchor
+                            handoff = fault_anchor(out/'motion.log', a.fault_at_waypoint)
+                        if ((a.fault_at_waypoint is None and handoff is None) or
+                                (a.stop_map_at_transit_waypoint and transit_waypoint is None)):
                             for line in (out/'motion.log').read_text().splitlines():
-                                if line.startswith('{') and 'ego_control_handoff' in line:
+                                if line.startswith('{') and ('ego_control_handoff' in line or
+                                        (a.stop_map_at_transit_waypoint and 'ego_waypoint_reached' in line)):
                                     candidate=json.loads(line)
                                     if candidate.get('event')=='ego_control_handoff':handoff=candidate
+                                    if candidate.get('event')=='ego_waypoint_reached':
+                                        from flight_recovery import landing_allowed
+                                        from scan_mesh_guard import MeshGuard
+                                        if not landing_allowed(MeshGuard(out/'mesh_guard.npz'),candidate['truth'][:2]):
+                                            transit_waypoint=candidate
                         if (handoff and injection is None and
+                                (not a.stop_map_at_transit_waypoint or transit_waypoint is not None) and
                                 time.monotonic_ns()-handoff['wall_ns']>=injection_delay*1e9):
-                            injection={'kind':f'stop_owned_{stopped_name}_process_group','signal':'SIGINT',
-                                       f'{stopped_name}_process_group':stopped_proc.pid,'handoff':handoff,
-                                       'command_wall_ns':time.monotonic_ns()}
-                            os.killpg(stopped_proc.pid,signal.SIGINT)
+                            try:
+                                if stopped_name == 'livo':
+                                    from sitl_fault_regression import open_owned_child_pidfd
+                                    target,estimator_pidfd=open_owned_child_pidfd(stopped_proc.pid,
+                                        REPO/'install_117/astra_fast_livo2_core/lib/astra_fast_livo2_core/fastlivo_mapping')
+                                    injection_kind='stop_owned_livo_estimator_only'
+                                else:
+                                    target=stopped_proc.pid
+                                    injection_kind=f'stop_owned_{stopped_name}_process_group'
+                                command_wall_ns=time.monotonic_ns()
+                                if stopped_name == 'livo':
+                                    signal.pidfd_send_signal(estimator_pidfd,signal.SIGINT)
+                                else:
+                                    os.killpg(stopped_proc.pid,signal.SIGINT)
+                                injection={'kind':injection_kind,'signal':'SIGINT',
+                                           f'{stopped_name}_process_group':stopped_proc.pid,
+                                           'handoff':handoff,'command_wall_ns':command_wall_ns}
+                                if stopped_name == 'livo':
+                                    injection.update(estimator_pid=target,
+                                        scope='Estimator only; preserve launch, adapter and ROS clock')
+                                if transit_waypoint is not None:injection['transit_waypoint']=transit_waypoint
+                            except (OSError,ProcessLookupError,ValueError) as exc:
+                                # Do not tear down an active simulator or flight
+                                # merely because a test injector cannot identify
+                                # its target. Let the supervised task finish and
+                                # report the missing injection as a failed test.
+                                injection={}
+                                (out/'fault_injection_attempt.json').write_text(json.dumps(
+                                    dict(injected=False,role=stopped_name,error=str(exc),
+                                         handoff=handoff),indent=2)+'\n')
                             (out/'fault_injection.json').write_text(json.dumps(injection,indent=2)+'\n')
                         time.sleep(.05)
                     driver_result=driver.wait();motion=json.loads((out/'motion_events.json').read_text())
-                    abort=next((e for e in motion['events'] if e['event']=='test_aborted'),None)
-                    hold=next((e for e in motion['events'] if e['event']=='hold_target_frozen'),None)
-                    expected_fault=(injection is not None and driver_result==1 and
-                        stopped_proc.poll()==0 and abort is not None and hold is not None and
-                        abort['wall_ns']>=injection['command_wall_ns'] and
-                        0 <= hold['wall_ns']-injection['command_wall_ns'] <= 500_000_000 and
-                        motion.get('disarmed') and not motion.get('flight_complete') and
-                        expected_reason in motion.get('fault',''))
-                    regression={'expected_fault_observed':bool(expected_fault),'driver_exit_code':driver_result,
-                                'map_exit_code':map_proc.poll(),'fault':motion.get('fault'),
-                                'stopped_process':stopped_name,'stopped_process_exit_code':stopped_proc.poll(),
-                                'hold_after_injection_ms':(hold['wall_ns']-injection['command_wall_ns'])/1e6 if hold and injection else None,
-                                'disarmed':motion.get('disarmed')}
+                    from sitl_fault_regression import evaluate_fault, pidfd_exited
+                    regression=evaluate_fault(stopped_name,injection,driver_result,stopped_proc.poll(),motion,
+                        observed_child_exit=estimator_pidfd is not None and pidfd_exited(estimator_pidfd))
+                    if stopped_name == 'livo':
+                        regression['source_launch_still_running']=stopped_proc.poll() is None
+                        regression['expected_fault_observed'] &= regression['source_launch_still_running']
+                    regression['map_exit_code']=map_proc.poll()
+                    expected_fault=regression['expected_fault_observed']
+                    if a.stop_map_at_transit_waypoint:
+                        expected_fault = expected_fault and any(
+                            e['event']=='connected_recovery_arrived' for e in motion['events'])
+                        regression['expected_fault_observed']=bool(expected_fault)
                     (out/'fault_regression.json').write_text(json.dumps(regression,indent=2)+'\n')
                     result=0 if expected_fault else 1
                 (out/'controller_finished').touch()
@@ -631,6 +822,7 @@ def main():
             signal_owned_group(proc,signal.SIGKILL)
             proc.wait(timeout=5.)
         for stream in streams:stream.close()
+        if estimator_pidfd is not None:os.close(estimator_pidfd)
         unchanged={path:hashlib.sha256(Path(path).read_bytes()).hexdigest()==h for path,h in before.items()}
         execution_unchanged=all(hashlib.sha256((REPO/path).read_bytes()).hexdigest()==h
                                 for path,h in execution_hashes.items())
@@ -639,6 +831,19 @@ def main():
             'mode':a.mode,'exit_code':result,'failure':failure,
             'original_baseline_preserved':all(unchanged.values()),
             'execution_sources_unchanged':execution_unchanged},indent=2)+'\n')
+    if injected_role in ('estimator_reset','dds_agent'):
+        try:
+            from sitl_extended_faults import audit_run
+            verdict=audit_run(out,injected_role)
+            result=0 if (verdict['expected_fault_observed'] and
+                         all(unchanged.values()) and execution_unchanged) else 1
+        except Exception as exc:
+            result=1
+            (out/'extended_fault_audit_error.txt').write_text(str(exc)+'\n')
+        summary=json.loads((out/'run_summary.json').read_text())
+        summary['exit_code']=result
+        summary['verdict_scope']='Deliberate failure; onboard recovery audit, not normal mission completion'
+        (out/'run_summary.json').write_text(json.dumps(summary,indent=2)+'\n')
     print(f'Run saved: {out}; result={result}',flush=True)
     raise SystemExit(result)
 

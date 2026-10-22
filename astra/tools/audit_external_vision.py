@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 import numpy as np
 from audit_height_dynamics_117 import active_isolated_simulators
+from ev_height_datum_audit import fixed_origin_height_diagnostic
 
 
 def stats(values):
@@ -55,6 +56,7 @@ def audit(directory):
         sent_measurements_not_restamped=bool(sent) and all(0 <= float(r['measurement_age_ms']) <= 250 for r in sent),
         source_jump_not_detected=not bridge['source_fault'])
     agreement = {}
+    datum_diagnostic = dict(available=False, reason='No paired EV/PX4 measurements')
     if (directory/'frame_samples.csv').exists() and (directory/'external_vision_alignment.json').exists():
         alignment=json.loads((directory/'external_vision_alignment.json').read_text())
         rows=list(csv.DictReader((directory/'frame_samples.csv').open()))
@@ -90,6 +92,15 @@ def audit(directory):
                 xy_m=stats(np.linalg.norm(errors[view,:2],axis=1)),
                 z_m=stats(np.abs(errors[view,2])),
                 yaw_disagreement_deg=stats(np.array(yaw_errors)[view]))
+            local = data.get('vehicle_local_position', {})
+            origin_path = directory/'global_origin.json'
+            if origin_path.exists() and 'ref_alt' in local:
+                local_armed = in_flight(local['timestamp'])
+                datum_diagnostic = fixed_origin_height_diagnostic(
+                    errors[view, 2], json.loads(origin_path.read_text()),
+                    local['ref_alt'][local_armed],
+                    float(ts[armed][0]) if armed.any() else None,
+                    runtime.get('parameter_overrides', {}).get('EKF2_HGT_REF'))
     height_bias = {}
     bias_data = data.get('estimator_ev_pos_bias')
     if bias_data is not None and 'bias[2]' in bias_data:
@@ -108,6 +119,7 @@ def audit(directory):
     result = dict(checks=checks, fusion_confirmed=all(checks.values()), aid_sources=aid,
         ev_height_bias=height_bias,
         ground_frozen_livo_px4_agreement=agreement,
+        height_datum_diagnostic=datum_diagnostic,
         published_measurements=len(sent), received_measurements=len(recorded),
         sent_stamps_present_in_rate_limited_ulog=stamp_match,
         measurement_age_ms=stats([float(r['measurement_age_ms']) for r in sent]),

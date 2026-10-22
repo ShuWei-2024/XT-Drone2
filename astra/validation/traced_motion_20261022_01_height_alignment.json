@@ -1,0 +1,230 @@
+{
+  "run": "traced_motion_20261022_01",
+  "baseline_sim_time_s": [
+    56.0,
+    59.5
+  ],
+  "pairing_tolerance_ms": 20.0,
+  "note": "Nearest measurement-time pairs; PX4 NED Z is negated. Ground offsets are frozen from the stated preflight interval. This is descriptive and does not independently validate PX4, which fuses FAST-LIVO2 EV height.",
+  "fast_livo2": {
+    "input_samples": 866,
+    "paired_samples": 866,
+    "paired_fraction": 1.0,
+    "measurement_pair_dt_p95_ms": 8.0,
+    "measurement_pair_dt_max_ms": 12.0,
+    "frozen_ground_bias_m": -0.3466433079502719,
+    "whole_run_error_m": {
+      "samples": 866,
+      "median_m": -0.010234831238915554,
+      "minimum_m": -0.1273454672689741,
+      "maximum_m": 0.053275898781482645,
+      "absolute_p95_m": 0.10309821263103974
+    }
+  },
+  "px4": {
+    "input_samples": 8513,
+    "paired_samples": 8513,
+    "paired_fraction": 1.0,
+    "measurement_pair_dt_p95_ms": 8.0,
+    "measurement_pair_dt_max_ms": 12.0,
+    "frozen_ground_bias_m": 0.09843656387896513,
+    "whole_run_error_m": {
+      "samples": 8513,
+      "median_m": -0.02013641595840454,
+      "minimum_m": -0.12181887851423653,
+      "maximum_m": 0.2630058228969574,
+      "absolute_p95_m": 0.10949805248525107
+    }
+  },
+  "phases": [
+    {
+      "name": "prestream",
+      "start_sim_s": 61.02,
+      "end_sim_s": 63.004,
+      "estimators": {
+        "fast_livo2": {
+          "samples": 21,
+          "median_m": -2.3712061164582465e-07,
+          "minimum_m": -2.9225088119533282e-06,
+          "maximum_m": 6.382632379842157e-06,
+          "absolute_p95_m": 5.687252711827906e-06
+        },
+        "px4": {
+          "samples": 199,
+          "median_m": 0.0021871328353881836,
+          "minimum_m": -0.010171979665756226,
+          "maximum_m": 0.004375457763671875,
+          "absolute_p95_m": 0.008397752046585081
+        }
+      }
+    },
+    {
+      "name": "climb",
+      "start_sim_s": 63.016,
+      "end_sim_s": 78.848,
+      "estimators": {
+        "fast_livo2": {
+          "samples": 158,
+          "median_m": -0.0023146609163067766,
+          "minimum_m": -0.1273454672689741,
+          "maximum_m": 0.0025574317522906176,
+          "absolute_p95_m": 0.10661273151922096
+        },
+        "px4": {
+          "samples": 1583,
+          "median_m": -0.004340142011642456,
+          "minimum_m": -0.11899259698360684,
+          "maximum_m": 0.007008463144302368,
+          "absolute_p95_m": 0.1127634191703999
+        }
+      }
+    },
+    {
+      "name": "settle",
+      "start_sim_s": 80.216,
+      "end_sim_s": 85.184,
+      "estimators": {
+        "fast_livo2": {
+          "samples": 50,
+          "median_m": -0.09806754392670591,
+          "minimum_m": -0.10322483603738275,
+          "maximum_m": -0.09551100733102713,
+          "absolute_p95_m": 0.1025695101601456
+        },
+        "px4": {
+          "samples": 497,
+          "median_m": -0.09388216659155221,
+          "minimum_m": -0.10400665630758951,
+          "maximum_m": -0.08672914570440801,
+          "absolute_p95_m": 0.10195375165958125
+        }
+      }
+    },
+    {
+      "name": "north",
+      "start_sim_s": 85.184,
+      "end_sim_s": 90.104,
+      "estimators": {
+        "fast_livo2": {
+          "samples": 49,
+          "median_m": -0.09854851825185496,
+          "minimum_m": -0.1106319446733307,
+          "maximum_m": -0.08734078678122315,
+          "absolute_p95_m": 0.10591086200031723
+        },
+        "px4": {
+          "samples": 492,
+          "median_m": -0.09154476445880197,
+          "minimum_m": -0.10245322983261115,
+          "maximum_m": -0.06657664028141194,
+          "absolute_p95_m": 0.10162291727599657
+        }
+      }
+    },
+    {
+      "name": "hold_north",
+      "start_sim_s": 90.104,
+      "end_sim_s": 95.104,
+      "estimators": {
+        "fast_livo2": {
+          "samples": 50,
+          "median_m": -0.0960002653989882,
+          "minimum_m": -0.10167454651302366,
+          "maximum_m": -0.08904997278624982,
+          "absolute_p95_m": 0.10023858587309277
+        },
+        "px4": {
+          "samples": 500,
+          "median_m": -0.09372735617625935,
+          "minimum_m": -0.09934594242504854,
+          "maximum_m": -0.06263080213322589,
+          "absolute_p95_m": 0.09851580729079591
+        }
+      }
+    },
+    {
+      "name": "east",
+      "start_sim_s": 95.104,
+      "end_sim_s": 100.084,
+      "estimators": {
+        "fast_livo2": {
+          "samples": 50,
+          "median_m": -0.09639931861295936,
+          "minimum_m": -0.11177101727416361,
+          "maximum_m": -0.08917110605204581,
+          "absolute_p95_m": 0.10988332567880141
+        },
+        "px4": {
+          "samples": 500,
+          "median_m": -0.09526213839360662,
+          "minimum_m": -0.10152055604501994,
+          "maximum_m": -0.06064010523997196,
+          "absolute_p95_m": 0.10043619282186621
+        }
+      }
+    },
+    {
+      "name": "hold_east",
+      "start_sim_s": 100.084,
+      "end_sim_s": 105.076,
+      "estimators": {
+        "fast_livo2": {
+          "samples": 50,
+          "median_m": -0.09445744161049618,
+          "minimum_m": -0.10159202345590346,
+          "maximum_m": -0.08141531213357378,
+          "absolute_p95_m": 0.09817180836020309
+        },
+        "px4": {
+          "samples": 500,
+          "median_m": -0.09057340409614509,
+          "minimum_m": -0.09534329799276961,
+          "maximum_m": -0.0618433598924025,
+          "absolute_p95_m": 0.09454561616665536
+        }
+      }
+    },
+    {
+      "name": "return",
+      "start_sim_s": 105.076,
+      "end_sim_s": 109.936,
+      "estimators": {
+        "fast_livo2": {
+          "samples": 49,
+          "median_m": -0.09613784160375849,
+          "minimum_m": -0.10987292089903156,
+          "maximum_m": -0.07622726749850972,
+          "absolute_p95_m": 0.10305935825336687
+        },
+        "px4": {
+          "samples": 486,
+          "median_m": -0.07803908747539542,
+          "minimum_m": -0.11313510252907374,
+          "maximum_m": -0.06579532946781494,
+          "absolute_p95_m": 0.11243890651309682
+        }
+      }
+    },
+    {
+      "name": "hold_final",
+      "start_sim_s": 109.936,
+      "end_sim_s": 114.86,
+      "estimators": {
+        "fast_livo2": {
+          "samples": 49,
+          "median_m": -0.09711010944613407,
+          "minimum_m": -0.10765963169175896,
+          "maximum_m": -0.08161779450806195,
+          "absolute_p95_m": 0.10695261262686248
+        },
+        "px4": {
+          "samples": 492,
+          "median_m": -0.061054763370476856,
+          "minimum_m": -0.11044305657006323,
+          "maximum_m": -0.04521458072198489,
+          "absolute_p95_m": 0.10694940175416578
+        }
+      }
+    }
+  ]
+}

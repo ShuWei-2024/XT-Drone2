@@ -15,6 +15,7 @@ import traceback
 
 import numpy as np
 import rclpy
+from rclpy.clock import Clock, ClockType
 from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 from rclpy.node import Node
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
@@ -25,6 +26,7 @@ from sensor_msgs.msg import CameraInfo, Image, Imu, PointCloud2, PointField
 from sensor_msgs_py import point_cloud2
 
 from astra_fast_livo2_msgs.msg import LivoxCustomMsg, LivoxCustomPoint
+from input_callback_audit import InputCallbackAudit, discard_expired_lidar_head
 
 
 def stamp_ns(msg):
@@ -63,6 +65,7 @@ class FastLivo2Adapter(Node):
         self.declare_parameter('max_lidar_imu_delta_sec', 0.02)
         self.declare_parameter('diagnostic_period_sec', 1.0)
         self.declare_parameter('input_audit_csv', '')
+        self.declare_parameter('trace_sensor_callbacks', False)
         self.callback_groups = {
             name: MutuallyExclusiveCallbackGroup()
             for name in ('lidar', 'image', 'imu', 'camera_info', 'diagnostics', 'sync')
@@ -134,6 +137,7 @@ class FastLivo2Adapter(Node):
         self.audit_rows = deque(maxlen=100000)
         self.audit_stop = threading.Event()
         self.audit_thread = None
+        self.callback_audit = None
         audit_path = str(self.get_parameter('input_audit_csv').value)
         if audit_path:
             self.audit_stream = open(audit_path, 'w', newline='')
@@ -142,35 +146,42 @@ class FastLivo2Adapter(Node):
                                         'image_ns', 'imu_ns', 'detail'])
             self.audit_thread = threading.Thread(target=self._write_audit, daemon=True)
             self.audit_thread.start()
+            if self.get_parameter('trace_sensor_callbacks').value:
+                self.callback_audit = InputCallbackAudit(self._audit)
+        def traced(callback, label):
+            return self.callback_audit.subscription(callback, label) if self.callback_audit else callback
         lidar_qos = (QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
                      if self.get_parameter('reliable_lidar_subscription').value
                      else qos_profile_sensor_data)
         self.create_subscription(
             PointCloud2, self.get_parameter('lidar_topic').value,
-            self.lidar_callback, lidar_qos,
+            traced(self.lidar_callback, 'lidar'), lidar_qos,
             callback_group=self.callback_groups['lidar'])
         image_qos = (QoSProfile(depth=10, reliability=ReliabilityPolicy.RELIABLE)
                      if self.reliable_image_subscription else qos_profile_sensor_data)
         self.create_subscription(
             Image, self.get_parameter('image_topic').value,
-            self.image_callback, image_qos,
+            traced(self.image_callback, 'image'), image_qos,
             callback_group=self.callback_groups['image'])
         self.create_subscription(
             CameraInfo, self.get_parameter('camera_info_topic').value,
-            self.camera_info_callback, qos_profile_sensor_data,
+            traced(self.camera_info_callback, 'camera_info'), qos_profile_sensor_data,
             callback_group=self.callback_groups['camera_info'])
         imu_qos = (QoSProfile(depth=100, reliability=ReliabilityPolicy.RELIABLE)
                    if self.get_parameter('reliable_imu_subscription').value
                    else qos_profile_sensor_data)
         self.create_subscription(
             Imu, self.get_parameter('imu_topic').value,
-            self.imu_callback, imu_qos,
+            traced(self.imu_callback, 'imu'), imu_qos,
             callback_group=self.callback_groups['imu'])
         self.timer = self.create_timer(
             float(self.get_parameter('diagnostic_period_sec').value), self.publish_diagnostics,
-            callback_group=self.callback_groups['diagnostics'])
+            callback_group=self.callback_groups['diagnostics'],
+            clock=Clock(clock_type=ClockType.STEADY_TIME))
         self.sync_timer = self.create_timer(
-            0.01, self.process_sync, callback_group=self.callback_groups['sync'])
+            0.01, self.callback_audit.timer(self.process_sync, 'sync') if self.callback_audit else self.process_sync,
+            callback_group=self.callback_groups['sync'],
+            clock=Clock(clock_type=ClockType.STEADY_TIME))
 
         self.get_logger().info('FAST-LIVO2 adapter started; pose estimation is not implemented in this node')
         self.get_logger().info(
@@ -199,6 +210,8 @@ class FastLivo2Adapter(Node):
         self.audit_stream.flush()
 
     def destroy_node(self):
+        if self.callback_audit is not None:
+            self.callback_audit.close()
         if self.audit_thread is not None:
             self.audit_stop.set()
             self.audit_thread.join()
@@ -344,8 +357,11 @@ class FastLivo2Adapter(Node):
             with self.sync_lock:
                 self.sync_imus.append((imu_stamp, msg))
                 self._audit('imu_buffered', imu_stamp)
+            if self.callback_audit: self._audit('imu_raw_publish_start', imu_stamp)
             self.pub_imu.publish(msg)
+            if self.callback_audit: self._audit('imu_raw_publish_end', imu_stamp)
             self.pub_sync_imu.publish(msg)
+            if self.callback_audit: self._audit('imu_sync_publish_end', imu_stamp)
 
     def process_sync(self):
         if self.stopping:
@@ -359,7 +375,15 @@ class FastLivo2Adapter(Node):
             self._audit('sync_locked', stamp)
             scan_end = stamp + int(self.scan_duration_sec * 1e9)
             watermark = stamp + int(self.max_lidar_image_delta * 1e9)
-            expired = time.monotonic() - received > 0.3
+            if discard_expired_lidar_head(self.sync_lidar, time.monotonic()):
+                # Do not publish a scan after a scheduler/DDS pause. A stale
+                # synchronized pair would create a delayed odom sample and
+                # can make the planner act on an old pose. Drop only this
+                # buffered scan; newer scans remain queued for recovery.
+                self.last_sync_lidar_stamp = stamp
+                self.sync_counts['lidar_expired'] += 1
+                self._audit('sync_rejected', stamp, detail='lidar_expired')
+                return
             candidates = self.sync_images
             if self.point_time_mode == 'snapshot':
                 # Propagate the snapshot forward to an actual camera measurement.
@@ -372,8 +396,8 @@ class FastLivo2Adapter(Node):
                         self.sync_imus[-1][0] if self.sync_imus else 0,
                         'ready' if image_ready and self.sync_imus and self.sync_imus[-1][0] >= coverage_end
                         else ('image' if not image_ready else 'imu'))
-            if not expired and (not image_ready or not self.sync_imus or
-                                self.sync_imus[-1][0] < coverage_end):
+            if (not image_ready or not self.sync_imus or
+                    self.sync_imus[-1][0] < coverage_end):
                 return
 
             delta_ns = abs(image[0] - stamp) if image else None
@@ -441,7 +465,7 @@ class FastLivo2Adapter(Node):
             status.values.append(KeyValue(key='point_time_mode', value=self.point_time_mode))
             status.values.append(KeyValue(key='scan_duration_sec', value=str(self.scan_duration_sec)))
             for name in ('total_lidar', 'paired', 'image_delta_exceeded', 'missing_image',
-                         'missing_imu', 'queue_overflow'):
+                         'missing_imu', 'lidar_expired', 'queue_overflow'):
                 status.values.append(KeyValue(key='sync_' + name, value=str(self.sync_counts[name])))
             if self.sync_deltas_ms:
                 values = sorted(self.sync_deltas_ms)

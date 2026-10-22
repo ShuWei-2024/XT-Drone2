@@ -14,14 +14,21 @@ spec.loader.exec_module(module)
 def fixture(receipt_age_ms=28., sample_after_publish=False, truth=True):
     now = time.monotonic()
     sample = 10_000_000_000
-    return SimpleNamespace(
-        rows={k: [now-.1+i*.005 for i in range(20)] for k in
-              ('lidar','camera','imu','odom','ready','px4_local','px4_status','gps','battery','px4_imu')},
-        ready=[(now-.01,True)], local=SimpleNamespace(xy_valid=True,z_valid=True),
-        odom_ages=[24.], px4_ages=[receipt_age_ms],
-        px4_timing=[(sample+int(receipt_age_ms*1e6), sample,
-                     sample+(-4_000_000 if sample_after_publish else 4_000_000))],
-        truth_lock=threading.Lock(), truth_times=[sample-8_000_000,sample+8_000_000] if truth else [])
+    probe = module.Probe.__new__(module.Probe)
+    probe.rows={k: [(int((now-.1+i*.005)*1e9), None) for i in range(20)] for k in
+              ('lidar','camera','imu','odom','ready','px4_local','px4_status','gps','battery','px4_imu')}
+    probe.rows_lock=threading.Lock()
+    probe.ready=[(now-.01,True)]
+    probe.local=SimpleNamespace(xy_valid=True,z_valid=True)
+    probe.status=None
+    probe.odom_ages=[24.]
+    probe.px4_ages=[receipt_age_ms]
+    probe.px4_timing=[(sample+int(receipt_age_ms*1e6), sample,
+                       sample+(-4_000_000 if sample_after_publish else 4_000_000))]
+    probe.clock_ns=probe.clock_receipt_ns=None
+    probe.truth_lock=threading.Lock()
+    probe.truth_times=[sample-8_000_000,sample+8_000_000] if truth else []
+    return probe
 
 
 def test_delivery_delay_is_not_clock_offset():

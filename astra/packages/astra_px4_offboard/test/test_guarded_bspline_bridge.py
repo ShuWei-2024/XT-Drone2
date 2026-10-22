@@ -136,6 +136,25 @@ class BridgeTest(unittest.TestCase):
         self.assertFalse(hasattr(self.node, 'setpoint_pub'))
         self.assertFalse(hasattr(self.node, 'command_pub'))
 
+    def test_fault_snapshot_separates_measurement_age_from_receipt_age(self):
+        now_ns = self.node.control_clock.now().nanoseconds
+        pose = deepcopy(self.node.pose)
+        velocity = deepcopy(self.node.velocity)
+        pose.header.stamp = Time(nanoseconds=now_ns).to_msg()
+        velocity.header.stamp = pose.header.stamp
+        self.node.pose, self.node.velocity = pose, velocity
+        self.node.odom.header.stamp = Time(nanoseconds=now_ns-300_000_000).to_msg()
+        self.node.tracked = True
+        self.assertEqual('stale measurement timestamp', self.node.health())
+        self.node.tick()
+        details = self.node.fault_diagnostics
+        self.assertIsNotNone(details)
+        self.assertEqual('stale measurement timestamp', details['reason'])
+        self.assertGreater(details['odom']['measurement_age_ms'],
+                           details['odom_measurement_limit_ms'])
+        self.assertLess(details['odom']['receipt_age_ms'], 50.)
+        self.assertLess(details['preview_pose']['measurement_age_ms'], 50.)
+
     def test_fault_freezes_px4_pose_and_then_requests_land(self):
         mode, setpoints, commands = PublisherSpy(), PublisherSpy(), PublisherSpy()
         self.node.enabled = True

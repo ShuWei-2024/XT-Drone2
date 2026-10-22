@@ -5,7 +5,7 @@ import math
 def outdoor_envelope(precheck, metadata):
     radius=metadata.get('interactive_goal_radius_m',10.)
     side=precheck.get('planner_map_size_xy_m',32.)
-    for value,lo,hi in ((radius,3.,45.),(side,32.,80.)):
+    for value,lo,hi in ((radius,3.,50.),(side,32.,80.)):
         if type(value) not in (int,float) or not math.isfinite(value) or not lo<=value<=hi:
             raise ValueError('Invalid prepared outdoor radius or planner map size')
     if precheck.get('interactive_goal_radius_m')!=radius:
@@ -17,14 +17,16 @@ def outdoor_envelope(precheck, metadata):
         raise ValueError('Invalid outdoor XY bounds')
     extent=max(abs(v) for row in bounds for v in row)
     if (any(bounds[0][i]>=0 or bounds[1][i]<=0 or bounds[0][i]>=bounds[1][i] for i in range(2))
-            or extent>30. or side/2.<extent+5.):
+            or extent>34. or side/2.<extent+5.):
         raise ValueError('Outdoor planner grid must cover the envelope plus 5 m local reserve')
     if bounds!=precheck.get('allowed_xy_bounds_m'):
         raise ValueError('Outdoor bounds differ between precheck and guard')
     if metadata.get('whole_map_selection', False):
+        edge = metadata.get('scene_edge_reserve_m')
         if (precheck.get('whole_map_selection') is not True or
-                metadata.get('scene_edge_reserve_m') != 5. or
-                precheck.get('scene_edge_reserve_m') != 5. or extent > 30. or
+                type(edge) not in (int,float) or not math.isfinite(edge) or not 1. <= edge <= 5. or
+                precheck.get('scene_edge_reserve_m') != edge or extent > 35.-edge or
+                (edge < 5. and metadata.get('recovery_policy') != 'connected_route_to_certified_landing') or
                 radius < math.hypot(*[max(abs(bounds[0][i]),abs(bounds[1][i])) for i in range(2)])):
             raise ValueError('Whole-map selection requires matching geometry bounds and edge reserve')
     elif radius > 25. or side > 64.:
@@ -44,16 +46,20 @@ def outdoor_envelope(precheck, metadata):
         # Full box schema is also checked when loading the immutable guard NPZ.
         certificate = metadata.get('transit_certificate', {})
         band = metadata.get('transit_body_z_bounds_m', [])
+        policy = metadata.get('recovery_policy')
+        policy_ok = (policy == 'planned_return_with_certified_rtl' and
+                     certificate.get('direct_home_rectangle_reserve_m',0) >= .2)
+        policy_ok |= (policy == 'connected_route_to_certified_landing' and
+                      certificate.get('connected_recovery_required') is True)
         if (certificate.get('sampled_bounds_m') != bounds or
                 certificate.get('certified_z_bounds_m') != band or len(band) != 2 or
                 any(type(v) not in (int,float) or not math.isfinite(v) for v in band) or
                 not metadata['allowed_body_z_bounds_m'][0] <= band[0] < band[1] <= metadata['allowed_body_z_bounds_m'][1] or
-                metadata.get('recovery_policy') != 'planned_return_with_certified_rtl' or
+                not policy_ok or
                 metadata.get('transit_continuous_clearance_lower_bound_m',0) < .65 or
-                certificate.get('direct_home_rectangle_reserve_m',0) < .2 or
                 precheck.get('static_descent_columns') is not False or
                 not band[0]+.2 <= precheck.get('takeoff_height_m',0)+.24 <= band[1]-.1):
-            raise ValueError('Transit requires a cruise certificate and bounded native RTL policy')
+            raise ValueError('Transit requires a cruise certificate and checked recovery policy')
         for key in ('transit_xy_boxes_m','transit_body_z_bounds_m','transit_certificate','recovery_policy',
                     'transit_includes_descent_region'):
             if precheck.get(key) != metadata.get(key):

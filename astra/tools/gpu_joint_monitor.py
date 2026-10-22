@@ -108,7 +108,14 @@ class Monitor(Node):
                     role = next((name for name, token in (
                         ('livo', b'fastlivo_mapping'),
                         ('local_map', b'local_mapping_guard.py'),
-                        ('planner', b'ego_planner_node'))
+                        ('planner', b'ego_planner_node'),
+                        ('frame_audit', b'audit_frame_alignment.py'),
+                        ('external_vision', b'external_vision_sitl.py'),
+                        ('health_audit', b'health_probe_117.py'),
+                        # The flight driver is a separate Python child. Track
+                        # it independently so the audit can distinguish its
+                        # diagnostic-memory cost from LIVO/map/planner RSS.
+                        ('motion', b'ego_sitl_flight.py'))
                         if any(Path(arg.decode(errors='replace')).name == token.decode()
                                for arg in args[:2] if arg)), None)
                     if role is None:

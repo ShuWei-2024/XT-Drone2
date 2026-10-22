@@ -38,12 +38,15 @@ def test_persistent_failure_expires_without_a_pass():
 def test_ready_fraction_cannot_mask_current_false(monkeypatch):
     import health_probe_117
     monkeypatch.setattr(health_probe_117.time,'monotonic',lambda:20.)
+    monkeypatch.setattr(health_probe_117.time,'monotonic_ns',lambda:20_000_000_000)
     probe=Probe.__new__(Probe)
-    probe.rows=defaultdict(list,{key:[19.+i*.05 for i in range(20)] for key in
+    probe.rows=defaultdict(list,{key:[(int((19.+i*.05)*1e9),None) for i in range(20)] for key in
         ('lidar','camera','imu','odom','ready','px4_local','px4_status','gps','battery','px4_imu')})
-    probe.ready=[(19.+i*.05,True) for i in range(19)]+[(19.95,False)]
+    probe.rows_lock=threading.Lock()
+    probe.ready=[(19.+i*.05,True) for i in range(20)]+[(19.99,False)]
     probe.odom_ages=[48.];probe.px4_ages=[28.]
     probe.px4_timing=[(1_008_000_000,1_000_000_000,1_004_000_000)]
+    probe.clock_ns=None;probe.clock_receipt_ns=None;probe.status=None
     probe.truth_times=[1_000_000_000];probe.truth_lock=threading.Lock()
     probe.local=SimpleNamespace(xy_valid=True,z_valid=True)
     result=probe.summary()

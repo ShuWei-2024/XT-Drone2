@@ -470,7 +470,7 @@ class GuardedPositionTest(SettledFlight):
         print(json.dumps(row), flush=True)
 
     def sample(self, target, reason=''):
-        self.rows.append(dict(wall_ns=time.monotonic_ns(), sim_ns=self.get_clock().now().nanoseconds,
+        row = dict(wall_ns=time.monotonic_ns(), sim_ns=self.get_clock().now().nanoseconds,
                               phase=self.phase, odom_age_sec=self.odom_age(),
                               odom_receipt_age_sec=time.monotonic() - self.odom_wall,
                               ready=int(self.ready), reason=reason,
@@ -478,8 +478,21 @@ class GuardedPositionTest(SettledFlight):
                               truth_x=self.truth[0], truth_y=self.truth[1], truth_z=self.truth[2],
                               px4_x=self.local.x, px4_y=self.local.y, px4_z=self.local.z,
                               px4_vx=self.local.vx, px4_vy=self.local.vy, px4_vz=self.local.vz,
-                              target_x=target[0], target_y=target[1], target_z=target[2]))
-        self.rows[-1]['mesh_clearance_m']=self.mesh_clearance_m
+                              target_x=target[0], target_y=target[1], target_z=target[2],
+                              mesh_clearance_m=self.mesh_clearance_m)
+        store = getattr(self, 'sent_sample_store', None)
+        if store is None:
+            self.rows.append(row)
+        else:
+            try:
+                store.append(row)
+            except (OSError, ValueError):
+                # Abort the normal mission on the first logging failure. Do
+                # not make recovery sends repeatedly fail on the same disk;
+                # retain only a bounded tail while the caller lands safely.
+                self.sent_sample_store = None
+                self.rows = deque(maxlen=2)
+                raise
 
     def guarded_segment(self, name, seconds, start, end):
         self.phase = name
@@ -552,18 +565,25 @@ class GuardedPositionTest(SettledFlight):
                 return (self.truth_body is not None and time.monotonic()-self.truth_wall <= .25
                         and landing_allowed(self.mesh_guard,self.truth_body[:2]))
             attempted_rtl = False
+            connected = getattr(self, 'connected_recovery', None)
             # In a prepared transit scene prefer official RTL after any execution
             # fault, even when currently above a landable patch.
-            if (self.mesh_guard.transit_boxes is not None and self.airborne and self.sample_reason
+            if (connected is None and self.mesh_guard.transit_boxes is not None and self.airborne and self.sample_reason
                     and self.sample_reason != 'operator requested guarded landing'):
                 attempted_rtl = True
                 if self.native_rtl():
                     return True
             if not safe_descent():
-                if not attempted_rtl and self.mesh_guard.transit_boxes is not None and self.native_rtl():
+                if connected is not None:
+                    from connected_recovery import execute_connected_recovery
+                    if not execute_connected_recovery(self) or not safe_descent():
+                        self.event('landing_refused',reason='connected recovery unavailable; SITL run must stop')
+                        return False
+                elif not attempted_rtl and self.mesh_guard.transit_boxes is not None and self.native_rtl():
                     return True
-                self.event('landing_refused',reason='no certified descent or eligible RTL; SITL run must stop')
-                return False
+                else:
+                    self.event('landing_refused',reason='no certified descent or eligible RTL; SITL run must stop')
+                    return False
         self.transit_active = False
         self.phase = 'land'
         self.event('land_requested')
@@ -600,12 +620,18 @@ def main():
     parser.add_argument('--open-motion-audit', action='store_true')
     parser.add_argument('--calibrate-ground-height',action='store_true')
     parser.add_argument('--segment-distance-m', type=float, default=.25)
+    parser.add_argument('--vertical-only', action='store_true',
+                        help='After climb, run a bounded up/down test at fixed XY')
+    parser.add_argument('--vertical-amplitude-m', type=float, default=.25,
+                        help='Vertical-only diagnostic amplitude, 0.1..0.4 m')
     parser.add_argument('--settle-timeout-s', type=float, default=60.)
     args = parser.parse_args()
     if args.require_stable_hold and args.open_motion_audit:
         parser.error('stable certification and open motion audit are separate modes')
     if not .1 <= args.segment_distance_m <= .4:
         parser.error('--segment-distance-m must be between 0.1 and 0.4')
+    if not .1 <= args.vertical_amplitude_m <= .4:
+        parser.error('--vertical-amplitude-m must be between 0.1 and 0.4')
     if not 20. <= args.settle_timeout_s <= 60.:
         parser.error('--settle-timeout-s must be between 20 and 60')
     rclpy.init()
@@ -614,7 +640,8 @@ def main():
     result = dict(route_complete=False, fault='', injection_requested=args.inject_stale,
                   injection_started=False, disarmed=False,
                   test_mode='open_motion_audit' if args.open_motion_audit else
-                  'stable_hold' if args.require_stable_hold else 'native_motion')
+                  'stable_hold' if args.require_stable_hold else
+                  'native_motion_vertical_only' if args.vertical_only else 'native_motion')
     try:
         if args.calibrate_ground_height:
             node.align_ground_height()
@@ -667,34 +694,42 @@ def main():
             node.observed_hold('settle', high)
         else:
             node.guarded_segment('settle', 6., high, high)
-        node.guarded_segment('north', move_s, high, north)
-        if args.require_stable_hold:
-            node.stable_hold('hold_north', north)
-        elif args.open_motion_audit:
-            node.observed_hold('hold_north', north)
+        if args.vertical_only:
+            up = (high[0], high[1], high[2] - args.vertical_amplitude_m, high[3])
+            node.guarded_segment('vertical_up', 5., high, up)
+            node.guarded_segment('vertical_hold_up', 3., up, up)
+            node.guarded_segment('vertical_down', 5., up, high)
+            node.guarded_segment('vertical_hold_final', 3., high, high)
+            result['route_complete'] = True
         else:
-            node.guarded_segment('hold_north', 3., north, north)
-        node.guarded_segment('east', move_s, north, east)
-        if args.require_stable_hold:
-            node.stable_hold('hold_east', east)
-        elif args.open_motion_audit:
-            node.observed_hold('hold_east', east)
-        else:
-            node.guarded_segment('hold_east', 3., east, east)
-        if args.inject_stale:
-            node.injecting = True
-            result['injection_started'] = True
-            node.event('odom_consumption_paused')
-            node.guarded_segment('injected_hold', 2., east, east)
-            raise RuntimeError('fault injection did not trip freshness gate')
-        node.guarded_segment('return', 5., east, high)
-        if args.require_stable_hold:
-            node.stable_hold('hold_final', high)
-        elif args.open_motion_audit:
-            node.observed_hold('hold_final', high)
-        else:
-            node.guarded_segment('hold_final', 3., high, high)
-        result['route_complete'] = True
+            node.guarded_segment('north', move_s, high, north)
+            if args.require_stable_hold:
+                node.stable_hold('hold_north', north)
+            elif args.open_motion_audit:
+                node.observed_hold('hold_north', north)
+            else:
+                node.guarded_segment('hold_north', 3., north, north)
+            node.guarded_segment('east', move_s, north, east)
+            if args.require_stable_hold:
+                node.stable_hold('hold_east', east)
+            elif args.open_motion_audit:
+                node.observed_hold('hold_east', east)
+            else:
+                node.guarded_segment('hold_east', 3., east, east)
+            if args.inject_stale:
+                node.injecting = True
+                result['injection_started'] = True
+                node.event('odom_consumption_paused')
+                node.guarded_segment('injected_hold', 2., east, east)
+                raise RuntimeError('fault injection did not trip freshness gate')
+            node.guarded_segment('return', 5., east, high)
+            if args.require_stable_hold:
+                node.stable_hold('hold_final', high)
+            elif args.open_motion_audit:
+                node.observed_hold('hold_final', high)
+            else:
+                node.guarded_segment('hold_final', 3., high, high)
+            result['route_complete'] = True
     except Exception as exc:
         result['fault'] = str(exc)
         node.event('test_aborted', reason=str(exc))

@@ -40,6 +40,28 @@ def test_large_radius_cannot_be_enabled_without_whole_map_certificate():
     with pytest.raises(ValueError,match='explicit whole-map'):outdoor_envelope(pre,meta)
 
 
+def test_reduced_outer_border_requires_matching_connected_recovery_certificate():
+    pre,meta=certificate()
+    for d in (pre,meta):
+        d.update(interactive_goal_radius_m=49.,allowed_xy_bounds_m=[[-34.,-34.],[34.,34.]],
+                 whole_map_selection=True,scene_edge_reserve_m=1.,
+                 transit_xy_boxes_m=[[[-34.,-34.],[34.,34.]]],
+                 transit_body_z_bounds_m=[1.2,2.],
+                 transit_continuous_clearance_lower_bound_m=.65,
+                 recovery_policy='connected_route_to_certified_landing',
+                 transit_includes_descent_region=True,
+                 transit_certificate=dict(sampled_bounds_m=[[-34.,-34.],[34.,34.]],
+                     certified_z_bounds_m=[1.2,2.],connected_recovery_required=True))
+        d['recovery_certificate']['sampled_bounds_m']=d['allowed_xy_bounds_m']
+    pre.update(planner_map_size_xy_m=80.,static_descent_columns=False,takeoff_height_m=1.5)
+    assert outdoor_envelope(pre,meta)['goal_radius_m']==49.
+    meta['transit_certificate']['connected_recovery_required']=False
+    with pytest.raises(ValueError,match='recovery policy'):outdoor_envelope(pre,meta)
+    meta['transit_certificate']['connected_recovery_required']=True
+    meta['recovery_policy']='planned_return_with_certified_rtl'
+    with pytest.raises(ValueError,match='Whole-map'):outdoor_envelope(pre,meta)
+
+
 @pytest.mark.parametrize('key,value',[
     ('planner_map_size_xy_m',32.),('planner_map_size_xy_m',float('nan')),
     ('interactive_goal_radius_m',10.),('allowed_xy_bounds_m',[[-11,-11],[11,11]]),

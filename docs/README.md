@@ -24,8 +24,10 @@
 | 局部地图与 readiness | [地图保护节点](../astra/packages/astra_fast_livo2/scripts/local_mapping_guard.py) |
 | EGO-Planner 与移植改动 | [规划器来源与改动](../astra/packages/ego_planner_jazzy/UPSTREAM.md) |
 | 共享安全边界 | [边界处理工具](../astra/tools/planning_envelope.py) |
+| 静态场景备用撤退与降落 | [连通恢复图](../astra/tools/connected_recovery.py) |
 | 轨迹采样与 Offboard 执行 | [执行模块说明](../astra/packages/astra_px4_offboard/README.md) |
 | 起降与飞行监督 | [飞行监督器](../astra/tools/ego_sitl_flight.py) |
+| 飞行审计采样、增量写盘与上锁后导出 | [记录存储](../astra/tools/bridge_sample_store.py) |
 | External Vision | [EV 输入与融合门控](../astra/tools/external_vision_sitl.py) |
 | RViz2 航点与中文窗口 | [任务状态管理](../astra/tools/rviz_mission.py)、[任务面板](../astra/tools/rviz_mission_panel.py) |
 
@@ -33,10 +35,21 @@
 
 | 专题 | 报告 |
 | --- | --- |
+| 2026-10-22 延迟、高度与地面原点三项失败分解 | [验收失败逐项检查](../astra/validation/ACCEPTANCE_FAILURES_20261022.md) |
+| 远端断链返航、障碍旁停止与不可下降区撤退 | [多位置故障恢复](../astra/validation/MULTILOCATION_FAULTS_117.md) |
+| 空中估计器重置、完整 DDS 断链与机载自恢复 | [重置与断链故障验收](../astra/validation/ESTIMATOR_LINK_FAULTS_117.md) |
+| 2026-10-21 Baylands 固定配置收尾复测 | [固定配置收尾](../astra/validation/BAYLANDS_ACCEPTANCE_20261021.md) |
+| 2026-10-21 Baylands 长时运动、Odom 超时与内存时间窗 | [长时运动中止审计](../astra/validation/BAYLANDS_LONG_MOTION_20261021.md) |
+| 正常融合长路线、五分钟保持与同配置三轮重复 | [长路线重复验收](../astra/validation/NORMAL_LONG_ACCEPTANCE_117.md) |
+| 仿真收尾范围、故障覆盖与实物前缺项 | [仿真收尾验收](../astra/validation/SIMULATION_ACCEPTANCE_117.md) |
+| 审计缓存、长路线高度失败与关闭视觉更新的对照 | [审计内存与高度分解](../astra/validation/COMPACT_AUDIT_HEIGHT_117.md) |
+| 图像时间偏移、LIO 空切片与 Odom 发布缺口 | [测量切片时间审计](../astra/validation/LIVO_CUT_TIMING_117.md) |
 | 室外地图来源、准备与范围 | [Baylands 公园](../astra/validation/OUTDOOR_PARK_117.md) |
+| 连通空域开放、附近降落与地图失联恢复 | [扩区与恢复验证](../astra/validation/CONNECTED_AIRSPACE_117.md) |
 | RViz 网格、青色航点边界与几何精化扩区 | [航点范围与扩区](../astra/validation/GOAL_REGION_REFINEMENT_117.md) |
 | 全图范围选点、连通空域与远端飞行 | [全图空域与验证](../astra/validation/WHOLE_MAP_AIRSPACE_117.md) |
 | 全图远端往返与消息接收积压 | [事件执行器复测](../astra/validation/WHOLE_MAP_RECEIVER_117.md) |
+| Python GC 暂停与 PX4 接收历史复测 | [接收暂停修复复测](../astra/validation/GC_RECEIVER_117.md) |
 | 解锁前 EV／全局原点初始化退出 | [原点启动检查与有界等待](../astra/validation/EV_ORIGIN_STARTUP_117.md) |
 | RViz 按开始后起飞前消息超时 | [交互起飞接收修复](../astra/validation/RVIZ_PREFLIGHT_RECEIVER_117.md) |
 | RViz 转弯时重规划失败、预览撤销 | [重规划衔接修复](../astra/validation/REPLAN_BOUNDARY_117.md) |

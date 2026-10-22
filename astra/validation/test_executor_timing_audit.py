@@ -9,7 +9,7 @@ from rclpy.node import Node
 from std_msgs.msg import String
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from executor_timing_audit import ExecutorTimingAudit
+from executor_timing_audit import CompactOdomHistory, ExecutorTimingAudit
 from ready_batch_executor import BoundedEventsExecutor
 
 
@@ -92,3 +92,56 @@ def test_gc_pauses_are_recorded_without_changing_collector(node,tmp_path):
     audit.save(tmp_path/'trace.json')
     saved=json.loads((tmp_path/'trace.json').read_text())
     assert saved['gc_statistics']['2']['count']>=1
+
+
+def test_repeated_safety_spans_do_not_accumulate_cyclic_types():
+    import gc
+    enabled=gc.isenabled()
+    gc.collect(2)
+    gc.disable()
+    try:
+        audit=ExecutorTimingAudit()
+        for _ in range(2000):
+            with audit.span('safety_check'):
+                pass
+        assert audit.stats['safety_check']['count']==2000
+        # The former local class created thousands of unreachable type/MRO/
+        # closure objects here, requiring a full collection during flight.
+        assert gc.collect(2)<100
+    finally:
+        if enabled:gc.enable()
+
+
+def test_compact_history_preserves_full_nanosecond_rows_and_chronological_tail(tmp_path):
+    import json
+    history=CompactOdomHistory(capacity=3)
+    expected=[]
+    allocated=len(history.storage)
+    for index in range(8):
+        row=dict(label=f'node{index%2}:/fast_livo2/odom',topic='/fast_livo2/odom',
+                 dds_metadata_available=bool(index%2))
+        row.update((key,1_792_394_094_739_581_384+index) for key in history.fields)
+        row['measurement_ns']=None if index%2 else 99_123_456_789
+        history.append(row);expected.append(row)
+        # Changing the transient callback dictionary must not change history.
+        row_copy=dict(row);row['wall_start_ns']=0;expected[-1]=row_copy
+        assert len(history.storage)==allocated
+    assert history.count==8 and len(history)==3
+    assert list(history)==expected[-3:]
+    assert json.loads(json.dumps(list(history)))==expected[-3:]
+
+
+def test_audit_export_keeps_odom_schema_and_reports_retention(tmp_path):
+    import json
+    audit=ExecutorTimingAudit()
+    row=dict(label='flight:/fast_livo2/odom',topic='/fast_livo2/odom',
+             dds_metadata_available=False)
+    row.update((key,10) for key in CompactOdomHistory.fields)
+    audit.record(row)
+    audit.save(tmp_path/'trace.json')
+    saved=json.loads((tmp_path/'trace.json').read_text())
+    assert saved['odom_callbacks']==[row]
+    assert saved['callback_statistics'][row['label']]['count']==1
+    assert saved['odom_history']['total_count']==1
+    assert saved['odom_history']['capacity']==65536
+    assert saved['odom_history']['overwritten_count']==0

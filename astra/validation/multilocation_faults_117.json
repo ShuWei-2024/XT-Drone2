@@ -1,0 +1,860 @@
+{
+  "date": "2026-10-20",
+  "software_validation": {
+    "pytest_passed": 392,
+    "existing_deprecation_warnings": 3,
+    "py_compile": true,
+    "diff_check": true,
+    "local_document_links": true
+  },
+  "all_selected_passed": true,
+  "scope": "Three isolated known-static Baylands fault locations: far landable DDS loss; near-obstacle map loss; nonlandable transit map loss. Not all locations, arbitrary full-link loss, rotor clearance or physical hardware certification.",
+  "measurement_note": "Fault truth position and relative landing times use nearest recorded Gazebo receipt/measurement pairs; approximate timing. Clearance recomputed at recorded body-centre samples, no continuous swept-volume certification.",
+  "selected_runs": [
+    {
+      "run": "acceptance_far_dds_20261020_03",
+      "kind": "dds_agent",
+      "checks": {
+        "expected_fault_observed": true,
+        "complete_curves_inside_shared_envelope": true,
+        "executed_curves_inside_shared_envelope": true,
+        "baseline_preserved": true,
+        "sources_unchanged": true,
+        "reached_requested_waypoint": true,
+        "stimulus_after_arrival": true,
+        "mission_not_completed": true,
+        "onboard_landed_then_disarmed": true,
+        "no_recorded_recovery_geometry_fault": true,
+        "post_signal_sampled_surface_clearance": true,
+        "final_position_landable": true,
+        "start_distance_over_9m": true
+      },
+      "passed": true,
+      "fault": "ground-aligned height has no measurement pair within 20 ms",
+      "execution_detection_after_signal_ms": 208.664422,
+      "injection": {
+        "kind": "stop_owned_dds_agent",
+        "command_wall_ns": 935038231084060,
+        "command_sim_us": 176148000,
+        "sim_time_reference": "Last complete live flight journal sample before signal; not exact signal time",
+        "sim_anchor_wall_age_ms": 21.234875,
+        "clock_anchor_source": "motion_sent.csv",
+        "agent_process_group": 1098718,
+        "handoff": {
+          "event": "ego_waypoint_reached",
+          "wall_ns": 935037213542007,
+          "sim_ns": 175168000000,
+          "odom_age_sec": 0.068,
+          "odom_receipt_age_sec": 0.017959216027520597,
+          "map_ready": true,
+          "heading_good": true,
+          "truth": [
+            -10.070405276938585,
+            -0.025883080307612757,
+            1.4852598344274548
+          ],
+          "px4": [
+            -0.02452065795660019,
+            -9.990474700927734,
+            -1.619703769683838,
+            1.583987832069397
+          ],
+          "goal_index": 0
+        },
+        "scope": "Whole PX4 DDS transport: all outputs and command/EV inputs; Gazebo sensors, PX4 EKF, MAVLink GCS heartbeat and onboard logger remain alive",
+        "agent_exit_code": -2
+      },
+      "guard_result": {
+        "kind": "dds_agent",
+        "checks": {
+          "injected": true,
+          "fault_detection_after_injection": true,
+          "fault_latched": true,
+          "no_normal_bridge_samples_after_abort": true,
+          "task_not_reported_complete": true,
+          "onboard_armed_after_injection": true,
+          "onboard_landed_before_disarm": true,
+          "onboard_disarmed": true,
+          "all_direct_px4_position_telemetry_stopped": true,
+          "direct_px4_status_and_position_stopped": true,
+          "owned_agent_exit_observed": true,
+          "offboard_loss_recorded": true,
+          "onboard_land_or_return_mode_recorded": true,
+          "stimulus_applied_in_air": true,
+          "no_new_offboard_heartbeat_in_px4": true,
+          "no_delivered_land_command_after_cut": true
+        },
+        "fault": "ground-aligned height has no measurement pair within 20 ms",
+        "execution_response_ms": 208.664422,
+        "latch_response_ms": 208.830691,
+        "onboard_land_after_injection_s": 38.408,
+        "onboard_disarm_after_injection_s": 40.424,
+        "mission_disarm_confirmed": false,
+        "parameters": {
+          "COM_OF_LOSS_T": 1.0,
+          "COM_OBL_RC_ACT": 0,
+          "COM_FAIL_ACT_T": 5.0,
+          "COM_RC_IN_MODE": 1
+        },
+        "first_offboard_loss_after_injection_s": 1.068,
+        "first_auto_land_after_injection_s": null,
+        "first_auto_rtl_after_injection_s": 1.08,
+        "post_cut_px4_frame_samples_after_drain": 0,
+        "post_cut_status_and_position_receipts_after_drain": 0,
+        "onboard_armed_nav_states": [
+          5,
+          14
+        ],
+        "confirmation": "Onboard ULog only; ROS cannot confirm disarm over the severed link",
+        "expected_fault_observed": true
+      },
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true,
+        "verdict_scope": "Deliberate failure; onboard recovery audit, not normal mission completion"
+      },
+      "shared_envelope": {
+        "curve_count": 51,
+        "failed_curves": [],
+        "executed_curve_failures": [],
+        "preview_rejected_curve_failures": [],
+        "tracked_trajectory_id_count": 51,
+        "all_executed_curves_inside_shared_envelope": true,
+        "all_complete_curves_inside_shared_envelope": true,
+        "reserve_m": 0.4,
+        "ground_reference": [
+          0.00014368462020258443,
+          -0.016521950710228703
+        ],
+        "recorded_z_bounds_livo_m": [
+          0.9401325713881808,
+          1.5401325713881808
+        ],
+        "method": "Cubic Bezier convex-hull subdivision over each knot span; blocked/unknown cells rejected",
+        "scope": "Frozen flight-volume certificate (transit when configured, otherwise descent); obstacle observations remain separate; rejected candidates reported separately"
+      },
+      "stimulus_truth_body_xyz_m": [
+        -10.041680017759015,
+        -0.015920846293601732,
+        1.7101634995950672
+      ],
+      "waypoint_arrival_outer_model_xyz_m": [
+        -10.070405276938585,
+        -0.025883080307612757,
+        1.4852598344274548
+      ],
+      "final_truth_body_xyz_m": [
+        0.005362477049834855,
+        -0.005910684446053408,
+        0.22699869105152984
+      ],
+      "start_landable": true,
+      "final_landable": true,
+      "post_signal_truth_samples": 2156,
+      "maximum_post_signal_horizontal_displacement_m": 10.047047481515902,
+      "post_signal_horizontal_path_m": 10.08292606076952,
+      "post_signal_truth_wall_max_gap_ms": 31.921548,
+      "post_signal_sampled_body_center_surface_clearance_m": {
+        "count": 2156,
+        "p50": 7.10561449891244,
+        "p95": 10.005387292158309,
+        "maximum": 10.046120512535884,
+        "minimum": 3.094637522950165
+      },
+      "onboard_land_after_signal_approx_s": 38.368,
+      "onboard_disarm_after_signal_approx_s": 40.384,
+      "onboard_post_signal_nav_states": [
+        5,
+        14
+      ],
+      "onboard_pre_signal_flags": {
+        "global_position_invalid": false,
+        "home_position_invalid": false,
+        "local_position_invalid": false,
+        "local_altitude_invalid": false,
+        "manual_control_signal_lost": true,
+        "gcs_connection_lost": false
+      },
+      "onboard_parameters": {
+        "COM_OF_LOSS_T": 1.0,
+        "COM_OBL_RC_ACT": 0,
+        "NAV_RCL_ACT": 2,
+        "COM_FAIL_ACT_T": 5.0,
+        "RTL_RETURN_ALT": 1.5,
+        "RTL_DESCEND_ALT": 1.5,
+        "MPC_XY_CRUISE": 0.30000001192092896,
+        "EKF2_EV_CTRL": 3,
+        "EKF2_HGT_REF": 3
+      },
+      "recovery_events": [
+        {
+          "event": "connected_recovery_prepared",
+          "wall_ns": 934936487153083,
+          "sim_ns": 69712000000,
+          "odom_age_sec": 0.112,
+          "odom_receipt_age_sec": 5.828263800009154,
+          "map_ready": true,
+          "heading_good": false,
+          "truth": [
+            0.001474741125073717,
+            4.821965958132487e-08,
+            -0.013000127029129227
+          ],
+          "px4": [
+            -0.012686648406088352,
+            0.06583072990179062,
+            -0.09924222528934479,
+            1.5826334953308105
+          ],
+          "flight_cells": 351000,
+          "landing_cells": 249457,
+          "source": "static geometry; prepared disarmed before health recheck"
+        },
+        {
+          "event": "connected_recovery_departure_gate_passed",
+          "wall_ns": 934981140739036,
+          "sim_ns": 119584000000,
+          "odom_age_sec": 0.056,
+          "odom_receipt_age_sec": 0.014928373042494059,
+          "map_ready": true,
+          "heading_good": true,
+          "truth": [
+            0.05954502113434111,
+            0.02609888095584332,
+            1.4981133897189514
+          ],
+          "px4": [
+            -0.006951670162379742,
+            0.08045262098312378,
+            -1.6156516075134277,
+            1.582587480545044
+          ]
+        }
+      ],
+      "onboard_observer": {
+        "disarm_observed": true,
+        "timeout_s": 120.0,
+        "scope": "Read-only owned SITL daemon; no PX4 commands or ROS status fabrication"
+      },
+      "execution_source_differences_from_first": []
+    },
+    {
+      "run": "acceptance_obstacle_map_20261020_02",
+      "kind": "map",
+      "checks": {
+        "expected_fault_observed": true,
+        "complete_curves_inside_shared_envelope": true,
+        "executed_curves_inside_shared_envelope": true,
+        "baseline_preserved": true,
+        "sources_unchanged": true,
+        "reached_requested_waypoint": true,
+        "stimulus_after_arrival": true,
+        "mission_not_completed": true,
+        "onboard_landed_then_disarmed": true,
+        "no_recorded_recovery_geometry_fault": true,
+        "post_signal_sampled_surface_clearance": true,
+        "final_position_landable": true
+      },
+      "passed": true,
+      "fault": "local map not ready or heartbeat stale",
+      "execution_detection_after_signal_ms": 225.75555,
+      "injection": {
+        "kind": "stop_owned_map_process_group",
+        "signal": "SIGINT",
+        "map_process_group": 1111792,
+        "handoff": {
+          "event": "ego_waypoint_reached",
+          "wall_ns": 935539213026658,
+          "sim_ns": 145964000000,
+          "odom_age_sec": 0.136,
+          "odom_receipt_age_sec": 0.08425023406744003,
+          "map_ready": true,
+          "heading_good": true,
+          "truth": [
+            2.965010983970783,
+            -3.012650994590944,
+            1.5361879036838377
+          ],
+          "px4": [
+            -2.9996225833892822,
+            2.9703116416931152,
+            -1.388569951057434,
+            1.5911381244659424
+          ],
+          "goal_index": 0
+        },
+        "command_wall_ns": 935540246008940
+      },
+      "guard_result": {
+        "expected_fault_observed": true,
+        "checks": {
+          "injected": true,
+          "driver_rejected_task": true,
+          "stopped_process_exited": true,
+          "abort_after_injection": true,
+          "bounded_response": true,
+          "expected_reason": true,
+          "landed_and_disarmed": true,
+          "task_not_reported_complete": true,
+          "no_normal_bridge_rows_after_abort": true
+        },
+        "driver_exit_code": 1,
+        "fault": "local map not ready or heartbeat stale",
+        "stopped_process": "map",
+        "stopped_process_exit_code": 0,
+        "disarmed": true,
+        "child_exit_confirmed_by_pidfd": false,
+        "response_event": "hold_target_frozen",
+        "response_after_injection_ms": 226.00458,
+        "hold_after_injection_ms": 226.00458,
+        "map_exit_code": 0
+      },
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "shared_envelope": {
+        "curve_count": 24,
+        "failed_curves": [],
+        "executed_curve_failures": [],
+        "preview_rejected_curve_failures": [],
+        "tracked_trajectory_id_count": 24,
+        "all_executed_curves_inside_shared_envelope": true,
+        "all_complete_curves_inside_shared_envelope": true,
+        "reserve_m": 0.4,
+        "ground_reference": [
+          0.00026166055959838145,
+          -0.022503184628885703
+        ],
+        "recorded_z_bounds_livo_m": [
+          0.940068891634637,
+          1.540068891634637
+        ],
+        "method": "Cubic Bezier convex-hull subdivision over each knot span; blocked/unknown cells rejected",
+        "scope": "Frozen flight-volume certificate (transit when configured, otherwise descent); obstacle observations remain separate; rejected candidates reported separately"
+      },
+      "stimulus_truth_body_xyz_m": [
+        2.9774227699024163,
+        -2.9871257027836795,
+        1.7761738539983771
+      ],
+      "waypoint_arrival_outer_model_xyz_m": [
+        2.965010983970783,
+        -3.012650994590944,
+        1.5361879036838377
+      ],
+      "final_truth_body_xyz_m": [
+        2.991191087984799,
+        -2.986345187712267,
+        0.2269997024209512
+      ],
+      "start_landable": true,
+      "final_landable": true,
+      "post_signal_truth_samples": 423,
+      "maximum_post_signal_horizontal_displacement_m": 0.025567424690527207,
+      "post_signal_horizontal_path_m": 0.07997632685610917,
+      "post_signal_truth_wall_max_gap_ms": 24.630516,
+      "post_signal_sampled_body_center_surface_clearance_m": {
+        "count": 423,
+        "p50": 1.4081380432623332,
+        "p95": 1.493435479154772,
+        "maximum": 1.493753546797154,
+        "minimum": 1.4077282800244508
+      },
+      "onboard_land_after_signal_approx_s": 5.116,
+      "onboard_disarm_after_signal_approx_s": 7.128,
+      "onboard_post_signal_nav_states": [
+        14,
+        18
+      ],
+      "onboard_pre_signal_flags": {
+        "global_position_invalid": false,
+        "home_position_invalid": false,
+        "local_position_invalid": false,
+        "local_altitude_invalid": false,
+        "manual_control_signal_lost": true,
+        "gcs_connection_lost": false
+      },
+      "onboard_parameters": {
+        "COM_OF_LOSS_T": 1.0,
+        "COM_OBL_RC_ACT": 0,
+        "NAV_RCL_ACT": 2,
+        "COM_FAIL_ACT_T": 5.0,
+        "RTL_RETURN_ALT": 1.5,
+        "RTL_DESCEND_ALT": 1.5,
+        "MPC_XY_CRUISE": 0.30000001192092896,
+        "EKF2_EV_CTRL": 3,
+        "EKF2_HGT_REF": 3
+      },
+      "recovery_events": [
+        {
+          "event": "connected_recovery_prepared",
+          "wall_ns": 935466406990220,
+          "sim_ns": 68064000000,
+          "odom_age_sec": 0.048,
+          "odom_receipt_age_sec": 5.627573729958385,
+          "map_ready": true,
+          "heading_good": false,
+          "truth": [
+            0.001474741125073717,
+            4.821965958132487e-08,
+            -0.013000127029129227
+          ],
+          "px4": [
+            0.013366793282330036,
+            0.01228879764676094,
+            0.1667831838130951,
+            1.5853055715560913
+          ],
+          "flight_cells": 351000,
+          "landing_cells": 249457,
+          "source": "static geometry; prepared disarmed before health recheck"
+        },
+        {
+          "event": "connected_recovery_departure_gate_passed",
+          "wall_ns": 935511137566420,
+          "sim_ns": 118060000000,
+          "odom_age_sec": 0.052,
+          "odom_receipt_age_sec": 0.01761181908659637,
+          "map_ready": true,
+          "heading_good": true,
+          "truth": [
+            0.04804486227995773,
+            0.023389887870736658,
+            1.5036127256693335
+          ],
+          "px4": [
+            0.016596969217061996,
+            0.03742639347910881,
+            -1.3475515842437744,
+            1.5869109630584717
+          ]
+        }
+      ],
+      "onboard_observer": null,
+      "execution_source_differences_from_first": []
+    },
+    {
+      "run": "acceptance_transit_map_20261020_02",
+      "kind": "map",
+      "checks": {
+        "expected_fault_observed": true,
+        "complete_curves_inside_shared_envelope": true,
+        "executed_curves_inside_shared_envelope": true,
+        "baseline_preserved": true,
+        "sources_unchanged": true,
+        "reached_requested_waypoint": true,
+        "stimulus_after_arrival": true,
+        "mission_not_completed": true,
+        "onboard_landed_then_disarmed": true,
+        "no_recorded_recovery_geometry_fault": true,
+        "post_signal_sampled_surface_clearance": true,
+        "final_position_landable": true,
+        "start_not_landable": true,
+        "connected_recovery_arrived": true
+      },
+      "passed": true,
+      "fault": "local map not ready or heartbeat stale",
+      "execution_detection_after_signal_ms": 236.509974,
+      "injection": {
+        "kind": "stop_owned_map_process_group",
+        "signal": "SIGINT",
+        "map_process_group": 1122194,
+        "handoff": {
+          "event": "ego_waypoint_reached",
+          "wall_ns": 935994877529793,
+          "sim_ns": 150804000000,
+          "odom_age_sec": 0.092,
+          "odom_receipt_age_sec": 0.03894636093173176,
+          "map_ready": true,
+          "heading_good": true,
+          "truth": [
+            1.2413811863059179,
+            -4.71777511093693,
+            1.4737380513301213
+          ],
+          "px4": [
+            -4.734848499298096,
+            1.256096363067627,
+            -1.5663307905197144,
+            1.5811536312103271
+          ],
+          "goal_index": 0
+        },
+        "command_wall_ns": 935995889688265
+      },
+      "guard_result": {
+        "expected_fault_observed": true,
+        "checks": {
+          "injected": true,
+          "driver_rejected_task": true,
+          "stopped_process_exited": true,
+          "abort_after_injection": true,
+          "bounded_response": true,
+          "expected_reason": true,
+          "landed_and_disarmed": true,
+          "task_not_reported_complete": true,
+          "no_normal_bridge_rows_after_abort": true
+        },
+        "driver_exit_code": 1,
+        "fault": "local map not ready or heartbeat stale",
+        "stopped_process": "map",
+        "stopped_process_exit_code": 0,
+        "disarmed": true,
+        "child_exit_confirmed_by_pidfd": false,
+        "response_event": "hold_target_frozen",
+        "response_after_injection_ms": 236.857173,
+        "hold_after_injection_ms": 236.857173,
+        "map_exit_code": 0
+      },
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "shared_envelope": {
+        "curve_count": 25,
+        "failed_curves": [],
+        "executed_curve_failures": [],
+        "preview_rejected_curve_failures": [],
+        "tracked_trajectory_id_count": 25,
+        "all_executed_curves_inside_shared_envelope": true,
+        "all_complete_curves_inside_shared_envelope": true,
+        "reserve_m": 0.4,
+        "ground_reference": [
+          0.00026852677032194994,
+          -0.019364751111675887
+        ],
+        "recorded_z_bounds_livo_m": [
+          0.9400827203279357,
+          1.5400827203279357
+        ],
+        "method": "Cubic Bezier convex-hull subdivision over each knot span; blocked/unknown cells rejected",
+        "scope": "Frozen flight-volume certificate (transit when configured, otherwise descent); obstacle observations remain separate; rejected candidates reported separately"
+      },
+      "stimulus_truth_body_xyz_m": [
+        1.2324313089000585,
+        -4.70062170804913,
+        1.686122459774244
+      ],
+      "waypoint_arrival_outer_model_xyz_m": [
+        1.2413811863059179,
+        -4.71777511093693,
+        1.4737380513301213
+      ],
+      "final_truth_body_xyz_m": [
+        1.0979643366588017,
+        -3.5581386504776686,
+        0.22699988428549248
+      ],
+      "start_landable": false,
+      "final_landable": true,
+      "post_signal_truth_samples": 963,
+      "maximum_post_signal_horizontal_displacement_m": 1.1697906001165306,
+      "post_signal_horizontal_path_m": 1.3902979976195353,
+      "post_signal_truth_wall_max_gap_ms": 41.948063,
+      "post_signal_sampled_body_center_surface_clearance_m": {
+        "count": 963,
+        "p50": 1.840726454130495,
+        "p95": 2.4761018827191457,
+        "maximum": 2.4951602123788583,
+        "minimum": 1.6768245026344732
+      },
+      "onboard_land_after_signal_approx_s": 15.424,
+      "onboard_disarm_after_signal_approx_s": 17.44,
+      "onboard_post_signal_nav_states": [
+        14,
+        18
+      ],
+      "onboard_pre_signal_flags": {
+        "global_position_invalid": false,
+        "home_position_invalid": false,
+        "local_position_invalid": false,
+        "local_altitude_invalid": false,
+        "manual_control_signal_lost": true,
+        "gcs_connection_lost": false
+      },
+      "onboard_parameters": {
+        "COM_OF_LOSS_T": 1.0,
+        "COM_OBL_RC_ACT": 0,
+        "NAV_RCL_ACT": 2,
+        "COM_FAIL_ACT_T": 5.0,
+        "RTL_RETURN_ALT": 1.5,
+        "RTL_DESCEND_ALT": 1.5,
+        "MPC_XY_CRUISE": 0.30000001192092896,
+        "EKF2_EV_CTRL": 3,
+        "EKF2_HGT_REF": 3
+      },
+      "recovery_events": [
+        {
+          "event": "connected_recovery_prepared",
+          "wall_ns": 935920705932802,
+          "sim_ns": 71648000000,
+          "odom_age_sec": 0.036,
+          "odom_receipt_age_sec": 6.087481047026813,
+          "map_ready": true,
+          "heading_good": false,
+          "truth": [
+            0.001474741125073717,
+            4.821965958132487e-08,
+            -0.013000127029129227
+          ],
+          "px4": [
+            -0.047438256442546844,
+            0.016459906473755836,
+            -0.0462043434381485,
+            1.5862555503845215
+          ],
+          "flight_cells": 351000,
+          "landing_cells": 249457,
+          "source": "static geometry; prepared disarmed before health recheck"
+        },
+        {
+          "event": "connected_recovery_departure_gate_passed",
+          "wall_ns": 935965468035642,
+          "sim_ns": 121836000000,
+          "odom_age_sec": 0.132,
+          "odom_receipt_age_sec": 0.09661876899190247,
+          "map_ready": true,
+          "heading_good": true,
+          "truth": [
+            0.036295252902129246,
+            -0.048291117488100464,
+            1.472472624120218
+          ],
+          "px4": [
+            -0.05426352098584175,
+            0.01787956990301609,
+            -1.5543078184127808,
+            1.5869587659835815
+          ]
+        },
+        {
+          "event": "connected_recovery_started",
+          "wall_ns": 935997130558518,
+          "sim_ns": 153016000000,
+          "odom_age_sec": 0.092,
+          "odom_receipt_age_sec": 0.0552297750255093,
+          "map_ready": true,
+          "heading_good": true,
+          "truth": [
+            1.2428518720261608,
+            -4.699513753631642,
+            1.41439237310167
+          ],
+          "px4": [
+            -4.729538917541504,
+            1.250744342803955,
+            -1.54155695438385,
+            1.5841079950332642
+          ],
+          "route_livo_xy": [
+            [
+              1.2506423286728157,
+              -4.75949997548463
+            ],
+            [
+              1.25026852677032,
+              -4.769364751111674
+            ],
+            [
+              1.25026852677032,
+              -3.6693647511116723
+            ],
+            [
+              1.1502685267703185,
+              -3.6693647511116723
+            ]
+          ],
+          "speed_limit_mps": 0.25,
+          "target_slew_acceleration_mps2": 0.25,
+          "source": "prechecked static SITL graph; frozen PX4 transform; no stale LIVO"
+        },
+        {
+          "event": "connected_recovery_arrived",
+          "wall_ns": 936007586696811,
+          "sim_ns": 163392000000,
+          "odom_age_sec": 0.072,
+          "odom_receipt_age_sec": 0.0428044639993459,
+          "map_ready": true,
+          "heading_good": true,
+          "truth": [
+            1.1469391986657855,
+            -3.5326539642093238,
+            1.6190933664695812
+          ],
+          "px4": [
+            -3.6056151390075684,
+            1.1391888856887817,
+            -1.5703577995300293,
+            1.583425760269165
+          ],
+          "endpoint_livo_xy": [
+            1.1502685267703185,
+            -3.6693647511116723
+          ]
+        }
+      ],
+      "onboard_observer": null,
+      "execution_source_differences_from_first": [
+        "astra/tools/sitl_fault_regression.py"
+      ]
+    }
+  ],
+  "retained_nonpassing_runs": [
+    {
+      "run": "acceptance_far_dds_20261020_01",
+      "summary": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true,
+        "verdict_scope": "Deliberate failure; onboard recovery audit, not normal mission completion"
+      },
+      "injection_attempt": {
+        "injected": false,
+        "kind": "dds_agent",
+        "error": "Live bridge clock anchor is stale"
+      },
+      "audit": null,
+      "original_fault_regression": null
+    },
+    {
+      "run": "acceptance_far_dds_20261020_02",
+      "summary": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true,
+        "verdict_scope": "Deliberate failure; onboard recovery audit, not normal mission completion"
+      },
+      "injection_attempt": null,
+      "audit": {
+        "kind": "dds_agent",
+        "checks": {
+          "injected": true,
+          "fault_detection_after_injection": true,
+          "fault_latched": true,
+          "no_normal_bridge_samples_after_abort": true,
+          "task_not_reported_complete": true,
+          "onboard_armed_after_injection": true,
+          "onboard_landed_before_disarm": false,
+          "onboard_disarmed": false,
+          "all_direct_px4_position_telemetry_stopped": true,
+          "direct_px4_status_and_position_stopped": true,
+          "owned_agent_exit_observed": true,
+          "offboard_loss_recorded": true,
+          "onboard_auto_land_recorded": false,
+          "stimulus_applied_in_air": true,
+          "no_new_offboard_heartbeat_in_px4": true,
+          "no_delivered_land_command_after_cut": true
+        },
+        "fault": "ground-aligned height has no measurement pair within 20 ms",
+        "execution_response_ms": 184.656805,
+        "latch_response_ms": 185.963508,
+        "onboard_land_after_injection_s": null,
+        "onboard_disarm_after_injection_s": null,
+        "mission_disarm_confirmed": false,
+        "parameters": {
+          "COM_OF_LOSS_T": 1.0,
+          "COM_OBL_RC_ACT": 0,
+          "COM_FAIL_ACT_T": 5.0,
+          "COM_RC_IN_MODE": 1
+        },
+        "first_offboard_loss_after_injection_s": 1.088,
+        "first_auto_land_after_injection_s": null,
+        "post_cut_px4_frame_samples_after_drain": 0,
+        "post_cut_status_and_position_receipts_after_drain": 0,
+        "onboard_armed_nav_states": [
+          5,
+          14
+        ],
+        "confirmation": "Onboard ULog only; ROS cannot confirm disarm over the severed link",
+        "expected_fault_observed": false
+      },
+      "original_fault_regression": null
+    },
+    {
+      "run": "acceptance_obstacle_map_20261020_01",
+      "summary": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "injection_attempt": null,
+      "audit": null,
+      "original_fault_regression": {
+        "expected_fault_observed": false,
+        "checks": {
+          "injected": false,
+          "driver_rejected_task": true,
+          "stopped_process_exited": false,
+          "abort_after_injection": false,
+          "bounded_response": false,
+          "expected_reason": false,
+          "landed_and_disarmed": true,
+          "task_not_reported_complete": true,
+          "no_normal_bridge_rows_after_abort": true
+        },
+        "driver_exit_code": 1,
+        "fault": "Goal lacks shared planning/execution envelope reserve",
+        "stopped_process": "map",
+        "stopped_process_exit_code": null,
+        "disarmed": true,
+        "child_exit_confirmed_by_pidfd": false,
+        "response_event": "hold_target_frozen",
+        "response_after_injection_ms": null,
+        "hold_after_injection_ms": null,
+        "map_exit_code": null
+      }
+    },
+    {
+      "run": "acceptance_transit_map_20261020_01",
+      "summary": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "injection_attempt": null,
+      "audit": null,
+      "original_fault_regression": {
+        "expected_fault_observed": false,
+        "checks": {
+          "injected": true,
+          "driver_rejected_task": true,
+          "stopped_process_exited": true,
+          "abort_after_injection": true,
+          "bounded_response": true,
+          "expected_reason": false,
+          "landed_and_disarmed": true,
+          "task_not_reported_complete": true,
+          "no_normal_bridge_rows_after_abort": true
+        },
+        "driver_exit_code": 1,
+        "fault": "endpoint hold state fault: stale local map heartbeat",
+        "stopped_process": "map",
+        "stopped_process_exit_code": 0,
+        "disarmed": true,
+        "child_exit_confirmed_by_pidfd": false,
+        "response_event": "hold_target_frozen",
+        "response_after_injection_ms": 220.247164,
+        "hold_after_injection_ms": 220.247164,
+        "map_exit_code": 0
+      }
+    }
+  ]
+}

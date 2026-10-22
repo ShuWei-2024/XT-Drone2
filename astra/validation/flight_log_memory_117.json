@@ -1,0 +1,242 @@
+{
+  "date": "2026-10-19",
+  "scope": "Isolated PX4 1.17 SITL finite audit-storage acceptance; no hardware or long-route final-version certification",
+  "python_regression_passed": 328,
+  "pre_sent_fix_hold": {
+    "run": "bridge_store_hold_20261019_02",
+    "flight_complete": true,
+    "disarmed": true,
+    "fault": "",
+    "armed_failsafe_samples": 0,
+    "hold_seconds": 180.001546908,
+    "hold_rss": {
+      "samples": 180,
+      "first_mib": 152.4921875,
+      "last_mib": 156.87890625,
+      "minimum_mib": 152.4921875,
+      "maximum_mib": 156.87890625,
+      "delta_mib": 4.38671875,
+      "slope_mib_per_min": 1.4633886640563927
+    },
+    "hold_send_samples": 3397,
+    "hold_max_send_gap_ms": 61.246459,
+    "combined_send_log_max_gap_ms": 61.246459,
+    "hold_max_supervisor_receipt_age_ms": 160.57355899829417,
+    "hold_max_supervisor_measurement_age_ms": 172.0,
+    "bridge_samples": 116,
+    "bridge_samples_during_hold": 0,
+    "sent_samples": 3932,
+    "journal_matches_export": true,
+    "path_length_matches_export": true,
+    "baseline": {
+      "mode": "obstacle",
+      "exit_code": 0,
+      "failure": "",
+      "original_baseline_preserved": true,
+      "execution_sources_unchanged": true
+    }
+  },
+  "sent_csv_only_hold": {
+    "run": "flight_log_hold_20261019_01",
+    "flight_complete": true,
+    "disarmed": true,
+    "fault": "",
+    "armed_failsafe_samples": 0,
+    "hold_seconds": 180.003213446,
+    "hold_rss": {
+      "samples": 179,
+      "first_mib": 151.828125,
+      "last_mib": 152.9375,
+      "minimum_mib": 151.828125,
+      "maximum_mib": 152.9375,
+      "delta_mib": 1.109375,
+      "slope_mib_per_min": 0.3694188645725126
+    },
+    "hold_send_samples": 3394,
+    "hold_max_send_gap_ms": 60.416807,
+    "combined_send_log_max_gap_ms": 60.416807,
+    "hold_max_supervisor_receipt_age_ms": 155.97925009205937,
+    "hold_max_supervisor_measurement_age_ms": 220.0,
+    "bridge_samples": 133,
+    "bridge_samples_during_hold": 0,
+    "sent_samples": 3941,
+    "journal_matches_export": true,
+    "path_length_matches_export": true,
+    "baseline": {
+      "mode": "obstacle",
+      "exit_code": 0,
+      "failure": "",
+      "original_baseline_preserved": true,
+      "execution_sources_unchanged": true
+    }
+  },
+  "final_code_hold": {
+    "run": "flight_log_bounded_hold_20261019_01",
+    "flight_complete": true,
+    "disarmed": true,
+    "fault": "",
+    "armed_failsafe_samples": 0,
+    "hold_seconds": 180.006707868,
+    "hold_rss": {
+      "samples": 180,
+      "first_mib": 151.5234375,
+      "last_mib": 151.5703125,
+      "minimum_mib": 151.5234375,
+      "maximum_mib": 151.5703125,
+      "delta_mib": 0.046875,
+      "slope_mib_per_min": 0.011014491493875839
+    },
+    "hold_send_samples": 3398,
+    "hold_max_send_gap_ms": 59.209269,
+    "combined_send_log_max_gap_ms": 59.209269,
+    "hold_max_supervisor_receipt_age_ms": 171.29644297529012,
+    "hold_max_supervisor_measurement_age_ms": 196.0,
+    "bridge_samples": 116,
+    "bridge_samples_during_hold": 0,
+    "sent_samples": 3924,
+    "journal_matches_export": true,
+    "path_length_matches_export": true,
+    "baseline": {
+      "mode": "obstacle",
+      "exit_code": 0,
+      "failure": "",
+      "original_baseline_preserved": true,
+      "execution_sources_unchanged": true
+    }
+  },
+  "intermediate_scan_smoke": {
+    "run": "bridge_store_scan_20261019_01",
+    "stage": "JSONL bridge store; before sent CSV change",
+    "complete_route_verified": true,
+    "actual_horizontal_path_m": 2.529745717482146,
+    "endpoint_truth_xy_errors_m": [
+      0.05748145110862478,
+      0.063753817435941,
+      0.06062661070148224,
+      0.06908162511762839
+    ],
+    "bspline_count": 11,
+    "planned_continuous_clearance_passed": true,
+    "planned_dynamics_passed": true,
+    "whole_flight_envelope_passed": true,
+    "whole_flight_mesh_clearance_m": {
+      "count": 3888,
+      "minimum": 2.535656501545076,
+      "p95": 3.1135426552916954,
+      "maximum": 3.1364017609115673
+    },
+    "combined_setpoint_send_max_gap_ms": 64.479594,
+    "armed_failsafe_samples": 0,
+    "ev_fusion_confirmed": true,
+    "all_complete_curves_inside_shared_envelope": true,
+    "baseline": {
+      "mode": "obstacle",
+      "exit_code": 0,
+      "failure": "",
+      "original_baseline_preserved": true,
+      "execution_sources_unchanged": true
+    }
+  },
+  "preflight_denied_run": "bridge_store_hold_20261019_01",
+  "offline_allocation_replay": {
+    "source_run": "gc_extended_retest_20261018_01",
+    "scope": "Offline allocation replay only; three copies of real audit records, not a flight performance comparison. tracemalloc measures Python allocations, not whole-process RSS.",
+    "runs": [
+      {
+        "mode": "legacy_list",
+        "kind": "bridge",
+        "checkpoints": [
+          {
+            "rows": 8269,
+            "current_mib": 26.445740699768066,
+            "peak_mib": 26.458426475524902
+          },
+          {
+            "rows": 16538,
+            "current_mib": 52.88966178894043,
+            "peak_mib": 52.902347564697266
+          },
+          {
+            "rows": 24807,
+            "current_mib": 79.34547710418701,
+            "peak_mib": 79.3581018447876
+          }
+        ],
+        "retained_rows": 24807
+      },
+      {
+        "mode": "disk_store",
+        "kind": "bridge",
+        "checkpoints": [
+          {
+            "rows": 8269,
+            "current_mib": 0.012385368347167969,
+            "peak_mib": 0.03312873840332031
+          },
+          {
+            "rows": 16538,
+            "current_mib": 0.012830734252929688,
+            "peak_mib": 0.03357410430908203
+          },
+          {
+            "rows": 24807,
+            "current_mib": 0.013131141662597656,
+            "peak_mib": 0.03387451171875
+          }
+        ],
+        "retained_rows": 2
+      },
+      {
+        "mode": "legacy_list",
+        "kind": "sent",
+        "checkpoints": [
+          {
+            "rows": 6419,
+            "current_mib": 12.155112266540527,
+            "peak_mib": 12.167255401611328
+          },
+          {
+            "rows": 12838,
+            "current_mib": 24.308223724365234,
+            "peak_mib": 24.320366859436035
+          },
+          {
+            "rows": 19257,
+            "current_mib": 36.471070289611816,
+            "peak_mib": 36.48321342468262
+          }
+        ],
+        "retained_rows": 19257
+      },
+      {
+        "mode": "disk_store",
+        "kind": "sent",
+        "checkpoints": [
+          {
+            "rows": 6419,
+            "current_mib": 0.13176536560058594,
+            "peak_mib": 0.15362262725830078
+          },
+          {
+            "rows": 12838,
+            "current_mib": 0.1321573257446289,
+            "peak_mib": 0.15401458740234375
+          },
+          {
+            "rows": 19257,
+            "current_mib": 0.13245773315429688,
+            "peak_mib": 0.15431499481201172
+          }
+        ],
+        "retained_rows": 0
+      }
+    ]
+  },
+  "unlimited_memory_stability_verified": false,
+  "limitations": [
+    "The old 300s hold added no bridge_samples; its 13.53 MiB growth cannot be assigned mainly to bridge_samples.",
+    "All 180s geometry-rich holds disable EV and executor audit; one run at each stage, not a repeatability rate or complete stack memory plateau.",
+    "The scan smoke predates the sent CSV change. Final CSV code has geometry-rich flight evidence; a final-version long outdoor route with EV and executor auditing is still required.",
+    "Writes are line buffered, not a hard deadline or crash/power-loss durability guarantee."
+  ]
+}

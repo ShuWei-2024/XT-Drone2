@@ -24,6 +24,7 @@ namespace ego_planner
     node_->declare_parameter("fsm/planning_horizen_time", -1.0);
     node_->declare_parameter("fsm/emergency_time", 1.0);
     node_->declare_parameter("fsm/max_tracking_error_m", 0.0);
+    node_->declare_parameter("fsm/lock_height", false);
     node_->declare_parameter("fsm/ready_timeout_sec", 0.3);
     node_->declare_parameter("fsm/realworld_experiment", false);
     node_->declare_parameter("fsm/fail_safe", true);
@@ -35,6 +36,7 @@ namespace ego_planner
     node_->get_parameter("fsm/planning_horizen_time", planning_horizen_time_);
     node_->get_parameter("fsm/emergency_time", emergency_time_);
     node_->get_parameter("fsm/max_tracking_error_m", max_tracking_error_m_);
+    node_->get_parameter("fsm/lock_height", lock_height_);
     double ready_timeout_sec = node_->get_parameter("fsm/ready_timeout_sec").as_double();
     if (ready_timeout_sec <= 0.0)
       throw std::invalid_argument("fsm/ready_timeout_sec must be positive");
@@ -233,12 +235,14 @@ namespace ego_planner
     auto grid = planner_manager_->grid_map_;
     if (grid->executionEnvelopeRequired()) {
       bool direct = true;
-      const int n = std::max(1,int(std::ceil((next_wp-odom_pos_).norm()/.05)));
+      Eigen::Vector3d planning_start = odom_pos_;
+      if (lock_height_) planning_start.z() = next_wp.z();
+      const int n = std::max(1,int(std::ceil((next_wp-planning_start).norm()/.05)));
       for (int i=0; i<=n; ++i)
-        if (!grid->executionEnvelopeAllows(odom_pos_+(next_wp-odom_pos_)*(double(i)/n))) {
+        if (!grid->executionEnvelopeAllows(planning_start+(next_wp-planning_start)*(double(i)/n))) {
           direct = false; break;
         }
-      if (!direct && !grid->executionEnvelopeGuide(odom_pos_,next_wp,envelope_guide_)) {
+      if (!direct && !grid->executionEnvelopeGuide(planning_start,next_wp,envelope_guide_)) {
         trajectory_valid_pub_->publish(std_msgs::msg::Bool().set__data(false));
         have_target_ = false;
         RCLCPP_WARN(node_->get_logger(), "No bounded route in shared execution envelope; goal rejected");
@@ -250,7 +254,15 @@ namespace ego_planner
         RCLCPP_INFO(node_->get_logger(), "Shared-envelope global guide: %.3f m, %zu corners", length,envelope_guide_.size());
       }
     }
-    success = planner_manager_->planGlobalTraj(odom_pos_, odom_vel_, Eigen::Vector3d::Zero(), next_wp, Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero());
+    Eigen::Vector3d planning_start = odom_pos_;
+    Eigen::Vector3d planning_velocity = odom_vel_;
+    if (lock_height_) {
+      planning_start.z() = next_wp.z();
+      planning_velocity.z() = 0.0;
+    }
+    success = planner_manager_->planGlobalTraj(planning_start, planning_velocity,
+                                                Eigen::Vector3d::Zero(), next_wp,
+                                                Eigen::Vector3d::Zero(), Eigen::Vector3d::Zero());
 
     if (success)
     {
@@ -919,6 +931,14 @@ namespace ego_planner
   {
 
     getLocalTarget();
+
+    if (lock_height_) {
+      // Flat-route diagnostic: do not turn estimator Z noise into a vertical
+      // command during a replan. Vertical missions leave this disabled.
+      start_pt_.z() = local_target_pt_.z();
+      start_vel_.z() = 0.0;
+      start_acc_.z() = 0.0;
+    }
 
     bool plan_and_refine_success =
         planner_manager_->reboundReplan(start_pt_, start_vel_, start_acc_, local_target_pt_, local_target_vel_, (have_new_target_ || flag_use_poly_init), flag_randomPolyTraj);

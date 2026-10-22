@@ -1,0 +1,279 @@
+{
+  "date": "2026-10-19",
+  "scope": "Isolated low-speed short-route faults near a certified descent area; no all-telemetry, reset, GPS-denied or hardware certification",
+  "python_regression_passed": 338,
+  "runs": [
+    {
+      "run": "final_livo_only_loss_20261019_02",
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "injection": {
+        "kind": "stop_owned_livo_estimator_only",
+        "signal": "SIGINT",
+        "livo_process_group": 3605292,
+        "handoff": {
+          "event": "ego_control_handoff",
+          "wall_ns": 848333789329235,
+          "sim_ns": 111212000000,
+          "odom_age_sec": 0.1,
+          "odom_receipt_age_sec": 0.06736064399592578,
+          "map_ready": true,
+          "heading_good": true,
+          "truth": [
+            0.048836014148602974,
+            -0.012499852279296383,
+            0.8978068167150757
+          ],
+          "px4": [
+            0.038436587899923325,
+            0.03670750930905342,
+            -0.9792529940605164,
+            1.5866379737854004
+          ],
+          "goal_index": 0
+        },
+        "command_wall_ns": 848335830700655,
+        "estimator_pid": 3605312,
+        "scope": "Estimator only; preserve launch, adapter and ROS clock"
+      },
+      "response": {
+        "expected_fault_observed": true,
+        "checks": {
+          "injected": true,
+          "driver_rejected_task": true,
+          "stopped_process_exited": true,
+          "abort_after_injection": true,
+          "bounded_response": true,
+          "expected_reason": true,
+          "landed_and_disarmed": true,
+          "task_not_reported_complete": true,
+          "no_normal_bridge_rows_after_abort": true
+        },
+        "driver_exit_code": 1,
+        "fault": "FAST-LIVO2 measurement age outside 0..250 ms",
+        "stopped_process": "livo",
+        "stopped_process_exit_code": null,
+        "disarmed": true,
+        "child_exit_confirmed_by_pidfd": true,
+        "response_event": "hold_target_frozen",
+        "response_after_injection_ms": 230.61214,
+        "hold_after_injection_ms": 230.61214,
+        "source_launch_still_running": true,
+        "map_exit_code": null
+      },
+      "flight_complete": false,
+      "disarmed": true,
+      "land_requested_after_injection_ms": 1235.227732,
+      "disarmed_after_injection_ms": 6264.015767,
+      "armed_failsafe_samples": 0,
+      "minimum_body_center_known_surface_clearance_m": 2.801287338237369,
+      "full_task_not_completed": true,
+      "published_curves": 3,
+      "all_complete_curves_inside_shared_envelope": true,
+      "after_injection_direct_observer_counts": {
+        "odom": 1,
+        "px4_local": 625,
+        "px4_status": 16,
+        "ready": 125
+      },
+      "clock_advanced_after_injection_s": 6.256,
+      "ev_had_fused_xy_and_z": true,
+      "ev_scope": "Fusion confirmed in recorded samples; does not imply ongoing fusion after estimator source stops",
+      "source_paths_different_from_long_run": [
+        "astra/tools/ego_sitl_flight.py",
+        "astra/tools/run_sitl_117.py",
+        "astra/tools/sitl_fault_regression.py",
+        "astra/tools/sitl_position_relay.py"
+      ],
+      "adapter_events_after_estimator_stop": 4115
+    },
+    {
+      "run": "final_planner_loss_20261019_01",
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "injection": {
+        "kind": "stop_owned_planner_process_group",
+        "signal": "SIGINT",
+        "planner_process_group": 3586975,
+        "handoff": {
+          "event": "ego_control_handoff",
+          "wall_ns": 847467553376858,
+          "sim_ns": 110908000000,
+          "odom_age_sec": 0.092,
+          "odom_receipt_age_sec": 0.051403540070168674,
+          "map_ready": true,
+          "heading_good": true,
+          "truth": [
+            0.029051179898058534,
+            0.008350530757226476,
+            0.872731944835458
+          ],
+          "px4": [
+            -0.03200951963663101,
+            0.03403822332620621,
+            -0.9635697603225708,
+            1.5893664360046387
+          ],
+          "goal_index": 0
+        },
+        "command_wall_ns": 847469576680464
+      },
+      "response": {
+        "expected_fault_observed": true,
+        "checks": {
+          "injected": true,
+          "driver_rejected_task": true,
+          "stopped_process_exited": true,
+          "abort_after_injection": true,
+          "bounded_response": true,
+          "expected_reason": true,
+          "landed_and_disarmed": true,
+          "task_not_reported_complete": true,
+          "no_normal_bridge_rows_after_abort": true
+        },
+        "driver_exit_code": 1,
+        "fault": "bridge fault: stale planner heartbeat",
+        "stopped_process": "planner",
+        "stopped_process_exit_code": 0,
+        "disarmed": true,
+        "response_event": "hold_target_frozen",
+        "response_after_injection_ms": 285.942294,
+        "hold_after_injection_ms": 285.942294,
+        "map_exit_code": null
+      },
+      "flight_complete": false,
+      "disarmed": true,
+      "land_requested_after_injection_ms": 1289.613846,
+      "disarmed_after_injection_ms": 6236.964176,
+      "armed_failsafe_samples": 0,
+      "minimum_body_center_known_surface_clearance_m": 2.800611998990318,
+      "full_task_not_completed": true,
+      "published_curves": 3,
+      "all_complete_curves_inside_shared_envelope": true,
+      "after_injection_direct_observer_counts": {
+        "odom": 63,
+        "px4_local": 621,
+        "px4_status": 17,
+        "ready": 124
+      },
+      "clock_advanced_after_injection_s": 6.224,
+      "ev_had_fused_xy_and_z": true,
+      "ev_scope": "Fusion confirmed in recorded samples; does not imply ongoing fusion after estimator source stops",
+      "source_paths_different_from_long_run": [
+        "astra/tools/ego_sitl_flight.py",
+        "astra/tools/run_sitl_117.py",
+        "astra/tools/sitl_fault_regression.py",
+        "astra/tools/sitl_position_relay.py"
+      ]
+    },
+    {
+      "run": "final_px4_position_loss_20261019_01",
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "injection": {
+        "kind": "stop_owned_position_relay_process_group",
+        "signal": "SIGINT",
+        "position_relay_process_group": 3599139,
+        "handoff": {
+          "event": "ego_control_handoff",
+          "wall_ns": 848020680306621,
+          "sim_ns": 111420000000,
+          "odom_age_sec": 0.108,
+          "odom_receipt_age_sec": 0.04788256902247667,
+          "map_ready": true,
+          "heading_good": true,
+          "truth": [
+            0.0068084969289980155,
+            0.037684875229395606,
+            0.852942514927249
+          ],
+          "px4": [
+            0.00979007687419653,
+            0.011830287054181099,
+            -0.9477311372756958,
+            1.584827184677124
+          ],
+          "goal_index": 0
+        },
+        "command_wall_ns": 848022706266634
+      },
+      "response": {
+        "expected_fault_observed": true,
+        "checks": {
+          "injected": true,
+          "driver_rejected_task": true,
+          "stopped_process_exited": true,
+          "abort_after_injection": true,
+          "bounded_response": true,
+          "expected_reason": true,
+          "landed_and_disarmed": true,
+          "task_not_reported_complete": true,
+          "no_normal_bridge_rows_after_abort": true,
+          "land_requested_after_abort": true
+        },
+        "driver_exit_code": 1,
+        "fault": "PX4 or Gazebo state older than 250 ms",
+        "stopped_process": "position_relay",
+        "stopped_process_exit_code": 0,
+        "disarmed": true,
+        "response_event": "fault_latched",
+        "response_after_injection_ms": 252.833725,
+        "hold_after_injection_ms": null,
+        "map_exit_code": null
+      },
+      "flight_complete": false,
+      "disarmed": true,
+      "land_requested_after_injection_ms": 253.40802,
+      "disarmed_after_injection_ms": 5169.457979,
+      "armed_failsafe_samples": 0,
+      "minimum_body_center_known_surface_clearance_m": 2.77154671323017,
+      "full_task_not_completed": true,
+      "published_curves": 3,
+      "all_complete_curves_inside_shared_envelope": true,
+      "after_injection_direct_observer_counts": {
+        "odom": 52,
+        "px4_local": 513,
+        "px4_status": 14,
+        "ready": 103
+      },
+      "clock_advanced_after_injection_s": 5.148,
+      "ev_had_fused_xy_and_z": true,
+      "ev_scope": "Fusion confirmed in recorded samples; does not imply ongoing fusion after estimator source stops",
+      "source_paths_different_from_long_run": [
+        "astra/tools/ego_sitl_flight.py",
+        "astra/tools/run_sitl_117.py",
+        "astra/tools/sitl_fault_regression.py",
+        "astra/tools/sitl_position_relay.py"
+      ],
+      "relay": {
+        "source": "/x500_0/fmu/out/vehicle_local_position_v1",
+        "output": "/astra/sitl_fault/vehicle_local_position",
+        "forwarded": 6278,
+        "first_sample_us": 50640000,
+        "last_sample_us": 113420000,
+        "last_forward_wall_ns": 848022705033288,
+        "scope": "Mission position input only; no command, EV or status remapping"
+      },
+      "direct_position_samples_newer_than_last_relay_sample": 513
+    }
+  ],
+  "retained_combined_interruption": {
+    "run": "final_livo_loss_20261019_01",
+    "scope": "Old harness stopped estimator, adapter and ROS clock bridge together; not an independent estimator-failure test"
+  }
+}

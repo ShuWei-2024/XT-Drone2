@@ -21,6 +21,7 @@ def generate_launch_description():
         DeclareLaunchArgument('max_retained_images', default_value='512'),
         DeclareLaunchArgument('timing_audit_csv', default_value=''),
         DeclareLaunchArgument('input_audit_csv', default_value=''),
+        DeclareLaunchArgument('trace_sensor_callbacks', default_value='false'),
         DeclareLaunchArgument('openmp_wait_policy', default_value='PASSIVE',
                              choices=['PASSIVE', 'ACTIVE']),
         DeclareLaunchArgument('openmp_spin_count', default_value='0'),
@@ -59,6 +60,8 @@ def generate_launch_description():
                     LaunchConfiguration('scan_period_sec'), value_type=float),
                 'point_time_mode': LaunchConfiguration('point_time_mode'),
                 'input_audit_csv': LaunchConfiguration('input_audit_csv'),
+                'trace_sensor_callbacks': ParameterValue(
+                    LaunchConfiguration('trace_sensor_callbacks'), value_type=bool),
                 'max_lidar_image_delta_sec': ParameterValue(
                     LaunchConfiguration('max_lidar_image_delta_sec'), value_type=float),
             }],

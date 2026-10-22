@@ -11,7 +11,7 @@ import rclpy
 from geometry_msgs.msg import PoseStamped, TwistStamped
 from nav_msgs.msg import Odometry
 from px4_msgs.msg import TrajectorySetpoint, VehicleLocalPosition
-from px4_topics import px4_topic
+from px4_topics import px4_sensor_history_qos, px4_topic
 from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
@@ -89,7 +89,7 @@ class PreviewBspline(Node):
 
         gate_qos = QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
                               durability=DurabilityPolicy.TRANSIENT_LOCAL)
-        px4_qos = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
+        px4_qos = px4_sensor_history_qos()
         self.create_subscription(Bool, '/local_mapping/ready', self.on_ready, gate_qos)
         self.create_subscription(Bool, '/planning/trajectory_valid', self.on_valid, gate_qos)
         self.create_subscription(Empty, '/planning/heartbeat', self.on_planner_heartbeat, 10)

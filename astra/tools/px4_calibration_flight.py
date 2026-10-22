@@ -10,7 +10,7 @@ from gz.transport13 import Node as GazeboNode
 import os
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'packages/astra_px4_offboard/scripts'))
-from px4_topics import px4_topic
+from px4_topics import px4_sensor_history_qos, px4_topic
 import rclpy
 from px4_msgs.msg import (OffboardControlMode, TrajectorySetpoint,
                           VehicleCommand, VehicleLocalPosition, VehicleStatus)
@@ -30,7 +30,7 @@ class CalibrationFlight(Node):
         self.gz = GazeboNode()
         self.gz.subscribe(Pose_V, '/world/astra_px4_open/dynamic_pose/info', self.on_truth)
         self.create_subscription(VehicleLocalPosition, px4_topic('out', 'vehicle_local_position', VehicleLocalPosition, os.environ.get('ASTRA_PX4_NAMESPACE', 'x500_0')),
-                                 self.on_local, qos_profile_sensor_data)
+                                 self.on_local, px4_sensor_history_qos())
         self.create_subscription(VehicleStatus, px4_topic('out', 'vehicle_status', VehicleStatus, os.environ.get('ASTRA_PX4_NAMESPACE', 'x500_0')),
                                  self.on_status, qos_profile_sensor_data)
         self.mode_pub = self.create_publisher(OffboardControlMode,

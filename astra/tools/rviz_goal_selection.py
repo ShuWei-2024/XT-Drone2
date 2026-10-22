@@ -44,7 +44,7 @@ def validate_goal(frame, stamp_ns, now_ns, xyz, origin, height_m, guard,
     delta = xyz[:2]-origin[:2]
     distance = np.linalg.norm(delta)
     radius=float(getattr(guard,'metadata',{}).get('interactive_goal_radius_m',3.))
-    if not math.isfinite(radius) or not 3. <= radius <= 45.:
+    if not math.isfinite(radius) or not 3. <= radius <= 50.:
         raise ValueError('Invalid inspected goal radius')
     if not (.25 <= distance <= radius or (allow_origin and distance <= .10)):
         raise ValueError(f'Select a goal between 0.25 and {radius:g} m from takeoff')
@@ -196,7 +196,9 @@ class RvizSelection:
                         self.check_click(q, i>0)
                     if data.get('end_action', 'land') == 'land':
                         from flight_recovery import landing_allowed
-                        if not landing_allowed(self.node.mesh_guard, self.mission.goals[-1]):
+                        if (not landing_allowed(self.node.mesh_guard, self.mission.goals[-1]) and
+                                self.node.mesh_guard.metadata.get('recovery_policy') !=
+                                'connected_route_to_certified_landing'):
                             raise ValueError('Last waypoint is transit only; choose return home or hold')
                 self.mission.command(command, data)
                 self.node.event('rviz_command_accepted', command=command)
@@ -215,7 +217,8 @@ class RvizSelection:
         from flight_recovery import landing_allowed
         body = getattr(self.node, 'truth_body', None)
         if (self.mission.started and body is not None and
-                not landing_allowed(self.node.mesh_guard, body[:2])):
+                not landing_allowed(self.node.mesh_guard, body[:2]) and
+                self.node.mesh_guard.metadata.get('recovery_policy') != 'connected_route_to_certified_landing'):
             self.mission.command('return_home', {})
             self.state = 'Returning home through planner'
             self.node.event('rviz_land_redirected_to_return', reason='transit only position')

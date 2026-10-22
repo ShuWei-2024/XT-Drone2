@@ -1,0 +1,329 @@
+{
+  "run": "gc_extended_retest_20261018_01",
+  "mission_complete": true,
+  "disarmed": true,
+  "armed_failsafe_samples": 0,
+  "complete_route_verified": true,
+  "known_surface_blocked_path_avoidance_verified": true,
+  "horizontal_path_m": 71.20513209275649,
+  "endpoint_xy_errors_m": [
+    0.008925445683000794,
+    0.03675830829344231,
+    0.029923001116391287
+  ],
+  "minimum_body_center_clearance_m": 1.4765068439773934,
+  "planned_peak_speed_mps": 0.20000000000000118,
+  "planned_peak_acceleration_mps2": 0.2480972672203126,
+  "ground_frozen_errors": {
+    "fast_livo2_xy_m": {
+      "count": 4422,
+      "p50": 0.03474191891167425,
+      "p95": 0.057773766165187625,
+      "maximum": 0.07934466361360858
+    },
+    "fast_livo2_z_m": {
+      "count": 4422,
+      "p50": 0.016797226083613892,
+      "p95": 0.03866663836313715,
+      "maximum": 0.04223616206782976
+    },
+    "fast_livo2_signed_z_median": 0.016733135224139106,
+    "px4_xy_m": {
+      "count": 44214,
+      "p50": 0.02967134547210413,
+      "p95": 0.06391464990784308,
+      "maximum": 0.08140905877737797
+    },
+    "px4_z_m": {
+      "count": 44214,
+      "p50": 0.014805597618167798,
+      "p95": 0.029140665358447174,
+      "maximum": 0.08955973610804113
+    },
+    "px4_signed_z_median": -0.013376935070163132
+  },
+  "height_datum_diagnostic": {
+    "available": true,
+    "certification": false,
+    "scope": "PX4 1.17 EV height reference only; fixed disarmed origin, no trajectory fit, bias estimate or flight-gate changes",
+    "fixed_origin_altitude_m": 0.1547347456216812,
+    "origin_confirmed_sim_us": 38776000,
+    "raw_z_m": {
+      "count": 7861,
+      "p95": 0.21097007089788167,
+      "maximum": 0.22968006576751998
+    },
+    "origin_referenced_z_m": {
+      "count": 7861,
+      "p95": 0.05849948252833914,
+      "maximum": 0.10331334775660217
+    },
+    "equation": "local_z - EV_z - frozen_ref_alt",
+    "reason": "Fixed disarmed origin matches every armed ULog ref_alt sample"
+  },
+  "full_window": {
+    "run": "gc_extended_retest_20261018_01",
+    "scope": "Full prestream-to-disarm diagnostics plus extended hold; no hardware certification",
+    "window_seconds": 792.244282662,
+    "hold_wall_seconds": 300.004773461,
+    "gc_prepared_to_disarm_by_generation": {
+      "0": {
+        "count": 136,
+        "p50": 1.1326665,
+        "p95": 3.4852767499999997,
+        "maximum": 6.71406,
+        "minimum": 0.143394
+      },
+      "1": {
+        "count": 12,
+        "p50": 4.275499,
+        "p95": 9.36494095,
+        "maximum": 9.851213,
+        "minimum": 0.752761
+      },
+      "2": {
+        "count": 1,
+        "p50": 45.53985,
+        "p95": 45.53985,
+        "maximum": 45.53985,
+        "minimum": 45.53985
+      }
+    },
+    "gc_all_record_counts": {
+      "0": 152,
+      "1": 13,
+      "2": 3
+    },
+    "gc_retained_counts": {
+      "0": 152,
+      "1": 13,
+      "2": 3
+    },
+    "combined_prestream_to_land_request_send_gap_ms": {
+      "count": 14687,
+      "p50": 53.347063,
+      "p95": 58.5468582,
+      "maximum": 76.771309,
+      "minimum": 3.841572
+    },
+    "hold_supervisor_odom_receipt_age_ms": {
+      "count": 5591,
+      "p50": 51.10457795672119,
+      "p95": 99.27123499801382,
+      "maximum": 153.45340501517057,
+      "minimum": 1.4311090344563127
+    },
+    "hold_supervisor_odom_measurement_age_ms": {
+      "count": 5591,
+      "p50": 92.0,
+      "p95": 136.0,
+      "maximum": 184.0,
+      "minimum": 28.0
+    },
+    "hold_setpoint_gap_ms": {
+      "count": 5590,
+      "p50": 53.470626499999995,
+      "p95": 58.2392189,
+      "maximum": 71.192555,
+      "minimum": 46.40388
+    },
+    "odom_callbacks_full_window": {
+      "guarded_bspline_bridge:/fast_livo2/odom": {
+        "count": 7455,
+        "p50": 100.15876,
+        "p95": 118.07871189999999,
+        "maximum": 167.118467,
+        "minimum": 0.127075
+      },
+      "preview_bspline:/fast_livo2/odom": {
+        "count": 7455,
+        "p50": 100.139895,
+        "p95": 118.77011829999998,
+        "maximum": 166.455983,
+        "minimum": 0.171358
+      },
+      "px4_calibration_flight:/fast_livo2/odom": {
+        "count": 7880,
+        "p50": 100.1871145,
+        "p95": 118.39371919999999,
+        "maximum": 167.330012,
+        "minimum": 58.542981
+      }
+    },
+    "independent_odom_gap_ms": {
+      "count": 7880,
+      "p50": 100.116096,
+      "p95": 119.98748519999997,
+      "maximum": 178.085828,
+      "minimum": 21.644469
+    },
+    "independent_odom_measurement_age_ms": {
+      "count": 7881,
+      "p50": 40.0,
+      "p95": 56.0,
+      "maximum": 124.0,
+      "minimum": 12.0
+    },
+    "flight_process_rss_mib": {
+      "first": 178.15234375,
+      "last": 290.33984375,
+      "maximum": 290.33984375,
+      "duration_sec": 731.288649441,
+      "hold_delta_mib": 13.52734375,
+      "plateau_verified": false,
+      "before_disarm_last_mib": 215.17578125,
+      "before_disarm_max_mib": 215.17578125,
+      "sampling_started_after_flight_begin": true
+    },
+    "hold_truth_xy_displacement_from_first_m": {
+      "count": 15657,
+      "p95": 0.04477369051174774,
+      "maximum": 0.0774792539300463
+    },
+    "hold_truth_z_range_m": 0.19278700105558522
+  },
+  "resources": {
+    "livo": {
+      "samples": 832,
+      "duration_sec": 832.3429549849825,
+      "first_mib": 197.578125,
+      "last_mib": 485.48828125,
+      "minimum_mib": 194.92578125,
+      "maximum_mib": 486.6484375,
+      "delta_mib": 287.91015625,
+      "fitted_slope_mib_per_min": 11.098626110870011,
+      "pid": 2534987,
+      "last_windows": {
+        "60": {
+          "samples": 60,
+          "duration_sec": 59.094161698943935,
+          "first_mib": 486.5859375,
+          "last_mib": 485.48828125,
+          "minimum_mib": 482.203125,
+          "maximum_mib": 486.6484375,
+          "delta_mib": -1.09765625,
+          "fitted_slope_mib_per_min": -1.624709865832863
+        },
+        "120": {
+          "samples": 120,
+          "duration_sec": 119.18570919695776,
+          "first_mib": 486.5859375,
+          "last_mib": 485.48828125,
+          "minimum_mib": 482.203125,
+          "maximum_mib": 486.6484375,
+          "delta_mib": -1.09765625,
+          "fitted_slope_mib_per_min": -0.6512886953588148
+        },
+        "300": {
+          "samples": 300,
+          "duration_sec": 299.4896118559409,
+          "first_mib": 481.734375,
+          "last_mib": 485.48828125,
+          "minimum_mib": 481.734375,
+          "maximum_mib": 486.6484375,
+          "delta_mib": 3.75390625,
+          "fitted_slope_mib_per_min": 0.5131117754564027
+        }
+      }
+    },
+    "local_map": {
+      "samples": 832,
+      "duration_sec": 832.3429549849825,
+      "first_mib": 100.80859375,
+      "last_mib": 113.2578125,
+      "minimum_mib": 100.80859375,
+      "maximum_mib": 113.34375,
+      "delta_mib": 12.44921875,
+      "fitted_slope_mib_per_min": 0.40180375428495746,
+      "pid": 2534979,
+      "last_windows": {
+        "60": {
+          "samples": 60,
+          "duration_sec": 59.094161698943935,
+          "first_mib": 113.34375,
+          "last_mib": 113.2578125,
+          "minimum_mib": 113.2578125,
+          "maximum_mib": 113.34375,
+          "delta_mib": -0.0859375,
+          "fitted_slope_mib_per_min": -0.00843849537945503
+        },
+        "120": {
+          "samples": 120,
+          "duration_sec": 119.18570919695776,
+          "first_mib": 113.34375,
+          "last_mib": 113.2578125,
+          "minimum_mib": 113.2578125,
+          "maximum_mib": 113.34375,
+          "delta_mib": -0.0859375,
+          "fitted_slope_mib_per_min": -0.002127387703634078
+        },
+        "300": {
+          "samples": 300,
+          "duration_sec": 299.4896118559409,
+          "first_mib": 113.3125,
+          "last_mib": 113.2578125,
+          "minimum_mib": 113.2578125,
+          "maximum_mib": 113.34375,
+          "delta_mib": -0.0546875,
+          "fitted_slope_mib_per_min": 0.004774585932431702
+        }
+      }
+    },
+    "planner": {
+      "samples": 832,
+      "duration_sec": 832.3429549849825,
+      "first_mib": 201.625,
+      "last_mib": 208.2265625,
+      "minimum_mib": 201.625,
+      "maximum_mib": 208.3125,
+      "delta_mib": 6.6015625,
+      "fitted_slope_mib_per_min": 0.1595192391878172,
+      "pid": 2535030,
+      "last_windows": {
+        "60": {
+          "samples": 60,
+          "duration_sec": 59.094161698943935,
+          "first_mib": 208.3125,
+          "last_mib": 208.2265625,
+          "minimum_mib": 208.2265625,
+          "maximum_mib": 208.3125,
+          "delta_mib": -0.0859375,
+          "fitted_slope_mib_per_min": -0.008438495379275119
+        },
+        "120": {
+          "samples": 120,
+          "duration_sec": 119.18570919695776,
+          "first_mib": 208.3125,
+          "last_mib": 208.2265625,
+          "minimum_mib": 208.2265625,
+          "maximum_mib": 208.3125,
+          "delta_mib": -0.0859375,
+          "fitted_slope_mib_per_min": -0.002127387703661169
+        },
+        "300": {
+          "samples": 300,
+          "duration_sec": 299.4896118559409,
+          "first_mib": 208.3125,
+          "last_mib": 208.2265625,
+          "minimum_mib": 208.2265625,
+          "maximum_mib": 208.3125,
+          "delta_mib": -0.0859375,
+          "fitted_slope_mib_per_min": -0.0003420383597158797
+        }
+      }
+    }
+  },
+  "restoration": {
+    "mode": "obstacle",
+    "exit_code": 0,
+    "failure": "",
+    "original_baseline_preserved": true,
+    "execution_sources_unchanged": true
+  },
+  "limits": [
+    "One authored Baylands static route at 0.20 m/s; not cross-map or hardware certification",
+    "Raw EV/PX4 height disagreement is preserved; fixed-origin diagnostic is not frame certification",
+    "Flight process memory did not plateau; one 45.54 ms generation-2 GC occurred during hold",
+    "Resource duration includes ground preparation; flight process sampling starts after takeoff"
+  ]
+}
