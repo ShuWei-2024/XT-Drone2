@@ -11,6 +11,7 @@ which is included as part of this source code package.
 */
 
 #include "vio.h"
+#include "vio_measurement_rows.h"
 #include <unordered_map>
 #include <unordered_set>
 
@@ -1577,6 +1578,8 @@ void VIOManager::updateStateInverse(cv::Mat img, int level)
 
   for (int iteration = 0; iteration < max_iterations; iteration++)
   {
+    // A point can leave the image after an EKF update. Its rows are cleared
+    // below before rebuilding this iteration's measurements.
     double t1 = omp_get_wtime();
     double count_outlier = 0;
     if (has_ref_patch_cache == false) precomputeReferencePatches(level);
@@ -1600,6 +1603,8 @@ void VIOManager::updateStateInverse(cv::Mat img, int level)
 
     for (int i = 0; i < total_points; i++)
     {
+      const int row = i * patch_size_total;
+      clearVisualMeasurementRows(H_sub, z, row, patch_size_total, 6);
       float patch_error = 0.0;
 
       const int scale = (1 << level);
@@ -1734,6 +1739,8 @@ void VIOManager::updateState(cv::Mat img, int level)
 
   for (int iteration = 0; iteration < max_iterations; iteration++)
   {
+    // A patch that leaves the image must not retain residual/Jacobian rows
+    // from the previous EKF iteration.
     double t1 = omp_get_wtime();
 
     M3D Rwi_anchor(state->rot_end);
@@ -1766,6 +1773,8 @@ void VIOManager::updateState(cv::Mat img, int level)
     #endif
     for (int i = 0; i < total_points; i++)
     {
+      const int row = i * patch_size_total;
+      clearVisualMeasurementRows(H_sub, z, row, patch_size_total, 7);
       // printf("thread is %d, i=%d, i address is %p\n", omp_get_thread_num(), i, &i);
       MD(1, 2) Jimg;
       MD(2, 3) Jdpi;

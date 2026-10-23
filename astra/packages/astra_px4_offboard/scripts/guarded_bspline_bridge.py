@@ -12,7 +12,7 @@ from geometry_msgs.msg import PoseStamped, TwistStamped
 from nav_msgs.msg import Odometry
 from px4_msgs.msg import (OffboardControlMode, TrajectorySetpoint, VehicleCommand,
                           VehicleLocalPosition, VehicleStatus)
-from px4_topics import px4_topic
+from px4_topics import px4_sensor_history_qos, px4_topic
 from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
@@ -94,6 +94,10 @@ class GuardedBsplineBridge(Node):
         self.frozen_hold = None
         self.last_land_request = None
         self.fault_reason = ''
+        # Preserve the exact inputs and clock ages that caused a latched fault.
+        # The supervisor and bridge have independent DDS subscriptions, so its
+        # odometry sample is not necessarily the bridge's latest sample.
+        self.fault_diagnostics = None
         self.preview_gap_since = None
         self.replan_hold = None
         self.tracking_yaw = None
@@ -108,7 +112,7 @@ class GuardedBsplineBridge(Node):
         self.pending_velocities = {}
         self.pose_frame_valid = self.velocity_frame_valid = True
 
-        sensor_qos = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
+        sensor_qos = px4_sensor_history_qos()
         if subscribe_preview:
             self.create_subscription(PoseStamped, '/planning/position_preview',
                                      self.on_pose, 10)
@@ -124,7 +128,7 @@ class GuardedBsplineBridge(Node):
                                  self.on_px4, sensor_qos)
         self.create_subscription(VehicleStatus, px4_topic(
             'out', 'vehicle_status', VehicleStatus, self.px4_namespace),
-                                 self.on_status, sensor_qos)
+                                 self.on_status, QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT))
         self.preview_pub = self.create_publisher(TrajectorySetpoint,
                                                  '/planning/px4_setpoint_preview', 10)
         self.state_pub = self.create_publisher(String, '/planning/bridge_state', 10)
@@ -196,6 +200,36 @@ class GuardedBsplineBridge(Node):
 
     def fresh(self, seen, limit):
         return seen is not None and time.monotonic() - seen <= limit
+
+    def capture_fault_diagnostics(self, reason):
+        now_ros_ns = self.control_clock.now().nanoseconds
+        now_wall_ns = time.monotonic_ns()
+
+        def sample(message, received_wall):
+            if message is None:
+                return None
+            header = getattr(message, 'header', None)
+            stamp = stamp_ns(header.stamp) if header is not None else None
+            return {
+                'stamp_ns': stamp,
+                'measurement_age_ms': (None if stamp is None else
+                                       (now_ros_ns - stamp) / 1e6),
+                'receipt_age_ms': (None if received_wall is None else
+                                   (now_wall_ns - int(received_wall * 1e9)) / 1e6),
+            }
+
+        return {
+            'reason': reason,
+            'ros_now_ns': now_ros_ns,
+            'wall_now_ns': now_wall_ns,
+            'odom': sample(self.odom, self.odom_wall),
+            'preview_pose': sample(self.pose, self.pose_wall),
+            'preview_velocity': sample(self.velocity, self.velocity_wall),
+            'px4_measurement_age_ms': (None if self.px4 is None else
+                                       (now_ros_ns - self.px4.timestamp_sample * 1000) / 1e6),
+            'odom_measurement_limit_ms': self.limits['max_odom_age_sec'] * 1000,
+            'preview_receipt_limit_ms': self.limits['max_preview_age_sec'] * 1000,
+        }
 
     def transform(self, position):
         xy = self.matrix @ np.asarray(position[:2], dtype=float) + self.translation
@@ -386,6 +420,7 @@ class GuardedBsplineBridge(Node):
             if self.tracked and self.fault_since is None:
                 self.fault_since = time.monotonic()
                 self.fault_reason = fault
+                self.fault_diagnostics = self.capture_fault_diagnostics(fault)
                 if (self.px4 is not None and
                         self.fresh(self.px4_wall, self.limits['max_px4_age_sec']) and
                         self.px4.xy_valid and self.px4.z_valid and

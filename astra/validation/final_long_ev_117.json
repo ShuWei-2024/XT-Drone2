@@ -1,0 +1,353 @@
+{
+  "run": "final_long_ev_retest_20261019_01",
+  "scope": "Final execution code: isolated low-speed Baylands two waypoints, EGO return, 300 s hold; no hardware certification",
+  "baseline": {
+    "mode": "obstacle",
+    "exit_code": 0,
+    "failure": "",
+    "original_baseline_preserved": true,
+    "execution_sources_unchanged": true
+  },
+  "flight_complete": true,
+  "disarmed": true,
+  "fault": "",
+  "complete_route_verified": true,
+  "blocked_path_avoidance_verified": true,
+  "goals": [
+    3,
+    3
+  ],
+  "measurement_time_path_m": 71.30067966192009,
+  "endpoint_xy_error_m": [
+    0.019435888408989906,
+    0.06201924964912441,
+    0.03908689996848841
+  ],
+  "curves": 419,
+  "all_complete_curves_inside_shared_envelope": true,
+  "continuous_clearance_passed": true,
+  "dynamics_passed": true,
+  "minimum_body_center_known_surface_clearance_m": 1.4454087247692475,
+  "planned_peak_speed_mps": 0.20000000000000018,
+  "planned_peak_acceleration_mps2": 0.2482847034108485,
+  "armed_failsafe_samples": 0,
+  "log_integrity": {
+    "journal_matches_export": true,
+    "journal_count": 8132,
+    "reported_bridge_count": 8132,
+    "csv_count": 6456,
+    "reported_sent_count": 6456
+  },
+  "combined_send_record_gap_ms": {
+    "count": 14587,
+    "minimum": 4.996647,
+    "p95": 58.4433986,
+    "maximum": 71.284591
+  },
+  "combined_send_scope": "prestream to land request; native plus bridge send records, not PX4 receipt latency",
+  "hold_send_gap_ms": {
+    "count": 5592,
+    "minimum": 45.577791,
+    "p95": 58.175268349999996,
+    "maximum": 67.927382
+  },
+  "hold_supervisor_measurement_age_ms": {
+    "count": 5593,
+    "minimum": 24.0,
+    "p95": 136.0,
+    "maximum": 188.0
+  },
+  "hold_supervisor_receipt_age_ms": {
+    "count": 5593,
+    "minimum": 1.34224200155586,
+    "p95": 99.4746413314715,
+    "maximum": 159.12869200110435
+  },
+  "all_supervisor_measurement_age_ms": {
+    "count": 14588,
+    "minimum": 24.0,
+    "p95": 136.0,
+    "maximum": 188.0
+  },
+  "all_supervisor_receipt_age_ms": {
+    "count": 14588,
+    "minimum": 0.9384830482304096,
+    "p95": 100.23730249959044,
+    "maximum": 159.12869200110435
+  },
+  "independent_odom_callback_gap_ms": {
+    "count": 7826,
+    "minimum": 24.111225,
+    "p95": 120.242153,
+    "maximum": 181.778437
+  },
+  "independent_odom_measurement_age_ms": {
+    "count": 7827,
+    "minimum": 12.0,
+    "p95": 56.0,
+    "maximum": 92.0
+  },
+  "hold_seconds": 300.004277713,
+  "hold_truth_xy_max_from_start_m": 0.0675208705688945,
+  "hold_truth_z_range_m": 0.17759951386011896,
+  "hold_rss": {
+    "motion": {
+      "samples": 300,
+      "pid": 3559862,
+      "duration_s": 299.46818506205454,
+      "first_mib": 189.58984375,
+      "last_mib": 196.17578125,
+      "minimum_mib": 189.58984375,
+      "maximum_mib": 196.17578125,
+      "delta_mib": 6.5859375,
+      "slope_mib_per_min": 1.3018020720313483
+    },
+    "livo": {
+      "samples": 300,
+      "pid": 3558990,
+      "duration_s": 299.46818506205454,
+      "first_mib": 478.34765625,
+      "last_mib": 485.1484375,
+      "minimum_mib": 478.34765625,
+      "maximum_mib": 485.16796875,
+      "delta_mib": 6.80078125,
+      "slope_mib_per_min": 0.27519354511186006
+    },
+    "local_map": {
+      "samples": 300,
+      "pid": 3558987,
+      "duration_s": 299.46818506205454,
+      "first_mib": 113.6953125,
+      "last_mib": 113.6953125,
+      "minimum_mib": 113.6953125,
+      "maximum_mib": 113.6953125,
+      "delta_mib": 0.0,
+      "slope_mib_per_min": -2.275982167178658e-15
+    },
+    "planner": {
+      "samples": 300,
+      "pid": 3559011,
+      "duration_s": 299.46818506205454,
+      "first_mib": 208.34375,
+      "last_mib": 208.40625,
+      "minimum_mib": 208.34375,
+      "maximum_mib": 208.40625,
+      "delta_mib": 0.0625,
+      "slope_mib_per_min": 0.001706388421316382
+    }
+  },
+  "hold_last120_rss": {
+    "motion": {
+      "samples": 120,
+      "pid": 3559862,
+      "duration_s": 119.19709790300112,
+      "first_mib": 193.58984375,
+      "last_mib": 196.17578125,
+      "minimum_mib": 193.58984375,
+      "maximum_mib": 196.17578125,
+      "delta_mib": 2.5859375,
+      "slope_mib_per_min": 1.3013371455870633
+    },
+    "livo": {
+      "samples": 120,
+      "pid": 3558990,
+      "duration_s": 119.19709790300112,
+      "first_mib": 485.1484375,
+      "last_mib": 485.1484375,
+      "minimum_mib": 485.1484375,
+      "maximum_mib": 485.1484375,
+      "delta_mib": 0.0,
+      "slope_mib_per_min": 2.1671379926301122e-13
+    },
+    "local_map": {
+      "samples": 120,
+      "pid": 3558987,
+      "duration_s": 119.19709790300112,
+      "first_mib": 113.6953125,
+      "last_mib": 113.6953125,
+      "minimum_mib": 113.6953125,
+      "maximum_mib": 113.6953125,
+      "delta_mib": 0.0,
+      "slope_mib_per_min": 0.0
+    },
+    "planner": {
+      "samples": 120,
+      "pid": 3559011,
+      "duration_s": 119.19709790300112,
+      "first_mib": 208.40625,
+      "last_mib": 208.40625,
+      "minimum_mib": 208.40625,
+      "maximum_mib": 208.40625,
+      "delta_mib": 0.0,
+      "slope_mib_per_min": 3.6118966543835203e-14
+    }
+  },
+  "airborne_gen2_gc": [],
+  "gc_statistics": {
+    "0": {
+      "count": 72,
+      "total_wall_ns": 69862922,
+      "max_wall_ns": 6334325
+    },
+    "1": {
+      "count": 6,
+      "total_wall_ns": 21616316,
+      "max_wall_ns": 6268747
+    },
+    "2": {
+      "count": 2,
+      "total_wall_ns": 93041724,
+      "max_wall_ns": 55301386
+    }
+  },
+  "ev_fusion_confirmed": true,
+  "ev_aid_sources": {
+    "estimator_aid_src_ev_pos": {
+      "recorded": true,
+      "scope": "armed",
+      "count": 7806,
+      "fused_count": 7806,
+      "fused_fraction": 1.0,
+      "rejected_count": 0,
+      "last_fuse_advanced_count": 7805,
+      "maximum_fusion_age_ms": 184.0,
+      "innovation_abs_m": {
+        "count": 15612,
+        "p95": 0.016677999496459955,
+        "maximum": 0.04424285888671875
+      }
+    },
+    "estimator_aid_src_ev_hgt": {
+      "recorded": true,
+      "scope": "armed",
+      "count": 7806,
+      "fused_count": 7806,
+      "fused_fraction": 1.0,
+      "rejected_count": 0,
+      "last_fuse_advanced_count": 7805,
+      "maximum_fusion_age_ms": 184.0,
+      "innovation_abs_m": {
+        "count": 7806,
+        "p95": 0.023253560066223145,
+        "maximum": 0.05824410915374756
+      }
+    }
+  },
+  "ev_ground_frozen_agreement": {
+    "reference": "single EV ground-frozen ENU/NED translation; no airborne fit",
+    "scope": "armed",
+    "paired_measurements": 8172,
+    "pairing_fraction": 0.9978021978021978,
+    "matched_measurement_dt_ms": {
+      "count": 8172,
+      "p95": 8.0,
+      "maximum": 16.0
+    },
+    "xy_m": {
+      "count": 7806,
+      "p95": 0.05987145563405894,
+      "maximum": 0.11671193715876842
+    },
+    "z_m": {
+      "count": 7806,
+      "p95": 0.09962276959827521,
+      "maximum": 0.11581178368354639
+    },
+    "yaw_disagreement_deg": {
+      "count": 7806,
+      "p95": 0.8291219633569703,
+      "maximum": 1.2484519019002533
+    }
+  },
+  "ev_height_datum_diagnostic": {
+    "available": true,
+    "certification": false,
+    "scope": "PX4 1.17 EV height reference only; fixed disarmed origin, no trajectory fit, bias estimate or flight-gate changes",
+    "fixed_origin_altitude_m": 0.11845320463180542,
+    "origin_confirmed_sim_us": 36940000,
+    "raw_z_m": {
+      "count": 7806,
+      "p95": 0.09962276959827521,
+      "maximum": 0.11581178368354639
+    },
+    "origin_referenced_z_m": {
+      "count": 7806,
+      "p95": 0.13932866229061852,
+      "maximum": 0.20273313013913286
+    },
+    "equation": "local_z - EV_z - frozen_ref_alt",
+    "reason": "Fixed disarmed origin matches every armed ULog ref_alt sample"
+  },
+  "ev_reset_events": [
+    {
+      "timestamp_sample_us": 28568000,
+      "before": [
+        4,
+        1,
+        1
+      ],
+      "after": [
+        4,
+        2,
+        1
+      ],
+      "armed": false
+    },
+    {
+      "timestamp_sample_us": 35920000,
+      "before": [
+        4,
+        2,
+        1
+      ],
+      "after": [
+        5,
+        3,
+        1
+      ],
+      "armed": false
+    },
+    {
+      "timestamp_sample_us": 91520000,
+      "before": [
+        5,
+        3,
+        1
+      ],
+      "after": [
+        5,
+        3,
+        2
+      ],
+      "armed": true
+    }
+  ],
+  "ground_frozen_execution_truth_errors": {
+    "fast_livo2_xy_m": {
+      "count": 4360,
+      "p50": 0.018213248255444396,
+      "p95": 0.07266434601551826,
+      "maximum": 0.1174606032720344
+    },
+    "fast_livo2_z_m": {
+      "count": 4360,
+      "p50": 0.0448848112230269,
+      "p95": 0.08145391462436816,
+      "maximum": 0.08596252697812456
+    },
+    "fast_livo2_signed_z_median": 0.0448848112230269,
+    "px4_xy_m": {
+      "count": 43601,
+      "p50": 0.03456209962548825,
+      "p95": 0.060410345199873206,
+      "maximum": 0.08516493151778438
+    },
+    "px4_z_m": {
+      "count": 43601,
+      "p50": 0.005375836119069666,
+      "p95": 0.03544384304131576,
+      "maximum": 0.08715100419599864
+    },
+    "px4_signed_z_median": 0.00222966594991858
+  }
+}

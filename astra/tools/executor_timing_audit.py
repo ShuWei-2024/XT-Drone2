@@ -3,6 +3,7 @@ from collections import defaultdict, deque
 import gc
 import json
 from pathlib import Path
+import struct
 import time
 
 
@@ -19,13 +20,78 @@ def measurement_ns(msg):
     return int(sample)*1000 if sample is not None else None
 
 
+class _AuditSpan:
+    """Reuse one class: defining a type per check creates cyclic GC garbage."""
+    __slots__ = ('audit','label','wall','cpu','wait')
+
+    def __init__(self,audit,label):
+        self.audit,self.label=audit,label
+
+    def __enter__(self):
+        self.wall=time.monotonic_ns();self.cpu=time.thread_time_ns()
+        self.wait=scheduler_wait_ns()
+        return self
+
+    def __exit__(self,*_):
+        finish_wait=scheduler_wait_ns()
+        self.audit.record(dict(label=self.label,wall_start_ns=self.wall,wall_end_ns=time.monotonic_ns(),
+            wall_duration_ns=time.monotonic_ns()-self.wall,cpu_duration_ns=time.thread_time_ns()-self.cpu,
+            scheduler_wait_ns=None if self.wait is None or finish_wait is None else finish_wait-self.wait))
+
+
+class CompactOdomHistory:
+    """Preallocate the existing diagnostic window instead of retaining dicts.
+
+    Only Odom callbacks have this fixed schema. Decode dictionaries during
+    offline export, preserving nanoseconds, optional measurement time, labels
+    and the same chronological 65536-row retention policy.
+    """
+    fields = ('wall_start_ns', 'measurement_ns', 'ros_clock_before_ns',
+              'dds_received_system_ns', 'dds_source_system_ns',
+              'callback_start_system_ns', 'wall_end_ns', 'wall_duration_ns',
+              'cpu_duration_ns', 'ros_clock_after_ns')
+    layout = struct.Struct('<I10q?')
+    missing = -(1 << 63)
+
+    def __init__(self, capacity=65536):
+        if not isinstance(capacity, int) or isinstance(capacity, bool) or capacity <= 0:
+            raise ValueError('Odom history capacity must be a positive integer')
+        self.maxlen = capacity
+        self.storage = bytearray(capacity * self.layout.size)
+        self.labels = []
+        self.label_ids = {}
+        self.count = 0
+
+    def append(self, row):
+        label = row['label']
+        if label not in self.label_ids:
+            self.label_ids[label] = len(self.labels)
+            self.labels.append(label)
+        values = [self.missing if row[key] is None else row[key] for key in self.fields]
+        self.layout.pack_into(self.storage, (self.count % self.maxlen) * self.layout.size,
+                              self.label_ids[label], *values, row['dds_metadata_available'])
+        self.count += 1
+
+    def __len__(self):
+        return min(self.count, self.maxlen)
+
+    def __iter__(self):
+        for index in range(max(0, self.count - self.maxlen), self.count):
+            values = self.layout.unpack_from(self.storage, (index % self.maxlen) * self.layout.size)
+            row = dict(label=self.labels[values[0]], topic='/fast_livo2/odom')
+            row.update((key, None if value == self.missing else value)
+                       for key, value in zip(self.fields, values[1:-1]))
+            row['dds_metadata_available'] = values[-1]
+            yield row
+
+
 class ExecutorTimingAudit:
     def __init__(self):
         self.tail=deque(maxlen=8192)
         self.batch_tail=deque(maxlen=2048)
         # RViz ground editing has no timeout. Keep diagnostic memory bounded
         # even if an operator leaves the session waiting for hours.
-        self.odom_callbacks=deque(maxlen=65536)
+        self.odom_callbacks=CompactOdomHistory()
         self.slow=deque(maxlen=1024)
         self.stats=defaultdict(lambda:dict(count=0,total_wall_ns=0,total_cpu_ns=0,max_wall_ns=0))
         self.installed=[]
@@ -109,17 +175,7 @@ class ExecutorTimingAudit:
             self.installed.append((timer,original));timer.callback=make_timer(original,label)
 
     def span(self,label):
-        audit=self
-        class Span:
-            def __enter__(self):
-                self.wall=time.monotonic_ns();self.cpu=time.thread_time_ns()
-                self.wait=scheduler_wait_ns()
-            def __exit__(self,*_):
-                finish_wait=scheduler_wait_ns()
-                audit.record(dict(label=label,wall_start_ns=self.wall,wall_end_ns=time.monotonic_ns(),
-                    wall_duration_ns=time.monotonic_ns()-self.wall,cpu_duration_ns=time.thread_time_ns()-self.cpu,
-                    scheduler_wait_ns=None if self.wait is None or finish_wait is None else finish_wait-self.wait))
-        return Span()
+        return _AuditSpan(self,label)
 
     def restore(self):
         if self._gc_callback in gc.callbacks:gc.callbacks.remove(self._gc_callback)
@@ -127,7 +183,11 @@ class ExecutorTimingAudit:
         self.installed.clear()
 
     def save(self,path):
-        Path(path).write_text(json.dumps(dict(scope='Diagnostic only; original queue depths and flight gates retained',
+        Path(path).write_text(json.dumps(dict(scope='Diagnostic only; flight gates and automatic GC settings retained',
+            odom_history=dict(storage='preallocated packed nanoseconds', capacity=self.odom_callbacks.maxlen,
+                total_count=self.odom_callbacks.count, retained_count=len(self.odom_callbacks),
+                overwritten_count=max(0,self.odom_callbacks.count-self.odom_callbacks.maxlen),
+                allocated_bytes=len(self.odom_callbacks.storage)),
             callback_statistics=dict(self.stats),tail=list(self.tail),batch_tail=list(self.batch_tail),
             slow_callbacks=list(self.slow),odom_callbacks=list(self.odom_callbacks),
             gc_statistics=dict(self.gc_stats),gc_tail=list(self.gc_events)),indent=2)+'\n')

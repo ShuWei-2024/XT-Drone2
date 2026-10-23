@@ -206,6 +206,7 @@ if(BUILD_TESTING)
   ament_target_dependencies(test_pending_vio ${dependencies})
   target_link_libraries(test_pending_vio laser_mapping vio lio pre imu_proc
     ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} ${Sophus_LIBRARIES} ${Boost_LIBRARIES})
+  ament_add_gtest(test_vio_measurement_rows test/test_vio_measurement_rows.cpp)
 endif()
 
 install(TARGETS

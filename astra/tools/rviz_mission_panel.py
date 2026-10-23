@@ -52,7 +52,7 @@ class Controls(QtWidgets.QWidget):
         row.addWidget(self.remove); row.addWidget(self.clear); layout.addLayout(row)
         self.mode = QtWidgets.QComboBox()
         self.mode.addItem('最后一个航点：避障返航，然后降落', 'return_home')
-        self.mode.addItem('最后一个航点：降落，不返回', 'land')
+        self.mode.addItem('最后一个航点：就近安全降落，不返回', 'land')
         self.mode.addItem('最后一个航点：悬停，等待追加目标', 'hold')
         layout.addWidget(self.mode)
         self.wait = QtWidgets.QSpinBox(); self.wait.setRange(30, 120); self.wait.setValue(60)
@@ -105,7 +105,8 @@ class Controls(QtWidgets.QWidget):
                   'preflight':'起飞前检查', 'prestream':'准备起飞', 'settle':'等待稳定',
                   'heading_alignment':'航向校准', 'cruise_descent':'下降至巡航高度',
                   'cruise_settle':'巡航准备', 'initial_yaw_agreement':'检查航向对齐',
-                  'endpoint_hold':'到点保持', 'fault_hold':'中止并保持', 'native_rtl':'PX4 官方返航降落'}
+                  'endpoint_hold':'到点保持', 'fault_hold':'中止并保持', 'native_rtl':'PX4 官方返航降落',
+                  'connected_recovery':'沿安全通道移至降落区'}
         messages={'READY: add waypoints, then press Start':'已就绪：添加航点后点击开始任务',
                   'REJECTED: Goal lacks planner detour reserve; select farther inside the safe region':
                   '航点太靠近安全区域边缘，规划器无法接收；请向区域内部重新选点',
@@ -116,7 +117,9 @@ class Controls(QtWidgets.QWidget):
                   'Waiting for another waypoint':'已到点：追加航点后继续飞行',
                   'Returning home through planner':'正在由 EGO 规划返航',
                   'Returned home: landing':'已返航：在起飞区降落',
-                  'Mission completed: landing here':'任务完成：在最后航点降落', 'PAUSED':'保持当前位置'}
+                  'Mission completed: landing here':'任务完成：在最后航点降落',
+                  'Mission completed: moving to nearby landing site':'任务完成：移至附近安全区域降落',
+                  'PAUSED':'保持当前位置'}
         self.status_label.setText(phases.get(s['phase'],s['phase'])+'\n'+messages.get(s['message'],s['message']))
         self.height.setText('%s\n巡航：%.2f m · 校准爬升：%.2f m\n航点范围：起飞点周围 %.1f m'%(
             s.get('scene_name','室内场景'),s['height_m'],s.get('alignment_height_m',1.60),s.get('goal_radius_m',3.)))

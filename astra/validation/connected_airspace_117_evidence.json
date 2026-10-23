@@ -1,0 +1,280 @@
+{
+  "date": "2026-10-17",
+  "scope": "Baylands known static SITL; not every point flight-tested",
+  "unit_tests_passed": 299,
+  "geometry": {
+    "old_bounds": [
+      [
+        -30.0,
+        -30.0
+      ],
+      [
+        30.0,
+        30.0
+      ]
+    ],
+    "new_bounds": [
+      [
+        -34.0,
+        -34.0
+      ],
+      [
+        34.0,
+        34.0
+      ]
+    ],
+    "old_endpoint_area_m2": 1299.18,
+    "new_endpoint_area_m2": 3376.04,
+    "new_flight_area_m2": 3510.0,
+    "all_flight_cells_have_recovery_route": true,
+    "flight_cells": 351000,
+    "landing_root_cells": 249457,
+    "obstacle_guard_margin_m": 0.55,
+    "flight_boundary_reserve_m": 0.4,
+    "new_close_examples": [
+      [
+        1.5500000000000043,
+        -3.549999999999997
+      ],
+      [
+        2.3500000000000014,
+        -3.349999999999998
+      ],
+      [
+        1.0500000000000043,
+        -4.049999999999997
+      ],
+      [
+        1.4500000000000028,
+        -3.9499999999999993
+      ],
+      [
+        2.75,
+        -3.25
+      ],
+      [
+        1.8500000000000014,
+        -3.849999999999998
+      ]
+    ],
+    "flight_validated": false,
+    "all_recovery_edges_adjacent_and_free": true,
+    "maximum_grid_recovery_distance_m": 25.8
+  },
+  "runs": [
+    {
+      "run": "connected_recovery_20261017_01",
+      "flight_complete": false,
+      "fault": "local map not ready or heartbeat stale",
+      "disarmed": true,
+      "complete_route_verified": false,
+      "executed_horizontal_path_m": 5.046490704407608,
+      "whole_flight_minimum_body_centre_surface_distance_m": 1.6314348099538352,
+      "armed_failsafe_samples": 0,
+      "planned_dynamics_passed": true,
+      "shared_envelope_passed": true,
+      "actual_ev_fusion_confirmed": true,
+      "max_supervisor_safety_check_ms": 10.729369,
+      "gc_statistics": {
+        "0": {
+          "count": 33,
+          "total_wall_ns": 18027267,
+          "max_wall_ns": 2212561
+        },
+        "1": {
+          "count": 3,
+          "total_wall_ns": 7103765,
+          "max_wall_ns": 4501309
+        }
+      },
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "events": [
+        {
+          "event": "ego_waypoint_reached",
+          "sim_ns": 153544000000,
+          "truth": [
+            1.2369642906186185,
+            -4.74208328359395,
+            1.5234464949717905
+          ]
+        },
+        {
+          "event": "connected_recovery_started",
+          "sim_ns": 154944000000,
+          "truth": [
+            1.249884527770798,
+            -4.756681813128995,
+            1.5515338488542691
+          ],
+          "route_livo_xy": [
+            [
+              1.2456875358440052,
+              -4.77510824045714
+            ],
+            [
+              1.2501874757847133,
+              -4.7684684729839475
+            ],
+            [
+              1.2501874757847133,
+              -3.668468472983946
+            ],
+            [
+              1.150187475784712,
+              -3.668468472983946
+            ]
+          ]
+        },
+        {
+          "event": "connected_recovery_arrived",
+          "sim_ns": 165064000000,
+          "truth": [
+            1.1267460458330734,
+            -3.662454115290375,
+            1.4713072332313657
+          ],
+          "endpoint_livo_xy": [
+            1.150187475784712,
+            -3.668468472983946
+          ]
+        },
+        {
+          "event": "land_requested",
+          "sim_ns": 165064000000,
+          "truth": [
+            1.1267460458330734,
+            -3.662454115290375,
+            1.4713072332313657
+          ]
+        },
+        {
+          "event": "disarmed",
+          "sim_ns": 170916000000,
+          "truth": [
+            1.1287823047732668,
+            -3.6659076232571,
+            -0.01300024097608607
+          ]
+        }
+      ],
+      "fault_regression": {
+        "expected_fault_observed": true,
+        "driver_exit_code": 1,
+        "map_exit_code": 0,
+        "fault": "local map not ready or heartbeat stale",
+        "stopped_process": "map",
+        "stopped_process_exit_code": 0,
+        "hold_after_injection_ms": 254.894859,
+        "disarmed": true
+      }
+    },
+    {
+      "run": "connected_west_20261017_01",
+      "flight_complete": true,
+      "fault": "",
+      "disarmed": true,
+      "complete_route_verified": true,
+      "executed_horizontal_path_m": 31.27009091360654,
+      "whole_flight_minimum_body_centre_surface_distance_m": 1.5843782926249723,
+      "armed_failsafe_samples": 0,
+      "planned_dynamics_passed": true,
+      "shared_envelope_passed": true,
+      "actual_ev_fusion_confirmed": true,
+      "max_supervisor_safety_check_ms": 24.310652,
+      "gc_statistics": {
+        "0": {
+          "count": 68,
+          "total_wall_ns": 89993723,
+          "max_wall_ns": 4552704
+        },
+        "1": {
+          "count": 6,
+          "total_wall_ns": 23270851,
+          "max_wall_ns": 7112935
+        }
+      },
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true
+      },
+      "events": [
+        {
+          "event": "ego_waypoint_reached",
+          "sim_ns": 294160000000,
+          "truth": [
+            -31.084473882274363,
+            -0.005479621744452918,
+            1.4387818376278079
+          ]
+        },
+        {
+          "event": "connected_recovery_started",
+          "sim_ns": 297128000000,
+          "truth": [
+            -31.070743621324763,
+            -0.026916458887075122,
+            1.3971149354028614
+          ],
+          "route_livo_xy": [
+            [
+              -31.002652523119348,
+              -0.03293369917908632
+            ],
+            [
+              -31.049831959700168,
+              -0.06841253481162823
+            ],
+            [
+              -31.049831959700168,
+              -0.6684125348116297
+            ],
+            [
+              -30.949831959700166,
+              -0.6684125348116297
+            ]
+          ]
+        },
+        {
+          "event": "connected_recovery_arrived",
+          "sim_ns": 305792000000,
+          "truth": [
+            -31.022400352968905,
+            -0.6682771900296915,
+            1.4102170019808955
+          ],
+          "endpoint_livo_xy": [
+            -30.949831959700166,
+            -0.6684125348116297
+          ]
+        },
+        {
+          "event": "land_requested",
+          "sim_ns": 305792000000,
+          "truth": [
+            -31.022400352968905,
+            -0.6682771900296915,
+            1.4102170019808955
+          ]
+        },
+        {
+          "event": "disarmed",
+          "sim_ns": 311520000000,
+          "truth": [
+            -30.976879823434455,
+            -0.6740501061391132,
+            -0.013000528786403814
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -87,7 +87,10 @@ class MeshGuard:
                     or certificate.get('sampled_bounds_m') != self.bounds.tolist()
                     or not np.isfinite(self.metadata.get('transit_continuous_clearance_lower_bound_m', 0))
                     or self.metadata.get('transit_continuous_clearance_lower_bound_m', 0) < .65
-                    or self.metadata.get('recovery_policy') != 'planned_return_with_certified_rtl'):
+                    or self.metadata.get('recovery_policy') not in (
+                        'planned_return_with_certified_rtl','connected_route_to_certified_landing')
+                    or (self.metadata.get('recovery_policy') == 'connected_route_to_certified_landing' and
+                        certificate.get('connected_recovery_required') is not True)):
                 raise ValueError('Invalid certified transit region or recovery policy')
 
     @property

@@ -40,7 +40,7 @@ bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
 | 限制 | 当前交互行为 |
 | --- | --- |
 | 航点数量 | 每轮最多 8 个；相邻目标至少 0.15 m |
-| 航点范围 | 室内默认 3 m；室外全图配置检查 XY ±30 m、距离上限 43 m，还须通过连通空域与实时障碍检查；旧配置 10 m |
+| 航点范围 | 室内默认 3 m；室外连通配置检查 XY ±34 m、距离上限 49 m，还须通过连通空域与实时障碍检查；旧配置范围保留 |
 | 高度 | 全图配置相对高度 1.50 m，旧室外配置 0.90 m；起始航向对齐爬升 1.60 m |
 | 地面编辑 | 默认不限时，不点击开始就不解锁 |
 | 空中等待 / 暂停 | 默认 60 秒，可选 30～120 秒；不会无限悬停 |
@@ -49,7 +49,7 @@ bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
 
 **图层说明**：灰色参考网格每格 0.5 m，室外覆盖 70×70 m，不表示允许飞行边界。青色轮廓／填色来自同一冻结规划端点掩码，已扣除跟踪／规划余量，并保守排除跨越半径限制的格子；这是静态几何范围，点击仍检查实时障碍、传感器与任务状态。场景背景来自导入模型；FAST-LIVO2 彩色观测来自实时传感器；绿色地面格为预检查下降净空区域；航点球到达后变绿表示完成。机载 RGB 是仿真相机画面。它们都不是“整张地图任意位置已认证可飞”的标记。
 
-独立通行场景另显示蓝色巡航区域；可通行不等于可原地下降。启动器依次优先使用存在的 `baylands_whole_map_refined`、`baylands_whole_map`、旧地图；准备和范围见 [全图空域与验证](../astra/validation/WHOLE_MAP_AIRSPACE_117.md)。健康返航通过 EGO，官方 RTL 只在已知直线走廊满足条件时使用，不会穿树返航。
+独立通行场景另显示蓝色巡航区域；可通行不等于可原地下降。启动器优先使用 `baylands_connected_full`，再回退到 `baylands_whole_map_refined`、`baylands_whole_map`、旧地图。新配置取消部分通行区必须直线 RTL 的限制：健康返航仍通过 EGO；末点不能下降或地图失联时，沿预先检查的静态通道移动到可降落点，再使用 PX4 Land。恢复必须保留有效 PX4 状态和冻结变换，不能绕过 reset 或几何检查。旧配置继续保持原 RTL 条件。准备与验收见文档索引的“连通空域开放”。
 
 RViz 的按钮名称“2D Goal Pose”只表示点选 XY，显示本身是三维。当前不通过该按钮自由设定 Z。完整交互验收见 [RViz2 飞行报告](../astra/validation/RVIZ_GOAL_FLIGHT_117.md)。
 
@@ -71,6 +71,22 @@ bash astra/run_117.bash obstacle outdoor_route_01 \
 事件接收现覆盖 RViz 地面选点、起飞前预发送、爬升和降落恢复；区域显示缓存随航点变化更新，命令不变。遇到按开始后报 `receipt age`，先检查本轮 `motion_events.json` 的失败阶段与接收／测量年龄，不能直接归因于算法耗时。用户运行及修复证据见 [交互起飞接收报告](../astra/validation/RVIZ_PREFLIGHT_RECEIVER_117.md)。
 
 小范围入口允许到位后观察，不宣称已通过“连续 4 秒严格稳定悬停”认证。不要把普通 hold 段与严格稳定 hold 混写。
+
+### 隔离故障回归
+
+仅用于 SITL 的起点附近可下降区域。每轮只选择一种中断；任务应被保护逻辑中止并降落上锁，不能当作正常航线完成。
+
+```bash
+bash astra/run_117.bash obstacle fault_$(date +%Y%m%d_%H%M%S) \
+  --world-preset baylands \
+  --scan-dir astra/runtime/maps/baylands_coloured_short_retest \
+  --route-json astra/runtime/maps/baylands_coloured_short_retest/route.json \
+  --calibrate-ground-height --external-vision --executor-audit \
+  --isolate-estimator-cpus --execution-executor events \
+  --stop-livo-after-handoff-s 2
+```
+
+可将单个开关替换为 `--stop-planner-after-handoff-s 2` 或 `--stop-px4-position-after-handoff-s 2`。前者只停 planner；位置测试只切断执行端 `vehicle_local_position` 输入，保留 PX4 命令、状态、EV 和独立记录器，不代表整条 DDS 链路失联。定位测试只停 `fastlivo_mapping`，保留适配器与 ROS 时钟。查看运行目录的 `fault_injection.json`、`fault_regression.json`、`motion_events.json` 和 ULog，核实故障原因、响应时间和上锁状态。结果与边界见[独立故障证据](../astra/validation/final_fault_matrix_117.json)。地图准备文件不随 Git 分发；其他机器先准备并核验地图，不要复制旧运行目录绕过前置检查。
 
 ## 扩大场景
 
@@ -131,6 +147,8 @@ astra/runtime/audit_venv/bin/python astra/tools/audit_long_route_drift.py astra/
 | 色块内航点仍被拒绝 | 青色才是扣除规划余量后的静态范围；绿／蓝色是原始降落／通行区域。青色内仍可能因实时障碍或健康状态被拒绝 |
 | `No bounded route...` | 查共享边界和起终点；当前日志尚不能区分预算耗尽/拓扑不可达/端点被侵蚀，不能断言电脑慢 |
 | odom 偶发延迟 | 比较测量时间、输入回调、LIO/VIO CPU 与墙钟耗时、接收排队；检查 GPU 渲染和 `/dev/shm` |
+| `PX4/LIVO height drift...0.20 m` | 比较地面冻结高度差及两估计器各自的真值误差；EV 融合有效不保证原始 Z 坐标一致。最新长路线仍有该失败，不直接放宽门槛 |
+| `Transit departure...failsafe flags stale` | 出发前仅对此状态过期最多等待 1.5 s，期间保持位置及原健康检查；新报告仍须满足 0.50 s 新鲜度。持续缺失或状态无效仍中止 |
 | 启动器拒绝已有进程 | 正常结束上一轮及其 GUI；仅清理确认属于本轮的进程，不使用全局 `killall` |
 | 消息导入或后缀错误 | 新终端只加载 `astra/env_117.bash`，检查消息子模块与构建产物 |
 | 地图目录不存在 | 按快速启动重新准备；Git 不包含大型生成资源 |

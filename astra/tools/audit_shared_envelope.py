@@ -9,6 +9,20 @@ from scan_mesh_guard import MeshGuard
 from audit_height_dynamics_117 import active_isolated_simulators
 
 
+def recorded_bridge_samples(directory, motion):
+    """DDS loss cannot confirm disarm, so the live result omits its full array."""
+    if 'bridge_samples' in motion:
+        rows = motion['bridge_samples']
+    elif 'bridge_sample_count' in motion:
+        rows = [json.loads(line) for line in
+                (directory/'bridge_samples.jsonl').read_text().splitlines() if line.strip()]
+    else:
+        return []
+    if 'bridge_sample_count' in motion and len(rows) != motion['bridge_sample_count']:
+        raise ValueError('Bridge journal count mismatch; cannot identify executed curves')
+    return rows
+
+
 def audit(directory):
     motion=json.loads((directory/'motion_events.json').read_text())
     frozen=next(e for e in motion['events'] if e['event']=='shared_execution_envelope_frozen')
@@ -23,7 +37,7 @@ def audit(directory):
     # A planner candidate can be rejected by the preview guard before it ever
     # becomes an Offboard setpoint. Report those separately from curves that
     # the execution bridge actually tracked.
-    tracked_ids={row.get('preview_trajectory_id') for row in motion.get('bridge_samples',[])
+    tracked_ids={row.get('preview_trajectory_id') for row in recorded_bridge_samples(directory,motion)
                  if row.get('state') == 'TRACK_SITL'}
     curve_by_start={row.get('start_ns'): row for row in motion.get('bsplines',[])}
     executed_failures=[failure for failure in failures

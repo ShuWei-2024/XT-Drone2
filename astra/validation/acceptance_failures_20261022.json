@@ -1,0 +1,1855 @@
+{
+  "scope": "Offline evidence only; preserves archived records and all flight gates; no new flight.",
+  "delivery": [
+    {
+      "run": "acceptance_baylands_20261021_01",
+      "fault": "",
+      "exact_publish_call_end_cadence": {
+        "samples": 4429,
+        "gap_ms": 168.558263,
+        "before": {
+          "measurement_ns": "354720000000",
+          "processing_us": "23669",
+          "thread_cpu_us": "18610",
+          "thread_scheduler_wait_us": "1204",
+          "processing_start_wall_ns": "1029693005673618",
+          "processing_end_wall_ns": "1029693029342713",
+          "odom_publish_end_wall_ns": "1029693026096033"
+        },
+        "after": {
+          "measurement_ns": "354816000000",
+          "processing_us": "52407",
+          "thread_cpu_us": "15998",
+          "thread_scheduler_wait_us": "27331",
+          "processing_start_wall_ns": "1029693151262548",
+          "processing_end_wall_ns": "1029693203670208",
+          "odom_publish_end_wall_ns": "1029693194654296"
+        }
+      },
+      "processing_end_proxy_cadence": {
+        "samples": 4429,
+        "gap_ms": 174.327495,
+        "before": {
+          "measurement_ns": "354720000000",
+          "processing_us": "23669",
+          "thread_cpu_us": "18610",
+          "thread_scheduler_wait_us": "1204",
+          "processing_start_wall_ns": "1029693005673618",
+          "processing_end_wall_ns": "1029693029342713",
+          "odom_publish_end_wall_ns": "1029693026096033"
+        },
+        "after": {
+          "measurement_ns": "354816000000",
+          "processing_us": "52407",
+          "thread_cpu_us": "15998",
+          "thread_scheduler_wait_us": "27331",
+          "processing_start_wall_ns": "1029693151262548",
+          "processing_end_wall_ns": "1029693203670208",
+          "odom_publish_end_wall_ns": "1029693194654296"
+        }
+      },
+      "processing_wall_ms": {
+        "samples": 4429,
+        "minimum": 11.305,
+        "median": 20.087,
+        "p95": 26.222999999999995,
+        "maximum": 75.02
+      },
+      "thread_cpu_ms": {
+        "samples": 4429,
+        "minimum": 9.838,
+        "median": 16.456,
+        "p95": 19.272999999999996,
+        "maximum": 21.764
+      },
+      "scheduler_wait_ms": {
+        "samples": 4429,
+        "minimum": 0.0,
+        "median": 1.6,
+        "p95": 5.4145999999999965,
+        "maximum": 53.852
+      },
+      "scope": "Execution measurement window; may include publication after abort. Publish-call end is instrumented in-process, not DDS wire time."
+    },
+    {
+      "run": "acceptance_baylands_20261021_02",
+      "fault": "",
+      "exact_publish_call_end_cadence": {
+        "samples": 4477,
+        "gap_ms": 165.664991,
+        "before": {
+          "measurement_ns": "121112000000",
+          "processing_us": "32096",
+          "thread_cpu_us": "16711",
+          "thread_scheduler_wait_us": "13668",
+          "processing_start_wall_ns": "1031161283213964",
+          "processing_end_wall_ns": "1031161315309975",
+          "odom_publish_end_wall_ns": "1031161309299420"
+        },
+        "after": {
+          "measurement_ns": "121212000000",
+          "processing_us": "55579",
+          "thread_cpu_us": "20319",
+          "thread_scheduler_wait_us": "33860",
+          "processing_start_wall_ns": "1031161423186810",
+          "processing_end_wall_ns": "1031161478766375",
+          "odom_publish_end_wall_ns": "1031161474964411"
+        }
+      },
+      "processing_end_proxy_cadence": {
+        "samples": 4477,
+        "gap_ms": 163.4564,
+        "before": {
+          "measurement_ns": "121112000000",
+          "processing_us": "32096",
+          "thread_cpu_us": "16711",
+          "thread_scheduler_wait_us": "13668",
+          "processing_start_wall_ns": "1031161283213964",
+          "processing_end_wall_ns": "1031161315309975",
+          "odom_publish_end_wall_ns": "1031161309299420"
+        },
+        "after": {
+          "measurement_ns": "121212000000",
+          "processing_us": "55579",
+          "thread_cpu_us": "20319",
+          "thread_scheduler_wait_us": "33860",
+          "processing_start_wall_ns": "1031161423186810",
+          "processing_end_wall_ns": "1031161478766375",
+          "odom_publish_end_wall_ns": "1031161474964411"
+        }
+      },
+      "processing_wall_ms": {
+        "samples": 4477,
+        "minimum": 10.617,
+        "median": 19.732,
+        "p95": 26.4986,
+        "maximum": 74.557
+      },
+      "thread_cpu_ms": {
+        "samples": 4477,
+        "minimum": 9.721,
+        "median": 16.231,
+        "p95": 19.0322,
+        "maximum": 22.073
+      },
+      "scheduler_wait_ms": {
+        "samples": 4477,
+        "minimum": 0.0,
+        "median": 1.58,
+        "p95": 5.784399999999998,
+        "maximum": 44.275
+      },
+      "scope": "Execution measurement window; may include publication after abort. Publish-call end is instrumented in-process, not DDS wire time."
+    },
+    {
+      "run": "acceptance_baylands_20261021_03",
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "exact_publish_call_end_cadence": {
+        "samples": 2712,
+        "gap_ms": 168.89082,
+        "before": {
+          "measurement_ns": "262416000000",
+          "processing_us": "30185",
+          "thread_cpu_us": "20538",
+          "thread_scheduler_wait_us": "8657",
+          "processing_start_wall_ns": "1032780455096133",
+          "processing_end_wall_ns": "1032780485281364",
+          "odom_publish_end_wall_ns": "1032780479682912"
+        },
+        "after": {
+          "measurement_ns": "262516000000",
+          "processing_us": "53611",
+          "thread_cpu_us": "21504",
+          "thread_scheduler_wait_us": "30610",
+          "processing_start_wall_ns": "1032780599100068",
+          "processing_end_wall_ns": "1032780652711563",
+          "odom_publish_end_wall_ns": "1032780648573732"
+        }
+      },
+      "processing_end_proxy_cadence": {
+        "samples": 2712,
+        "gap_ms": 167.651078,
+        "before": {
+          "measurement_ns": "337428000000",
+          "processing_us": "33627",
+          "thread_cpu_us": "19200",
+          "thread_scheduler_wait_us": "9781",
+          "processing_start_wall_ns": "1032855866834303",
+          "processing_end_wall_ns": "1032855900461741",
+          "odom_publish_end_wall_ns": "1032855896285741"
+        },
+        "after": {
+          "measurement_ns": "337524000000",
+          "processing_us": "75076",
+          "thread_cpu_us": "18067",
+          "thread_scheduler_wait_us": "45170",
+          "processing_start_wall_ns": "1032855993035900",
+          "processing_end_wall_ns": "1032856068112819",
+          "odom_publish_end_wall_ns": "1032856057452898"
+        }
+      },
+      "processing_wall_ms": {
+        "samples": 2712,
+        "minimum": 11.754,
+        "median": 19.749000000000002,
+        "p95": 26.9968,
+        "maximum": 75.076
+      },
+      "thread_cpu_ms": {
+        "samples": 2712,
+        "minimum": 10.184,
+        "median": 16.09,
+        "p95": 19.29245,
+        "maximum": 22.641
+      },
+      "scheduler_wait_ms": {
+        "samples": 2712,
+        "minimum": 0.0,
+        "median": 1.531,
+        "p95": 5.9263999999999974,
+        "maximum": 45.17
+      },
+      "scope": "Execution measurement window; may include publication after abort. Publish-call end is instrumented in-process, not DDS wire time."
+    },
+    {
+      "run": "acceptance_baylands_20261021_05",
+      "fault": "",
+      "exact_publish_call_end_cadence": {
+        "samples": 4452,
+        "gap_ms": 188.052347,
+        "before": {
+          "measurement_ns": "222916000000",
+          "processing_us": "30531",
+          "thread_cpu_us": "13996",
+          "thread_scheduler_wait_us": "14102",
+          "processing_start_wall_ns": "1036824288666961",
+          "processing_end_wall_ns": "1036824319198606",
+          "odom_publish_end_wall_ns": "1036824315872102"
+        },
+        "after": {
+          "measurement_ns": "223016000000",
+          "processing_us": "59600",
+          "thread_cpu_us": "21059",
+          "thread_scheduler_wait_us": "35643",
+          "processing_start_wall_ns": "1036824448127341",
+          "processing_end_wall_ns": "1036824507728012",
+          "odom_publish_end_wall_ns": "1036824503924449"
+        }
+      },
+      "processing_end_proxy_cadence": {
+        "samples": 4452,
+        "gap_ms": 188.529406,
+        "before": {
+          "measurement_ns": "222916000000",
+          "processing_us": "30531",
+          "thread_cpu_us": "13996",
+          "thread_scheduler_wait_us": "14102",
+          "processing_start_wall_ns": "1036824288666961",
+          "processing_end_wall_ns": "1036824319198606",
+          "odom_publish_end_wall_ns": "1036824315872102"
+        },
+        "after": {
+          "measurement_ns": "223016000000",
+          "processing_us": "59600",
+          "thread_cpu_us": "21059",
+          "thread_scheduler_wait_us": "35643",
+          "processing_start_wall_ns": "1036824448127341",
+          "processing_end_wall_ns": "1036824507728012",
+          "odom_publish_end_wall_ns": "1036824503924449"
+        }
+      },
+      "processing_wall_ms": {
+        "samples": 4452,
+        "minimum": 11.406,
+        "median": 20.176499999999997,
+        "p95": 30.49194999999999,
+        "maximum": 73.523
+      },
+      "thread_cpu_ms": {
+        "samples": 4452,
+        "minimum": 10.156,
+        "median": 16.449,
+        "p95": 19.508699999999997,
+        "maximum": 22.442
+      },
+      "scheduler_wait_ms": {
+        "samples": 4452,
+        "minimum": 0.0,
+        "median": 1.66,
+        "p95": 8.48584999999998,
+        "maximum": 53.51
+      },
+      "scope": "Execution measurement window; may include publication after abort. Publish-call end is instrumented in-process, not DDS wire time."
+    },
+    {
+      "run": "acceptance_baylands_20261021_06",
+      "fault": "FAST-LIVO2 measurement age outside 0..250 ms",
+      "exact_publish_call_end_cadence": {
+        "samples": 3756,
+        "gap_ms": 251.543143,
+        "before": {
+          "measurement_ns": "487312000000",
+          "processing_us": "26178",
+          "thread_cpu_us": "16984",
+          "thread_scheduler_wait_us": "3605",
+          "processing_start_wall_ns": "1041617318098205",
+          "processing_end_wall_ns": "1041617344276399",
+          "odom_publish_end_wall_ns": "1041617340508084"
+        },
+        "after": {
+          "measurement_ns": "487412000000",
+          "processing_us": "56324",
+          "thread_cpu_us": "18473",
+          "thread_scheduler_wait_us": "34739",
+          "processing_start_wall_ns": "1041617545115669",
+          "processing_end_wall_ns": "1041617601440250",
+          "odom_publish_end_wall_ns": "1041617592051227"
+        }
+      },
+      "processing_end_proxy_cadence": {
+        "samples": 3756,
+        "gap_ms": 257.163851,
+        "before": {
+          "measurement_ns": "487312000000",
+          "processing_us": "26178",
+          "thread_cpu_us": "16984",
+          "thread_scheduler_wait_us": "3605",
+          "processing_start_wall_ns": "1041617318098205",
+          "processing_end_wall_ns": "1041617344276399",
+          "odom_publish_end_wall_ns": "1041617340508084"
+        },
+        "after": {
+          "measurement_ns": "487412000000",
+          "processing_us": "56324",
+          "thread_cpu_us": "18473",
+          "thread_scheduler_wait_us": "34739",
+          "processing_start_wall_ns": "1041617545115669",
+          "processing_end_wall_ns": "1041617601440250",
+          "odom_publish_end_wall_ns": "1041617592051227"
+        }
+      },
+      "processing_wall_ms": {
+        "samples": 3756,
+        "minimum": 11.094,
+        "median": 20.237000000000002,
+        "p95": 29.30525,
+        "maximum": 78.478
+      },
+      "thread_cpu_ms": {
+        "samples": 3756,
+        "minimum": 9.516,
+        "median": 16.2575,
+        "p95": 19.1785,
+        "maximum": 22.473
+      },
+      "scheduler_wait_ms": {
+        "samples": 3756,
+        "minimum": 0.0,
+        "median": 1.7799999999999998,
+        "p95": 7.53125,
+        "maximum": 53.618
+      },
+      "scope": "Execution measurement window; may include publication after abort. Publish-call end is instrumented in-process, not DDS wire time.",
+      "abort": {
+        "event": "test_aborted",
+        "wall_ns": 1041617588676944,
+        "sim_ns": 487580000000,
+        "odom_age_sec": 0.268,
+        "odom_receipt_age_sec": 0.24300017696805298,
+        "map_ready": true,
+        "heading_good": true,
+        "truth": [
+          3.9209744550830496,
+          19.162797006542604,
+          1.4176032373294212
+        ],
+        "px4": [
+          19.175296783447266,
+          3.9073684215545654,
+          -1.4174928665161133,
+          1.5837196111679077
+        ],
+        "reason": "FAST-LIVO2 measurement age outside 0..250 ms"
+      },
+      "next_publish_end_relative_to_abort_ms": 3.374283,
+      "pending_frame_chain": {
+        "lidar_stamp_ns": 487400000000,
+        "image_stamp_ns": 487412000000,
+        "lidar_buffer_to_image_callback_ms": 132.131708,
+        "image_callback_to_sync_publish_ms": 4.505721,
+        "sync_publish_to_lio_start_ms": 6.898509,
+        "lio_start_to_odom_publish_end_ms": 46.935558,
+        "lidar_buffer_to_odom_publish_end_ms": 190.471496,
+        "image_callback_measurement_age_ms": 116.0,
+        "image_callback_age_scope": "Callback-local ROS clock; not exact DDS latency",
+        "lio_total_wall_ms": 56.324,
+        "lio_thread_cpu_ms": 18.473,
+        "lio_scheduler_wait_ms": 34.739
+      },
+      "adapter_callback_gaps": {
+        "sync_enter": {
+          "samples": 46,
+          "gap_ms": 149.053899,
+          "before": {
+            "event": "sync_enter",
+            "stamp_ns": "0",
+            "wall_ns": "1041617383636338",
+            "clock_ns": "487400000000",
+            "image_ns": "0",
+            "imu_ns": "0",
+            "detail": ""
+          },
+          "after": {
+            "event": "sync_enter",
+            "stamp_ns": "0",
+            "wall_ns": "1041617532690237",
+            "clock_ns": "487416000000",
+            "image_ns": "0",
+            "imu_ns": "0",
+            "detail": ""
+          }
+        },
+        "imu_enter": {
+          "samples": 62,
+          "gap_ms": 131.075501,
+          "before": {
+            "event": "imu_enter",
+            "stamp_ns": "487412000000",
+            "wall_ns": "1041617401922807",
+            "clock_ns": "487416000000",
+            "image_ns": "0",
+            "imu_ns": "0",
+            "detail": ""
+          },
+          "after": {
+            "event": "imu_enter",
+            "stamp_ns": "487420000000",
+            "wall_ns": "1041617532998308",
+            "clock_ns": "487416000000",
+            "image_ns": "0",
+            "imu_ns": "0",
+            "detail": ""
+          }
+        },
+        "image_enter": {
+          "samples": 19,
+          "gap_ms": 158.187126,
+          "before": {
+            "event": "image_enter",
+            "stamp_ns": "487380000000",
+            "wall_ns": "1041617375524313",
+            "clock_ns": "487392000000",
+            "image_ns": "0",
+            "imu_ns": "0",
+            "detail": ""
+          },
+          "after": {
+            "event": "image_enter",
+            "stamp_ns": "487412000000",
+            "wall_ns": "1041617533711439",
+            "clock_ns": "487528000000",
+            "image_ns": "0",
+            "imu_ns": "0",
+            "detail": ""
+          }
+        },
+        "lidar_enter": {
+          "samples": 6,
+          "gap_ms": 133.45545,
+          "before": {
+            "event": "lidar_enter",
+            "stamp_ns": "487400000000",
+            "wall_ns": "1041617400887625",
+            "clock_ns": "487416000000",
+            "image_ns": "0",
+            "imu_ns": "0",
+            "detail": ""
+          },
+          "after": {
+            "event": "lidar_enter",
+            "stamp_ns": "487500000000",
+            "wall_ns": "1041617534343075",
+            "clock_ns": "487528000000",
+            "image_ns": "0",
+            "imu_ns": "0",
+            "detail": ""
+          }
+        }
+      },
+      "independent_monitor_during_adapter_imu_gap": {
+        "px4_local": 11,
+        "ready": 2
+      },
+      "execution_process_gc_overlapping_adapter_gap": [],
+      "limits": [
+        "Adapter GC, adapter thread scheduling, GIL and DDS arrival were not recorded.",
+        "Execution-process GC evidence does not exclude GC in the adapter process.",
+        "Independent telemetry continued; this does not identify the adapter stall cause."
+      ]
+    }
+  ],
+  "height": [
+    {
+      "run": "acceptance_baylands_20261021_01",
+      "fault": "",
+      "ground_reference_interval_ns": [
+        62940000000,
+        64940000000
+      ],
+      "frozen_supervisor_offset_m": -0.12613469864344617,
+      "livo_truth_bias_m": -0.3468988320667267,
+      "px4_truth_bias_m": -0.22076413342328055,
+      "last_received_measurement": {
+        "measurement_ns": 557208000000,
+        "px4_pair_dt_ms": -4.0,
+        "truth_pair_dt_ms": 8.0,
+        "frozen_height_residual_m": -0.013509320370839628,
+        "livo_ground_referenced_error_m": -0.006692232478085203,
+        "px4_ground_referenced_error_m": 0.006817087892754425
+      },
+      "decomposition_identity_max_error_m": 0.0,
+      "absolute_height_residual_m": {
+        "samples": 4428,
+        "minimum": 1.48002058275587e-06,
+        "median": 0.034238345480158916,
+        "p95": 0.08404924848393713,
+        "maximum": 0.09490594925644347
+      },
+      "stages": {
+        "LIO": {
+          "samples": 4428,
+          "absolute_z_correction_m": {
+            "samples": 4428,
+            "minimum": 1.368000002166525e-08,
+            "median": 0.0006845335050000845,
+            "p95": 0.002734392921999972,
+            "maximum": 0.008690304299999951
+          },
+          "lio_correspondences": {
+            "samples": 4428,
+            "minimum": 4222.0,
+            "median": 4837.0,
+            "p95": 5207.0,
+            "maximum": 5271.0
+          }
+        },
+        "VIO": {
+          "samples": 4428,
+          "absolute_z_correction_m": {
+            "samples": 4428,
+            "minimum": 6.640999994367291e-08,
+            "median": 0.000569668905000098,
+            "p95": 0.002454001395500027,
+            "maximum": 0.006267075270000033
+          },
+          "vio_accepted_patches": {
+            "samples": 4428,
+            "minimum": 1.0,
+            "median": 21.0,
+            "p95": 53.0,
+            "maximum": 91.0
+          }
+        }
+      },
+      "progress_blocks": [
+        {
+          "interval_ns": [
+            114508000000,
+            174508000000
+          ],
+          "livo_error_m": {
+            "samples": 601,
+            "minimum": -0.007925366005748169,
+            "median": 0.004847246995590637,
+            "p95": 0.01017959970337573,
+            "maximum": 0.011383968930467059
+          },
+          "px4_error_m": {
+            "samples": 601,
+            "minimum": -0.006366855463642518,
+            "median": 0.01007928131599417,
+            "p95": 0.04692088094542285,
+            "maximum": 0.09012417029529901
+          },
+          "frozen_height_residual_m": {
+            "samples": 601,
+            "minimum": -0.08416708398348804,
+            "median": -0.005997462314101476,
+            "p95": 0.005909250322649884,
+            "maximum": 0.01635574766780934
+          }
+        },
+        {
+          "interval_ns": [
+            174508000000,
+            234508000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.005199458825034198,
+            "median": 0.006303368633063744,
+            "p95": 0.009777831475050345,
+            "maximum": 0.010924484684852576
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.008998116545583301,
+            "median": 0.00787451586934379,
+            "p95": 0.05512260281033688,
+            "maximum": 0.07457630177795876
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.07203997222719982,
+            "median": -0.002971506806519031,
+            "p95": 0.00683339785147496,
+            "maximum": 0.014310718594027438
+          }
+        },
+        {
+          "interval_ns": [
+            234508000000,
+            294508000000
+          ],
+          "livo_error_m": {
+            "samples": 599,
+            "minimum": 0.0071653683673171265,
+            "median": 0.03392303211248543,
+            "p95": 0.06283940419021133,
+            "maximum": 0.0655741566396732
+          },
+          "px4_error_m": {
+            "samples": 599,
+            "minimum": -0.0026651263271069703,
+            "median": 0.011966724227590875,
+            "p95": 0.04125476934436751,
+            "maximum": 0.057231626152591086
+          },
+          "frozen_height_residual_m": {
+            "samples": 599,
+            "minimum": -0.047794325519971315,
+            "median": 0.023080881189392555,
+            "p95": 0.04394118754737815,
+            "maximum": 0.05231888246825145
+          }
+        },
+        {
+          "interval_ns": [
+            294508000000,
+            354508000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": 0.06544313140774277,
+            "median": 0.07828047685161338,
+            "p95": 0.08644355520118659,
+            "maximum": 0.09043729132815764
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.008502515618158235,
+            "median": 0.01360882121721535,
+            "p95": 0.09399366589646067,
+            "maximum": 0.1260769954971625
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.04518303154728742,
+            "median": 0.06034067331544668,
+            "p95": 0.08319060588645578,
+            "maximum": 0.0888470521286997
+          }
+        },
+        {
+          "interval_ns": [
+            354508000000,
+            414508000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": 0.08393593411204198,
+            "median": 0.08807482658033566,
+            "p95": 0.09108327106907689,
+            "maximum": 0.09308222484274625
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.005859177562849871,
+            "median": 0.012172428312644257,
+            "p95": 0.0485029499721258,
+            "maximum": 0.06936127139258569
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": 0.020173259024891976,
+            "median": 0.07559951164860257,
+            "p95": 0.08682275228743463,
+            "maximum": 0.0928026074928654
+          }
+        },
+        {
+          "interval_ns": [
+            414508000000,
+            474508000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": 0.07248365017144115,
+            "median": 0.09036062614746515,
+            "p95": 0.09292901123581575,
+            "maximum": 0.09392970096855063
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.006869289923991773,
+            "median": 0.010638759314552992,
+            "p95": 0.05269821099774235,
+            "maximum": 0.0801249878248988
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": 0.008190780395154862,
+            "median": 0.0746676390192933,
+            "p95": 0.0903450948845318,
+            "maximum": 0.09490594925644347
+          }
+        },
+        {
+          "interval_ns": [
+            474508000000,
+            534508000000
+          ],
+          "livo_error_m": {
+            "samples": 601,
+            "minimum": 0.012584862395898344,
+            "median": 0.04195294881763062,
+            "p95": 0.07044040531566237,
+            "maximum": 0.07236163208981367
+          },
+          "px4_error_m": {
+            "samples": 601,
+            "minimum": -0.005358248768193852,
+            "median": 0.00986155323844401,
+            "p95": 0.039442783893498035,
+            "maximum": 0.0650153016031611
+          },
+          "frozen_height_residual_m": {
+            "samples": 601,
+            "minimum": -0.015682984709092018,
+            "median": 0.026733238137099047,
+            "p95": 0.058217802494667126,
+            "maximum": 0.06449274835366325
+          }
+        },
+        {
+          "interval_ns": [
+            534508000000,
+            557304000000
+          ],
+          "livo_error_m": {
+            "samples": 227,
+            "minimum": -0.009457105809366484,
+            "median": 0.0014753817016556758,
+            "p95": 0.009433028985538005,
+            "maximum": 0.012301787764109562
+          },
+          "px4_error_m": {
+            "samples": 227,
+            "minimum": -0.0041011418063646166,
+            "median": 0.006004669644940452,
+            "p95": 0.028651567488893068,
+            "maximum": 0.03170028792092333
+          },
+          "frozen_height_residual_m": {
+            "samples": 227,
+            "minimum": -0.030530260792613895,
+            "median": -0.006685483781299961,
+            "p95": 0.006822938498403319,
+            "maximum": 0.012122730031248308
+          }
+        }
+      ],
+      "scope": "Nearest measurement pairs <=20 ms, same truth sample in both error terms; fixed ground truth reference plus recorded supervisor offset, no airborne refit. Estimator output/body lever-arm dynamics and pairing uncertainty remain; correction magnitudes and correspondence counts do not establish causality."
+    },
+    {
+      "run": "acceptance_baylands_20261021_02",
+      "fault": "",
+      "ground_reference_interval_ns": [
+        64560000000,
+        66560000000
+      ],
+      "frozen_supervisor_offset_m": -0.10398296761907344,
+      "livo_truth_bias_m": -0.3469026198218783,
+      "px4_truth_bias_m": -0.24291965220280487,
+      "last_received_measurement": {
+        "measurement_ns": 563708000000,
+        "px4_pair_dt_ms": -4.0,
+        "truth_pair_dt_ms": 0.0,
+        "frozen_height_residual_m": -0.021301382186231677,
+        "livo_ground_referenced_error_m": -0.007692955675826285,
+        "px4_ground_referenced_error_m": 0.013608426510405391
+      },
+      "decomposition_identity_max_error_m": 0.0,
+      "absolute_height_residual_m": {
+        "samples": 4476,
+        "minimum": 2.0893938489474628e-05,
+        "median": 0.018284571279884032,
+        "p95": 0.061947605834586084,
+        "maximum": 0.13665451081723357
+      },
+      "stages": {
+        "LIO": {
+          "samples": 4476,
+          "absolute_z_correction_m": {
+            "samples": 4476,
+            "minimum": 1.099899999967846e-07,
+            "median": 0.0006698504450000087,
+            "p95": 0.0028097403599999238,
+            "maximum": 0.01662627386000004
+          },
+          "lio_correspondences": {
+            "samples": 4476,
+            "minimum": 4051.0,
+            "median": 4783.0,
+            "p95": 5156.0,
+            "maximum": 5278.0
+          }
+        },
+        "VIO": {
+          "samples": 4476,
+          "absolute_z_correction_m": {
+            "samples": 4476,
+            "minimum": 0.0,
+            "median": 0.0005342883300000212,
+            "p95": 0.0025796015650000337,
+            "maximum": 0.011872893809999896
+          },
+          "vio_accepted_patches": {
+            "samples": 4476,
+            "minimum": 1.0,
+            "median": 19.0,
+            "p95": 54.0,
+            "maximum": 90.0
+          }
+        }
+      },
+      "progress_blocks": [
+        {
+          "interval_ns": [
+            116140000000,
+            176140000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.02239272572356521,
+            "median": -0.012472746121149458,
+            "p95": -0.0071831301554120775,
+            "maximum": -0.0035258888941152033
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.01477393414761241,
+            "median": 0.0008687472640035443,
+            "p95": 0.05117816691585785,
+            "maximum": 0.07576435646942559
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.0858135687116185,
+            "median": -0.013991023241337164,
+            "p95": -0.0020172583438517605,
+            "maximum": 0.0015351064633887246
+          }
+        },
+        {
+          "interval_ns": [
+            176140000000,
+            236140000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.0240931440864689,
+            "median": -0.018506260731699697,
+            "p95": -0.009274402098454083,
+            "maximum": -0.007891827454675537
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.011351653537967521,
+            "median": 0.0015357701860043704,
+            "p95": 0.04621762367513562,
+            "maximum": 0.09179803545031195
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.10074866215362299,
+            "median": -0.019449817755209375,
+            "p95": -0.00751394154106109,
+            "maximum": -0.0020608839027983494
+          }
+        },
+        {
+          "interval_ns": [
+            236140000000,
+            296140000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.01228897867694756,
+            "median": -0.008953488776685226,
+            "p95": -0.0068963423639767825,
+            "maximum": -0.0057402777447610465
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.011994397554423997,
+            "median": 0.00456594794377807,
+            "p95": 0.054220547640045705,
+            "maximum": 0.08141736212623274
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.09220027965996513,
+            "median": -0.012969410759671618,
+            "p95": -0.003168606656526042,
+            "maximum": 0.0019350815961672874
+          }
+        },
+        {
+          "interval_ns": [
+            296140000000,
+            356140000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.021678181230432747,
+            "median": -0.015037481844249356,
+            "p95": -0.010309724367074802,
+            "maximum": -0.008550060938794735
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.010238617713787979,
+            "median": 0.0016106661498302977,
+            "p95": 0.03725924684996083,
+            "maximum": 0.08308810323551519
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.10213678051073061,
+            "median": -0.01816389881819136,
+            "p95": -0.008606320073910571,
+            "maximum": -0.003949830002858756
+          }
+        },
+        {
+          "interval_ns": [
+            356140000000,
+            416140000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.017001488392232478,
+            "median": -0.0017369949775423166,
+            "p95": 0.0028177816459359346,
+            "maximum": 0.0050931822839146434
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.0061115710463640616,
+            "median": 0.0077001173992514715,
+            "p95": 0.06306861934642186,
+            "maximum": 0.10421748519843643
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.11688002440702439,
+            "median": -0.012139374961709137,
+            "p95": 0.0009215854754393326,
+            "maximum": 0.004656760715568198
+          }
+        },
+        {
+          "interval_ns": [
+            416140000000,
+            476140000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.024948326339662596,
+            "median": -0.015538555437129897,
+            "p95": -0.00464111353972677,
+            "maximum": -0.002297652368680847
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.0064325176251359695,
+            "median": 0.009817421361807188,
+            "p95": 0.04450594057392326,
+            "maximum": 0.06540909724624833
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.08754032607264317,
+            "median": -0.02629293694586965,
+            "p95": -0.008666540514497346,
+            "maximum": -0.00471058407663405
+          }
+        },
+        {
+          "interval_ns": [
+            476140000000,
+            536140000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.013183527630516556,
+            "median": -0.009991081866464024,
+            "p95": -0.008219099037962243,
+            "maximum": -0.006994612861054739
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.0045025418014074114,
+            "median": 0.012668929666904583,
+            "p95": 0.0459879258523462,
+            "maximum": 0.12710005616854636
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.13665451081723357,
+            "median": -0.023558156313338574,
+            "p95": -0.01058040613243356,
+            "maximum": -0.006666227181353679
+          }
+        },
+        {
+          "interval_ns": [
+            536140000000,
+            563816000000
+          ],
+          "livo_error_m": {
+            "samples": 276,
+            "minimum": -0.009658129490575096,
+            "median": -0.007052835048030781,
+            "p95": -0.005287718581486134,
+            "maximum": -0.0035031724350300664
+          },
+          "px4_error_m": {
+            "samples": 276,
+            "minimum": -0.003976811943894432,
+            "median": 0.005569252771865707,
+            "p95": 0.02745742998911127,
+            "maximum": 0.03363251916700605
+          },
+          "frozen_height_residual_m": {
+            "samples": 276,
+            "minimum": -0.04241835792057691,
+            "median": -0.012949048762328719,
+            "p95": -0.00644799313981631,
+            "maximum": -0.003198891055037456
+          }
+        }
+      ],
+      "scope": "Nearest measurement pairs <=20 ms, same truth sample in both error terms; fixed ground truth reference plus recorded supervisor offset, no airborne refit. Estimator output/body lever-arm dynamics and pairing uncertainty remain; correction magnitudes and correspondence counts do not establish causality."
+    },
+    {
+      "run": "acceptance_baylands_20261021_03",
+      "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+      "ground_reference_interval_ns": [
+        65148000000,
+        67148000000
+      ],
+      "frozen_supervisor_offset_m": -0.33384176670138144,
+      "livo_truth_bias_m": -0.3468825423401629,
+      "px4_truth_bias_m": -0.013040775638781477,
+      "last_received_measurement": {
+        "measurement_ns": 387816000000,
+        "px4_pair_dt_ms": 0.0,
+        "truth_pair_dt_ms": 4.0,
+        "frozen_height_residual_m": -0.2013203718800899,
+        "livo_ground_referenced_error_m": -0.15513891392842494,
+        "px4_ground_referenced_error_m": 0.04618145795166495
+      },
+      "decomposition_identity_max_error_m": 0.0,
+      "absolute_height_residual_m": {
+        "samples": 2712,
+        "minimum": 0.0013514722202666585,
+        "median": 0.05328136477646539,
+        "p95": 0.13960899798543286,
+        "maximum": 0.2013203718800899
+      },
+      "stages": {
+        "LIO": {
+          "samples": 2712,
+          "absolute_z_correction_m": {
+            "samples": 2712,
+            "minimum": 4.0455999994470915e-07,
+            "median": 0.0007382784899999661,
+            "p95": 0.0031884253660000575,
+            "maximum": 0.012784423620000096
+          },
+          "lio_correspondences": {
+            "samples": 2712,
+            "minimum": 4116.0,
+            "median": 4767.0,
+            "p95": 5166.0,
+            "maximum": 5275.0
+          }
+        },
+        "VIO": {
+          "samples": 2712,
+          "absolute_z_correction_m": {
+            "samples": 2712,
+            "minimum": 0.0,
+            "median": 0.0005447052300000532,
+            "p95": 0.00290742846199996,
+            "maximum": 0.01031259700999998
+          },
+          "vio_accepted_patches": {
+            "samples": 2712,
+            "minimum": 2.0,
+            "median": 18.0,
+            "p95": 39.0,
+            "maximum": 82.0
+          }
+        }
+      },
+      "progress_blocks": [
+        {
+          "interval_ns": [
+            116708000000,
+            176708000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.024233043315965652,
+            "median": -0.015466288099893144,
+            "p95": -0.004449868759118608,
+            "maximum": -0.0008021429719298201
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.00831542563295995,
+            "median": 0.007143774541139791,
+            "p95": 0.037551000837753465,
+            "maximum": 0.07873186466296722
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.09239248668017586,
+            "median": -0.02123335464774989,
+            "p95": -0.013034893632592085,
+            "maximum": -0.006313131504657288
+          }
+        },
+        {
+          "interval_ns": [
+            176708000000,
+            236708000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.03134768137862309,
+            "median": -0.00629767485261945,
+            "p95": 0.008206948446200974,
+            "maximum": 0.011461001096928491
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.006538993767653989,
+            "median": 0.010898377610109478,
+            "p95": 0.04464998060568805,
+            "maximum": 0.0668686560222872
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.08308151141603026,
+            "median": -0.020061422605734625,
+            "p95": -0.005993945854262485,
+            "maximum": -0.0013514722202666585
+          }
+        },
+        {
+          "interval_ns": [
+            236708000000,
+            296708000000
+          ],
+          "livo_error_m": {
+            "samples": 601,
+            "minimum": -0.08448420007007518,
+            "median": -0.060508030156312786,
+            "p95": -0.03461528122199953,
+            "maximum": -0.029414144982962354
+          },
+          "px4_error_m": {
+            "samples": 601,
+            "minimum": -0.024237682733108445,
+            "median": 0.004030794947819438,
+            "p95": 0.06661019116296185,
+            "maximum": 0.087690420356625
+          },
+          "frozen_height_residual_m": {
+            "samples": 601,
+            "minimum": -0.16876978555075295,
+            "median": -0.0642089467138135,
+            "p95": -0.04000321191267908,
+            "maximum": -0.034903967334484975
+          }
+        },
+        {
+          "interval_ns": [
+            296708000000,
+            356708000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.13502081167599034,
+            "median": -0.10502062989122407,
+            "p95": -0.08753411478362302,
+            "maximum": -0.08128770232589866
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.028382786078289368,
+            "median": -0.011542246964608927,
+            "p95": 0.016282084299549648,
+            "maximum": 0.021975132501145356
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.12346157535211544,
+            "median": -0.09924093951590285,
+            "p95": -0.07940306199028999,
+            "maximum": -0.07007243693170506
+          }
+        },
+        {
+          "interval_ns": [
+            356708000000,
+            387872000000
+          ],
+          "livo_error_m": {
+            "samples": 311,
+            "minimum": -0.15636766526959156,
+            "median": -0.14368833590269836,
+            "p95": -0.13417342687378575,
+            "maximum": -0.13326845326044223
+          },
+          "px4_error_m": {
+            "samples": 311,
+            "minimum": -0.021965809925130197,
+            "median": -0.009547508579114905,
+            "p95": 0.016960364434778108,
+            "maximum": 0.04618145795166495
+          },
+          "frozen_height_residual_m": {
+            "samples": 311,
+            "minimum": -0.2013203718800899,
+            "median": -0.13461945131701902,
+            "p95": -0.11738843572505975,
+            "maximum": -0.11419723788691372
+          }
+        }
+      ],
+      "scope": "Nearest measurement pairs <=20 ms, same truth sample in both error terms; fixed ground truth reference plus recorded supervisor offset, no airborne refit. Estimator output/body lever-arm dynamics and pairing uncertainty remain; correction magnitudes and correspondence counts do not establish causality."
+    },
+    {
+      "run": "acceptance_baylands_20261021_05",
+      "fault": "",
+      "ground_reference_interval_ns": [
+        62064000000,
+        64064000000
+      ],
+      "frozen_supervisor_offset_m": 0.22949337260658426,
+      "livo_truth_bias_m": -0.3469259090541591,
+      "px4_truth_bias_m": -0.5764192816607434,
+      "last_received_measurement": {
+        "measurement_ns": 558624000000,
+        "px4_pair_dt_ms": -4.0,
+        "truth_pair_dt_ms": 4.0,
+        "frozen_height_residual_m": -0.010087348427948506,
+        "livo_ground_referenced_error_m": -0.007363232565513189,
+        "px4_ground_referenced_error_m": 0.0027241158624353723
+      },
+      "decomposition_identity_max_error_m": 5.551115123125783e-17,
+      "absolute_height_residual_m": {
+        "samples": 4451,
+        "minimum": 1.6817679803771135e-06,
+        "median": 0.013030896850895701,
+        "p95": 0.06249949226410362,
+        "maximum": 0.11290978027700299
+      },
+      "stages": {
+        "LIO": {
+          "samples": 4451,
+          "absolute_z_correction_m": {
+            "samples": 4451,
+            "minimum": 5.531800000291298e-07,
+            "median": 0.000645917659999995,
+            "p95": 0.0027781848100000284,
+            "maximum": 0.014419882979999965
+          },
+          "lio_correspondences": {
+            "samples": 4451,
+            "minimum": 4151.0,
+            "median": 4840.0,
+            "p95": 5211.0,
+            "maximum": 5306.0
+          }
+        },
+        "VIO": {
+          "samples": 4451,
+          "absolute_z_correction_m": {
+            "samples": 4451,
+            "minimum": 0.0,
+            "median": 0.0004994276100001027,
+            "p95": 0.0026086995999999862,
+            "maximum": 0.0073944449000000745
+          },
+          "vio_accepted_patches": {
+            "samples": 4451,
+            "minimum": 1.0,
+            "median": 19.0,
+            "p95": 49.0,
+            "maximum": 82.0
+          }
+        }
+      },
+      "progress_blocks": [
+        {
+          "interval_ns": [
+            113552000000,
+            173552000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.0065577493729312986,
+            "median": 0.0054934749794085524,
+            "p95": 0.023375665913379903,
+            "maximum": 0.028387272118201134
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.008926510774145413,
+            "median": 0.00779243733052315,
+            "p95": 0.03417026744927634,
+            "maximum": 0.03842991051329836
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.030921091564850622,
+            "median": -0.0014950874301820627,
+            "p95": 0.01309107001581014,
+            "maximum": 0.026469415219743275
+          }
+        },
+        {
+          "interval_ns": [
+            173552000000,
+            233552000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.008021374904563783,
+            "median": 0.023265318936518176,
+            "p95": 0.029962856023770967,
+            "maximum": 0.0321307205473812
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.01397469366725046,
+            "median": 0.014891630775822451,
+            "p95": 0.10534117025443929,
+            "maximum": 0.12494357468064887
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.10981984682883145,
+            "median": -0.00016086379366259118,
+            "p95": 0.026573860398978886,
+            "maximum": 0.03240586038586296
+          }
+        },
+        {
+          "interval_ns": [
+            233552000000,
+            293552000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.009554169134664003,
+            "median": -0.007191278153424241,
+            "p95": -0.0038629846881091403,
+            "maximum": -0.0031384820596086493
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.014541636086541354,
+            "median": -0.00022078371102352,
+            "p95": 0.032426252093342975,
+            "maximum": 0.04744892903845499
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.05311914387997835,
+            "median": -0.0070964998228114085,
+            "p95": 0.002683074482945141,
+            "maximum": 0.007614755343806567
+          }
+        },
+        {
+          "interval_ns": [
+            293552000000,
+            353552000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.017121804905270266,
+            "median": -0.006413613653262318,
+            "p95": -0.0033848941573741743,
+            "maximum": -0.0014637720718045921
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.012168304123814755,
+            "median": -0.0007043268224589116,
+            "p95": 0.027086311983873512,
+            "maximum": 0.04508323726756269
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.04918850891957788,
+            "median": -0.006838435022778977,
+            "p95": 0.0015442552934441316,
+            "maximum": 0.006172087787335412
+          }
+        },
+        {
+          "interval_ns": [
+            353552000000,
+            413552000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.05279560661547922,
+            "median": -0.038128448983580365,
+            "p95": -0.019643036053646985,
+            "maximum": -0.015559338248936405
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.006797917645947837,
+            "median": 0.008864019741195883,
+            "p95": 0.036188711514335684,
+            "maximum": 0.06421506099765573
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.10631533073568017,
+            "median": -0.050752944422650714,
+            "p95": -0.022801258218242797,
+            "maximum": -0.01128224412927531
+          }
+        },
+        {
+          "interval_ns": [
+            413552000000,
+            473552000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.03375257833290812,
+            "median": -0.00986986140049917,
+            "p95": -0.0017293546225225955,
+            "maximum": 0.000247264123179769
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.0070521473145956914,
+            "median": 0.006135752833451025,
+            "p95": 0.052390897837537656,
+            "maximum": 0.08088910981485364
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.11290978027700299,
+            "median": -0.02090687639697425,
+            "p95": -0.004193479503536526,
+            "maximum": 0.00040663749854336073
+          }
+        },
+        {
+          "interval_ns": [
+            473552000000,
+            533552000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.008227021451421845,
+            "median": -0.004932143105184306,
+            "p95": -0.0012388143024273603,
+            "maximum": -7.592596221217551e-05
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.004645520974037254,
+            "median": 0.00716739934706867,
+            "p95": 0.05358534806906024,
+            "maximum": 0.06329044494954128
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.06689796391898245,
+            "median": -0.012096701056232229,
+            "p95": -0.001616140169720483,
+            "maximum": 0.0029486186390210167
+          }
+        },
+        {
+          "interval_ns": [
+            533552000000,
+            558752000000
+          ],
+          "livo_error_m": {
+            "samples": 251,
+            "minimum": -0.009033046715030246,
+            "median": -0.006818454095970705,
+            "p95": -0.0051202816714363,
+            "maximum": -0.004457819663177598
+          },
+          "px4_error_m": {
+            "samples": 251,
+            "minimum": -0.012815499442067502,
+            "median": 0.0019734222188025896,
+            "p95": 0.0371482664974907,
+            "maximum": 0.04239131070945157
+          },
+          "frozen_height_residual_m": {
+            "samples": 251,
+            "minimum": -0.04835253954671376,
+            "median": -0.008700567911703427,
+            "p95": 0.0032838403840666497,
+            "maximum": 0.0064996336128566035
+          }
+        }
+      ],
+      "scope": "Nearest measurement pairs <=20 ms, same truth sample in both error terms; fixed ground truth reference plus recorded supervisor offset, no airborne refit. Estimator output/body lever-arm dynamics and pairing uncertainty remain; correction magnitudes and correspondence counts do not establish causality."
+    },
+    {
+      "run": "acceptance_baylands_20261021_06",
+      "fault": "FAST-LIVO2 measurement age outside 0..250 ms",
+      "ground_reference_interval_ns": [
+        61260000000,
+        63260000000
+      ],
+      "frozen_supervisor_offset_m": -0.09223593588342316,
+      "livo_truth_bias_m": -0.346927210066455,
+      "px4_truth_bias_m": -0.25469127418303183,
+      "last_received_measurement": {
+        "measurement_ns": 487312000000,
+        "px4_pair_dt_ms": 0.0,
+        "truth_pair_dt_ms": -8.0,
+        "frozen_height_residual_m": -0.04458674102686866,
+        "livo_ground_referenced_error_m": -0.027027616828049328,
+        "px4_ground_referenced_error_m": 0.01755912419881933
+      },
+      "decomposition_identity_max_error_m": 0.0,
+      "absolute_height_residual_m": {
+        "samples": 3754,
+        "minimum": 9.877449407391659e-06,
+        "median": 0.02737603036259939,
+        "p95": 0.06475115244536364,
+        "maximum": 0.09994864412314908
+      },
+      "stages": {
+        "LIO": {
+          "samples": 3754,
+          "absolute_z_correction_m": {
+            "samples": 3754,
+            "minimum": 2.5311000007022244e-07,
+            "median": 0.0006986440650000869,
+            "p95": 0.0027539816865001176,
+            "maximum": 0.012790002000000023
+          },
+          "lio_correspondences": {
+            "samples": 3754,
+            "minimum": 4087.0,
+            "median": 4705.0,
+            "p95": 5145.0,
+            "maximum": 5271.0
+          }
+        },
+        "VIO": {
+          "samples": 3754,
+          "absolute_z_correction_m": {
+            "samples": 3754,
+            "minimum": 3.9567999987610847e-07,
+            "median": 0.0005848305450000257,
+            "p95": 0.0024118867200000654,
+            "maximum": 0.010222456920000011
+          },
+          "vio_accepted_patches": {
+            "samples": 3754,
+            "minimum": 1.0,
+            "median": 20.0,
+            "p95": 36.34999999999991,
+            "maximum": 84.0
+          }
+        }
+      },
+      "progress_blocks": [
+        {
+          "interval_ns": [
+            111992000000,
+            171992000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.012394439933897883,
+            "median": -0.006412301032376111,
+            "p95": -0.004188373090627674,
+            "maximum": -0.0017114309041902365
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.013293753501090855,
+            "median": 0.00632679985430995,
+            "p95": 0.0710755809555636,
+            "maximum": 0.09391901014736193
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.09994864412314908,
+            "median": -0.013080252981859553,
+            "p95": -0.00018253748946537739,
+            "maximum": 0.004777620304616481
+          }
+        },
+        {
+          "interval_ns": [
+            171992000000,
+            231992000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.009885772662525993,
+            "median": -0.004621919399216745,
+            "p95": -0.0019713105972827397,
+            "maximum": -0.0008442308370676388
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.015519478448652757,
+            "median": 0.002730523216197156,
+            "p95": 0.05018796067092879,
+            "maximum": 0.060533355827168345
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.06382708460331588,
+            "median": -0.0077551422495157896,
+            "p95": 0.006655984766955457,
+            "maximum": 0.01152000474496162
+          }
+        },
+        {
+          "interval_ns": [
+            231992000000,
+            291992000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.020752103391415644,
+            "median": -0.013918540967637116,
+            "p95": -0.009099124010484738,
+            "maximum": -0.005762366626112292
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.012443697327553682,
+            "median": 0.000737145040622611,
+            "p95": 0.04752088448000674,
+            "maximum": 0.06979421844997247
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.08345618632709118,
+            "median": -0.014309815873413845,
+            "p95": -0.003054823987425323,
+            "maximum": 0.0019022034093317819
+          }
+        },
+        {
+          "interval_ns": [
+            291992000000,
+            351992000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.032905299287193546,
+            "median": -0.024806150261509785,
+            "p95": -0.019403079865005113,
+            "maximum": -0.018517332436401523
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.019999205212521076,
+            "median": -0.0035482162683631024,
+            "p95": 0.04755675002799109,
+            "maximum": 0.06523155849142692
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.090116590921557,
+            "median": -0.021172128667748202,
+            "p95": -0.011206624739643201,
+            "maximum": -0.008197733589106027
+          }
+        },
+        {
+          "interval_ns": [
+            351992000000,
+            411992000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.03845171747388754,
+            "median": -0.03413918260530091,
+            "p95": -0.031908670142790266,
+            "maximum": -0.030212646982538227
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.019723915572148254,
+            "median": 0.0022967660116390842,
+            "p95": 0.03387564049395649,
+            "maximum": 0.053680862901617
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.08962940844007072,
+            "median": -0.03645169893658906,
+            "p95": -0.019942230317285908,
+            "maximum": -0.014117792466577739
+          }
+        },
+        {
+          "interval_ns": [
+            411992000000,
+            471992000000
+          ],
+          "livo_error_m": {
+            "samples": 600,
+            "minimum": -0.03920003279375195,
+            "median": -0.034523083171585256,
+            "p95": -0.032650069231903736,
+            "maximum": -0.031109754598668604
+          },
+          "px4_error_m": {
+            "samples": 600,
+            "minimum": -0.014409329567353746,
+            "median": 0.0018379536891012238,
+            "p95": 0.02837974561521824,
+            "maximum": 0.05167715457630395
+          },
+          "frozen_height_residual_m": {
+            "samples": 600,
+            "minimum": -0.08684075769519961,
+            "median": -0.03663240715327509,
+            "p95": -0.026881550028504897,
+            "maximum": -0.021829349217770244
+          }
+        },
+        {
+          "interval_ns": [
+            471992000000,
+            487580000000
+          ],
+          "livo_error_m": {
+            "samples": 154,
+            "minimum": -0.034819698504961694,
+            "median": -0.030899982878834664,
+            "p95": -0.02698198953008484,
+            "maximum": -0.02516307556410846
+          },
+          "px4_error_m": {
+            "samples": 154,
+            "minimum": -0.010345848572862915,
+            "median": 0.013366677966758056,
+            "p95": 0.02887462567248854,
+            "maximum": 0.03393157264985036
+          },
+          "frozen_height_residual_m": {
+            "samples": 154,
+            "minimum": -0.061932477652265505,
+            "median": -0.0443674511132961,
+            "p95": -0.02559931834698134,
+            "maximum": -0.02080330717770107
+          }
+        }
+      ],
+      "scope": "Nearest measurement pairs <=20 ms, same truth sample in both error terms; fixed ground truth reference plus recorded supervisor offset, no airborne refit. Estimator output/body lever-arm dynamics and pairing uncertainty remain; correction magnitudes and correspondence counts do not establish causality."
+    }
+  ],
+  "origin": {
+    "run": "acceptance_baylands_20261021_04",
+    "failure": "RuntimeError: Disarmed EV/global-origin initialization failed: origin initialization moved local position by more than 0.03 m; no arming commands sent",
+    "before_xyz_m": [
+      -0.015915805473923683,
+      -0.0049676792696118355,
+      0.09300367534160614
+    ],
+    "origin_altitude_m": 0.2921003345400095,
+    "first_logged_crossing": {
+      "publication_us": 38428000,
+      "sample_us": 38428000,
+      "xyz_m": [
+        -0.01463073119521141,
+        0.006120511330664158,
+        0.06507280468940735
+      ],
+      "displacement_m": 0.03007877860019779,
+      "ref_alt_m": 0.29210034012794495,
+      "resets": [
+        6,
+        3,
+        1
+      ]
+    },
+    "last_logged_local_before_failure": {
+      "publication_us": 38428000,
+      "sample_us": 38428000,
+      "xyz_m": [
+        -0.01463073119521141,
+        0.006120511330664158,
+        0.06507280468940735
+      ],
+      "displacement_m": 0.03007877860019779,
+      "ref_alt_m": 0.29210034012794495,
+      "resets": [
+        6,
+        3,
+        1
+      ]
+    },
+    "ev_height_observation_before_after_m": [
+      {
+        "samples": 2,
+        "minimum": 0.0996374860405922,
+        "median": 0.09963862970471382,
+        "p95": 0.09963965900242329,
+        "maximum": 0.09963977336883545
+      },
+      {
+        "samples": 2,
+        "minimum": -0.19245819747447968,
+        "median": -0.19245727360248566,
+        "p95": -0.19245644211769103,
+        "maximum": -0.19245634973049164
+      }
+    ],
+    "armed_samples": 0,
+    "scope": "Saved ULog after command ACK through failure snapshot; no command or parameter change. First logged crossing need not equal exact callback that tripped the gate. EV observation datum change is not itself a physical vehicle displacement."
+  }
+}

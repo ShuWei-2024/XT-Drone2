@@ -1,0 +1,746 @@
+{
+  "date": "2026-10-19",
+  "scope": "Preallocated diagnostic history validation and retained failed long-route repeat; not general flight certification",
+  "regression_passed": 340,
+  "compact_history_source_sha256": "f465301fdcd971ae0009c4e922594521aff2c0cacbf2f5b0bd12b1cc30196927",
+  "offline_checks": {
+    "scope": "Offline compact audit history checks, not flight performance certification",
+    "source_sha256": "f465301fdcd971ae0009c4e922594521aff2c0cacbf2f5b0bd12b1cc30196927",
+    "old_log": "final_long_ev_retest_20261019_01/motion_executor_audit.json",
+    "old_rows_exactly_restored": 22779,
+    "retention_capacity": 65536,
+    "preallocated_bytes": 5570560,
+    "synthetic_appends": 150000,
+    "synthetic_retained": 65536,
+    "python_live_bytes_after_70000": 5928,
+    "python_live_bytes_after_150000": 5920,
+    "additional_live_bytes": -8,
+    "regression_passed": 340
+  },
+  "short_hold": {
+    "run": "final_compact_hold_20261019_01",
+    "scope": "Compact audit history: four short waypoints and 300 s hold; no long-route or hardware certification",
+    "baseline": {
+      "mode": "obstacle",
+      "exit_code": 0,
+      "failure": "",
+      "original_baseline_preserved": true,
+      "execution_sources_unchanged": true
+    },
+    "flight_complete": true,
+    "disarmed": true,
+    "fault": "",
+    "complete_route_verified": true,
+    "blocked_path_avoidance_verified": false,
+    "goals": [
+      4,
+      4
+    ],
+    "measurement_time_path_m": 2.4973871930325346,
+    "endpoint_xy_error_m": [
+      0.03360058210365968,
+      0.01522019644491669,
+      0.0463693516843864,
+      0.05882239304901599
+    ],
+    "curves": 11,
+    "all_complete_curves_inside_shared_envelope": true,
+    "continuous_clearance_passed": true,
+    "dynamics_passed": true,
+    "minimum_body_center_known_surface_clearance_m": 2.582489149226324,
+    "planned_peak_speed_mps": 0.19673537748101844,
+    "planned_peak_acceleration_mps2": 0.1712013348441859,
+    "armed_failsafe_samples": 0,
+    "log_integrity": {
+      "journal_matches_export": true,
+      "journal_count": 378,
+      "reported_bridge_count": 378,
+      "csv_count": 6494,
+      "reported_sent_count": 6494
+    },
+    "combined_send_record_gap_ms": {
+      "count": 6871,
+      "minimum": 4.991481,
+      "p95": 58.137018499999996,
+      "maximum": 67.394599
+    },
+    "combined_send_scope": "prestream to land request; native plus bridge send records, not PX4 receipt latency",
+    "hold_send_gap_ms": {
+      "count": 5596,
+      "minimum": 43.762443,
+      "p95": 58.173451,
+      "maximum": 67.394599
+    },
+    "hold_supervisor_measurement_age_ms": {
+      "count": 5597,
+      "minimum": 28.0,
+      "p95": 136.0,
+      "maximum": 176.0
+    },
+    "hold_supervisor_receipt_age_ms": {
+      "count": 5597,
+      "minimum": 1.3029209803789854,
+      "p95": 99.7780067846179,
+      "maximum": 133.74871399719268
+    },
+    "all_supervisor_measurement_age_ms": {
+      "count": 6872,
+      "minimum": 20.0,
+      "p95": 136.0,
+      "maximum": 176.0
+    },
+    "all_supervisor_receipt_age_ms": {
+      "count": 6872,
+      "minimum": 0.8661489700898528,
+      "p95": 99.79704858851619,
+      "maximum": 133.74871399719268
+    },
+    "independent_odom_callback_gap_ms": {
+      "count": 3702,
+      "minimum": 25.336039,
+      "p95": 122.37827829999998,
+      "maximum": 179.405677
+    },
+    "independent_odom_measurement_age_ms": {
+      "count": 3703,
+      "minimum": 16.0,
+      "p95": 52.0,
+      "maximum": 104.0
+    },
+    "hold_seconds": 300.003327683,
+    "hold_truth_xy_max_from_start_m": 0.08520705792710659,
+    "hold_truth_z_range_m": 0.1505284607610029,
+    "hold_rss": {
+      "motion": {
+        "samples": 300,
+        "pid": 3755454,
+        "duration_s": 299.4557594789658,
+        "first_mib": 172.25390625,
+        "last_mib": 172.890625,
+        "minimum_mib": 172.25390625,
+        "maximum_mib": 172.890625,
+        "delta_mib": 0.63671875,
+        "slope_mib_per_min": 0.1528761659637469
+      },
+      "livo": {
+        "samples": 300,
+        "pid": 3754653,
+        "duration_s": 299.4557594789658,
+        "first_mib": 458.26953125,
+        "last_mib": 461.62890625,
+        "minimum_mib": 458.26953125,
+        "maximum_mib": 462.38671875,
+        "delta_mib": 3.359375,
+        "slope_mib_per_min": 0.15675907714158244
+      },
+      "local_map": {
+        "samples": 300,
+        "pid": 3754650,
+        "duration_s": 299.4557594789658,
+        "first_mib": 108.40625,
+        "last_mib": 108.421875,
+        "minimum_mib": 108.40625,
+        "maximum_mib": 119.04296875,
+        "delta_mib": 0.015625,
+        "slope_mib_per_min": -1.155130101096954
+      },
+      "planner": {
+        "samples": 300,
+        "pid": 3754685,
+        "duration_s": 299.4557594789658,
+        "first_mib": 178.87890625,
+        "last_mib": 178.87890625,
+        "minimum_mib": 178.87890625,
+        "maximum_mib": 178.87890625,
+        "delta_mib": 0.0,
+        "slope_mib_per_min": -7.282837512181807e-14
+      }
+    },
+    "hold_last120_rss": {
+      "motion": {
+        "samples": 120,
+        "pid": 3755454,
+        "duration_s": 119.1604293929413,
+        "first_mib": 172.71484375,
+        "last_mib": 172.890625,
+        "minimum_mib": 172.71484375,
+        "maximum_mib": 172.890625,
+        "delta_mib": 0.17578125,
+        "slope_mib_per_min": 0.031036840932400767
+      },
+      "livo": {
+        "samples": 120,
+        "pid": 3754653,
+        "duration_s": 119.1604293929413,
+        "first_mib": 461.50390625,
+        "last_mib": 461.62890625,
+        "minimum_mib": 461.50390625,
+        "maximum_mib": 461.62890625,
+        "delta_mib": 0.125,
+        "slope_mib_per_min": 0.05363037655253386
+      },
+      "local_map": {
+        "samples": 120,
+        "pid": 3754650,
+        "duration_s": 119.1604293929413,
+        "first_mib": 108.421875,
+        "last_mib": 108.421875,
+        "minimum_mib": 108.421875,
+        "maximum_mib": 108.421875,
+        "delta_mib": 0.0,
+        "slope_mib_per_min": 5.4194349545992904e-14
+      },
+      "planner": {
+        "samples": 120,
+        "pid": 3754685,
+        "duration_s": 119.1604293929413,
+        "first_mib": 178.87890625,
+        "last_mib": 178.87890625,
+        "minimum_mib": 178.87890625,
+        "maximum_mib": 178.87890625,
+        "delta_mib": 0.0,
+        "slope_mib_per_min": 8.129152431898935e-14
+      }
+    },
+    "airborne_gen2_gc": [],
+    "gc_statistics": {
+      "0": {
+        "count": 25,
+        "total_wall_ns": 11155000,
+        "max_wall_ns": 3448438
+      },
+      "1": {
+        "count": 1,
+        "total_wall_ns": 736290,
+        "max_wall_ns": 736290
+      },
+      "2": {
+        "count": 2,
+        "total_wall_ns": 99568317,
+        "max_wall_ns": 51875414
+      }
+    },
+    "ev_fusion_confirmed": true,
+    "ev_aid_sources": {
+      "estimator_aid_src_ev_pos": {
+        "recorded": true,
+        "scope": "armed",
+        "count": 3684,
+        "fused_count": 3684,
+        "fused_fraction": 1.0,
+        "rejected_count": 0,
+        "last_fuse_advanced_count": 3683,
+        "maximum_fusion_age_ms": 188.0,
+        "innovation_abs_m": {
+          "count": 7368,
+          "p95": 0.013468215148895978,
+          "maximum": 0.04157635197043419
+        }
+      },
+      "estimator_aid_src_ev_hgt": {
+        "recorded": true,
+        "scope": "armed",
+        "count": 3684,
+        "fused_count": 3684,
+        "fused_fraction": 1.0,
+        "rejected_count": 0,
+        "last_fuse_advanced_count": 3683,
+        "maximum_fusion_age_ms": 188.0,
+        "innovation_abs_m": {
+          "count": 3684,
+          "p95": 0.021811542287468906,
+          "maximum": 0.048175275325775146
+        }
+      }
+    },
+    "ev_ground_frozen_agreement": {
+      "reference": "single EV ground-frozen ENU/NED translation; no airborne fit",
+      "scope": "armed",
+      "paired_measurements": 4042,
+      "pairing_fraction": 1.0,
+      "matched_measurement_dt_ms": {
+        "count": 4042,
+        "p95": 8.0,
+        "maximum": 16.0
+      },
+      "xy_m": {
+        "count": 3684,
+        "p95": 0.05628061447185399,
+        "maximum": 0.07680946047983243
+      },
+      "z_m": {
+        "count": 3684,
+        "p95": 0.03068403863708611,
+        "maximum": 0.0747399992379022
+      },
+      "yaw_disagreement_deg": {
+        "count": 3684,
+        "p95": 0.8318566073146774,
+        "maximum": 1.1791951217198156
+      }
+    },
+    "ev_height_datum_diagnostic": {
+      "available": false,
+      "reason": "No paired EV/PX4 measurements"
+    },
+    "ev_reset_events": [
+      {
+        "timestamp_sample_us": 27968000,
+        "before": [
+          4,
+          1,
+          1
+        ],
+        "after": [
+          4,
+          2,
+          1
+        ],
+        "armed": false
+      },
+      {
+        "timestamp_sample_us": 38268000,
+        "before": [
+          4,
+          2,
+          1
+        ],
+        "after": [
+          4,
+          3,
+          1
+        ],
+        "armed": false
+      },
+      {
+        "timestamp_sample_us": 87696000,
+        "before": [
+          4,
+          3,
+          1
+        ],
+        "after": [
+          4,
+          3,
+          2
+        ],
+        "armed": true
+      }
+    ],
+    "ground_frozen_execution_truth_errors": {
+      "fast_livo2_xy_m": {
+        "count": 246,
+        "p50": 0.00972886165289527,
+        "p95": 0.025703997391321676,
+        "maximum": 0.03477834896271853
+      },
+      "fast_livo2_z_m": {
+        "count": 246,
+        "p50": 0.011359411836732392,
+        "p95": 0.013900801456598832,
+        "maximum": 0.01609895832989028
+      },
+      "fast_livo2_signed_z_median": -0.011359411836732392,
+      "px4_xy_m": {
+        "count": 2465,
+        "p50": 0.033039292750741356,
+        "p95": 0.061954806052923125,
+        "maximum": 0.06921828383098144
+      },
+      "px4_z_m": {
+        "count": 2465,
+        "p50": 0.009959391307745147,
+        "p95": 0.04314830068948723,
+        "maximum": 0.05015710205867263
+      },
+      "px4_signed_z_median": 0.005389578799873895
+    },
+    "compact_history": {
+      "storage": "preallocated packed nanoseconds",
+      "capacity": 65536,
+      "total_count": 10441,
+      "retained_count": 10441,
+      "overwritten_count": 0,
+      "allocated_bytes": 5570560
+    }
+  },
+  "long_repeat_failure": {
+    "run": "final_repeat_20261019_01",
+    "flight_complete": false,
+    "disarmed": true,
+    "fault": "PX4/LIVO height drift exceeds frozen ground offset by 0.20 m",
+    "baseline": {
+      "mode": "obstacle",
+      "exit_code": 1,
+      "failure": "",
+      "original_baseline_preserved": true,
+      "execution_sources_unchanged": true
+    },
+    "reached_goals": [
+      1,
+      2
+    ],
+    "actual_path_m": 33.920361911617626,
+    "curves": 229,
+    "continuous_clearance_passed": true,
+    "dynamics_passed": true,
+    "shared_envelope_passed": true,
+    "armed_failsafe_samples": 0,
+    "frozen_execution_errors": {
+      "fast_livo2_xy_m": {
+        "count": 2342,
+        "p50": 0.019592860283808296,
+        "p95": 0.06227616667068403,
+        "maximum": 0.10840082097919593
+      },
+      "fast_livo2_z_m": {
+        "count": 2342,
+        "p50": 0.0372115693157552,
+        "p95": 0.16501681860045275,
+        "maximum": 0.17786141944397205
+      },
+      "fast_livo2_signed_z_median": -0.0372115693157552,
+      "px4_xy_m": {
+        "count": 23421,
+        "p50": 0.03215031088339737,
+        "p95": 0.05776299031513002,
+        "maximum": 0.06936476580910406
+      },
+      "px4_z_m": {
+        "count": 23421,
+        "p50": 0.02668724101308717,
+        "p95": 0.03922605934196621,
+        "maximum": 0.06259518323340507
+      },
+      "px4_signed_z_median": -0.02634298771156529
+    },
+    "ev_fusion_confirmed": true,
+    "frozen_ev_agreement": {
+      "reference": "single EV ground-frozen ENU/NED translation; no airborne fit",
+      "scope": "armed",
+      "paired_measurements": 3179,
+      "pairing_fraction": 0.9984296482412061,
+      "matched_measurement_dt_ms": {
+        "count": 3179,
+        "p95": 8.0,
+        "maximum": 16.0
+      },
+      "xy_m": {
+        "count": 2814,
+        "p95": 0.09271396870661616,
+        "maximum": 0.1414290830465545
+      },
+      "z_m": {
+        "count": 2814,
+        "p95": 0.30720065269878605,
+        "maximum": 0.3157460397354619
+      },
+      "yaw_disagreement_deg": {
+        "count": 2814,
+        "p95": 1.2442876732829906,
+        "maximum": 1.5866993501121425
+      }
+    },
+    "ground_height_alignment": {
+      "offset_m": 0.25258404805567003,
+      "complete": true,
+      "error": "",
+      "calibration_samples": 42,
+      "validation_samples": 42,
+      "maximum_validation_residual_m": 0.011856159946532163,
+      "source": "measurement-paired FAST-LIVO2 and PX4; no Gazebo calibration input",
+      "frozen": true,
+      "calibration_seconds": 4.0,
+      "validation_seconds": 4.0,
+      "limit_m": 0.15
+    },
+    "compact_history": {
+      "storage": "preallocated packed nanoseconds",
+      "capacity": 65536,
+      "total_count": 7799,
+      "retained_count": 7799,
+      "overwritten_count": 0,
+      "allocated_bytes": 5570560
+    },
+    "execution_rss_mib": {
+      "first": 180.9609375,
+      "last": 183.56640625,
+      "delta": 2.60546875,
+      "last120_delta": 1.19921875
+    },
+    "scope": "Failed repeated long route; protected landing, not completed route or memory hold acceptance",
+    "descriptive_height_slope_fit": {
+      "scope": "Offline explanatory fit only; never applied to odom, EV, control or acceptance",
+      "samples": 2429,
+      "coeff_constant_x_y": [
+        -0.010952234441115795,
+        0.0025002954724123007,
+        -0.00835366785619341
+      ],
+      "raw_z_p95_m": 0.16481276018847074,
+      "fit_residual_p95_m": 0.003757118096272399
+    }
+  },
+  "comparison_limitation": "Old 6.59 MiB long-route hold and new 0.637 MiB short-route hold use different route histories; not a controlled flight A/B",
+  "latest_regression_passed": 344,
+  "lio_only_diagnostic": {
+    "run": "final_lio_isolation_20261019_02",
+    "scope": "One isolated run; different image mode, initialization and departure-wait source stage; not fixed-version repeat certification",
+    "baseline": {
+      "mode": "obstacle",
+      "exit_code": 0,
+      "failure": "",
+      "original_baseline_preserved": true,
+      "execution_sources_unchanged": true
+    },
+    "flight_complete": true,
+    "disarmed": true,
+    "fault": "",
+    "complete_route_verified": true,
+    "goals": [
+      3,
+      3
+    ],
+    "measurement_time_path_m": 71.00770352739595,
+    "endpoint_xy_error_m": [
+      0.026313920890457417,
+      0.08188147344362592,
+      0.07286463674643473
+    ],
+    "curves": 418,
+    "all_complete_curves_inside_shared_envelope": true,
+    "continuous_clearance_passed": true,
+    "dynamics_passed": true,
+    "blocked_path_avoidance_verified": true,
+    "minimum_body_center_known_surface_clearance_m": 1.4505792451759234,
+    "planned_peak_speed_mps": 0.20000000000000154,
+    "planned_peak_acceleration_mps2": 0.24836996441182643,
+    "armed_failsafe_samples": 0,
+    "ground_frozen_execution_truth_errors": {
+      "fast_livo2_xy_m": {
+        "count": 4365,
+        "p50": 0.027534504819390678,
+        "p95": 0.0882979279892749,
+        "maximum": 0.13290841406545945
+      },
+      "fast_livo2_z_m": {
+        "count": 4365,
+        "p50": 0.012896090543255134,
+        "p95": 0.02435756156247897,
+        "maximum": 0.026363518118440288
+      },
+      "fast_livo2_signed_z_median": -0.012896090543255134,
+      "px4_xy_m": {
+        "count": 43650,
+        "p50": 0.030529810235562775,
+        "p95": 0.06060593268983269,
+        "maximum": 0.08537307540856029
+      },
+      "px4_z_m": {
+        "count": 43650,
+        "p50": 0.0522414380523375,
+        "p95": 0.06316756602153148,
+        "maximum": 0.07064208343124578
+      },
+      "px4_signed_z_median": -0.0522414380523375
+    },
+    "ground_frozen_paired_height_drift_m": {
+      "count": 4365,
+      "p50": 0.01156878560275687,
+      "p95": 0.05157019495070061,
+      "maximum": 0.09348371161916025
+    },
+    "ground_height_alignment": {
+      "offset_m": -0.1672414914341711,
+      "complete": true,
+      "error": "",
+      "calibration_samples": 41,
+      "validation_samples": 41,
+      "maximum_validation_residual_m": 0.007672627602900717,
+      "source": "measurement-paired FAST-LIVO2 and PX4; no Gazebo calibration input",
+      "frozen": true,
+      "calibration_seconds": 4.0,
+      "validation_seconds": 4.0,
+      "limit_m": 0.15
+    },
+    "ev_fusion_confirmed": true,
+    "ev_aid_sources": {
+      "estimator_aid_src_ev_pos": {
+        "recorded": true,
+        "scope": "armed",
+        "count": 4854,
+        "fused_count": 4854,
+        "fused_fraction": 1.0,
+        "rejected_count": 0,
+        "last_fuse_advanced_count": 4853,
+        "maximum_fusion_age_ms": 184.0,
+        "innovation_abs_m": {
+          "count": 9708,
+          "p95": 0.01604071855545043,
+          "maximum": 0.037746548652648926
+        }
+      },
+      "estimator_aid_src_ev_hgt": {
+        "recorded": true,
+        "scope": "armed",
+        "count": 4854,
+        "fused_count": 4854,
+        "fused_fraction": 1.0,
+        "rejected_count": 0,
+        "last_fuse_advanced_count": 4853,
+        "maximum_fusion_age_ms": 184.0,
+        "innovation_abs_m": {
+          "count": 4854,
+          "p95": 0.0249412178993225,
+          "maximum": 0.056506991386413574
+        }
+      }
+    },
+    "ev_ground_frozen_agreement": {
+      "reference": "single EV ground-frozen ENU/NED translation; no airborne fit",
+      "scope": "armed",
+      "paired_measurements": 5229,
+      "pairing_fraction": 0.9998087954110899,
+      "matched_measurement_dt_ms": {
+        "count": 5229,
+        "p95": 8.0,
+        "maximum": 16.0
+      },
+      "xy_m": {
+        "count": 4855,
+        "p95": 0.06469853231471102,
+        "maximum": 0.10322782196747177
+      },
+      "z_m": {
+        "count": 4855,
+        "p95": 0.04041752515970204,
+        "maximum": 0.08421277253975279
+      },
+      "yaw_disagreement_deg": {
+        "count": 4855,
+        "p95": 1.150530499165194,
+        "maximum": 1.601776439873844
+      }
+    },
+    "ev_reset_events": [
+      {
+        "timestamp_sample_us": 28548000,
+        "before": [
+          4,
+          1,
+          1
+        ],
+        "after": [
+          4,
+          2,
+          1
+        ],
+        "armed": false
+      },
+      {
+        "timestamp_sample_us": 34860000,
+        "before": [
+          4,
+          2,
+          1
+        ],
+        "after": [
+          5,
+          3,
+          1
+        ],
+        "armed": false
+      },
+      {
+        "timestamp_sample_us": 90508000,
+        "before": [
+          5,
+          3,
+          1
+        ],
+        "after": [
+          5,
+          3,
+          2
+        ],
+        "armed": true
+      }
+    ],
+    "compact_history": {
+      "storage": "preallocated packed nanoseconds",
+      "capacity": 65536,
+      "total_count": 13942,
+      "retained_count": 13942,
+      "overwritten_count": 0,
+      "allocated_bytes": 5570560
+    },
+    "execution_source_manifest_sha256": "569d8dc97840fcb3d07b4b762477c54fa626726eedd74a0ea9db02c92ac2ae76",
+    "execution_snapshot_count": 125,
+    "estimator_config_sha256": "25eaa46827a5894ab7f98a6c849e16b98510be7a0aa4213d467c5f8c89c40a09",
+    "latest_accelerometer_y_bias_mps2": 0.00949600600337,
+    "maximum_abs_accelerometer_y_bias_mps2": 0.0146130065259,
+    "combined_send_gap_ms": {
+      "count": 9048,
+      "p50": 53.270187,
+      "p95": 58.566314549999994,
+      "maximum": 71.400115
+    },
+    "supervisor_measurement_age_ms": {
+      "count": 9049,
+      "p50": 104.0,
+      "p95": 152.0,
+      "maximum": 192.0
+    },
+    "supervisor_receipt_age_ms": {
+      "count": 9049,
+      "p50": 51.3136190129444,
+      "p95": 101.1829569935799,
+      "maximum": 137.50558299943805
+    },
+    "native_rtl_wait_path_exercised": false,
+    "native_rtl_departure_gate_passed": true,
+    "ego_execution_duration_s": 436.5,
+    "log_integrity": {
+      "journal_matches_export": true,
+      "journal_count": 8121,
+      "sent_csv_matches_count": true,
+      "sent_csv_count": 928
+    }
+  },
+  "departure_report_wait": {
+    "initial_rejection_run": "final_lio_isolation_20261019_01",
+    "initial_rejection_flags_age_ms": 516.18,
+    "next_report_after_ms": 27.43,
+    "retained_flags_age_limit_s": 0.5,
+    "maximum_wait_s": 1.5,
+    "regression_cases": 4,
+    "flight_gate_passed": true,
+    "flight_wait_path_exercised": false,
+    "scope": "Hold original target and continue health checks; retry only periodic report staleness before bridge handoff"
+  },
+  "diagnostic_limitation": "One image-disabled route passed; full fusion repeat still failed. Mode, initialization, and departure-wait source stage differ. No image removal, covariance tuning or fitted slope applied to defaults.",
+  "lio_first_departure_rejection": {
+    "run": "final_lio_isolation_20261019_01",
+    "scope": "LIO-only diagnostic rejected before EGO motion; cannot assess long-route drift",
+    "fault": "Transit departure requires eligible native RTL: PX4 failsafe flags stale",
+    "flight_complete": false,
+    "disarmed": true,
+    "flags_receipt_age_at_abort_ms": 516.182879,
+    "next_flags_callback_after_abort_ms": 27.429206,
+    "fix": "Hold at origin, wait at most 1.5 s for a report satisfying original 0.5 s age; no departure on invalid or missing state",
+    "test_cases": 4,
+    "full_regression_passed": 344
+  },
+  "verification": {
+    "latest_full_regression_passed": 344,
+    "known_protobuf_warnings": 3,
+    "syntax_checked_files": 4,
+    "markdown_local_links_checked": 159,
+    "markdown_missing_links": 0,
+    "execution_snapshots_unchanged": true,
+    "px4_original_baseline_preserved": true,
+    "active_isolated_simulators": [],
+    "full_fusion_repeat_certified": false,
+    "hardware_certified": false
+  }
+}

@@ -7,6 +7,7 @@ install(PROGRAMS scripts/astra_fast_livo2_adapter.py scripts/measure_stability.p
   scripts/measure_trajectory.py scripts/measure_endurance.py scripts/audit_trajectory.py
   scripts/local_mapping_guard.py scripts/audit_planner_trajectory.py
   DESTINATION lib/${PROJECT_NAME})
+install(FILES scripts/input_callback_audit.py DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY config launch rviz
   DESTINATION share/${PROJECT_NAME})
 install(FILES README.md

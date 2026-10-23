@@ -110,6 +110,8 @@ public:
   void auditInputCallback(const char *event, const builtin_interfaces::msg::Time &stamp);
   uint64_t timing_audit_sequence_ = 0;
   int64_t last_odom_publish_ns_ = -1;
+  int64_t last_odom_publish_begin_wall_ns_ = -1;
+  int64_t last_odom_publish_end_wall_ns_ = -1;
   V3D last_audit_position_ = V3D::Zero();
   bool has_last_audit_position_ = false;
 

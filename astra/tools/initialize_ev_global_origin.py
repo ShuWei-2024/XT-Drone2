@@ -7,6 +7,7 @@ to georeference it. An accepted ACK alone is insufficient: check local/global
 outputs and continuous EV fusion before allowing the runner to proceed.
 """
 import argparse
+from collections import deque
 import json
 import math
 import os
@@ -29,11 +30,68 @@ class TelemetryPending(ValueError):
     """No valid decision yet; wait disarmed without relaxing any age gate."""
 
 
+def position_stability_window(samples, duration_us=2_000_000,
+                              max_axis_excursion_m=.02, min_samples=20):
+    """Require a genuinely quiet, reset-free local-position history on ground.
+
+    Samples are ``(timestamp_sample_us, x, y, z, reset_counters)``. The
+    position is checked per axis over the whole measured-time window, so slow
+    drift cannot pass merely because instantaneous velocity is small.
+    """
+    if not samples:
+        return False, dict(reason='no local-position history', samples=0)
+    end_us = samples[-1][0]
+    window = [s for s in samples if end_us-duration_us <= s[0] <= end_us]
+    details = dict(samples=len(window), duration_us=(window[-1][0]-window[0][0]
+                   if len(window) > 1 else 0), required_duration_us=duration_us,
+                   max_axis_excursion_m=max_axis_excursion_m)
+    # A 100 Hz measured stream commonly spans 1.992 s inside a 2 s window
+    # because its first sample falls just after the lower time boundary.
+    if len(window) < min_samples or details['duration_us'] < duration_us-50_000:
+        details['reason'] = 'insufficient measured-time coverage'
+        return False, details
+    stamps = [s[0] for s in window]
+    if any(b <= a for a, b in zip(stamps, stamps[1:])):
+        details['reason'] = 'duplicate or backwards local-position measurement time'
+        return False, details
+    if max(b-a for a, b in zip(stamps, stamps[1:])) > 250_000:
+        details['reason'] = 'local-position measurement gap exceeds 250 ms'
+        return False, details
+    reset_vectors = {tuple(s[4]) for s in window}
+    if len(reset_vectors) != 1:
+        details['reason'] = 'PX4 reset during local-position stability window'
+        return False, details
+    ranges = [max(s[i] for s in window)-min(s[i] for s in window)
+              for i in (1, 2, 3)]
+    details['axis_excursion_m'] = ranges
+    details['reset_counters'] = list(next(iter(reset_vectors)))
+    if max(ranges) > max_axis_excursion_m:
+        details['reason'] = 'local-position excursion exceeds 0.02 m'
+        return False, details
+    details['reason'] = ''
+    return True, details
+
+
 def absolute_origin_valid(local, global_position):
     # PX4 1.17 sets lpos.z_global with the horizontal origin and returns zero
     # for an uninitialized ref_alt. Only gpos.alt_valid checks actual validity.
     return bool(global_position is not None and global_position.alt_valid and
                 local.z_global and math.isfinite(local.ref_alt))
+
+
+def check_origin_displacement(before, local, report):
+    """Keep the existing gate and retain the exact offending estimator sample."""
+    after = [local.x, local.y, local.z]
+    displacement = math.dist(before, after)
+    if displacement > .03:
+        report['local_displacement_failure'] = dict(
+            before_local_ned_m=list(before), after_local_ned_m=after,
+            delta_local_ned_m=[new-old for old, new in zip(before, after)],
+            displacement_m=displacement, limit_m=.03,
+            timestamp_sample_us=int(local.timestamp_sample),
+            after_resets=[local.xy_reset_counter, local.z_reset_counter, local.heading_reset_counter],
+            ref_alt_m=float(local.ref_alt))
+        raise RuntimeError('origin initialization moved local position by more than 0.03 m')
 
 
 def origin_candidate(local, gps, status, flags, now_us):
@@ -72,6 +130,7 @@ class Initializer(Node):
         super().__init__('astra_disarmed_ev_global_origin', parameter_overrides=[
             rclpy.parameter.Parameter('use_sim_time', value=True)])
         self.data = {}; self.receipts = {}; self.acks = []; self.request_us = None
+        self.local_history = deque(maxlen=1000)
         for key, topic, cls in (
                 ('local', 'vehicle_local_position', VehicleLocalPosition),
                 ('global', 'vehicle_global_position', VehicleGlobalPosition),
@@ -88,6 +147,10 @@ class Initializer(Node):
 
     def receive(self, key, msg):
         self.data[key] = msg; self.receipts[key] = time.monotonic()
+        if key == 'local' and msg.timestamp_sample > 0:
+            self.local_history.append((int(msg.timestamp_sample), float(msg.x),
+                float(msg.y), float(msg.z), (int(msg.xy_reset_counter),
+                int(msg.z_reset_counter), int(msg.heading_reset_counter))))
 
     def ack(self, msg):
         if (self.request_us is not None and msg.timestamp >= self.request_us and
@@ -121,6 +184,9 @@ class Initializer(Node):
                 for key in ('local','gps') if key in self.data},
             receipt_age_sec={key:wall-value for key,value in self.receipts.items()})
 
+    def local_position_stable(self):
+        return position_stability_window(list(self.local_history))
+
     def run(self, report):
         deadline = time.monotonic()+60.; stable = None; reason = ''
         while time.monotonic() < deadline:
@@ -129,6 +195,12 @@ class Initializer(Node):
                 origin = self.candidate()
             except ValueError as exc:
                 stable = None; reason = str(exc); continue
+            position_stable, stability = self.local_position_stable()
+            report['pre_command_stability'] = stability
+            if not position_stable:
+                stable = None
+                reason = stability['reason']
+                continue
             if stable is None:stable = time.monotonic()
             if time.monotonic()-stable >= 1.:break
         else:raise RuntimeError('ground preparation timed out: '+reason)
@@ -165,8 +237,7 @@ class Initializer(Node):
                 continue
             # Armed, unfused, invalid or moving data still fails immediately.
             local = self.data['local']; global_pos = self.data.get('global')
-            if math.dist(before,[local.x,local.y,local.z]) > .03:
-                raise RuntimeError('origin initialization moved local position by more than 0.03 m')
+            check_origin_displacement(before, local, report)
             accepted = (not report['command_sent'] or any(
                 a['result'] == VehicleCommandAck.VEHICLE_CMD_RESULT_ACCEPTED for a in self.acks))
             confirmed = (accepted and local.z_global and local.xy_global and

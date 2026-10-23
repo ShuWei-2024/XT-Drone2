@@ -7,13 +7,22 @@ from pathlib import Path
 import rclpy
 from px4_msgs.msg import TrajectorySetpoint, VehicleLocalPosition, VehicleStatus
 from rclpy.parameter import Parameter
+from rclpy.qos import DurabilityPolicy, HistoryPolicy, ReliabilityPolicy
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from guarded_bspline_bridge import GuardedBsplineBridge
-from px4_topics import px4_topic
+from px4_topics import PX4_HISTORY_DEPTH, px4_sensor_history_qos, px4_topic
 
 
 class TopicTests(unittest.TestCase):
+    def test_sensor_history_keeps_a_bounded_best_effort_window(self):
+        qos = px4_sensor_history_qos()
+        self.assertEqual(PX4_HISTORY_DEPTH, 64)
+        self.assertEqual(qos.history, HistoryPolicy.KEEP_LAST)
+        self.assertEqual(qos.depth, 64)
+        self.assertEqual(qos.reliability, ReliabilityPolicy.BEST_EFFORT)
+        self.assertEqual(qos.durability, DurabilityPolicy.VOLATILE)
+
     def test_legacy_messages_keep_existing_topic(self):
         class LegacyMessage:
             pass
@@ -34,6 +43,10 @@ class TopicTests(unittest.TestCase):
                               ('vehicle_status', VehicleStatus)]:
                 self.assertIn(px4_topic('out', name, cls, 'x500_0'), subscriptions)
             self.assertFalse(hasattr(node, 'setpoint_pub'))
+            local_topic = px4_topic('out', 'vehicle_local_position',
+                                    VehicleLocalPosition, 'x500_0')
+            local_sub = next(s for s in node.subscriptions if s.topic_name == local_topic)
+            self.assertEqual(local_sub.qos_profile.depth, PX4_HISTORY_DEPTH)
         finally:
             node.destroy_node()
             rclpy.shutdown()

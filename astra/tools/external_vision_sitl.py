@@ -24,7 +24,7 @@ from px4_msgs.msg import VehicleOdometry, VehicleLocalPosition, VehicleStatus, E
 from external_vision_geometry import ENU_TO_NED, convert_pose, valid_measurement
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'packages/astra_px4_offboard/scripts'))
-from px4_topics import px4_topic
+from px4_topics import px4_sensor_history_qos, px4_topic
 
 
 class ExternalVision(Node):
@@ -53,7 +53,7 @@ class ExternalVision(Node):
         self.create_subscription(Odometry, '/fast_livo2/odom', self.odom, 10)
         self.create_subscription(Bool, '/local_mapping/ready', self.ready, gate)
         self.create_subscription(VehicleLocalPosition, px4_topic('out', 'vehicle_local_position', VehicleLocalPosition, ns),
-                                 self.local, qos_profile_sensor_data)
+                                 self.local, px4_sensor_history_qos())
         self.create_subscription(VehicleStatus, px4_topic('out', 'vehicle_status', VehicleStatus, ns),
                                  self.on_status, qos_profile_sensor_data)
         self.create_subscription(EstimatorStatusFlags, px4_topic('out', 'estimator_status_flags', EstimatorStatusFlags, ns),

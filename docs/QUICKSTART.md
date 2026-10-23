@@ -1,8 +1,8 @@
-# 安装与快速启动
+# 仿真安装与快速启动
 
 [返回文档索引](README.md)
 
-本教程面向 Ubuntu 24.04。所有项目命令在仓库根目录执行；每次仿真单独运行，名称不能重复。`static` 默认不解锁；`small`、`obstacle` 是会解锁并飞行的本机隔离 SITL 测试。
+本教程只面向 Ubuntu 24.04 上的 Gazebo / PX4 SITL。所有项目命令在仓库根目录执行；每次仿真单独运行，名称不能重复。`static` 默认不解锁；`small`、`obstacle` 是会解锁并飞行的本机隔离 SITL 测试。真实飞控和传感器迁移见[实物迁移与飞行](HARDWARE.md)，不要把本页的 SITL 端口和地图路径直接用于实物。
 
 ## 1. 系统依赖
 
@@ -89,7 +89,8 @@ astra/runtime/map_tools_venv/bin/python astra/tools/prepare_baylands.py
 # 独立全图空域配置；已有目录不覆盖。
 astra/runtime/map_tools_venv/bin/python astra/tools/prepare_return_airspace.py \
   --source astra/runtime/maps/baylands_park \
-  --output astra/runtime/maps/baylands_whole_map --whole-map
+  --output astra/runtime/maps/baylands_connected_full \
+  --whole-map --connected-recovery --scene-edge-reserve-m 1 --refine-descent-prisms
 ```
 
 下载包约 150.7 MB，转换另需内存和磁盘空间。程序拒绝覆盖已有输出。新生成场景包含彩色纹理和灯光；旧生成目录不会随代码更新自动改变外观。下载中断可重用缓存，转换失败则先检查输出并保留诊断，再选择新输出目录。
@@ -103,7 +104,7 @@ bash astra/rviz_outdoor_117.bash outdoor_$(date +%Y%m%d_%H%M%S) \
 
 命令自动启动完整飞行链、RViz2 和中文航点窗口；等待 READY、添加目标并点击开始后才起飞。
 Gazebo 场景窗口另开终端执行 `GZ_PARTITION=astra_px4_117 gz sim -g`，详见第 8 节。
-存在 `baylands_whole_map` 时优先使用它：在地图 XY ±30 m 内检查连通可飞空域，保留边缘 5 m，按 1.5 m 相对高度巡航；不是每个 XY 都允许飞行或降落。不生成该配置则仍使用旧的 10 m 场景。EV 是可选 XY/Z 位置融合；不加该参数时关闭。
+存在 `baylands_connected_full` 时优先使用它：检查 XY ±34 m 的连通空域，地图外缘预留 1 m，静态可选面积约 3376 m²，按 1.5 m 相对高度巡航。不能原地降落的通行区有预先检查的撤退路线；不是每个 XY 都有净空或允许降落。未生成新配置时回退到已有旧场景。EV 是可选 XY/Z 位置融合；不加该参数时关闭。
 
 本机已准备独立彩色目录时，用以下命令替代上面的启动命令：
 

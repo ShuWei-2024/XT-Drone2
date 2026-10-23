@@ -65,6 +65,7 @@ namespace ego_planner
     double planning_horizen_, planning_horizen_time_;
     double emergency_time_;
     double max_tracking_error_m_;
+    bool lock_height_;
     bool flag_realworld_experiment_;
     bool enable_fail_safe_;
 

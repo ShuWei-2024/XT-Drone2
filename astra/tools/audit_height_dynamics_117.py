@@ -7,7 +7,7 @@ import sys
 import xml.etree.ElementTree as ET
 
 import numpy as np
-from scipy.signal import butter, find_peaks, sosfiltfilt
+from scipy.signal import butter, find_peaks, savgol_filter, sosfiltfilt
 from audit_obstacle_reliability_20261010 import pair
 from run_sitl_117 import is_simulation_command
 sys.path.append(str(Path.home()/'dev/px4/venv/lib/python3.12/site-packages'))
@@ -52,6 +52,10 @@ def audit(directory,plot_path=None):
     truth=np.array([float(r['z_m']) for r in streams['gazebo']])
     grid=np.arange(lo+1,hi-1,.05)
     z=np.interp(grid,tt,truth)
+    # Derive a smooth reference velocity from measured Gazebo body positions.
+    # PX4's logged groundtruth velocity is differentiated in a wall-clock
+    # callback, so it is not the primary time-aligned reference here.
+    truth_v_smooth=savgol_filter(z,11,3,deriv=1,delta=.05)
     u=ULog(str(next((directory/'log').rglob('*.ulg'))));data={r.name:r.data for r in u.data_list}
     model=ET.parse(directory/'models/x500_base/model.sdf')
     pressure_sigma=float(model.find('.//air_pressure/pressure/noise/stddev').text)
@@ -102,6 +106,60 @@ def audit(directory,plot_path=None):
             px4_estimation_error_m=float(estimate_error[index]),
             controller_tracking_error_m=float(control_error[index]),
             seconds_after_handoff=time_sec-lo,observations={})
+        # PX4 vertical quantities are NED (positive down); convert to positive
+        # up for direct comparison with Gazebo z. Snapshots are descriptive,
+        # not causal attribution.
+        event['vertical_dynamics_positive_up']={}
+        for delta in (-2.,-1.5,-1.,-.5,0.,.5,1.,2.):
+            sample_time=time_sec+delta
+            nearest=int(np.argmin(abs(grid-sample_time)))
+            values=dict(gazebo_vertical_velocity_mps=float(truth_v_smooth[nearest]),
+                px4_estimated_vertical_velocity_mps=float(-interpolate('vehicle_local_position','vz')[nearest]),
+                px4_position_derivative_velocity_mps=float(-interpolate('vehicle_local_position','z_deriv')[nearest]),
+                px4_estimated_vertical_acceleration_mps2=float(-interpolate('vehicle_local_position','az')[nearest]),
+                px4_vertical_estimation_error_m=float(estimate_error[nearest]),
+                actual_height_tracking_error_m=float(true_tracking[nearest]))
+            for topic,field,outkey in (
+                ('vehicle_local_position_setpoint','acceleration[2]','px4_commanded_vertical_acceleration_mps2'),
+                ('vehicle_local_position_setpoint','thrust[2]','px4_commanded_ned_thrust_z')):
+                try: values[outkey]=float(interpolate(topic,field,'timestamp')[nearest])
+                except (KeyError,ValueError): pass
+            event['vertical_dynamics_positive_up'][str(delta)]=values
+        # Search a local +/-0.5 s shift after removing the local constant
+        # height bias. A consistent positive shift would support a fixed
+        # estimator delay; differing shifts are only evidence of dynamic
+        # filtering/control effects, not a causal delay estimate.
+        window=(grid>=time_sec-3.)&(grid<=time_sec+3.)
+        local_truth=z[window]
+        local_truth_v=truth_v_smooth[window]
+        local_grid=grid[window]
+        shift_candidates=np.arange(-.5,.5001,.025)
+        height_shift_errors=[]
+        velocity_shift_errors=[]
+        for shift in shift_candidates:
+            shifted_height=np.interp(local_grid+shift,grid,estimated)
+            height_residual=shifted_height-local_truth
+            height_residual-=np.median(height_residual)
+            shifted_velocity=np.interp(local_grid+shift,grid,
+                                       -interpolate('vehicle_local_position','vz'))
+            velocity_residual=shifted_velocity-local_truth_v
+            velocity_residual-=np.median(velocity_residual)
+            height_shift_errors.append((float(np.sqrt(np.mean(height_residual**2))),float(shift),
+                                       float(np.percentile(abs(height_residual),95))))
+            velocity_shift_errors.append((float(np.sqrt(np.mean(velocity_residual**2))),float(shift),
+                                         float(np.percentile(abs(velocity_residual),95))))
+        best_height=min(height_shift_errors)
+        best_velocity=min(velocity_shift_errors)
+        event['local_time_shift_search']={
+            'window_sec':[-3.,3.],
+            'candidate_range_sec':[-.5,.5],
+            'best_height_shift_sec':best_height[1],
+            'best_height_rms_m':best_height[0],
+            'best_height_absolute_p95_m':best_height[2],
+            'best_vertical_velocity_shift_sec':best_velocity[1],
+            'best_vertical_velocity_rms_mps':best_velocity[0],
+            'best_vertical_velocity_absolute_p95_mps':best_velocity[2],
+            'interpretation':'Local descriptive search; different height and velocity shifts do not prove a fixed sensor delay.'}
         for topic,fields in (
             ('estimator_aid_src_baro_hgt',('innovation','innovation_filtered','test_ratio','fused','innovation_rejected')),
             ('estimator_aid_src_gnss_vel',('innovation[2]','innovation_filtered[2]','test_ratio[2]','fused','innovation_rejected')),
@@ -149,6 +207,15 @@ def audit(directory,plot_path=None):
         candidate=-np.interp(grid+shift,lt,local['z'])+bias['px4']-z
         lag_errors[str(shift)]=stats(candidate)
     status=data['estimator_status_flags'];mask=(status['timestamp_sample']/1e6>=lo)&(status['timestamp_sample']/1e6<=hi)
+    # This bridge is in position mode: PX4's velocity feedforward field is
+    # intentionally NaN. Derive the commanded vertical rate from the position
+    # target instead, and report the unused feedforward field separately.
+    planned_vz_stats=stats(np.gradient(target,.05))
+    raw_planned_vz=interpolate('trajectory_setpoint','velocity[2]','timestamp')
+    finite_planned_vz=raw_planned_vz[np.isfinite(raw_planned_vz)]
+    feedforward_vz_stats=(stats(finite_planned_vz) if len(finite_planned_vz) else
+        dict(samples=0,encoded_samples=int(len(raw_planned_vz)),available=False,
+             reason='PX4 position-control setpoints encode the unused velocity field as NaN'))
     report=dict(run=directory.name,flight_complete=motion['flight_complete'],fault=motion['fault'],
         configured_pressure_noise_pa=pressure_sigma,diagnostic_noiseless_pressure=pressure_sigma==0.,
         diagnostic_reduced_pressure_noise=pressure_sigma!=3.,
@@ -159,7 +226,8 @@ def audit(directory,plot_path=None):
         parameters={k:u.initial_parameters.get(k) for k in ('EKF2_BARO_NOISE','EKF2_BARO_DELAY','EKF2_GPS_DELAY','EKF2_GPS_CTRL','EKF2_HGT_REF','EKF2_DELAY_MAX','EKF2_TAU_POS','EKF2_TAU_VEL')},
         fusion_active_samples={k:int(np.count_nonzero(status[k][mask])) for k in ('cs_baro_hgt','cs_gps_hgt','cs_ev_hgt','cs_gnss_vel','cs_gnd_effect') if k in status},
         planned_height_span_m=float(np.ptp(target)),internal_height_target_span_m=float(np.ptp(internal_target)),
-        planned_vertical_velocity_mps=stats(interpolate('trajectory_setpoint','velocity[2]','timestamp')),
+        planned_vertical_velocity_mps=planned_vz_stats,
+        trajectory_setpoint_velocity_z_feedforward_mps=feedforward_vz_stats,
         true_height_span_m=float(np.ptp(z)),
         px4_estimation_error_m=stats(estimate_error),livo_estimation_error_m=stats(livo-z),
         controller_estimated_tracking_error_m=stats(control_error),actual_tracking_error_m=stats(true_tracking),

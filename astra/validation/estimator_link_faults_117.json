@@ -1,0 +1,601 @@
+{
+  "date": "2026-10-20",
+  "scope": "Four separate fault experiments near the origin certified descent area in isolated SITL; normal image fusion/EV XY-Z, low speed. Not four normal mission successes, not pure Z-only reset, all-axis simultaneous reset, arbitrary-position or hardware certification.",
+  "source_note": "Harness-only changes between runs are retained in per-run source differences; not identical-source repetitions.",
+  "selected_runs": [
+    {
+      "run": "acceptance_reset_xy_20261020_01",
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true,
+        "verdict_scope": "Deliberate failure; onboard recovery audit, not normal mission completion"
+      },
+      "injection": {
+        "axis": "xy",
+        "injected": true,
+        "kind": "real_px4_external_observation_reset",
+        "command_wall_ns": 928932549236782,
+        "command_sim_us": 116168000,
+        "command": 43003,
+        "before_counters": [
+          4,
+          3,
+          2
+        ],
+        "before_sample_us": 116168000,
+        "parameters": {
+          "param2": 0.0,
+          "param3": 0.1,
+          "param5": 47.397971740123246,
+          "param6": 8.546168297867355,
+          "param7": "NaN"
+        },
+        "after_counters": [
+          5,
+          3,
+          2
+        ],
+        "after_sample_us": 116184000,
+        "observed_wall_ns": 928932568314821,
+        "acknowledgements": [
+          {
+            "command": 43003,
+            "result": 0,
+            "timestamp_us": 116188000,
+            "wall_ns": 928932564337136
+          }
+        ],
+        "requested_counter_changed": true
+      },
+      "response": {
+        "kind": "estimator_reset",
+        "checks": {
+          "injected": true,
+          "fault_detection_after_injection": true,
+          "fault_latched": true,
+          "no_normal_bridge_samples_after_abort": true,
+          "task_not_reported_complete": true,
+          "onboard_armed_after_injection": true,
+          "onboard_landed_before_disarm": true,
+          "onboard_disarmed": true,
+          "real_requested_reset_observed": true,
+          "reset_reason": true,
+          "accepted_reset_command": true
+        },
+        "fault": "PX4 estimator reset",
+        "execution_response_ms": 36.648775,
+        "latch_response_ms": 36.833172,
+        "onboard_land_after_injection_s": 3.784,
+        "onboard_disarm_after_injection_s": 5.796,
+        "mission_disarm_confirmed": true,
+        "axis": "xy",
+        "onboard_reset_changes": [
+          {
+            "timestamp_us": 116192000,
+            "before": 4,
+            "after": 5
+          }
+        ],
+        "expected_fault_observed": true
+      },
+      "execution_source_differences_from_first": [],
+      "parameter_overrides": {
+        "UXRCE_DDS_SYNCT": 0,
+        "EKF2_EV_CTRL": 3,
+        "EKF2_HGT_REF": 3,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_MAG_TYPE": 1,
+        "EKF2_BARO_NOISE": 0.3,
+        "EKF2_GPS_DELAY": 110.0,
+        "EKF2_GND_EFF_DZ": 0,
+        "MPC_XY_P": 1.2,
+        "EKF2_EV_DELAY": 0,
+        "EKF2_EV_POS_X": 0,
+        "EKF2_EV_POS_Y": 0,
+        "EKF2_EV_POS_Z": 0,
+        "EKF2_EV_NOISE_MD": 0,
+        "EKF2_EVP_NOISE": 0.1,
+        "SDLOG_PROFILE": 129
+      },
+      "flight_complete": false,
+      "bridge_count_consistent": true,
+      "normal_bridge_samples_after_detection": 0,
+      "minimum_recorded_body_center_known_surface_clearance_m": 2.620151053886667,
+      "truth_samples_after_signal": 359,
+      "maximum_truth_horizontal_motion_after_signal_m": 0.12276530978822421,
+      "truth_z_range_after_signal_m": [
+        0.22593677721314415,
+        0.8573217487992548
+      ]
+    },
+    {
+      "run": "acceptance_reset_z_20261020_03",
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true,
+        "verdict_scope": "Deliberate failure; onboard recovery audit, not normal mission completion"
+      },
+      "injection": {
+        "axis": "z",
+        "injected": true,
+        "preinjection_state": {
+          "arming_state": 2,
+          "nav_state": 14,
+          "xy_valid": true,
+          "z_valid": true,
+          "receipt_age_s": {
+            "local": 0.005611952976323664,
+            "global_position": 0.011197468033060431,
+            "status": 0.15765134093817323
+          }
+        },
+        "kind": "real_px4_external_observation_reset",
+        "command_wall_ns": 930094791411405,
+        "command_sim_us": 119148000,
+        "command": 43003,
+        "before_counters": [
+          4,
+          3,
+          2
+        ],
+        "before_sample_us": 119140000,
+        "parameters": {
+          "param2": 0.0,
+          "param3": 0.1,
+          "param5": 47.39797106898405,
+          "param6": 8.546165303632025,
+          "param7": 0.9614400148391724
+        },
+        "after_counters": [
+          5,
+          4,
+          2
+        ],
+        "after_sample_us": 119164000,
+        "observed_wall_ns": 930094805492770,
+        "acknowledgements": [
+          {
+            "command": 176,
+            "result": 0,
+            "timestamp_us": 76556000,
+            "wall_ns": 930052000431799
+          },
+          {
+            "command": 400,
+            "result": 0,
+            "timestamp_us": 76556000,
+            "wall_ns": 930052001704802
+          },
+          {
+            "command": 43003,
+            "result": 0,
+            "timestamp_us": 119168000,
+            "wall_ns": 930094800164319
+          }
+        ],
+        "requested_counter_changed": true
+      },
+      "response": {
+        "kind": "estimator_reset",
+        "checks": {
+          "injected": true,
+          "fault_detection_after_injection": true,
+          "fault_latched": true,
+          "no_normal_bridge_samples_after_abort": true,
+          "task_not_reported_complete": true,
+          "onboard_armed_after_injection": true,
+          "onboard_landed_before_disarm": true,
+          "onboard_disarmed": true,
+          "real_requested_reset_observed": true,
+          "reset_reason": true,
+          "accepted_reset_command": true
+        },
+        "fault": "PX4 estimator reset",
+        "execution_response_ms": 21.384053,
+        "latch_response_ms": 21.56498,
+        "onboard_land_after_injection_s": 3.968,
+        "onboard_disarm_after_injection_s": 5.98,
+        "mission_disarm_confirmed": true,
+        "axis": "z",
+        "onboard_reset_changes": [
+          {
+            "timestamp_us": 119168000,
+            "before": 3,
+            "after": 4
+          }
+        ],
+        "expected_fault_observed": true
+      },
+      "execution_source_differences_from_first": [
+        "astra/tools/run_sitl_117.py",
+        "astra/tools/sitl_estimator_reset.py",
+        "astra/tools/sitl_extended_faults.py"
+      ],
+      "parameter_overrides": {
+        "UXRCE_DDS_SYNCT": 0,
+        "EKF2_EV_CTRL": 3,
+        "EKF2_HGT_REF": 3,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_MAG_TYPE": 1,
+        "EKF2_BARO_NOISE": 0.3,
+        "EKF2_GPS_DELAY": 110.0,
+        "EKF2_GND_EFF_DZ": 0,
+        "MPC_XY_P": 1.2,
+        "EKF2_EV_DELAY": 0,
+        "EKF2_EV_POS_X": 0,
+        "EKF2_EV_POS_Y": 0,
+        "EKF2_EV_POS_Z": 0,
+        "EKF2_EV_NOISE_MD": 0,
+        "EKF2_EVP_NOISE": 0.1,
+        "SDLOG_PROFILE": 129
+      },
+      "flight_complete": false,
+      "bridge_count_consistent": true,
+      "normal_bridge_samples_after_detection": 0,
+      "minimum_recorded_body_center_known_surface_clearance_m": 2.8804060372028863,
+      "truth_samples_after_signal": 365,
+      "maximum_truth_horizontal_motion_after_signal_m": 0.10607008535372416,
+      "truth_z_range_after_signal_m": [
+        0.22682098315445862,
+        1.1778386883285166
+      ]
+    },
+    {
+      "run": "acceptance_reset_yaw_20261020_01",
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true,
+        "verdict_scope": "Deliberate failure; onboard recovery audit, not normal mission completion"
+      },
+      "injection": {
+        "axis": "yaw",
+        "injected": true,
+        "preinjection_state": {
+          "arming_state": 2,
+          "nav_state": 14,
+          "xy_valid": true,
+          "z_valid": true,
+          "receipt_age_s": {
+            "global_position": 0.007627979968674481,
+            "local": 0.0033521580044180155,
+            "status": 0.22814458806533366
+          }
+        },
+        "kind": "real_px4_external_observation_reset",
+        "command_wall_ns": 930250341775287,
+        "command_sim_us": 117808000,
+        "command": 620,
+        "before_counters": [
+          4,
+          3,
+          2
+        ],
+        "before_sample_us": 117808000,
+        "parameters": {
+          "param3": 92.4196151761379,
+          "param7": 1.0
+        },
+        "after_counters": [
+          4,
+          3,
+          3
+        ],
+        "after_sample_us": 117832000,
+        "observed_wall_ns": 930250358975251,
+        "acknowledgements": [
+          {
+            "command": 176,
+            "result": 0,
+            "timestamp_us": 75708000,
+            "wall_ns": 930208032165000
+          },
+          {
+            "command": 400,
+            "result": 0,
+            "timestamp_us": 75708000,
+            "wall_ns": 930208032860094
+          },
+          {
+            "command": 620,
+            "result": 0,
+            "timestamp_us": 117824000,
+            "wall_ns": 930250352625903
+          }
+        ],
+        "requested_counter_changed": true
+      },
+      "response": {
+        "kind": "estimator_reset",
+        "checks": {
+          "injected": true,
+          "fault_detection_after_injection": true,
+          "fault_latched": true,
+          "no_normal_bridge_samples_after_abort": true,
+          "task_not_reported_complete": true,
+          "onboard_armed_after_injection": true,
+          "onboard_landed_before_disarm": true,
+          "onboard_disarmed": true,
+          "real_requested_reset_observed": true,
+          "reset_reason": true,
+          "accepted_reset_command": true
+        },
+        "fault": "PX4 estimator reset",
+        "execution_response_ms": 26.532832,
+        "latch_response_ms": 26.741423,
+        "onboard_land_after_injection_s": 4.0,
+        "onboard_disarm_after_injection_s": 6.004,
+        "mission_disarm_confirmed": true,
+        "axis": "yaw",
+        "onboard_reset_changes": [
+          {
+            "timestamp_us": 117824000,
+            "before": 2,
+            "after": 3
+          }
+        ],
+        "expected_fault_observed": true
+      },
+      "execution_source_differences_from_first": [
+        "astra/tools/run_sitl_117.py",
+        "astra/tools/sitl_estimator_reset.py",
+        "astra/tools/sitl_extended_faults.py"
+      ],
+      "parameter_overrides": {
+        "UXRCE_DDS_SYNCT": 0,
+        "EKF2_EV_CTRL": 3,
+        "EKF2_HGT_REF": 3,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_MAG_TYPE": 1,
+        "EKF2_BARO_NOISE": 0.3,
+        "EKF2_GPS_DELAY": 110.0,
+        "EKF2_GND_EFF_DZ": 0,
+        "MPC_XY_P": 1.2,
+        "EKF2_EV_DELAY": 0,
+        "EKF2_EV_POS_X": 0,
+        "EKF2_EV_POS_Y": 0,
+        "EKF2_EV_POS_Z": 0,
+        "EKF2_EV_NOISE_MD": 0,
+        "EKF2_EVP_NOISE": 0.1,
+        "SDLOG_PROFILE": 129
+      },
+      "flight_complete": false,
+      "bridge_count_consistent": true,
+      "normal_bridge_samples_after_detection": 0,
+      "minimum_recorded_body_center_known_surface_clearance_m": 2.8669045598153207,
+      "truth_samples_after_signal": 369,
+      "maximum_truth_horizontal_motion_after_signal_m": 0.11445553975655445,
+      "truth_z_range_after_signal_m": [
+        0.22625756322887622,
+        1.1613263701711511
+      ]
+    },
+    {
+      "run": "acceptance_dds_loss_20261020_02",
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 0,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true,
+        "verdict_scope": "Deliberate failure; onboard recovery audit, not normal mission completion"
+      },
+      "injection": {
+        "kind": "stop_owned_dds_agent",
+        "command_wall_ns": 929367981485043,
+        "command_sim_us": 112244000,
+        "sim_time_reference": "Last complete live bridge sample before signal; not exact signal time",
+        "sim_anchor_wall_age_ms": 4.809051,
+        "agent_process_group": 984103,
+        "handoff": {
+          "event": "ego_control_handoff",
+          "wall_ns": 929365973060031,
+          "sim_ns": 110244000000,
+          "odom_age_sec": 0.12,
+          "odom_receipt_age_sec": 0.0948073510080576,
+          "map_ready": true,
+          "heading_good": true,
+          "truth": [
+            0.0278742609802078,
+            -0.05319756770250188,
+            0.897075585530245
+          ],
+          "px4": [
+            -0.03496730700135231,
+            0.003535790601745248,
+            -0.8877987861633301,
+            1.5874272584915161
+          ],
+          "goal_index": 0
+        },
+        "scope": "Whole PX4 DDS transport: all outputs and command/EV inputs; Gazebo sensors, PX4 EKF, MAVLink GCS heartbeat and onboard logger remain alive",
+        "agent_exit_code": -2
+      },
+      "response": {
+        "kind": "dds_agent",
+        "checks": {
+          "injected": true,
+          "fault_detection_after_injection": true,
+          "fault_latched": true,
+          "no_normal_bridge_samples_after_abort": true,
+          "task_not_reported_complete": true,
+          "onboard_armed_after_injection": true,
+          "onboard_landed_before_disarm": true,
+          "onboard_disarmed": true,
+          "all_direct_px4_position_telemetry_stopped": true,
+          "direct_px4_status_and_position_stopped": true,
+          "owned_agent_exit_observed": true,
+          "offboard_loss_recorded": true,
+          "onboard_auto_land_recorded": true,
+          "stimulus_applied_in_air": true,
+          "no_new_offboard_heartbeat_in_px4": true,
+          "no_delivered_land_command_after_cut": true
+        },
+        "fault": "ground-aligned height has no measurement pair within 20 ms",
+        "execution_response_ms": 211.056826,
+        "latch_response_ms": 211.256662,
+        "onboard_land_after_injection_s": 4.14,
+        "onboard_disarm_after_injection_s": 6.152,
+        "mission_disarm_confirmed": false,
+        "parameters": {
+          "COM_OF_LOSS_T": 1.0,
+          "COM_OBL_RC_ACT": 0,
+          "COM_FAIL_ACT_T": 5.0,
+          "COM_RC_IN_MODE": 1
+        },
+        "first_offboard_loss_after_injection_s": 1.036,
+        "first_auto_land_after_injection_s": 1.048,
+        "post_cut_px4_frame_samples_after_drain": 0,
+        "post_cut_status_and_position_receipts_after_drain": 0,
+        "onboard_armed_nav_states": [
+          14,
+          18
+        ],
+        "confirmation": "Onboard ULog only; ROS cannot confirm disarm over the severed link",
+        "expected_fault_observed": true
+      },
+      "execution_source_differences_from_first": [
+        "astra/tools/sitl_extended_faults.py"
+      ],
+      "parameter_overrides": {
+        "UXRCE_DDS_SYNCT": 0,
+        "EKF2_EV_CTRL": 3,
+        "EKF2_HGT_REF": 3,
+        "EKF2_GPS_CTRL": 5,
+        "EKF2_MAG_TYPE": 1,
+        "EKF2_BARO_NOISE": 0.3,
+        "EKF2_GPS_DELAY": 110.0,
+        "EKF2_GND_EFF_DZ": 0,
+        "MPC_XY_P": 1.2,
+        "EKF2_EV_DELAY": 0,
+        "EKF2_EV_POS_X": 0,
+        "EKF2_EV_POS_Y": 0,
+        "EKF2_EV_POS_Z": 0,
+        "EKF2_EV_NOISE_MD": 0,
+        "EKF2_EVP_NOISE": 0.1,
+        "SDLOG_PROFILE": 129
+      },
+      "flight_complete": false,
+      "bridge_count_consistent": true,
+      "normal_bridge_samples_after_detection": 0,
+      "minimum_recorded_body_center_known_surface_clearance_m": 2.6806010830696385,
+      "truth_samples_after_signal": 1623,
+      "maximum_truth_horizontal_motion_after_signal_m": 0.3044265105917214,
+      "truth_z_range_after_signal_m": [
+        0.22675227088413016,
+        1.1525555206733105
+      ]
+    }
+  ],
+  "retained_invalid_stimulus_runs": [
+    {
+      "run": "acceptance_dds_loss_20261020_01",
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "FileNotFoundError: [Errno 2] No such file or directory: '/home/cyf/dev/XT-Drone2-astra/astra/runtime/acceptance_dds_loss_20261020_01/frame_samples.csv'",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true,
+        "verdict_scope": "Deliberate failure; onboard recovery audit, not normal mission completion"
+      },
+      "injection": null,
+      "audit": null
+    },
+    {
+      "run": "acceptance_reset_z_20261020_01",
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true,
+        "verdict_scope": "Deliberate failure; onboard recovery audit, not normal mission completion"
+      },
+      "injection": {
+        "axis": "z",
+        "injected": false,
+        "error": "Reset requires fresh, valid, armed Offboard state"
+      },
+      "audit": {
+        "kind": "estimator_reset",
+        "checks": {
+          "injected": false,
+          "fault_detection_after_injection": false,
+          "fault_latched": false,
+          "no_normal_bridge_samples_after_abort": true,
+          "task_not_reported_complete": true,
+          "onboard_armed_after_injection": false,
+          "onboard_landed_before_disarm": false,
+          "onboard_disarmed": false,
+          "real_requested_reset_observed": false,
+          "reset_reason": false,
+          "accepted_reset_command": false
+        },
+        "fault": "External Vision fusion unavailable or heartbeat stale",
+        "execution_response_ms": null,
+        "latch_response_ms": null,
+        "onboard_land_after_injection_s": null,
+        "onboard_disarm_after_injection_s": null,
+        "mission_disarm_confirmed": true,
+        "axis": "z",
+        "onboard_reset_changes": [],
+        "expected_fault_observed": false
+      }
+    },
+    {
+      "run": "acceptance_reset_z_20261020_02",
+      "baseline": {
+        "mode": "obstacle",
+        "exit_code": 1,
+        "failure": "",
+        "original_baseline_preserved": true,
+        "execution_sources_unchanged": true,
+        "verdict_scope": "Deliberate failure; onboard recovery audit, not normal mission completion"
+      },
+      "injection": {
+        "axis": "z",
+        "injected": false,
+        "error": "Reset requires fresh, valid, armed Offboard state"
+      },
+      "audit": {
+        "kind": "estimator_reset",
+        "checks": {
+          "injected": false,
+          "fault_detection_after_injection": false,
+          "fault_latched": false,
+          "no_normal_bridge_samples_after_abort": false,
+          "task_not_reported_complete": false,
+          "onboard_armed_after_injection": false,
+          "onboard_landed_before_disarm": false,
+          "onboard_disarmed": false,
+          "real_requested_reset_observed": false,
+          "reset_reason": false,
+          "accepted_reset_command": false
+        },
+        "fault": "",
+        "execution_response_ms": null,
+        "latch_response_ms": null,
+        "onboard_land_after_injection_s": null,
+        "onboard_disarm_after_injection_s": null,
+        "mission_disarm_confirmed": true,
+        "axis": "z",
+        "onboard_reset_changes": [],
+        "expected_fault_observed": false
+      }
+    }
+  ],
+  "all_selected_fault_recoveries_passed": true,
+  "software_validation": {
+    "python_tests_passed": 382,
+    "existing_warnings": 3,
+    "compiled_code_changed": false
+  }
+}

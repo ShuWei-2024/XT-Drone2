@@ -10,7 +10,7 @@ from flight_recovery import compact_mask
 def goal_region_mask(envelope, origin_xy, radius):
     origin_xy = np.asarray(origin_xy, float)
     if (origin_xy.shape != (2,) or not np.isfinite(origin_xy).all() or
-            not np.isfinite(radius) or not 3. <= radius <= 45.):
+            not np.isfinite(radius) or not 3. <= radius <= 50.):
         raise ValueError('Invalid waypoint display reference/radius')
     yy, xx = np.indices(envelope.guide_free.shape)
     lo = np.stack((xx, yy), axis=-1)*envelope.resolution+envelope.origin-origin_xy

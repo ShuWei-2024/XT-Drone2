@@ -388,7 +388,9 @@ void LIVMapper::initializeFiles()
                   << "pre_vx,pre_vy,pre_vz,pre_bax,pre_bay,pre_baz,pre_gravity_x,pre_gravity_y,pre_gravity_z,"
                   << "imu_vx,imu_vy,imu_vz,imu_bax,imu_bay,imu_baz,imu_gravity_x,imu_gravity_y,imu_gravity_z,"
                   << "update_vx,update_vy,update_vz,update_bax,update_bay,update_baz,"
-                  << "update_gravity_x,update_gravity_y,update_gravity_z\n";
+                  << "update_gravity_x,update_gravity_y,update_gravity_z,"
+                  << "sync_cut_points,undistorted_points,imu_initializing,odom_output_status,"
+                  << "odom_publish_begin_wall_ns,odom_publish_end_wall_ns\n";
     timing_audit_ << std::setprecision(12);
     input_callback_audit_.open(timing_audit_csv_ + ".inputs.csv", std::ios::out);
     if (!input_callback_audit_) throw std::runtime_error("Cannot open core input callback audit");
@@ -883,6 +885,8 @@ void LIVMapper::run(rclcpp::Node::SharedPtr &node, const volatile std::sig_atomi
     const bool audit = timing_audit_.is_open();
     int64_t measurement_ns = 0, sync_ready_ns = 0, imu_end_ns = 0;
     uint64_t odom_before = 0;
+    size_t sync_cut_points = 0, undistorted_points = 0;
+    bool imu_initializing = false;
     StatesGroup pre_imu_state, post_imu_state;
     std::chrono::steady_clock::time_point processing_start;
     CpuAuditSample cpu_start;
@@ -896,6 +900,8 @@ void LIVMapper::run(rclcpp::Node::SharedPtr &node, const volatile std::sig_atomi
       cpu_start = sampleCpuUsage();
       pre_imu_state = _state;
       odom_before = odom_published_;
+      sync_cut_points = LidarMeasures.pcl_proc_cur->size();
+      imu_initializing = p_imu->imu_need_init;
     }
     handleFirstFrame();
 
@@ -904,6 +910,7 @@ void LIVMapper::run(rclcpp::Node::SharedPtr &node, const volatile std::sig_atomi
     {
       imu_end_ns = this->node->get_clock()->now().nanoseconds();
       post_imu_state = _state;
+      undistorted_points = feats_undistort->size();
     }
 
     // if (!p_imu->imu_time_init) continue;
@@ -991,7 +998,15 @@ void LIVMapper::run(rclcpp::Node::SharedPtr &node, const volatile std::sig_atomi
       for (const StatesGroup *state : {&pre_imu_state, &post_imu_state, &_state})
         for (const V3D *value : {&state->vel_end, &state->bias_a, &state->gravity})
           timing_audit_ << ',' << value->x() << ',' << value->y() << ',' << value->z();
-      timing_audit_ << '\n';
+      const bool published = odom_published_ > odom_before;
+      const char *output_status = LidarMeasures.lio_vio_flg == VIO ? "not_odom_stage" :
+        published ? "published" : imu_initializing ? "imu_initializing" :
+        sync_cut_points == 0 ? "empty_cut" :
+        undistorted_points == 0 ? "empty_undistorted" : "no_odometry";
+      timing_audit_ << ',' << sync_cut_points << ',' << undistorted_points
+                    << ',' << imu_initializing << ',' << output_status
+                    << ',' << (published ? last_odom_publish_begin_wall_ns_ : -1)
+                    << ',' << (published ? last_odom_publish_end_wall_ns_ : -1) << '\n';
       last_audit_position_ = _state.pos_end;
       has_last_audit_position_ = true;
     }
@@ -1907,7 +1922,13 @@ void LIVMapper::publish_odometry(const rclcpp::Publisher<nav_msgs::msg::Odometry
   q.setZ(geoQuat.z);
   transform.setRotation(q);
   tf_broadcaster->sendTransform(geometry_msgs::msg::TransformStamped(createTransformStamped(transform, odomAftMapped.header.stamp, "camera_init", odom_child_frame)));
+  if (timing_audit_.is_open())
+    last_odom_publish_begin_wall_ns_ = std::chrono::duration_cast<std::chrono::nanoseconds>(
+      std::chrono::steady_clock::now().time_since_epoch()).count();
   pubOdomAftMapped->publish(odomAftMapped);
+  if (timing_audit_.is_open())
+    last_odom_publish_end_wall_ns_ = std::chrono::duration_cast<std::chrono::nanoseconds>(
+      std::chrono::steady_clock::now().time_since_epoch()).count();
   ++odom_published_;
 }
 

@@ -30,6 +30,26 @@ def test_repeated_directions_preserved():
     assert module.load_route(path) == [[5,3],[0,0],[5,-3],[0,0],[5,3],[0,0],[5,-3],[0,0]]
 
 
+@pytest.mark.parametrize('value,expected', [(.04,.04),(1e-6,1e-6),(0.,0.)])
+def test_vio_planar_correction_limit_accepts_bounded_values(value,expected):
+    assert module.validate_vio_max_planar_correction(value)==expected
+
+
+@pytest.mark.parametrize('value', [float('nan'),float('inf'),-.001,.5001,True,'0.04'])
+def test_vio_planar_correction_limit_rejects_invalid_values(value):
+    with pytest.raises(ValueError):module.validate_vio_max_planar_correction(value)
+
+
+@pytest.mark.parametrize('value,expected', [(-.012,-.012),(0.,0.),(.05,.05)])
+def test_img_time_offset_accepts_bounded_diagnostic_values(value,expected):
+    assert module.validate_img_time_offset(value)==expected
+
+
+@pytest.mark.parametrize('value', [float('nan'),float('inf'),-.050001,.050001,True,'-.012'])
+def test_img_time_offset_rejects_out_of_range_values(value):
+    with pytest.raises(ValueError):module.validate_img_time_offset(value)
+
+
 @pytest.mark.parametrize('args', [
     ['gz sim','-s','-r','world.sdf'], ['gz','sim','-s'],
     ['gz sim -s -r /home/cyf/dev/XT-Drone2-astra/astra/runtime/example/test_world.sdf'],
