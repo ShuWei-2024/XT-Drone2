@@ -2,6 +2,8 @@
 
 [返回实物索引](README.md) · [DDS 话题手册](../DDS_Topics_Manual.md)
 
+Offboard 是 PX4 官方飞行模式，消息定义和模式切换由 PX4 规定；本项目实现轨迹采样、坐标转换及保护。详细流程见[Offboard 接口与模式切换](../architecture/OFFBOARD.md)，运行组织见[进程与线程](../architecture/PROCESSES.md)。
+
 ```text
 ROS 2 节点
   <-> px4_msgs
