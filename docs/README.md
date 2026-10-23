@@ -1,17 +1,39 @@
 # 文档索引
 
-本页集中列出使用文档、模块入口与专题报告。首页提供常用构建、测试和启动命令；查详细流程时按下表直接进入对应条目。
+本页集中列出使用文档、模块入口与专题报告。项目文档分为两条部署线：**仿真线**用于 Gazebo/PX4 SITL 验收，**实物线**用于真实传感器、飞控和分级飞行迁移。两条线共享架构和 ROS 2 接口，但实物参数、外参、时间和安全结论必须重新确认。
 
-## 使用与维护
+## 仿真线
 
 | 文档 | 内容 |
 | --- | --- |
-| [安装教程](QUICKSTART.md) | 系统依赖、PX4/DDS Agent、ROS 构建、室外与室内地图准备 |
-| [操作指南](OPERATIONS.md) | RViz2/Gazebo、航点任务、自动路线、运行记录与排障 |
-| [架构与接口](ARCHITECTURE.md) | 各模块的输入、处理、输出，话题、坐标和控制权 |
+| [仿真文档总览](simulation/README.md) | 仿真阶段顺序和各专题入口 |
+| [仿真安装与快速启动](QUICKSTART.md) | Ubuntu、ROS 2 Jazzy、PX4 1.17 SITL、Gazebo、地图和构建 |
+| [仿真操作与排障](OPERATIONS.md) | RViz2/Gazebo、航点任务、自动路线、运行记录与故障定位 |
+| [仿真架构与接口](ARCHITECTURE.md) | Gazebo 传感器、FAST-LIVO2、地图、规划、执行桥和 PX4 接口 |
+| [仿真验证报告总览](../astra/validation/README.md) | SITL 成功、失败、适用范围和剩余验收项 |
+
+## 实物线
+
+| 文档 | 内容 |
+| --- | --- |
+| [实物文档总览](hardware/README.md) | 实物迁移阶段顺序和前置条件 |
+| [实物文档总览](hardware/README.md) | PX4 1.17 固件、Agent 通信、真实传感器、外参、分阶段上电与飞行 |
+| [DDS 话题手册](DDS_Topics_Manual.md) | PX4 uXRCE-DDS 输入输出消息和标准 Offboard 接口 |
+
+## 共享开发与维护
+
+| 文档 | 内容 |
+| --- | --- |
+| [架构与接口](ARCHITECTURE.md) | 两条部署线共用的数据流、话题、坐标、时间和控制权 |
 | [开发规范](DEVELOPMENT.md) | 目录职责、回归方法、隔离运行、Git 工作流与许可 |
 | [项目接手上下文](PROJECT_CONTEXT.md) | 项目目标、技术决策、当前状态与后续任务，供人员或 AI 接手 |
-| [验证报告总览](../astra/validation/README.md) | 验证状态、历史报告、成功和失败证据及适用范围 |
+
+## 架构与证据
+
+| 文档 | 内容 |
+| --- | --- |
+| [共享架构索引](architecture/README.md) | 仿真和实物共用的数据流、坐标、时间与控制权 |
+| [仿真验证报告总览](../astra/validation/README.md) | SITL 验收、故障记录和证据边界 |
 
 ## 模块入口
 

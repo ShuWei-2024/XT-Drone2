@@ -1,8 +1,17 @@
-# Astra · ROS 2 自主飞行仿真
+# Astra · ROS 2 自主飞行系统
 
-基于 ShuWei-2024/XT-Drone2，集成等效 Mid-360、RGB 相机与 IMU，实现定位、局部建图、航点规划和受保护的 PX4 闭环飞行。当前开发分支：`astra/px4-1.17`。
+基于 ShuWei-2024/XT-Drone2，集成 Mid-360、RGB 相机与 IMU 输入、FAST-LIVO2、局部建图、EGO-Planner 和 PX4 1.17。文档明确分为仿真和实物两条线；当前分支：`astra/px4-1.17`。
 
-## 环境与组成
+## 两条部署线
+
+| 部署线 | 作用 | 入口 |
+| --- | --- | --- |
+| 仿真 | Gazebo + PX4 SITL 中验证定位、建图、规划、执行桥、故障保护和验收证据 | [仿真文档总览](docs/simulation/README.md) |
+| 实物 | 官方 PX4 1.17 + 真实 Mid-360/D435i/IMU + 伴随计算机的分阶段迁移与飞行 | [实物文档总览](docs/hardware/README.md) |
+
+两条线共享 ROS 2 话题、规划器和执行桥接口；真实设备必须重新确认驱动、时间戳、外参、性能、PX4 参数和安全行为。不要把仿真参数直接当成实物配置。
+
+## 仿真基线与组成
 
 | 组件 | 当前配置 |
 | --- | --- |
@@ -66,7 +75,7 @@ bash astra/run_117.bash static static_$(date +%Y%m%d_%H%M%S) --seconds 60
 
 静止检查不解锁，结果写入 `astra/runtime/<运行名>/`。回归和静止检查通过后，还需按场景进行闭环飞行验收；详细审计及可选规划器回归见开发文档。
 
-## 启动使用
+## 仿真启动使用
 
 ### 1. 启动项目与 RViz2
 
@@ -115,7 +124,7 @@ GZ_PARTITION=astra_px4_117 gz sim -g
 
 室内 Replica office4 已准备好时，可使用 `bash astra/rviz_flight_117.bash`，同样自动打开 RViz2 和任务窗口。
 
-## 验证状态
+## 仿真验证状态
 
 以下依据截至 2026-10-21 的运行证据，完整指标与失败记录见验证报告。
 
@@ -137,9 +146,13 @@ GZ_PARTITION=astra_px4_117 gz sim -g
 
 | 文档 | 查阅内容 |
 | --- | --- |
-| [安装教程](docs/QUICKSTART.md) | 系统依赖、PX4/DDS Agent、构建与地图准备 |
-| [操作指南](docs/OPERATIONS.md) | RViz2/Gazebo 操作、自动测试、运行记录与排障 |
-| [架构与接口](docs/ARCHITECTURE.md) | 各模块流程、话题、坐标、时间同步与控制权 |
+| [仿真文档总览](docs/simulation/README.md) | 仿真阶段、环境、构建、启动、验收与排障 |
+| [仿真安装与快速启动](docs/QUICKSTART.md) | 系统依赖、PX4 SITL、构建、地图与启动 |
+| [仿真操作指南](docs/OPERATIONS.md) | RViz2/Gazebo 操作、自动测试、运行记录与排障 |
+| [实物文档总览](docs/hardware/README.md) | 实物框架、硬件、环境、话题、标定、飞前和飞行 |
+| [实物文档总览](docs/hardware/README.md) | 飞控通信、真实传感器、外参、分阶段验证与安全边界 |
+| [共享架构索引](docs/architecture/README.md) | 两条部署线共用的数据流、坐标、时间和控制权 |
+| [架构与接口](docs/ARCHITECTURE.md) | 两条部署线共用的模块流程、话题、坐标、时间同步与控制权 |
 | [开发规范](docs/DEVELOPMENT.md) | 源码目录、回归方法、Git 工作流与依赖许可 |
 | [验证报告](astra/validation/README.md) | 指定路线的精度、安全距离、延迟、成功与失败证据 |
 | [人员 / AI 接手上下文](docs/PROJECT_CONTEXT.md) | 项目目标、技术决策、当前状态和后续任务 |
