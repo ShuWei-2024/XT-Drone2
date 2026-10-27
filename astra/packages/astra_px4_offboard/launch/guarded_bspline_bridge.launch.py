@@ -14,12 +14,14 @@ def generate_launch_description():
         DeclareLaunchArgument('enable_px4_output', default_value='false'),
         DeclareLaunchArgument('px4_namespace', default_value=''),
         DeclareLaunchArgument('freeze_tracking_yaw', default_value='false'),
+        DeclareLaunchArgument('use_sim_time', default_value='true'),
         Node(
             package='astra_px4_offboard',
             executable='guarded_bspline_bridge.py',
             name='guarded_bspline_bridge',
             parameters=[{
-                'use_sim_time': True,
+                'use_sim_time': ParameterValue(
+                    LaunchConfiguration('use_sim_time'), value_type=bool),
                 'px4_namespace': ParameterValue(LaunchConfiguration('px4_namespace'), value_type=str),
                 'enable_px4_output': ParameterValue(enabled, value_type=bool),
                 'sitl_only': True,

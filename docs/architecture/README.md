@@ -11,6 +11,7 @@
 | [进程、线程与 ROS 2 职责](PROCESSES.md) | 核心 5/6 个业务进程、完整仿真清单与实际数量查询 |
 | [DDS 话题手册](../DDS_Topics_Manual.md) | PX4 uXRCE-DDS 输入输出消息 |
 | [项目接手上下文](../PROJECT_CONTEXT.md) | 当前目标、决策、证据和未完成项 |
+| [统一启动入口](../../astra/packages/astra_bringup/README.md) | `sim.launch.py` 与 `hardware.launch.py` 的职责和参数 |
 
 ## 共同数据流
 

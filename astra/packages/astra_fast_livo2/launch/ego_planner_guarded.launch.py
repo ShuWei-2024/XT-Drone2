@@ -28,6 +28,7 @@ def generate_launch_description():
         DeclareLaunchArgument('lock_height', default_value='false'),
         DeclareLaunchArgument('map_size_xy_m', default_value='16.0'),
         DeclareLaunchArgument('require_execution_envelope', default_value='false'),
+        DeclareLaunchArgument('use_sim_time', default_value='true'),
         Node(
             package='ego_planner',
             executable='ego_planner_node',
@@ -40,7 +41,8 @@ def generate_launch_description():
                 ('planning/bspline', '/planning/bspline'),
             ],
             parameters=[{
-                'use_sim_time': True,
+                'use_sim_time': ParameterValue(
+                    LaunchConfiguration('use_sim_time'), value_type=bool),
                 'visualization/frame_id': 'camera_init',
                 'fsm/flight_type': 1,
                 'fsm/thresh_replan_time': 1.0,

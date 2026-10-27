@@ -1,0 +1,26 @@
+/**:
+  ros__parameters:
+    # Replace these with the actual driver topics after inspecting ros2 topic list.
+    lidar_topic: /livox/lidar
+    image_topic: /camera/color/image_raw
+    camera_info_topic: /camera/color/camera_info
+    imu_topic: /livox/imu
+
+    output_lidar_topic: /fast_livo2/input/lidar
+    output_livox_topic: /fast_livo2/input/livox_custom
+    output_image_topic: /fast_livo2/input/image
+    output_camera_info_topic: /fast_livo2/input/camera_info
+    output_imu_topic: /fast_livo2/input/imu
+    diagnostics_topic: /fast_livo2/diagnostics
+
+    lidar_frame_id: mid360_scan_frame
+    image_frame_id: camera_color_optical_frame
+    imu_frame_id: imu_link
+    scan_period_sec: 0.1
+    point_time_mode: synthetic_scan
+    publish_livox_custom: true
+    publish_unsynced_image: true
+    reliable_image_subscription: false
+    reliable_lidar_subscription: false
+    reliable_imu_subscription: false
+    reliable_synced_inputs: false

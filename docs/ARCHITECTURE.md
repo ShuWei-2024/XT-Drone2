@@ -31,6 +31,7 @@ flowchart TD
 
 | 模块 | 输入 → 处理 → 输出 | 实现入口 |
 | --- | --- | --- |
+| 统一启动 | `sim.launch.py` / `hardware.launch.py` → 选择时钟、驱动和模块组合 → 可回退的 ROS 2 启动图 | [astra_bringup](../astra/packages/astra_bringup/README.md) |
 | 启动与隔离 | 模式/场景/路线 → 检查依赖、独立 rootfs、启动/清理所属进程 → 运行证据 | [run_sitl_117.py](../astra/tools/run_sitl_117.py)、`xtd2_launch` |
 | 传感器 | 场景与飞机运动 → Gazebo 渲染/桥接 → LiDAR/RGB/IMU | [astra_gz_sensors](../astra/packages/astra_gz_sensors/README.md) |
 | 适配与定位 | 原始传感器 → 点时间模型、RGB/IMU 同步、LIO/VIO → odom、配准点云 | [astra_fast_livo2](../astra/packages/astra_fast_livo2/README.md)、`astra_fast_livo2_core` |

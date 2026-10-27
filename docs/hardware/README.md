@@ -12,6 +12,7 @@
 | 2 | [硬件信息](02_hardware.md) | 型号、接线、供电和安装记录 |
 | 3 | [PX4 固件与烧录](03_px4_firmware.md) | 硬件 target、固件、参数基线和回滚方式 |
 | 4 | [RK3588 环境](04_rk3588_setup.md) | OS、ROS 2、依赖、Agent 和启动环境 |
+| 4a | [统一启动入口](../../astra/packages/astra_bringup/README.md) | 仿真/实物 launch、真实传感器接入位置和控制输出默认值 |
 | 5 | [传感器驱动](05_sensor_setup.md) | Mid-360、D435i、IMU 话题和时间源 |
 | 6 | [ROS 2 与 DDS 话题](06_ros_dds_topics.md) | 消息类型、发布者、订阅者、坐标和频率 |
 | 7 | [标定与时间同步](07_calibration.md) | TF、外参、时间配对和高度基准 |
