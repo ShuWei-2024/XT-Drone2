@@ -12,6 +12,7 @@
 | 2 | [硬件信息](02_hardware.md) | 型号、接线、供电和安装记录 |
 | 3 | [PX4 固件与烧录](03_px4_firmware.md) | 硬件 target、固件、参数基线和回滚方式 |
 | 4 | [RK3588 环境](04_rk3588_setup.md) | OS、ROS 2、依赖、Agent 和启动环境 |
+| 4a | [统一启动入口](../../astra/packages/astra_bringup/README.md) | 仿真/实物 launch、真实传感器接入位置和控制输出默认值 |
 | 5 | [传感器驱动](05_sensor_setup.md) | Mid-360、D435i、IMU 话题和时间源 |
 | 6 | [ROS 2 与 DDS 话题](06_ros_dds_topics.md) | 消息类型、发布者、订阅者、坐标和频率 |
 | 7 | [标定与时间同步](07_calibration.md) | TF、外参、时间配对和高度基准 |
@@ -29,4 +30,4 @@
 - PX4 External Vision 的实际融合状态；
 - 失联、低电量、定位丢失和人工接管行为。
 
-当前项目没有自定义 PX4 源码补丁；实物先使用官方 PX4 1.17 固件，只有标准接口无法满足已确认需求时才增加源码变更。
+实物先以官方 PX4 1.17 固件为基线。仿真构建存在 POSIX HRT、Gazebo 磁力计及 DDS 频率补丁，不能笼统称为“完全没有修改 PX4”；实物适用范围和构建边界见[固件与烧录](03_px4_firmware.md)。

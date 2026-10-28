@@ -4,6 +4,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
@@ -17,6 +18,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         DeclareLaunchArgument('max_lidar_image_delta_sec', default_value='0.03'),
+        DeclareLaunchArgument('adapter_config', default_value=adapter_params),
         DeclareLaunchArgument('max_total_visual_points', default_value='5000'),
         DeclareLaunchArgument('max_retained_images', default_value='512'),
         DeclareLaunchArgument('timing_audit_csv', default_value=''),
@@ -33,11 +35,14 @@ def generate_launch_description():
         DeclareLaunchArgument('reliable_synced_inputs', default_value='true'),
         DeclareLaunchArgument('reliable_lidar_subscription', default_value='true'),
         DeclareLaunchArgument('reliable_imu_subscription', default_value='true'),
+        DeclareLaunchArgument('use_sim_time', default_value='true'),
+        DeclareLaunchArgument('enable_clock_bridge', default_value='true'),
         DeclareLaunchArgument('estimator_config', default_value=estimator_params),
         Node(
             package='ros_gz_bridge',
             executable='parameter_bridge',
             name='astra_clock_bridge',
+            condition=IfCondition(LaunchConfiguration('enable_clock_bridge')),
             arguments=['/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'],
             output='screen',
         ),
@@ -45,8 +50,9 @@ def generate_launch_description():
             package='astra_fast_livo2',
             executable='astra_fast_livo2_adapter.py',
             name='astra_fast_livo2_adapter',
-            parameters=[adapter_params, {
-                'use_sim_time': True,
+            parameters=[LaunchConfiguration('adapter_config'), {
+                'use_sim_time': ParameterValue(
+                    LaunchConfiguration('use_sim_time'), value_type=bool),
                 'publish_livox_custom': False,
                 'publish_unsynced_image': False,
                 'reliable_image_subscription': True,
@@ -76,7 +82,8 @@ def generate_launch_description():
                 'GOMP_SPINCOUNT': LaunchConfiguration('openmp_spin_count'),
             },
             parameters=[LaunchConfiguration('estimator_config'), {
-                'use_sim_time': True,
+                'use_sim_time': ParameterValue(
+                    LaunchConfiguration('use_sim_time'), value_type=bool),
                 'common.reliable_synced_inputs': ParameterValue(
                     LaunchConfiguration('reliable_synced_inputs'), value_type=bool),
                 'preprocess.gazebo_snapshot': ParameterValue(PythonExpression([

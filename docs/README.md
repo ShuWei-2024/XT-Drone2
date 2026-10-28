@@ -33,6 +33,8 @@
 | 文档 | 内容 |
 | --- | --- |
 | [共享架构索引](architecture/README.md) | 仿真和实物共用的数据流、坐标、时间与控制权 |
+| [Offboard 接口与切换](architecture/OFFBOARD.md) | PX4 官方消息、模式切换与控制权交接 |
+| [进程、线程与 ROS 2 职责](architecture/PROCESSES.md) | 应用进程清单、线程结构、调度与运行检查 |
 | [仿真验证报告总览](../astra/validation/README.md) | SITL 验收、故障记录和证据边界 |
 
 ## 模块入口

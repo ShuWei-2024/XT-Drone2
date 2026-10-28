@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>astra_bringup</name>
+  <version>0.1.0</version>
+  <description>Unified simulation and hardware launch entry points for Astra.</description>
+  <maintainer email="cyf@todo.invalid">Astra development team</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>astra_fast_livo2</exec_depend>
+  <exec_depend>astra_fast_livo2_core</exec_depend>
+  <exec_depend>astra_px4_offboard</exec_depend>
+  <exec_depend>astra_gz_sensors</exec_depend>
+  <exec_depend>xtd2_launch</exec_depend>
+  <exec_depend>ego_planner</exec_depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
